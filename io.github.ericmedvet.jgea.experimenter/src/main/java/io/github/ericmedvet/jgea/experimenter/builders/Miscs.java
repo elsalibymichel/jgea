@@ -39,6 +39,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
@@ -94,6 +95,12 @@ public class Miscs {
     } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static BinaryOperator<Double> lossyAverage(@Param(value = "w", dD = 0.5d) double w) {
+    return (old, current) -> w * old + (1d - w) * current;
   }
 
   @SuppressWarnings("unused")

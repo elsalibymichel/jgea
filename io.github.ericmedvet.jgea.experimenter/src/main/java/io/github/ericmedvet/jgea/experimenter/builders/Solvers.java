@@ -35,6 +35,7 @@ import io.github.ericmedvet.jgea.core.representation.graph.numeric.operatorgraph
 import io.github.ericmedvet.jgea.core.selector.Last;
 import io.github.ericmedvet.jgea.core.selector.Tournament;
 import io.github.ericmedvet.jgea.core.solver.*;
+import io.github.ericmedvet.jgea.core.solver.bi.StandardBiEvolver;
 import io.github.ericmedvet.jgea.core.solver.cabea.CellularAutomataBasedSolver;
 import io.github.ericmedvet.jgea.core.solver.cabea.SubstrateFiller;
 import io.github.ericmedvet.jgea.core.solver.es.CMAEvolutionaryStrategy;
@@ -56,6 +57,7 @@ import io.github.ericmedvet.jnb.datastructure.Pair;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.DoubleStream;
 
@@ -206,6 +208,40 @@ public class Solvers {
           remap);
     };
   }
+
+
+
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static <G, S, Q, O> Function<S, StandardBiEvolver<G, S, Q, O>> gaBi(
+      @Param(value = "name", dS = "gaBi") String name,
+      @Param("representation") Function<G, Representation<G>> representation,
+      @Param(value = "mapper", dNPM = "ea.m.identity()") InvertibleMapper<G, S> mapper,
+      @Param(value = "crossoverP", dD = 0.8d) double crossoverP,
+      @Param(value = "tournamentRate", dD = 0.05d) double tournamentRate,
+      @Param(value = "minNTournament", dI = 3) int minNTournament,
+      @Param(value = "nPop", dI = 100) int nPop,
+      @Param(value = "nEval", dI = 1000) int nEval,
+      @Param(value = "maxUniquenessAttempts", dI = 100) int maxUniquenessAttempts,
+      @Param("fitnessReducer") BinaryOperator<Q> fitnessReducer){
+    return exampleS -> {
+      Representation<G> r = representation.apply(mapper.exampleFor(exampleS));
+      return new StandardBiEvolver<>(
+          mapper.mapperFor(exampleS),
+          r.factory(),
+          nPop,
+          StopConditions.nOfFitnessEvaluations(nEval),
+          r.geneticOperators(crossoverP),
+          new Tournament(Math.max(minNTournament, (int) Math.ceil((double) nPop * tournamentRate))),
+          new Last(),
+          nPop,
+          true,
+          maxUniquenessAttempts,
+          fitnessReducer);
+    };
+  }
+
+
 
   @SuppressWarnings("unused")
   @Cacheable
