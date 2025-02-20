@@ -19,7 +19,6 @@
  */
 package io.github.ericmedvet.jgea.experimenter.drawer;
 
-import io.github.ericmedvet.jgea.core.operator.Mutation;
 import io.github.ericmedvet.jgea.core.order.ParetoDominance;
 import io.github.ericmedvet.jgea.core.order.PartialComparator;
 import io.github.ericmedvet.jgea.core.representation.programsynthesis.InstrumentedProgram;
@@ -37,12 +36,12 @@ import io.github.ericmedvet.jgea.problem.programsynthesis.ProgramSynthesisProble
 import io.github.ericmedvet.jgea.problem.programsynthesis.synthetic.PrecomputedSyntheticPSProblem;
 import io.github.ericmedvet.jnb.core.NamedBuilder;
 import io.github.ericmedvet.jnb.datastructure.DoubleRange;
+import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.random.RandomGenerator;
-import java.util.stream.IntStream;
 
 public class TTPNMain {
 
@@ -70,33 +69,27 @@ public class TTPNMain {
         List.of(
             Gate.input(Composed.sequence(Base.INT)),
             Gates.splitter(),
-            Gates.iSPSum(),
+            Gates.iToR(),
+            Gates.rSPSum(),
+            Gates.rToI(),
             Gate.output(Base.INT)
         ),
         Set.of(
             Wire.of(0, 0, 1, 0),
             Wire.of(1, 0, 2, 0),
             Wire.of(2, 0, 3, 0),
-            Wire.of(2, 0, 2, 1)
+            Wire.of(3, 0, 4, 0),
+            Wire.of(3, 0, 3, 1),
+            Wire.of(4, 0, 5, 0)
         )
     );
     TTPNDrawer drawer = new TTPNDrawer(TTPNDrawer.Configuration.DEFAULT);
-    drawer.show(n);
+    //drawer.show(n);
     Runner runner = new Runner(1000, 1000, 1000, 100, false);
-    InstrumentedProgram ttpnProgram = runner.asInstrumentedProgram(n);
-    List<Object> sampleInputs = List.of(List.of(1, 2, 4));
-    System.out.printf("target:  %s%n", target.safelyRun(sampleInputs));
-    System.out.printf("ttpn:    %s%n", ttpnProgram.safelyRun(sampleInputs));
-    System.out.printf("ttpn:    %s%n", ttpnProgram.safelyRun(sampleInputs));
-    RandomGenerator rnd = new Random(3);
-    Mutation<Network> giMutation = new GateInserterMutation(new LinkedHashSet<>(StatsMain.ALL_GATES), 10, 10, true);
-    Mutation<Network> grMutation = new GateRemoverMutation(10, true);
-    Network mutated = giMutation.mutate(n, rnd);
-    drawer.show(mutated);
-    System.out.printf("mutated: %s%n", runner.run(mutated, sampleInputs));
-    IntStream.range(0, 100).forEach(i -> {
-      System.out.printf("%3d -> %s%n", i, runner.run(grMutation.mutate(mutated, rnd), sampleInputs));
-    });
+    Runner.TTPNInstrumentedOutcome outcome = runner.run(n, List.of(List.of(1, 2, 3, 4, 5, 6, 7, 8)));
+    TTPNOutcomeVideoBuilder videoBuilder = new TTPNOutcomeVideoBuilder(TTPNOutcomeVideoBuilder.Configuration.DEFAULT);
+    videoBuilder.save(new File("../ttpn-iArrayMax.mp4"), outcome);
+    System.out.println(outcome);
   }
 
   private static void doComputationStuff() throws NoSuchMethodException, ProgramExecutionException, NetworkStructureException, TypeException {
@@ -304,8 +297,8 @@ public class TTPNMain {
     //doComputationStuff();
     //comparator();
     //xover();
-    //iArraySum();
-    iBiMax();
+    iArraySum();
+    //iBiMax();
   }
 
   private static void weirdOne() throws NetworkStructureException, TypeException {
@@ -368,7 +361,7 @@ public class TTPNMain {
         )
     );
     TTPNDrawer drawer = new TTPNDrawer(TTPNDrawer.Configuration.DEFAULT);
-    drawer.show(goodNetwork);
+    //drawer.show(goodNetwork);
     Runner runner = new Runner(100, 100, 100, 100, false);
     // check
     psb.caseProvider()
@@ -381,7 +374,10 @@ public class TTPNMain {
                 runner.run(goodNetwork, e.input()).outputs()
             )
         );
-    System.out.println(runner.run(goodNetwork, List.of(3, 4)));
+    Runner.TTPNInstrumentedOutcome outcome = runner.run(goodNetwork, List.of(3, 4));
+    System.out.println(outcome);
+    TTPNOutcomeVideoBuilder videoBuilder = new TTPNOutcomeVideoBuilder(TTPNOutcomeVideoBuilder.Configuration.DEFAULT);
+    videoBuilder.save(new File("../ttpn-iBiMax.mp4"), outcome);
   }
 
 }
