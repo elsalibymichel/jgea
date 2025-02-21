@@ -22,8 +22,11 @@ package io.github.ericmedvet.jgea.experimenter.builders;
 
 import io.github.ericmedvet.jgea.core.problem.*;
 import io.github.ericmedvet.jgea.core.util.Misc;
-import io.github.ericmedvet.jnb.core.*;
+import io.github.ericmedvet.jnb.core.Cacheable;
+import io.github.ericmedvet.jnb.core.Discoverable;
+import io.github.ericmedvet.jnb.core.Param;
 import io.github.ericmedvet.jnb.datastructure.NamedFunction;
+import io.github.ericmedvet.jnb.datastructure.Pair;
 import io.github.ericmedvet.jsdynsym.control.Simulation;
 import java.util.*;
 import java.util.function.Function;
@@ -59,6 +62,8 @@ public class Problems {
     return mtProblem.toMHOProblem();
   }
 
+  @SuppressWarnings("unused")
+  @Cacheable
   public static <S, B extends Simulation.Outcome<BS>, BS, O extends Comparable<O>> SimpleBBMOProblem<S, B, O> simToSbbmo(
       @Param(value = "name", iS = "{simulation.name}") String name,
       @Param("simulation") Simulation<S, BS, B> simulation,
@@ -104,6 +109,58 @@ public class Problems {
       @Override
       public String toString() {
         return "%s[%s]".formatted(name, String.join(";", behaviorObjectives.keySet()));
+      }
+    };
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static <S, B extends Simulation.Outcome<BS>, BS, O extends Comparable<O>> SimpleMOProblem<S, O> simToSmo(
+      @Param(value = "name", iS = "{simulation.name}") String name,
+      @Param("simulation") Simulation<S, BS, B> simulation,
+      @Param("toMinObjectives") List<Function<B, O>> toMinObjectives,
+      @Param("toMaxObjectives") List<Function<B, O>> toMaxObjectives
+  ) {
+    Function<S, B> simulationFunction = simulation::simulate;
+    Function<B, SequencedMap<String, O>> objectivesFunction = b -> Stream.concat(
+        toMinObjectives.stream(),
+        toMaxObjectives.stream()
+    )
+        .collect(
+            Misc.toSequencedMap(
+                NamedFunction::name,
+                f -> f.apply(b)
+            )
+        );
+    SequencedMap<String, Comparator<O>> comparators = Stream.concat(
+        toMinObjectives.stream().map(f -> new Pair<>(f, ((Comparator<O>) Comparable::compareTo))),
+        toMaxObjectives.stream().map(f -> new Pair<>(f, ((Comparator<O>) Comparable::compareTo).reversed()))
+    )
+        .collect(
+            Misc.toSequencedMap(
+                p -> NamedFunction.name(p.first()),
+                Pair::second
+            )
+        );
+    return new SimpleMOProblem<S, O>() {
+      @Override
+      public SequencedMap<String, Comparator<O>> comparators() {
+        return comparators;
+      }
+
+      @Override
+      public Optional<S> example() {
+        return simulation.example();
+      }
+
+      @Override
+      public Function<S, SequencedMap<String, O>> qualityFunction() {
+        return simulationFunction.andThen(objectivesFunction);
+      }
+
+      @Override
+      public String toString() {
+        return "%s[%s]".formatted(name, String.join(";", comparators.keySet()));
       }
     };
   }
