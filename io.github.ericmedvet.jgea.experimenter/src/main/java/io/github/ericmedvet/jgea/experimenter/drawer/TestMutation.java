@@ -35,14 +35,14 @@ public class TestMutation {
       String[] args
   ) throws NetworkStructureException, ProgramExecutionException, NoSuchMethodException, TypeException {
     //biLongestString();
-    //rIntSum();
-    //iArraySum();
-    //iBiMax();
-    //iTriMax();
-    //vScProduct();
-    //sLengther();
-    //triLongestString();
-    vProduct();
+//    rIntSum();
+//    iArraySum();
+//    iBiMax();
+//    iTriMax();
+//    vScProduct();
+    sLengther();
+//    triLongestString();
+//    vProduct();
   }
 
   private static void rIntSum() throws NetworkStructureException, TypeException {
@@ -81,22 +81,22 @@ public class TestMutation {
     for (int i = 0; i < 10; i++) {
       Network mutated = giMutation.mutate(goodNetwork, rnd);
       //drawer.show(mutated);
-      System.out.print(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
+      System.out.println(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
     }
 
     System.out.println();
     System.out.println("rIntSum - Gate Remover Mutation");
     for (int i = 0; i < 10; i++) {
       Network mutated = grMutation.mutate(goodNetwork, rnd);
-      //drawer.show(mutated);
-      System.out.print(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
+      drawer.show(mutated);
+      System.out.println(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
     }
 
     System.out.println();
     System.out.println("rIntSum - Wire Swapper Mutation");
     for (int i = 0; i < 10; i++) {
       Network mutated = wsMutation.mutate(goodNetwork, rnd);
-      drawer.show(mutated);
+      //drawer.show(mutated);
       System.out.print(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
 
     }
@@ -147,22 +147,22 @@ public class TestMutation {
     for (int i = 0; i < 10; i++) {
       Network mutated = giMutation.mutate(goodNetwork, rnd);
       //drawer.show(mutated);
-      System.out.print(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
+      System.out.println(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
     }
 
     System.out.println();
     System.out.println("biLongestString - Gate Remover Mutation");
     for (int i = 0; i < 10; i++) {
       Network mutated = grMutation.mutate(goodNetwork, rnd);
-      //drawer.show(mutated);
-      System.out.print(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
+      drawer.show(mutated);
+      System.out.println(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
     }
 
     System.out.println();
     System.out.println("biLongestString - Wire Swapper Mutation");
     for (int i = 0; i < 10; i++) {
       Network mutated = wsMutation.mutate(goodNetwork, rnd);
-      drawer.show(mutated);
+      //drawer.show(mutated);
       System.out.print(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
 
     }
@@ -209,15 +209,15 @@ public class TestMutation {
     System.out.println("iArraySum - Gate Remover Mutation");
     for (int i = 0; i < 10; i++) {
       Network mutated = grMutation.mutate(goodNetwork, rnd);
-      //drawer.show(mutated);
-      System.out.print(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
+      drawer.show(mutated);
+      System.out.println(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
     }
 
     System.out.println();
     System.out.println("iArraySum - Wire Swapper Mutation");
     for (int i = 0; i < 10; i++) {
       Network mutated = wsMutation.mutate(goodNetwork, rnd);
-      drawer.show(mutated);
+      //drawer.show(mutated);
       System.out.print(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
 
     }
@@ -266,15 +266,15 @@ public class TestMutation {
     System.out.println("iBiMax - Gate Remover Mutation");
     for (int i = 0; i < 10; i++) {
       Network mutated = grMutation.mutate(goodNetwork, rnd);
-      //drawer.show(mutated);
-      System.out.print(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
+      drawer.show(mutated);
+      System.out.println(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
     }
 
     System.out.println();
     System.out.println("iBiMax - Wire Swapper Mutation");
     for (int i = 0; i < 10; i++) {
       Network mutated = wsMutation.mutate(goodNetwork, rnd);
-      drawer.show(mutated);
+      //drawer.show(mutated);
       System.out.print(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
 
     }
@@ -332,15 +332,15 @@ public class TestMutation {
     System.out.println("iTriMax - Gate Remover Mutation");
     for (int i = 0; i < 10; i++) {
       Network mutated = grMutation.mutate(goodNetwork, rnd);
-      //drawer.show(mutated);
-      System.out.print(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
+      drawer.show(mutated);
+      System.out.println(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
     }
 
     System.out.println();
     System.out.println("iTriMax - Wire Swapper Mutation");
     for (int i = 0; i < 10; i++) {
       Network mutated = wsMutation.mutate(goodNetwork, rnd);
-      drawer.show(mutated);
+      //drawer.show(mutated);
       System.out.print(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
 
     }
@@ -395,15 +395,15 @@ public class TestMutation {
     System.out.println("vScProduct - Gate Remover Mutation");
     for (int i = 0; i < 10; i++) {
       Network mutated = grMutation.mutate(goodNetwork, rnd);
-      //drawer.show(mutated);
-      System.out.print(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
+      drawer.show(mutated);
+      System.out.println(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
     }
 
     System.out.println();
     System.out.println("vScProduct - Wire Swapper Mutation");
     for (int i = 0; i < 10; i++) {
       Network mutated = wsMutation.mutate(goodNetwork, rnd);
-      drawer.show(mutated);
+      //drawer.show(mutated);
       System.out.print(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
 
     }
@@ -457,17 +457,28 @@ public class TestMutation {
     System.out.println("sLengther - Gate Remover Mutation");
     for (int i = 0; i < 10; i++) {
       Network mutated = grMutation.mutate(goodNetwork, rnd);
-      //drawer.show(mutated);
-      System.out.print(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
+      drawer.show(mutated);
+      System.out.println(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
     }
 
     System.out.println();
     System.out.println("sLengther - Wire Swapper Mutation");
     for (int i = 0; i < 10; i++) {
       Network mutated = wsMutation.mutate(goodNetwork, rnd);
-      drawer.show(mutated);
+      //drawer.show(mutated);
       System.out.print(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
 
+//      psb.caseProvider()
+//        .stream()
+//        .forEach(
+//                e -> System.out.printf(
+//                        "in=%s\tactualOut=%s\tpredOut=%s\terror=%s\tsteps=%d%n",
+//                        e.input(),
+//                        e.output().outputs(),
+//                        runner.run(mutated, e.input()).outputs(),
+//                        psb.errorFunction().apply(e.input(), e.output(), runner.run(mutated, e.input())),
+//                        runner.run(mutated, e.input()).profile().states().size()
+//                ));
     }
   }
 
@@ -538,15 +549,15 @@ public class TestMutation {
     System.out.println("triLongestString - Gate Remover Mutation");
     for (int i = 0; i < 10; i++) {
       Network mutated = grMutation.mutate(goodNetwork, rnd);
-      //drawer.show(mutated);
-      System.out.print(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
+      drawer.show(mutated);
+      System.out.println(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
     }
 
     System.out.println();
     System.out.println("triLongestString - Wire Swapper Mutation");
     for (int i = 0; i < 10; i++) {
       Network mutated = wsMutation.mutate(goodNetwork, rnd);
-      drawer.show(mutated);
+      //drawer.show(mutated);
       System.out.print(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
 
     }
@@ -586,18 +597,18 @@ public class TestMutation {
     //drawer.show(goodNetwork);
     Runner runner = new Runner(100, 100, 100, 100, false);
 
-    psb.caseProvider()
-        .stream()
-        .forEach(
-            e -> System.out.printf(
-                "in=%s\tactualOut=%s\tpredOut=%s\terror=%s\tsteps=%d%n",
-                e.input(),
-                e.output().outputs(),
-                runner.run(goodNetwork, e.input()).outputs(),
-                psb.errorFunction().apply(e.input(), e.output(), runner.run(goodNetwork, e.input())),
-                runner.run(goodNetwork, e.input()).profile().states().size()
-            )
-        );
+//    psb.caseProvider()
+//        .stream()
+//        .forEach(
+//            e -> System.out.printf(
+//                "in=%s\tactualOut=%s\tpredOut=%s\terror=%s\tsteps=%d%n",
+//                e.input(),
+//                e.output().outputs(),
+//                runner.run(goodNetwork, e.input()).outputs(),
+//                psb.errorFunction().apply(e.input(), e.output(), runner.run(goodNetwork, e.input())),
+//                runner.run(goodNetwork, e.input()).profile().states().size()
+//            )
+//        );
 
     //System.out.println(runner.asInstrumentedProgram(goodNetwork).runInstrumented(psb.caseProvider().get(0).input()).profile().states().size()); // thıs ıs the number of steps for one case
 
@@ -626,8 +637,8 @@ public class TestMutation {
     System.out.println("vProduct - Gate Remover Mutation");
     for (int i = 0; i < 10; i++) {
       Network mutated = grMutation.mutate(goodNetwork, rnd);
-      // drawer.show(mutated);
-      System.out.print(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
+      drawer.show(mutated);
+      System.out.println(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
     }
 
     System.out.println();
@@ -637,6 +648,7 @@ public class TestMutation {
       Network mutated = wsMutation.mutate(goodNetwork, rnd);
       //drawer.show(mutated);
       System.out.print(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)).get("fail_rate"));
+      System.out.println();
     }
     //runner.asInstrumentedProgram(mutated).runInstrumented(null).profile().states().size(); // thıs ıs the number of steps for one case
     //      psb.caseProvider()

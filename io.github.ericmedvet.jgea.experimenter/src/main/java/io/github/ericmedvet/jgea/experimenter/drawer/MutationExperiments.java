@@ -65,7 +65,7 @@ public class MutationExperiments {
             Gates.length(),
             Gates.iBefore(),
             Gates.select(),
-            Gate.output(Generic.of("t"))
+            Gate.output(Base.STRING)
         ),
         Set.of(
             Wire.of(0, 0, 2, 0),
@@ -205,7 +205,7 @@ public class MutationExperiments {
             Gates.length(),
             Gates.iBefore(),
             Gates.select(),
-            Gate.output(Generic.of("t"))
+            Gate.output(Base.STRING)
         ),
         Set.of(
             Wire.of(0, 0, 3, 0),
@@ -286,7 +286,7 @@ public class MutationExperiments {
 
     TTPNDrawer drawer = new TTPNDrawer(TTPNDrawer.Configuration.DEFAULT);
 
-    Runner runner = new Runner(100, 100, 100, 100, false);
+    Runner runner = new Runner(100, 1000, 1000, 100, false);
 
     RandomGenerator rnd = new Random(3);
     Mutation<Network> giMutation = new GateInserterMutation(new LinkedHashSet<>(StatsMain.ALL_GATES), 10, 10, true);
@@ -296,26 +296,25 @@ public class MutationExperiments {
     System.out.println("Mutation Experiments");
     System.out.println("=====================");
 
-    System.out.print("\t\t\tWire Swapper Mutation \t\t\t\t\t\t Gate Inserter Mutation \t\t\t\t\t\t Gate Remover Mutation\n");
+    System.out.print("\t\t\tWire Swapper Mutation \t\t\t\t\t\t\t\t\t\t\t\t Gate Inserter Mutation \t\t\t\t\t\t\t\t\t\t\t\t Gate Remover Mutation\n");
 
-    System.out.println("\t\t\tFail_Rate\tAvg_Diss\tAvg_Steps\t\t\tError_Rate\tAvg_Diss\tAvg_Steps\t\t\t\tError_Rate\tAvg_Diss\tAvg_Steps");
+    System.out.println("\t\t\tUniqueness\tNeutrality\tFail_Rate\tAvg_Diss\tAvg_Steps\t\t\tUniqueness\tNeutrality\tFail_Rate\tAvg_Diss\tAvg_Steps\t\t\t\tUniqueness\tNeutrality\tFail_Rate\tAvg_Diss\tAvg_Steps");
 
     List<Network> networks = List.of(
             rIntSumgoodNetwork, iArraySumgoodNetwork,
             iBiMaxgoodNetwork, iTriMaxgoodNetwork, vScProductgoodNetwork,
-            sLengthergoodNetwork, vProductgoodNetwork
+            sLengthergoodNetwork, vProductgoodNetwork, biLongestStringgoodNetwork, triLongestStringgoodNetwork
     );
 
     List<ProgramSynthesisProblem> psbs = List.of(
             rIntSumpsb, iArraySumpsb, iBiMaxpsb, iTriMaxpsb,
-            vScProductpsb, sLengtherpsb, vProductpsb
+            vScProductpsb, sLengtherpsb, vProductpsb, biLongestStringpsb, triLongestStringpsb
     );
 
     List<String> problemNames = List.of(
             "rIntSum ", "iArraySum", "iBiMax  ", "iTriMax ",
-            "vScProduct", "sLengther", "vProduct"
+            "vScProduct", "sLengther", "vProduct", "biLongestString", "triLongestString"
     );
-
 
     for (int j = 0; j < networks.size(); j++) {
       Network goodNetwork = networks.get(j);
@@ -329,10 +328,14 @@ public class MutationExperiments {
         double totalAvgRawDissimilarity = 0;
         double totalProfileAvgSteps = 0;
 
+        Set<Network> mutatedNetworks = new HashSet<>();
+        int neutralCount = 0;
 
         for (int i = 0; i < 10; i++) {
           Network mutated = mutation.mutate(goodNetwork, rnd);
-//drawer.show(mutated);
+          mutatedNetworks.add(mutated);
+          neutralCount += mutated.equals(goodNetwork) ? 1 : 0;
+          //drawer.show(mutated);
 
           Map<String, Double> qualityMetrics = psb.qualityFunction()
                   .apply(runner.asInstrumentedProgram(mutated));
@@ -346,6 +349,12 @@ public class MutationExperiments {
           totalProfileAvgSteps += profileAvgSteps;
         }
 
+        double uniqueness = mutatedNetworks.size();
+        double neutrality = neutralCount;
+
+        System.out.printf("%.1f\t\t\t",uniqueness);
+        System.out.printf("%.1f\t\t\t",neutrality);
+
         System.out.printf("%.1f\t\t\t",totalFailRate / 10);
         System.out.printf("%.1f\t\t\t",totalAvgRawDissimilarity / 10);
         System.out.printf("%.1f\t\t\t\t\t",totalProfileAvgSteps / 10);
@@ -355,59 +364,3 @@ public class MutationExperiments {
     }
   }
 }
-
-
-
-//    drawer.show(rIntSumgoodNetwork);
-//    drawer.show(biLongestStringgoodNetwork);
-//    drawer.show(iArraySumgoodNetwork);
-//    drawer.show(iBiMaxgoodNetwork);
-//    drawer.show(iTriMaxgoodNetwork);
-//    drawer.show(vScProductgoodNetwork);
-//    drawer.show(sLengthergoodNetwork);
-//    drawer.show(triLongestStringgoodNetwork);
-//    drawer.show(vProductgoodNetwork);
-
-
-
-//    Map<String, Double> biLongestStringqualityMetrics = biLongestStringpsb.qualityFunction()
-//        .apply(runner.asInstrumentedProgram(biLongestStringgoodNetwork));
-//    Map<String, Double> iArraySumqualityMetrics = iArraySumpsb.qualityFunction()
-//        .apply(runner.asInstrumentedProgram(iArraySumgoodNetwork));
-//    Map<String, Double> iBiMaxqualityMetrics = iBiMaxpsb.qualityFunction()
-//        .apply(runner.asInstrumentedProgram(iBiMaxgoodNetwork));
-//    Map<String, Double> vScProductqualityMetrics = vScProductpsb.qualityFunction()
-//        .apply(runner.asInstrumentedProgram(vScProductgoodNetwork));
-//    Map<String, Double> sLengtherqualityMetrics = sLengtherpsb.qualityFunction()
-//        .apply(runner.asInstrumentedProgram(sLengthergoodNetwork));
-//    Map<String, Double> triLongestqualityMetrics = triLongestStringpsb.qualityFunction()
-//        .apply(runner.asInstrumentedProgram(triLongestStringgoodNetwork));
-//    Map<String, Double> vProductqualityMetrics = vProductpsb.qualityFunction()
-//        .apply(runner.asInstrumentedProgram(vProductgoodNetwork));
-
-
-
-//        rIntSumpsb.caseProvider()
-//                .stream()
-//                .forEach(
-//                        e -> System.out.printf(
-//                                "in=%s\tactualOut=%s\tpredOut=%s\terror=%s\tsteps=%d%n",
-//                                e.input(),
-//                                e.output().outputs(),
-//                                runner.run(rIntSumgoodNetwork, e.input()).outputs(),
-//                                rIntSumpsb.errorFunction().apply(e.input(), e.output(), runner.run(rIntSumgoodNetwork, e.input())),
-//                                runner.run(rIntSumgoodNetwork, e.input()).profile().states().size()
-//                        ));
-
-
-
-
-//        System.out.println(rIntSumpsb.qualityFunction().apply(runner.asInstrumentedProgram(rIntSumgoodNetwork)));
-//        System.out.println(biLongestStringpsb.qualityFunction().apply(runner.asInstrumentedProgram(biLongestStringgoodNetwork)));
-//        System.out.println(iArraySumpsb.qualityFunction().apply(runner.asInstrumentedProgram(iArraySumgoodNetwork)));
-//        System.out.println(iBiMaxpsb.qualityFunction().apply(runner.asInstrumentedProgram(iBiMaxgoodNetwork)));
-//        System.out.println(iTriMaxpsb.qualityFunction().apply(runner.asInstrumentedProgram(iTriMaxgoodNetwork)));
-//        System.out.println(vScProductpsb.qualityFunction().apply(runner.asInstrumentedProgram(vScProductgoodNetwork)));
-//        System.out.println(sLengtherpsb.qualityFunction().apply(runner.asInstrumentedProgram(sLengthergoodNetwork)));
-//        System.out.println(triLongestStringpsb.qualityFunction().apply(runner.asInstrumentedProgram(triLongestStringgoodNetwork)));
-//        System.out.println(vProductpsb.qualityFunction().apply(runner.asInstrumentedProgram(vProductgoodNetwork)));
