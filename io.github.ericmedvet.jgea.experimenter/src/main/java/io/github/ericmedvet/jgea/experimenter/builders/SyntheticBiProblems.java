@@ -26,14 +26,18 @@ import java.util.stream.DoubleStream;
 @Discoverable(prefixTemplate = "ea.biproblem|bp.synthetic|s")
 public class SyntheticBiProblems {
 
-  private SyntheticBiProblems() {}
+  private SyntheticBiProblems() {
+  }
 
   @SuppressWarnings("unused")
   public static PointAimingBiProblem pointAimingBiProblem(
       @Param(value = "name", iS = "pointAimingBiProblem-{p}-{target}") String name,
       @Param(value = "p", dI = 100) int p,
-      @Param(value = "target", dD = 1d) double target) {
+      @Param(value = "target", dD = 1d) double target
+  ) {
     return new PointAimingBiProblem(
-        p, DoubleStream.generate(() -> target).limit(p).toArray());
+        p,
+        DoubleStream.generate(() -> target).limit(p).toArray()
+    );
   }
 }

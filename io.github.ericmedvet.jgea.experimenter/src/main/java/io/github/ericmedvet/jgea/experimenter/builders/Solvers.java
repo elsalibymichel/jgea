@@ -194,14 +194,14 @@ public class Solvers {
 
   @Alias(
       name = "ttpnGp", value = // spotless:off
-      """
-          ga(name = "ttpnGp"; representation = ea.r.ttpn(); mapper = ea.m.ttpnToProgram(); crossoverP = 0.5)
-          """) // spotless:on
+            """
+                    ga(name = "ttpnGp"; representation = ea.r.ttpn(); mapper = ea.m.ttpnToProgram(); crossoverP = 0.5)
+                    """) // spotless:on
   @Alias(
       name = "srGp", value = // spotless:off
-      """
-          ga(name = "srGp"; representation = ea.r.srTree(); mapper = ea.m.srTreeToNurf())
-          """) // spotless:on
+            """
+                    ga(name = "srGp"; representation = ea.r.srTree(); mapper = ea.m.srTreeToNurf())
+                    """) // spotless:on
   @SuppressWarnings("unused")
   @Cacheable
   public static <G, S, Q> Function<S, StandardEvolver<G, S, Q>> ga(
@@ -248,7 +248,9 @@ public class Solvers {
       @Param(value = "nPop", dI = 100) int nPop,
       @Param(value = "nEval", dI = 1000) int nEval,
       @Param(value = "maxUniquenessAttempts", dI = 100) int maxUniquenessAttempts,
-      @Param("fitnessReducer") BinaryOperator<Q> fitnessReducer) {
+      @Param("fitnessReducer") BinaryOperator<Q> fitnessReducer,
+      @Param("additionalIndividualComparators") List<PartialComparator<? super Individual<G, S, Q>>> additionalIndividualComparators
+  ) {
     return exampleS -> {
       Representation<G> r = representation.apply(mapper.exampleFor(exampleS));
       return new StandardBiEvolver<>(
@@ -262,7 +264,9 @@ public class Solvers {
           nPop,
           true,
           maxUniquenessAttempts,
-          fitnessReducer);
+          fitnessReducer,
+          additionalIndividualComparators
+      );
     };
   }
 
@@ -276,7 +280,9 @@ public class Solvers {
       @Param(value = "nEval", dI = 1000) int nEval,
       @Param("descriptors") List<MapElites.Descriptor<G, S, Q>> descriptors,
       @Param("fitnessReducer") BinaryOperator<Q> fitnessReducer,
-      @Param("emptyArchive") boolean emptyArchive) {
+      @Param("emptyArchive") boolean emptyArchive,
+      @Param("additionalIndividualComparators") List<PartialComparator<? super MEIndividual<G, S, Q>>> additionalIndividualComparators
+  ) {
     return exampleS -> {
       Representation<G> r = representation.apply(mapper.exampleFor(exampleS));
       return new MapElitesBiEvolver<>(
@@ -287,7 +293,9 @@ public class Solvers {
           nPop,
           descriptors,
           fitnessReducer,
-          emptyArchive);
+          emptyArchive,
+          additionalIndividualComparators
+      );
     };
   }
 

@@ -22,6 +22,7 @@ package io.github.ericmedvet.jgea.core.solver.bi;
 import io.github.ericmedvet.jgea.core.Factory;
 import io.github.ericmedvet.jgea.core.operator.GeneticOperator;
 import io.github.ericmedvet.jgea.core.order.DAGPartiallyOrderedCollection;
+import io.github.ericmedvet.jgea.core.order.PartialComparator;
 import io.github.ericmedvet.jgea.core.order.PartiallyOrderedCollection;
 import io.github.ericmedvet.jgea.core.problem.QualityBasedBiProblem;
 import io.github.ericmedvet.jgea.core.selector.Selector;
@@ -39,15 +40,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.random.RandomGenerator;
 
-public class StandardBiEvolver<G, S, Q, O>
-    extends AbstractBiEvolver<
-        POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>>,
-        QualityBasedBiProblem<S, O, Q>,
-        Individual<G, S, Q>,
-        G,
-        S,
-        Q,
-        O> {
+public class StandardBiEvolver<G, S, Q, O> extends AbstractBiEvolver<POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>>, QualityBasedBiProblem<S, O, Q>, Individual<G, S, Q>, G, S, Q, O> {
 
   protected final Map<GeneticOperator<G>, Double> operators;
   protected final Selector<? super Individual<G, S, Q>> parentSelector;
@@ -61,16 +54,17 @@ public class StandardBiEvolver<G, S, Q, O>
       Function<? super G, ? extends S> solutionMapper,
       Factory<? extends G> genotypeFactory,
       int populationSize,
-      Predicate<? super POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>>>
-          stopCondition,
+      Predicate<? super POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>>> stopCondition,
       Map<GeneticOperator<G>, Double> operators,
       Selector<? super Individual<G, S, Q>> parentSelector,
       Selector<? super Individual<G, S, Q>> unsurvivalSelector,
       int offspringSize,
       boolean overlapping,
       int maxUniquenessAttempts,
-      BinaryOperator<Q> fitnessReducer) {
-    super(solutionMapper, genotypeFactory, stopCondition, false, fitnessReducer);
+      BinaryOperator<Q> fitnessReducer,
+      List<PartialComparator<? super Individual<G, S, Q>>> additionalIndividualComparators
+  ) {
+    super(solutionMapper, genotypeFactory, stopCondition, false, fitnessReducer, additionalIndividualComparators);
     this.operators = operators;
     this.parentSelector = parentSelector;
     this.unsurvivalSelector = unsurvivalSelector;
@@ -82,14 +76,19 @@ public class StandardBiEvolver<G, S, Q, O>
 
   protected Collection<ChildGenotype<G>> buildOffspringToMapGenotypes(
       POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>> state,
-      RandomGenerator random) {
+      RandomGenerator random
+  ) {
     AtomicLong counter = new AtomicLong(state.nOfBirths());
     Collection<ChildGenotype<G>> offspringChildGenotypes = new ArrayList<>();
     Set<G> uniqueOffspringGenotypes = new HashSet<>();
     if (maxUniquenessAttempts > 0) {
-      uniqueOffspringGenotypes.addAll(state.pocPopulation().all().stream()
-          .map(Individual::genotype)
-          .toList());
+      uniqueOffspringGenotypes.addAll(
+          state.pocPopulation()
+              .all()
+              .stream()
+              .map(Individual::genotype)
+              .toList()
+      );
     }
     int attempts = 0;
     while (offspringChildGenotypes.size() < offspringSize) {
@@ -99,10 +98,8 @@ public class StandardBiEvolver<G, S, Q, O>
         Individual<G, S, Q> parent = parentSelector.select(state.pocPopulation(), random);
         parents.add(parent);
       }
-      List<? extends G> childGenotypes =
-          operator.apply(parents.stream().map(Individual::genotype).toList(), random);
-      if (attempts >= maxUniquenessAttempts
-          || childGenotypes.stream().noneMatch(uniqueOffspringGenotypes::contains)) {
+      List<? extends G> childGenotypes = operator.apply(parents.stream().map(Individual::genotype).toList(), random);
+      if (attempts >= maxUniquenessAttempts || childGenotypes.stream().noneMatch(uniqueOffspringGenotypes::contains)) {
         attempts = 0;
         List<Long> parentIds = parents.stream().map(Individual::id).toList();
         childGenotypes.stream()
@@ -117,14 +114,17 @@ public class StandardBiEvolver<G, S, Q, O>
   }
 
   protected POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>> init(
-      QualityBasedBiProblem<S, O, Q> problem) {
+      QualityBasedBiProblem<S, O, Q> problem
+  ) {
     return POCPopulationState.empty(problem, stopCondition());
   }
 
   @Override
   public POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>> init(
-      QualityBasedBiProblem<S, O, Q> problem, RandomGenerator random, ExecutorService executor)
-      throws SolverException {
+      QualityBasedBiProblem<S, O, Q> problem,
+      RandomGenerator random,
+      ExecutorService executor
+  ) throws SolverException {
     AtomicLong counter = new AtomicLong(0);
     List<? extends G> genotypes = genotypeFactory.build(populationSize, random);
     List<? extends G> firstHalfGenotypes;
@@ -147,9 +147,23 @@ public class StandardBiEvolver<G, S, Q, O>
         Q firstQuality = problem.firstQualityFunction().apply(outcome);
         Q secondQuality = problem.secondQualityFunction().apply(outcome);
         Individual<G, S, Q> firstIndividual = Individual.of(
-            counter.getAndIncrement(), firstGenotype, firstSolution, firstQuality, 0, 0, List.of());
+            counter.getAndIncrement(),
+            firstGenotype,
+            firstSolution,
+            firstQuality,
+            0,
+            0,
+            List.of()
+        );
         Individual<G, S, Q> secondIndividual = Individual.of(
-            counter.getAndIncrement(), secondGenotype, secondSolution, secondQuality, 0, 0, List.of());
+            counter.getAndIncrement(),
+            secondGenotype,
+            secondSolution,
+            secondQuality,
+            0,
+            0,
+            List.of()
+        );
         return List.of(firstIndividual, secondIndividual);
       });
       futures.add(future);
@@ -164,27 +178,31 @@ public class StandardBiEvolver<G, S, Q, O>
         })
         .flatMap(Collection::stream)
         .toList();
-    POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>> state =
-        POCPopulationState.empty(problem, stopCondition());
+    POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>> state = POCPopulationState.empty(
+        problem,
+        stopCondition()
+    );
     return state.updatedWithIteration(
         populationSize,
         futures.size(),
-        PartiallyOrderedCollection.from(individuals, partialComparator(problem)));
+        PartiallyOrderedCollection.from(individuals, partialComparator(problem))
+    );
   }
 
   @Override
   public POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>> update(
       RandomGenerator random,
       ExecutorService executor,
-      POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>> state)
-      throws SolverException {
+      POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>> state
+  ) throws SolverException {
     // create offspring genotypes with empty solution and quality
-    List<ChildGenotype<G>> offspringChildGenotypes =
-        buildOffspringToMapGenotypes(state, random).stream().toList();
+    List<ChildGenotype<G>> offspringChildGenotypes = buildOffspringToMapGenotypes(state, random).stream().toList();
     int nOfNewBirths = offspringChildGenotypes.size();
-    List<Individual<G, S, Q>> individuals = new ArrayList<>(offspringChildGenotypes.stream()
-        .map(g -> Individual.<G, S, Q>from(g, solutionMapper, s -> null, state.nOfIterations()))
-        .toList());
+    List<Individual<G, S, Q>> individuals = new ArrayList<>(
+        offspringChildGenotypes.stream()
+            .map(g -> Individual.<G, S, Q>from(g, solutionMapper, s -> null, state.nOfIterations()))
+            .toList()
+    );
     individuals.addAll(state.pocPopulation().all().stream().toList());
     // randomly "pair" individuals
     Collections.shuffle(individuals, random);
@@ -208,16 +226,20 @@ public class StandardBiEvolver<G, S, Q, O>
             .apply(firstIndividual.solution(), secondIndividual.solution());
         Q newFirstQuality = state.problem().firstQualityFunction().apply(outcome);
         Q newSecondQuality = state.problem().secondQualityFunction().apply(outcome);
-        firstIndividual = Objects.isNull(firstIndividual.quality())
-            ? firstIndividual.updateQuality(newFirstQuality, state.nOfIterations())
-            : firstIndividual.updateQuality(
-                fitnessReducer.apply(firstIndividual.quality(), newFirstQuality),
-                state.nOfIterations());
-        secondIndividual = Objects.isNull(secondIndividual.quality())
-            ? secondIndividual.updateQuality(newSecondQuality, state.nOfIterations())
-            : secondIndividual.updateQuality(
-                fitnessReducer.apply(secondIndividual.quality(), newSecondQuality),
-                state.nOfIterations());
+        firstIndividual = Objects.isNull(firstIndividual.quality()) ? firstIndividual.updateQuality(
+            newFirstQuality,
+            state.nOfIterations()
+        ) : firstIndividual.updateQuality(
+            fitnessReducer.apply(firstIndividual.quality(), newFirstQuality),
+            state.nOfIterations()
+        );
+        secondIndividual = Objects.isNull(secondIndividual.quality()) ? secondIndividual.updateQuality(
+            newSecondQuality,
+            state.nOfIterations()
+        ) : secondIndividual.updateQuality(
+            fitnessReducer.apply(secondIndividual.quality(), newSecondQuality),
+            state.nOfIterations()
+        );
         // If populationSize is odd, the last element of firstHalfGenotypes is the same as the first element of
         // secondHalfGenotypes
         if (individuals.size() % 2 != 0 && index != 0) {
@@ -242,15 +264,19 @@ public class StandardBiEvolver<G, S, Q, O>
     return state.updatedWithIteration(
         nOfNewBirths,
         futures.size(),
-        PartiallyOrderedCollection.from(newPopulation, partialComparator(state.problem())));
+        PartiallyOrderedCollection.from(newPopulation, partialComparator(state.problem()))
+    );
   }
 
   protected Collection<Individual<G, S, Q>> trimPopulation(
       Collection<Individual<G, S, Q>> population,
       POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>> state,
-      RandomGenerator random) {
-    PartiallyOrderedCollection<Individual<G, S, Q>> orderedPopulation =
-        new DAGPartiallyOrderedCollection<>(population, partialComparator(state.problem()));
+      RandomGenerator random
+  ) {
+    PartiallyOrderedCollection<Individual<G, S, Q>> orderedPopulation = new DAGPartiallyOrderedCollection<>(
+        population,
+        partialComparator(state.problem())
+    );
     while (orderedPopulation.size() > populationSize) {
       Individual<G, S, Q> toRemoveIndividual = unsurvivalSelector.select(orderedPopulation, random);
       orderedPopulation.remove(toRemoveIndividual);

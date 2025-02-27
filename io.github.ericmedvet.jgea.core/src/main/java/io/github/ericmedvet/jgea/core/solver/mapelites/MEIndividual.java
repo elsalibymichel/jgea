@@ -102,6 +102,7 @@ public interface MEIndividual<G, S, Q> extends Individual<G, S, Q> {
         genotypeBirthIteration(),
         qualityMappingIteration,
         parentIds(),
-        this.coordinates());
+        this.coordinates()
+    );
   }
 }

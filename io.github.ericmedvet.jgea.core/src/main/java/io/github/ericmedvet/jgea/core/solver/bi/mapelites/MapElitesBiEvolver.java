@@ -42,15 +42,7 @@ import java.util.function.Predicate;
 import java.util.random.RandomGenerator;
 import java.util.stream.IntStream;
 
-public class MapElitesBiEvolver<G, S, Q, O>
-    extends AbstractBiEvolver<
-        MEPopulationState<G, S, Q, QualityBasedBiProblem<S, O, Q>>,
-        QualityBasedBiProblem<S, O, Q>,
-        MEIndividual<G, S, Q>,
-        G,
-        S,
-        Q,
-        O> {
+public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulationState<G, S, Q, QualityBasedBiProblem<S, O, Q>>, QualityBasedBiProblem<S, O, Q>, MEIndividual<G, S, Q>, G, S, Q, O> {
 
   protected final int populationSize;
   private final Mutation<G> mutation;
@@ -65,8 +57,10 @@ public class MapElitesBiEvolver<G, S, Q, O>
       int populationSize,
       List<MapElites.Descriptor<G, S, Q>> descriptors,
       BinaryOperator<Q> fitnessReducer,
-      boolean emptyArchive) {
-    super(solutionMapper, genotypeFactory, stopCondition, false, fitnessReducer);
+      boolean emptyArchive,
+      List<PartialComparator<? super MEIndividual<G, S, Q>>> additionalIndividualComparators
+  ) {
+    super(solutionMapper, genotypeFactory, stopCondition, false, fitnessReducer, additionalIndividualComparators);
     this.populationSize = populationSize;
     this.mutation = mutation;
     this.descriptors = descriptors;
@@ -75,8 +69,10 @@ public class MapElitesBiEvolver<G, S, Q, O>
 
   @Override
   public MEPopulationState<G, S, Q, QualityBasedBiProblem<S, O, Q>> init(
-      QualityBasedBiProblem<S, O, Q> problem, RandomGenerator random, ExecutorService executor)
-      throws SolverException {
+      QualityBasedBiProblem<S, O, Q> problem,
+      RandomGenerator random,
+      ExecutorService executor
+  ) throws SolverException {
     // create new genotypes and split in two list of opponents
     AtomicLong counter = new AtomicLong(0);
     List<? extends G> genotypes = genotypeFactory.build(populationSize, random);
@@ -102,8 +98,16 @@ public class MapElitesBiEvolver<G, S, Q, O>
         Q secondQuality = problem.secondQualityFunction().apply(outcome);
         MEIndividual<G, S, Q> firstIndividual = MEIndividual.from(
             Individual.of(
-                counter.getAndIncrement(), firstGenotype, firstSolution, firstQuality, 0, 0, List.of()),
-            descriptors);
+                counter.getAndIncrement(),
+                firstGenotype,
+                firstSolution,
+                firstQuality,
+                0,
+                0,
+                List.of()
+            ),
+            descriptors
+        );
         MEIndividual<G, S, Q> secondIndividual = MEIndividual.from(
             Individual.of(
                 counter.getAndIncrement(),
@@ -112,8 +116,10 @@ public class MapElitesBiEvolver<G, S, Q, O>
                 secondQuality,
                 0,
                 0,
-                List.of()),
-            descriptors);
+                List.of()
+            ),
+            descriptors
+        );
         return List.of(firstIndividual, secondIndividual);
       });
       futures.add(future);
@@ -129,33 +135,47 @@ public class MapElitesBiEvolver<G, S, Q, O>
         })
         .flatMap(Collection::stream)
         .toList();
-    MEPopulationState<G, S, Q, QualityBasedBiProblem<S, O, Q>> newState =
-        MEPopulationState.empty(problem, stopCondition(), descriptors);
+    MEPopulationState<G, S, Q, QualityBasedBiProblem<S, O, Q>> newState = MEPopulationState.empty(
+        problem,
+        stopCondition(),
+        descriptors
+    );
     return newState.updatedWithIteration(
         populationSize,
         futures.size(),
-        newState.archive().updated(individuals, MEIndividual::bins, partialComparator(problem)));
+        newState.archive().updated(individuals, MEIndividual::bins, partialComparator(problem))
+    );
   }
 
   @Override
   public MEPopulationState<G, S, Q, QualityBasedBiProblem<S, O, Q>> update(
       RandomGenerator random,
       ExecutorService executor,
-      MEPopulationState<G, S, Q, QualityBasedBiProblem<S, O, Q>> state)
-      throws SolverException {
+      MEPopulationState<G, S, Q, QualityBasedBiProblem<S, O, Q>> state
+  ) throws SolverException {
     // build offspring with empty quality
-    List<MEIndividual<G, S, Q>> individuals =
-        new ArrayList<>(state.archive().asMap().values().stream().toList());
+    List<MEIndividual<G, S, Q>> individuals = new ArrayList<>(state.archive().asMap().values().stream().toList());
     AtomicLong counter = new AtomicLong(state.nOfBirths());
     List<ChildGenotype<G>> newChildGenotypes = IntStream.range(0, populationSize)
         .mapToObj(j -> Misc.pickRandomly(individuals, random))
-        .map(p -> new ChildGenotype<>(
-            counter.getAndIncrement(), mutation.mutate(p.genotype(), random), List.of(p.id())))
+        .map(
+            p -> new ChildGenotype<>(
+                counter.getAndIncrement(),
+                mutation.mutate(p.genotype(), random),
+                List.of(p.id())
+            )
+        )
         .toList();
-    individuals.addAll(newChildGenotypes.stream()
-        .map(g -> MEIndividual.from(
-            Individual.from(g, solutionMapper, s -> null, state.nOfQualityEvaluations()), descriptors))
-        .toList());
+    individuals.addAll(
+        newChildGenotypes.stream()
+            .map(
+                g -> MEIndividual.from(
+                    Individual.from(g, solutionMapper, s -> null, state.nOfQualityEvaluations()),
+                    descriptors
+                )
+            )
+            .toList()
+    );
     // randomly "pair" individuals
     Collections.shuffle(individuals, random);
     List<MEIndividual<G, S, Q>> firstHalfIndividuals;
@@ -178,16 +198,20 @@ public class MapElitesBiEvolver<G, S, Q, O>
             .apply(firstIndividual.solution(), secondIndividual.solution());
         Q newFirstQuality = state.problem().firstQualityFunction().apply(outcome);
         Q newSecondQuality = state.problem().secondQualityFunction().apply(outcome);
-        firstIndividual = Objects.isNull(firstIndividual.quality())
-            ? firstIndividual.updateQuality(newFirstQuality, state.nOfIterations())
-            : firstIndividual.updateQuality(
-                fitnessReducer.apply(firstIndividual.quality(), newFirstQuality),
-                state.nOfIterations());
-        secondIndividual = Objects.isNull(secondIndividual.quality())
-            ? secondIndividual.updateQuality(newSecondQuality, state.nOfIterations())
-            : secondIndividual.updateQuality(
-                fitnessReducer.apply(secondIndividual.quality(), newSecondQuality),
-                state.nOfIterations());
+        firstIndividual = Objects.isNull(firstIndividual.quality()) ? firstIndividual.updateQuality(
+            newFirstQuality,
+            state.nOfIterations()
+        ) : firstIndividual.updateQuality(
+            fitnessReducer.apply(firstIndividual.quality(), newFirstQuality),
+            state.nOfIterations()
+        );
+        secondIndividual = Objects.isNull(secondIndividual.quality()) ? secondIndividual.updateQuality(
+            newSecondQuality,
+            state.nOfIterations()
+        ) : secondIndividual.updateQuality(
+            fitnessReducer.apply(secondIndividual.quality(), newSecondQuality),
+            state.nOfIterations()
+        );
         // If populationSize is odd, the last element of firstHalfGenotypes is the same as the first element of
         // secondHalfGenotypes
         if (individuals.size() % 2 != 0 && index != 0) {
@@ -208,9 +232,10 @@ public class MapElitesBiEvolver<G, S, Q, O>
         })
         .flatMap(Collection::stream)
         .toList();
-    PartialComparator<? super Individual<?, ?, ?>> updaterComparator = (newI, existingI) -> newI == existingI
-        ? PartialComparator.PartialComparatorOutcome.BEFORE
-        : PartialComparator.PartialComparatorOutcome.AFTER;
+    PartialComparator<? super Individual<?, ?, ?>> updaterComparator = (
+        newI,
+        existingI
+    ) -> newI == existingI ? PartialComparator.PartialComparatorOutcome.BEFORE : PartialComparator.PartialComparatorOutcome.AFTER;
     Archive<MEIndividual<G, S, Q>> archive;
     if (emptyArchive) {
       archive = new Archive<>(state.archive().binUpperBounds());

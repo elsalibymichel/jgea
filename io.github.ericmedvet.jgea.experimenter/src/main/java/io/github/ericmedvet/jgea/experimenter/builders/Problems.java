@@ -27,7 +27,7 @@ import io.github.ericmedvet.jnb.core.Discoverable;
 import io.github.ericmedvet.jnb.core.Param;
 import io.github.ericmedvet.jnb.datastructure.NamedFunction;
 import io.github.ericmedvet.jnb.datastructure.Pair;
-import io.github.ericmedvet.jsdynsym.control.Simulation;
+import io.github.ericmedvet.jsdynsym.control.*;
 import java.util.*;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -42,6 +42,54 @@ public class Problems {
   public enum OptimizationType {
     @SuppressWarnings("unused") MINIMIZE, MAXIMIZE
   }
+
+  /*
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static <S, SS, B extends Simulation.Outcome<SS>, Q extends Comparable<Q>> QualityBasedBiProblem<S, B, Q> biSimTo(
+      @Param(value = "name", iS = "{simulation.name}") String name,
+      @Param("simulation") HomogeneousBiSimulation<S, SS, B> biSimulation,
+      @Param("f1") Function<B, Q> firstQualityFunction,
+      @Param("f2") Function<B, Q> secondQualityFunction,
+      @Param(value = "type", dS = "minimize") OptimizationType type
+  ) {
+    Comparator<Q> qComparator = Comparable::compareTo;
+    if (type == OptimizationType.MAXIMIZE) {
+      qComparator = qComparator.reversed();
+    }
+    if (biSimulation instanceof HomogeneousBiSimulationWithExample<S, SS, B> hbswe) {
+      record HardQBBWEProblem<S, B, Q>(
+          BiFunction<S, S, B> outcomeFunction,
+          Function<B, Q> firstQualityFunction,
+          Function<B, Q> secondQualityFunction,
+          PartialComparator<Q> qualityComparator,
+          S example
+      ) implements QualityBasedBiProblem<S, B, Q> {
+      }
+      return new HardQBBWEProblem<>(
+          biSimulation::simulate,
+          firstQualityFunction,
+          secondQualityFunction,
+          PartialComparator.from(qComparator),
+          hbswe.example()
+      );
+    } else {
+      record HardQBBProblem<S, B, Q>(
+          BiFunction<S, S, B> outcomeFunction,
+          Function<B, Q> firstQualityFunction,
+          Function<B, Q> secondQualityFunction,
+          PartialComparator<Q> qualityComparator
+      ) implements QualityBasedBiProblem<S, B, Q> {
+      }
+      return new HardQBBProblem<>(
+          biSimulation::simulate,
+          firstQualityFunction,
+          secondQualityFunction,
+          PartialComparator.from(qComparator)
+      );
+    }
+  }
+  */
 
   @SuppressWarnings("unused")
   @Cacheable

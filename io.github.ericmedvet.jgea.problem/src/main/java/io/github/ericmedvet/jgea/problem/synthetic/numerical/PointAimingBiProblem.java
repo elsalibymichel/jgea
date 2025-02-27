@@ -20,19 +20,17 @@
 package io.github.ericmedvet.jgea.problem.synthetic.numerical;
 
 import io.github.ericmedvet.jgea.core.order.PartialComparator;
-import io.github.ericmedvet.jgea.core.problem.ProblemWithExampleSolution;
 import io.github.ericmedvet.jgea.core.problem.SymmetricQualityBasedBiProblem;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class PointAimingBiProblem
-    implements SymmetricQualityBasedBiProblem<List<Double>, List<Integer>, Double>,
-        ProblemWithExampleSolution<List<Double>> {
+public class PointAimingBiProblem implements SymmetricQualityBasedBiProblem<List<Double>, List<Integer>, Double> {
 
   private final int p;
   private final double[] target;
@@ -43,8 +41,8 @@ public class PointAimingBiProblem
   }
 
   @Override
-  public List<Double> example() {
-    return Collections.nCopies(p, 0d);
+  public Optional<List<Double>> example() {
+    return Optional.of(Collections.nCopies(p, 0d));
   }
 
   @Override

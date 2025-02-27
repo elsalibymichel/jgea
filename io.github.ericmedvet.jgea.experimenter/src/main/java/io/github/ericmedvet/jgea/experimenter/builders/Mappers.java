@@ -592,15 +592,22 @@ public class Mappers {
   @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NumericalDynamicalSystem<?>> nurfToNds(
-      @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NamedUnivariateRealFunction> beforeM) {
-    return beforeM.andThen(InvertibleMapper.from(
-        (nds, nurf) -> nurf,
-        nds -> NamedUnivariateRealFunction.from(
-            UnivariateRealFunction.from(
-                in -> 0d, nds.nOfInputs()),
-            MultivariateRealFunction.varNames("i", nds.nOfInputs()),
-            "output"),
-        "nurfToNds"));
+      @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NamedUnivariateRealFunction> beforeM
+  ) {
+    return beforeM.andThen(
+        InvertibleMapper.from(
+            (nds, nurf) -> nurf,
+            nds -> NamedUnivariateRealFunction.from(
+                UnivariateRealFunction.from(
+                    in -> 0d,
+                    nds.nOfInputs()
+                ),
+                MultivariateRealFunction.varNames("i", nds.nOfInputs()),
+                "output"
+            ),
+            "nurfToNds"
+        )
+    );
   }
 
   @SuppressWarnings("unused")

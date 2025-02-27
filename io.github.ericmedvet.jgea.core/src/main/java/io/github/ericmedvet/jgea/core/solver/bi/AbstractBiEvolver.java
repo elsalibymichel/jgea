@@ -20,23 +20,17 @@
 package io.github.ericmedvet.jgea.core.solver.bi;
 
 import io.github.ericmedvet.jgea.core.Factory;
+import io.github.ericmedvet.jgea.core.order.PartialComparator;
 import io.github.ericmedvet.jgea.core.problem.QualityBasedBiProblem;
 import io.github.ericmedvet.jgea.core.solver.AbstractPopulationBasedIterativeSolver;
 import io.github.ericmedvet.jgea.core.solver.Individual;
 import io.github.ericmedvet.jgea.core.solver.POCPopulationState;
+import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public abstract class AbstractBiEvolver<
-        T extends POCPopulationState<I, G, S, Q, P>,
-        P extends QualityBasedBiProblem<S, O, Q>,
-        I extends Individual<G, S, Q>,
-        G,
-        S,
-        Q,
-        O>
-    extends AbstractPopulationBasedIterativeSolver<T, P, I, G, S, Q> {
+public abstract class AbstractBiEvolver<T extends POCPopulationState<I, G, S, Q, P>, P extends QualityBasedBiProblem<S, O, Q>, I extends Individual<G, S, Q>, G, S, Q, O> extends AbstractPopulationBasedIterativeSolver<T, P, I, G, S, Q> {
 
   protected final BinaryOperator<Q> fitnessReducer;
 
@@ -45,8 +39,10 @@ public abstract class AbstractBiEvolver<
       Factory<? extends G> genotypeFactory,
       Predicate<? super T> stopCondition,
       boolean remap,
-      BinaryOperator<Q> fitnessReducer) {
-    super(solutionMapper, genotypeFactory, stopCondition, remap);
+      BinaryOperator<Q> fitnessReducer,
+      List<PartialComparator<? super I>> additionalIndividualComparators
+  ) {
+    super(solutionMapper, genotypeFactory, stopCondition, remap, additionalIndividualComparators);
     this.fitnessReducer = fitnessReducer;
   }
 }
