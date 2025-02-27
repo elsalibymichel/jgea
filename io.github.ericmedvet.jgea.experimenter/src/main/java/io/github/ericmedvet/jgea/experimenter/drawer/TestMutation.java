@@ -35,19 +35,20 @@ public class TestMutation {
       String[] args
   ) throws NetworkStructureException, ProgramExecutionException, NoSuchMethodException, TypeException {
     //biLongestString();
-//    rIntSum();
+    rIntSum();
 //    iArraySum();
 //    iBiMax();
 //    iTriMax();
 //    vScProduct();
-    sLengther();
+//    sLengther();
 //    triLongestString();
 //    vProduct();
   }
 
   private static void rIntSum() throws NetworkStructureException, TypeException {
     NamedBuilder<?> nb = NamedBuilder.fromDiscovery();
-    ProgramSynthesisProblem psb = (ProgramSynthesisProblem) nb.build("ea.p.ps.synthetic(name = \"rIntSum\")");
+    ProgramSynthesisProblem psb = (ProgramSynthesisProblem) nb.build("ea.p.ps.synthetic(name = \"rIntSum\"; metrics = [fail_rate; avg_raw_dissimilarity; exception_error_rate; profile_avg_steps; profile_avg_tot_size])"
+    );
     // good solution
     Network goodNetwork = new Network(
         List.of(
@@ -69,7 +70,6 @@ public class TestMutation {
     drawer.show(goodNetwork);
     Runner runner = new Runner(100, 100, 100, 100, false);
 
-    System.out.println(psb.qualityFunction().apply(runner.asInstrumentedProgram(goodNetwork)));
     RandomGenerator rnd = new Random(3);
 
     Mutation<Network> giMutation = new GateInserterMutation(new LinkedHashSet<>(StatsMain.ALL_GATES), 10, 10, true);

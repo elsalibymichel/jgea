@@ -20,6 +20,7 @@
 package io.github.ericmedvet.jgea.experimenter.drawer;
 
 import io.github.ericmedvet.jgea.core.operator.Mutation;
+import io.github.ericmedvet.jgea.core.representation.programsynthesis.InstrumentedProgram;
 import io.github.ericmedvet.jgea.core.representation.programsynthesis.ProgramExecutionException;
 import io.github.ericmedvet.jgea.core.representation.programsynthesis.ttpn.*;
 import io.github.ericmedvet.jgea.core.representation.programsynthesis.type.Base;
@@ -287,8 +288,8 @@ public class SingleMutationExperiments {
                 "ea.p.ps.synthetic(name = \"sLengther\"; metrics = [fail_rate; avg_raw_dissimilarity; exception_error_rate; profile_avg_steps; profile_avg_tot_size])"
         );
 
-        Network goodNetwork = sLengthergoodNetwork;
-        ProgramSynthesisProblem psb = sLengtherpsb;
+        Network goodNetwork = rIntSumgoodNetwork;
+        ProgramSynthesisProblem psb = rIntSumpsb;
 
 
         TTPNDrawer drawer = new TTPNDrawer(TTPNDrawer.Configuration.DEFAULT);
@@ -297,7 +298,7 @@ public class SingleMutationExperiments {
         drawer.show(goodNetwork);
 
         System.out.println("Good network:");
-        System.out.print(psb.qualityFunction().apply(runner.asInstrumentedProgram(goodNetwork)));
+        System.out.println(psb.qualityFunction().apply(runner.asInstrumentedProgram(goodNetwork)));
 
 
         RandomGenerator rnd = new Random(3);
@@ -306,7 +307,7 @@ public class SingleMutationExperiments {
         Mutation<Network> wsMutation = new WireSwapperMutation(10, true);
 
 
-        for (Mutation<Network> mutation : List.of(wsMutation)) {
+        for (Mutation<Network> mutation : List.of(giMutation)) {
             double totalFailRate = 0;
             double totalAvgRawDissimilarity = 0;
             double totalProfileAvgSteps = 0;
@@ -318,7 +319,7 @@ public class SingleMutationExperiments {
                 Network mutated = mutation.mutate(goodNetwork, rnd);
                 mutatedNetworks.add(mutated);
                 neutralCount += mutated.equals(goodNetwork) ? 1 : 0;
-                //drawer.show(mutated);
+                drawer.show(mutated);
 
                 Map<String, Double> qualityMetrics = psb.qualityFunction()
                         .apply(runner.asInstrumentedProgram(mutated));
@@ -334,8 +335,20 @@ public class SingleMutationExperiments {
                 System.out.println("1 Mutated");
                 System.out.print(psb.qualityFunction().apply(runner.asInstrumentedProgram(mutated)));
 
-
-
+//                psb.caseProvider()
+//                        .stream()
+//                        .forEach(
+//                                e -> {
+//                                    InstrumentedProgram.InstrumentedOutcome outcome = runner.run(mutated, e.input());
+//                                    System.out.printf(
+//                                            "in=%s\tactualOut=%s\tpredOut=%s exc=%s%n",
+//                                            e.input(),
+//                                            e.output().outputs(),
+//                                            outcome.outputs(),
+//                                            outcome.exception()
+//                                    );
+//                                }
+//                        );
             }
 
             double uniqueness = mutatedNetworks.size();

@@ -40,9 +40,9 @@ public class TestManual {
     //iBiMax();
     //iTriMax();
     //vScProduct();
-    sLengther();
+    //sLengther();
     //triLongestString();
-    //vProduct();
+    vProduct();
   }
 
   private static void biLongestString() throws NetworkStructureException, TypeException {
@@ -425,6 +425,8 @@ public class TestManual {
     TTPNDrawer drawer = new TTPNDrawer(TTPNDrawer.Configuration.DEFAULT);
     drawer.show(goodNetwork);
     Runner runner = new Runner(100, 100, 100, 100, false);
+
+    System.out.println(psb.qualityFunction().apply(runner.asInstrumentedProgram(goodNetwork)));
     // check
     psb.caseProvider()
         .stream()
