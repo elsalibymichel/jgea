@@ -19,6 +19,7 @@
  */
 package io.github.ericmedvet.jgea.experimenter.builders;
 
+import io.github.ericmedvet.jgea.core.util.Misc;
 import io.github.ericmedvet.jgea.experimenter.drawer.DoubleGridDrawer;
 import io.github.ericmedvet.jgea.problem.ca.MultivariateRealGridCellularAutomaton;
 import io.github.ericmedvet.jgea.problem.image.ImageUtils;
@@ -35,18 +36,16 @@ import io.github.ericmedvet.jviz.core.drawer.ImageBuilder;
 import io.github.ericmedvet.jviz.core.drawer.VideoBuilder;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
 @Discoverable(prefixTemplate = "ea.misc")
 public class Miscs {
 
-  private Miscs() {}
+  private Miscs() {
+  }
 
   @SuppressWarnings("unused")
   public static VideoBuilder<MultivariateRealGridCellularAutomaton> caVideo(
@@ -56,12 +55,16 @@ public class Miscs {
       @Param(value = "sizeRate", dI = 10) int sizeRate,
       @Param(value = "marginRate", dD = 0d) double marginRate,
       @Param(value = "frameRate", dD = 10d) double frameRate,
-      @Param(value = "fontSize", dD = 10d) double fontSize) {
-    DoubleGridDrawer gDrawer = new DoubleGridDrawer(new DoubleGridDrawer.Configuration(
-        gray ? DoubleGridDrawer.Configuration.ColorType.GRAY : DoubleGridDrawer.Configuration.ColorType.RGB,
-        caStateRange,
-        sizeRate,
-        marginRate));
+      @Param(value = "fontSize", dD = 10d) double fontSize
+  ) {
+    DoubleGridDrawer gDrawer = new DoubleGridDrawer(
+        new DoubleGridDrawer.Configuration(
+            gray ? DoubleGridDrawer.Configuration.ColorType.GRAY : DoubleGridDrawer.Configuration.ColorType.RGB,
+            caStateRange,
+            sizeRate,
+            marginRate
+        )
+    );
     Drawer<Pair<Integer, Grid<double[]>>> pDrawer = new Drawer<>() {
       @Override
       public void draw(Graphics2D g, Pair<Integer, Grid<double[]>> p) {
@@ -98,17 +101,12 @@ public class Miscs {
   }
 
   @SuppressWarnings("unused")
-  @Cacheable
-  public static BinaryOperator<Double> lossyAverage(@Param(value = "w", dD = 0.5d) double w) {
-    return (old, current) -> w * old + (1d - w) * current;
-  }
-
-  @SuppressWarnings("unused")
   public static Color colorByRgb(@Param("r") int r, @Param("g") int g, @Param("b") int b) {
     return new Color(r, g, b);
   }
 
   @SuppressWarnings("unused")
+  @Cacheable
   public static <K, V> Map.Entry<K, V> entry(@Param("key") K key, @Param("value") V value) {
     return Map.entry(key, value);
   }
@@ -117,10 +115,11 @@ public class Miscs {
   @Cacheable
   public static BufferedImage imgByName(
       @Param("name") String name,
-      @Param(value = "bgColor", dNPM = "ea.misc.colorByName(name = black)") Color bgColor,
+      @Param(value = "gateBGColor", dNPM = "ea.misc.colorByName(name = black)") Color bgColor,
       @Param(value = "w", dI = 15) int w,
       @Param(value = "h", dI = 15) int h,
-      @Param(value = "marginRate", dD = 0.1) double marginRate) {
+      @Param(value = "marginRate", dD = 0.1) double marginRate
+  ) {
     return ImageUtils.imageDrawer(bgColor, marginRate)
         .build(new ImageBuilder.ImageInfo(w, h), ImageUtils.loadFromResource(name));
   }
@@ -129,11 +128,12 @@ public class Miscs {
   @Cacheable
   public static BufferedImage imgFromString(
       @Param("s") String s,
-      @Param(value = "fgColor", dNPM = "ea.misc.colorByName(name = white)") Color fgColor,
-      @Param(value = "bgColor", dNPM = "ea.misc.colorByName(name = black)") Color bgColor,
+      @Param(value = "borderColor", dNPM = "ea.misc.colorByName(name = white)") Color fgColor,
+      @Param(value = "gateBGColor", dNPM = "ea.misc.colorByName(name = black)") Color bgColor,
       @Param(value = "w", dI = 159) int w,
       @Param(value = "h", dI = 15) int h,
-      @Param(value = "marginRate", dD = 0.1) double marginRate) {
+      @Param(value = "marginRate", dD = 0.1) double marginRate
+  ) {
     return ImageUtils.stringDrawer(fgColor, bgColor, marginRate).build(new ImageBuilder.ImageInfo(w, h), s);
   }
 
@@ -145,8 +145,59 @@ public class Miscs {
   }
 
   @SuppressWarnings("unused")
-  public static Map.Entry<String, String> sEntry(@Param("key") String key, @Param("value") String value) {
+  public static <K, V> Map<K, V> mapFromLists(
+      @Param("keys") List<K> keys,
+      @Param("values") List<V> values
+  ) {
+    if (keys.size() != values.size()) {
+      throw new IllegalArgumentException(
+          "Keys and values size do not match: %d != %d".formatted(
+              keys.size(),
+              values.size()
+          )
+      );
+    }
+    return Collections.unmodifiableSequencedMap(
+        IntStream.range(0, keys.size())
+            .boxed()
+            .collect(
+                Misc.toSequencedMap(
+                    keys::get,
+                    values::get
+                )
+            )
+    );
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static <V> Map.Entry<String, V> sEntry(@Param("key") String key, @Param("value") V value) {
     return Map.entry(key, value);
+  }
+
+  @SuppressWarnings("unused")
+  public static <V> Map<String, V> sMapFromLists(
+      @Param("keys") List<String> keys,
+      @Param("values") List<V> values
+  ) {
+    if (keys.size() != values.size()) {
+      throw new IllegalArgumentException(
+          "Keys and values size do not match: %d != %d".formatted(
+              keys.size(),
+              values.size()
+          )
+      );
+    }
+    return Collections.unmodifiableSequencedMap(
+        IntStream.range(0, keys.size())
+            .boxed()
+            .collect(
+                Misc.toSequencedMap(
+                    keys::get,
+                    values::get
+                )
+            )
+    );
   }
 
   @SuppressWarnings("unused")

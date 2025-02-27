@@ -44,7 +44,8 @@ public class IndexedNodeAddition<M extends N, N, A> implements Mutation<Graph<In
       int counterInitialValue,
       Mutation<A> toNewNodeArcMutation,
       Mutation<A> fromNewNodeArcMutation,
-      Mutation<A> existingArcMutation) {
+      Mutation<A> existingArcMutation
+  ) {
     this.nodeFactory = nodeFactory;
     this.nodeTyper = nodeTyper;
     counter = counterInitialValue;
@@ -59,7 +60,8 @@ public class IndexedNodeAddition<M extends N, N, A> implements Mutation<Graph<In
       ToIntFunction<N> nodeTyper,
       int counterInitialValue,
       Mutation<A> toNewNodeArcMutation,
-      Mutation<A> fromNewNodeArcMutation) {
+      Mutation<A> fromNewNodeArcMutation
+  ) {
     this(nodeFactory, nodeTyper, counterInitialValue, toNewNodeArcMutation, fromNewNodeArcMutation, null);
   }
 
@@ -84,11 +86,13 @@ public class IndexedNodeAddition<M extends N, N, A> implements Mutation<Graph<In
       // get new node type
       int newNodeType = nodeTyper.applyAsInt(newNode);
       // count "siblings"
-      int nSiblings = (int) child.nodes().stream()
-          .filter(n -> child.predecessors(n).contains(arc.getSource())
-              && child.successors(n).contains(arc.getTarget())
-              && (newNode.getClass().isAssignableFrom(n.getClass()))
-              && nodeTyper.applyAsInt(n.content()) == newNodeType)
+      int nSiblings = (int) child.nodes()
+          .stream()
+          .filter(
+              n -> child.predecessors(n).contains(arc.getSource()) && child.successors(n)
+                  .contains(arc.getTarget()) && (newNode.getClass().isAssignableFrom(n.getClass())) && nodeTyper
+                      .applyAsInt(n.content()) == newNodeType
+          )
           .count();
       // compute index
       IndexKey key = new IndexKey(arc.getSource().index(), arc.getTarget().index(), newNodeType, nSiblings);

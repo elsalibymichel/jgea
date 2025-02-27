@@ -27,7 +27,9 @@ public interface CoMEPartialIndividual<GT, ST, G1, G2, S1, S2, S, Q> extends MEI
   CoMEIndividual<G1, G2, S1, S2, S, Q> completeIndividual();
 
   static <GT, ST, G1, G2, S1, S2, S, Q> CoMEPartialIndividual<GT, ST, G1, G2, S1, S2, S, Q> from(
-      Individual<GT, ST, Q> individual, List<MapElites.Descriptor<GT, ST, Q>> descriptors) {
+      Individual<GT, ST, Q> individual,
+      List<MapElites.Descriptor<GT, ST, Q>> descriptors
+  ) {
     return of(
         individual.id(),
         individual.genotype(),
@@ -37,11 +39,13 @@ public interface CoMEPartialIndividual<GT, ST, G1, G2, S1, S2, S, Q> extends MEI
         individual.qualityMappingIteration(),
         individual.parentIds(),
         descriptors.stream().map(d -> d.coordinate(individual)).toList(),
-        null);
+        null
+    );
   }
 
   static <G1, S1, G2, S2, S, Q> CoMEPartialIndividual<G1, S1, G1, G2, S1, S2, S, Q> from1(
-      CoMEIndividual<G1, G2, S1, S2, S, Q> coMEIndividual) {
+      CoMEIndividual<G1, G2, S1, S2, S, Q> coMEIndividual
+  ) {
     return of(
         coMEIndividual.individual1().id(),
         coMEIndividual.individual1().genotype(),
@@ -51,11 +55,13 @@ public interface CoMEPartialIndividual<GT, ST, G1, G2, S1, S2, S, Q> extends MEI
         coMEIndividual.individual1().qualityMappingIteration(),
         coMEIndividual.individual1().parentIds(),
         coMEIndividual.individual1().coordinates(),
-        coMEIndividual);
+        coMEIndividual
+    );
   }
 
   static <G1, S1, G2, S2, S, Q> CoMEPartialIndividual<G2, S2, G1, G2, S1, S2, S, Q> from2(
-      CoMEIndividual<G1, G2, S1, S2, S, Q> coMEIndividual) {
+      CoMEIndividual<G1, G2, S1, S2, S, Q> coMEIndividual
+  ) {
     return of(
         coMEIndividual.individual2().id(),
         coMEIndividual.individual2().genotype(),
@@ -65,7 +71,8 @@ public interface CoMEPartialIndividual<GT, ST, G1, G2, S1, S2, S, Q> extends MEI
         coMEIndividual.individual2().qualityMappingIteration(),
         coMEIndividual.individual2().parentIds(),
         coMEIndividual.individual2().coordinates(),
-        coMEIndividual);
+        coMEIndividual
+    );
   }
 
   static <GT, ST, G1, G2, S1, S2, S, Q> CoMEPartialIndividual<GT, ST, G1, G2, S1, S2, S, Q> of(
@@ -77,7 +84,8 @@ public interface CoMEPartialIndividual<GT, ST, G1, G2, S1, S2, S, Q> extends MEI
       long qualityMappingIteration,
       Collection<Long> parentIds,
       List<MapElites.Descriptor.Coordinate> coordinates,
-      CoMEIndividual<G1, G2, S1, S2, S, Q> completeIndividual) {
+      CoMEIndividual<G1, G2, S1, S2, S, Q> completeIndividual
+  ) {
     record HardIndividual<GT, ST, G1, G2, S1, S2, S, Q>(
         long id,
         GT genotype,
@@ -87,8 +95,8 @@ public interface CoMEPartialIndividual<GT, ST, G1, G2, S1, S2, S, Q> extends MEI
         long qualityMappingIteration,
         Collection<Long> parentIds,
         List<MapElites.Descriptor.Coordinate> coordinates,
-        CoMEIndividual<G1, G2, S1, S2, S, Q> completeIndividual)
-        implements CoMEPartialIndividual<GT, ST, G1, G2, S1, S2, S, Q> {}
+        CoMEIndividual<G1, G2, S1, S2, S, Q> completeIndividual
+    ) implements CoMEPartialIndividual<GT, ST, G1, G2, S1, S2, S, Q> {}
     return new HardIndividual<>(
         id,
         genotype,
@@ -98,7 +106,8 @@ public interface CoMEPartialIndividual<GT, ST, G1, G2, S1, S2, S, Q> extends MEI
         qualityMappingIteration,
         parentIds,
         coordinates,
-        completeIndividual);
+        completeIndividual
+    );
   }
 
   default CoMEPartialIndividual<GT, ST, G2, G1, S2, S1, S, Q> swapped() {
@@ -111,11 +120,13 @@ public interface CoMEPartialIndividual<GT, ST, G1, G2, S1, S2, S, Q> extends MEI
         qualityMappingIteration(),
         parentIds(),
         coordinates(),
-        completeIndividual().swapped());
+        completeIndividual().swapped()
+    );
   }
 
   default CoMEPartialIndividual<GT, ST, G1, G2, S1, S2, S, Q> updateWithCompleteIndividual(
-      CoMEIndividual<G1, G2, S1, S2, S, Q> completeIndividual) {
+      CoMEIndividual<G1, G2, S1, S2, S, Q> completeIndividual
+  ) {
     return of(
         id(),
         genotype(),
@@ -125,6 +136,7 @@ public interface CoMEPartialIndividual<GT, ST, G1, G2, S1, S2, S, Q> extends MEI
         qualityMappingIteration(),
         parentIds(),
         coordinates(),
-        completeIndividual);
+        completeIndividual
+    );
   }
 }

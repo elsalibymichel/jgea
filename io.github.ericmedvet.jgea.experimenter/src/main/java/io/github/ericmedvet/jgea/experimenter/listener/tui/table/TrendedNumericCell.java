@@ -41,25 +41,22 @@ public record TrendedNumericCell<C extends Comparable<C>>(List<C> values, String
             s.length(),
             0,
             "" + INCREASING_CHAR,
-            changed
-                ? td.getConfiguration().positivePlotColor()
-                : td.getConfiguration().secondaryStringColor());
+            changed ? td.getConfiguration().positivePlotColor() : td.getConfiguration().secondaryStringColor()
+        );
       } else if (lastTrend < 0) {
         td.drawString(
             s.length(),
             0,
             "" + DECREASING_CHAR,
-            changed
-                ? td.getConfiguration().negativePlotColor()
-                : td.getConfiguration().secondaryStringColor());
+            changed ? td.getConfiguration().negativePlotColor() : td.getConfiguration().secondaryStringColor()
+        );
       } else {
         td.drawString(
             s.length(),
             0,
             "" + SAME_CHAR,
-            changed
-                ? td.getConfiguration().primaryStringColor()
-                : td.getConfiguration().secondaryStringColor());
+            changed ? td.getConfiguration().primaryStringColor() : td.getConfiguration().secondaryStringColor()
+        );
       }
     }
   }

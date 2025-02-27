@@ -87,7 +87,8 @@ public class HierarchicalMapper<T> extends GrammarBasedMapper<BitString, T> {
     // in genotype
     if (bestOptionIndexes.size() == 1) {
       index = bestOptionIndexes.get(
-          genotype.slice(range.min(), range.max()).nOfOnes() % bestOptionIndexes.size());
+          genotype.slice(range.min(), range.max()).nOfOnes() % bestOptionIndexes.size()
+      );
     }
     return options.get(index);
   }
@@ -107,8 +108,9 @@ public class HierarchicalMapper<T> extends GrammarBasedMapper<BitString, T> {
   }
 
   public Tree<T> mapIteratively(BitString genotype, int[] bitUsages) {
-    Tree<EnhancedSymbol<T>> enhancedTree =
-        Tree.of(new EnhancedSymbol<>(grammar.startingSymbol(), new IntRange(0, genotype.size())));
+    Tree<EnhancedSymbol<T>> enhancedTree = Tree.of(
+        new EnhancedSymbol<>(grammar.startingSymbol(), new IntRange(0, genotype.size()))
+    );
     while (true) {
       Tree<EnhancedSymbol<T>> treeToBeReplaced = null;
       for (Tree<EnhancedSymbol<T>> tree : enhancedTree.leaves()) {
@@ -127,9 +129,8 @@ public class HierarchicalMapper<T> extends GrammarBasedMapper<BitString, T> {
       // get option
       List<T> symbols;
       if ((symbolRange.extent()) < options.size()) {
-        int count = (symbolRange.extent() > 0)
-            ? genotype.slice(symbolRange.min(), symbolRange.max()).nOfOnes()
-            : genotype.nOfOnes();
+        int count = (symbolRange.extent() > 0) ? genotype.slice(symbolRange.min(), symbolRange.max())
+            .nOfOnes() : genotype.nOfOnes();
         int index = shortestOptionIndexesMap
             .get(symbol)
             .get(count % shortestOptionIndexesMap.get(symbol).size());
@@ -167,9 +168,7 @@ public class HierarchicalMapper<T> extends GrammarBasedMapper<BitString, T> {
       // get option
       List<T> symbols;
       if ((range.extent()) < options.size()) {
-        int count = (range.extent() > 0)
-            ? genotype.slice(range.min(), range.max()).nOfOnes()
-            : genotype.nOfOnes();
+        int count = (range.extent() > 0) ? genotype.slice(range.min(), range.max()).nOfOnes() : genotype.nOfOnes();
         int index = shortestOptionIndexesMap
             .get(symbol)
             .get(count % shortestOptionIndexesMap.get(symbol).size());

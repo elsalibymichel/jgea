@@ -40,7 +40,8 @@ public interface PSOIndividual<S, Q> extends Individual<List<Double>, S, Q> {
       Q quality,
       long genotypeBirthIteration,
       long qualityMappingIteration,
-      Collection<Long> parentIds) {
+      Collection<Long> parentIds
+  ) {
     record HardIndividual<S, Q>(
         long id,
         List<Double> genotype,
@@ -51,8 +52,8 @@ public interface PSOIndividual<S, Q> extends Individual<List<Double>, S, Q> {
         Q quality,
         long genotypeBirthIteration,
         long qualityMappingIteration,
-        Collection<Long> parentIds)
-        implements PSOIndividual<S, Q> {}
+        Collection<Long> parentIds
+    ) implements PSOIndividual<S, Q> {}
     return new HardIndividual<>(
         id,
         genotype,
@@ -63,7 +64,8 @@ public interface PSOIndividual<S, Q> extends Individual<List<Double>, S, Q> {
         quality,
         genotypeBirthIteration,
         qualityMappingIteration,
-        parentIds);
+        parentIds
+    );
   }
 
   default List<Double> position() {

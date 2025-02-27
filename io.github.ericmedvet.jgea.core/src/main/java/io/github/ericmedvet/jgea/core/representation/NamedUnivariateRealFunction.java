@@ -80,12 +80,16 @@ public interface NamedUnivariateRealFunction extends NamedMultivariateRealFuncti
   @Override
   default double[] compute(double... xs) {
     if (xs.length != xVarNames().size()) {
-      throw new IllegalArgumentException("Wrong number of inputs: %d expected, %d found"
-          .formatted(xVarNames().size(), xs.length));
+      throw new IllegalArgumentException(
+          "Wrong number of inputs: %d expected, %d found"
+              .formatted(xVarNames().size(), xs.length)
+      );
     }
-    Map<String, Double> output = compute(IntStream.range(0, xVarNames().size())
-        .mapToObj(i -> Map.entry(xVarNames().get(i), xs[i]))
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+    Map<String, Double> output = compute(
+        IntStream.range(0, xVarNames().size())
+            .mapToObj(i -> Map.entry(xVarNames().get(i), xs[i]))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+    );
     return yVarNames().stream().mapToDouble(output::get).toArray();
   }
 
@@ -110,8 +114,10 @@ public interface NamedUnivariateRealFunction extends NamedMultivariateRealFuncti
                 return thisNurf + "[then:%s]".formatted(f);
               }
             },
-            nOfInputs()),
+            nOfInputs()
+        ),
         xVarNames(),
-        yVarName());
+        yVarName()
+    );
   }
 }

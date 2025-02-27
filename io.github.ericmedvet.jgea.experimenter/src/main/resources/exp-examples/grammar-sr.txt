@@ -21,7 +21,7 @@ ea.experiment(
       ]
     );
     ea.l.savePlotForExp(
-      path = "../RESULTS/{name}/{startTime}/fitness";
+      path = "../../Documenti/experiments/{name}/{startTime}/best-fitness";
       plot = ea.plot.multi.quality()
     )
   ]

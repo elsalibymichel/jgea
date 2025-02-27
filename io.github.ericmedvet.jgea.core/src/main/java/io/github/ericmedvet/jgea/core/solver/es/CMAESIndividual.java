@@ -40,7 +40,8 @@ public interface CMAESIndividual<S, Q> extends Individual<List<Double>, S, Q> {
       Collection<Long> parentIds,
       double[] x,
       double[] y,
-      double[] z) {
+      double[] z
+  ) {
     record HardIndividual<S, Q>(
         long id,
         List<Double> genotype,
@@ -51,9 +52,19 @@ public interface CMAESIndividual<S, Q> extends Individual<List<Double>, S, Q> {
         Collection<Long> parentIds,
         double[] x,
         double[] y,
-        double[] z)
-        implements CMAESIndividual<S, Q> {}
+        double[] z
+    ) implements CMAESIndividual<S, Q> {}
     return new HardIndividual<>(
-        id, genotype, solution, quality, genotypeBirthIteration, qualityMappingIteration, parentIds, x, y, z);
+        id,
+        genotype,
+        solution,
+        quality,
+        genotypeBirthIteration,
+        qualityMappingIteration,
+        parentIds,
+        x,
+        y,
+        z
+    );
   }
 }

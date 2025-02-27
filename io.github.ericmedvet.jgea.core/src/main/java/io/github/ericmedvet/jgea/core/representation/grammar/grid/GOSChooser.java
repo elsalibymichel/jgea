@@ -43,7 +43,10 @@ public class GOSChooser<S, O> implements Chooser<S, O> {
   }
 
   public static <T, D, O> Function<GrammarOptionString<T>, D> mapper(
-      Grammar<T, O> grammar, Developer<T, D, O> developer, D defaultDeveloped) {
+      Grammar<T, O> grammar,
+      Developer<T, D, O> developer,
+      D defaultDeveloped
+  ) {
     return gos -> {
       GOSChooser<T, O> chooser = new GOSChooser<>(gos, grammar);
       return developer.develop(chooser).orElse(defaultDeveloped);

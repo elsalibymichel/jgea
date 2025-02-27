@@ -20,27 +20,31 @@
 
 package io.github.ericmedvet.jgea.experimenter.builders;
 
+import io.github.ericmedvet.jgea.core.problem.Problem;
+import io.github.ericmedvet.jgea.core.representation.NamedUnivariateRealFunction;
 import io.github.ericmedvet.jgea.core.representation.grammar.grid.GridGrammar;
 import io.github.ericmedvet.jgea.core.representation.grammar.string.GrammarBasedProblem;
 import io.github.ericmedvet.jgea.core.representation.grammar.string.StringGrammar;
 import io.github.ericmedvet.jgea.core.representation.grammar.string.SymbolicRegressionGrammar;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element;
-import io.github.ericmedvet.jgea.problem.regression.univariate.synthetic.SyntheticUnivariateRegressionProblem;
 import io.github.ericmedvet.jnb.core.Cacheable;
 import io.github.ericmedvet.jnb.core.Discoverable;
 import io.github.ericmedvet.jnb.core.Param;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 @Discoverable(prefixTemplate = "ea.grammar")
 public class Grammars {
 
-  private Grammars() {}
+  private Grammars() {
+  }
 
   @SuppressWarnings("unused")
   @Cacheable
   public static <N> StringGrammar<N> fromProblem(@Param("problem") GrammarBasedProblem<N, ?> problem) {
-    return problem.getGrammar();
+    return problem.grammar();
   }
 
   @SuppressWarnings("unused")
@@ -56,16 +60,23 @@ public class Grammars {
 
   @SuppressWarnings("unused")
   @Cacheable
+  public static GridGrammar<String> gridFile(@Param("path") String path) {
+    try (InputStream is = new FileInputStream(path)) {
+      return GridGrammar.load(is);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
   public static StringGrammar<String> regression(
       @Param(
-              value = "constants",
-              dDs = {0.1, 1, 10})
-          List<Double> constants,
+          value = "constants", dDs = {0.1, 1, 10}) List<Double> constants,
       @Param(
-              value = "operators",
-              dSs = {"addition", "subtraction", "multiplication", "prot_division", "prot_log"})
-          List<Element.Operator> operators,
-      @Param("problem") SyntheticUnivariateRegressionProblem problem) {
-    return new SymbolicRegressionGrammar(operators, problem.example().xVarNames(), constants);
+          value = "operators", dSs = {"addition", "subtraction", "multiplication", "prot_division", "prot_log"}) List<Element.Operator> operators,
+      @Param("problem") Problem<NamedUnivariateRealFunction> problem
+  ) {
+    return new SymbolicRegressionGrammar(operators, problem.example().orElseThrow().xVarNames(), constants);
   }
 }

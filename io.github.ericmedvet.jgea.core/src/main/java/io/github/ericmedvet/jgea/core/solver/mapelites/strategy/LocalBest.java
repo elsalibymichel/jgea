@@ -50,26 +50,29 @@ public class LocalBest implements CoMEStrategy {
               os.stream()
                   .map(o -> new PartialObservation<>(o.otherCoords(), o.q()))
                   .toList(),
-              qComparator);
+              qComparator
+          );
           //noinspection unchecked
           bests.merge(
               tc,
               new Pair<>(newOtherCoords.otherCoords(), newOtherCoords.q()),
-              (currentPair, newPair) ->
-                  (qComparator.compare((Q) newPair.second(), (Q) currentPair.second())
-                          == PartialComparator.PartialComparatorOutcome.BEFORE)
-                      ? newPair
-                      : currentPair);
+              (currentPair, newPair) -> (qComparator.compare(
+                  (Q) newPair.second(),
+                  (Q) currentPair.second()
+              ) == PartialComparator.PartialComparatorOutcome.BEFORE) ? newPair : currentPair
+          );
         });
   }
 
   protected <Q> PartialObservation<Q> computeNewOtherCoords(
       List<Double> theseCoords,
       Collection<PartialObservation<Q>> observations,
-      PartialComparator<Q> qComparator) {
+      PartialComparator<Q> qComparator
+  ) {
     Collection<PartialObservation<Q>> firsts = PartiallyOrderedCollection.from(
-            observations, (PartialComparator<? super PartialObservation<Q>>)
-                (po1, po2) -> qComparator.compare(po1.q(), po2.q()))
+        observations,
+        (PartialComparator<? super PartialObservation<Q>>) (po1, po2) -> qComparator.compare(po1.q(), po2.q())
+    )
         .firsts();
     return firsts.stream().findFirst().orElseThrow();
   }

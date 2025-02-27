@@ -55,8 +55,10 @@ public record IndexedNode<C>(int index, C content) implements Serializable {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o)
+      return true;
+    if (o == null || getClass() != o.getClass())
+      return false;
     IndexedNode<?> that = (IndexedNode<?>) o;
     return index == that.index;
   }

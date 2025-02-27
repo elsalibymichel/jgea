@@ -43,17 +43,20 @@ import javax.imageio.ImageIO;
 @Discoverable(prefixTemplate = "ea.consumer|c")
 public class Consumers {
 
-  private Consumers() {}
+  private Consumers() {
+  }
 
   @SuppressWarnings("unused")
   @Cacheable
   public static <X, Y, O> TriConsumer<X, Run<?, ?, ?, ?>, Experiment> composed(
       @Param(value = "of", dNPM = "f.identity()") Function<X, Y> f,
       @Param(value = "f", dNPM = "f.identity()") Function<Y, O> innerF,
-      @Param(value = "c") TriConsumer<O, Run<?, ?, ?, ?>, Experiment> consumer) {
+      @Param(value = "c") TriConsumer<O, Run<?, ?, ?, ?>, Experiment> consumer
+  ) {
     return Naming.named(
         "%s[f=%s]".formatted(consumer, NamedFunction.name(f)),
-        (x, run, experiment) -> consumer.accept(innerF.apply(f.apply(x)), run, experiment));
+        (x, run, experiment) -> consumer.accept(innerF.apply(f.apply(x)), run, experiment)
+    );
   }
 
   @SuppressWarnings("unused")
@@ -90,15 +93,19 @@ public class Consumers {
               file.toPath(),
               MapNamedParamMap.prettyToString(npm),
               StandardOpenOption.WRITE,
-              StandardOpenOption.CREATE);
+              StandardOpenOption.CREATE
+          );
         }
         case null -> throw new IllegalArgumentException("Cannot save null data of type %s");
         default -> throw new IllegalArgumentException(
-            "Cannot save data of type %s".formatted(o.getClass().getSimpleName()));
+            "Cannot save data of type %s".formatted(o.getClass().getSimpleName())
+        );
       }
     } catch (IOException e) {
       throw new RuntimeException(
-          "Cannot save '%s'".formatted(Objects.isNull(file) ? filePath : file.getPath()), e);
+          "Cannot save '%s'".formatted(Objects.isNull(file) ? filePath : file.getPath()),
+          e
+      );
     }
   }
 
@@ -107,11 +114,12 @@ public class Consumers {
   public static <X, O> TriConsumer<X, Run<?, ?, ?, ?>, Experiment> saver(
       @Param(value = "of", dNPM = "f.identity()") Function<X, O> f,
       @Param(value = "overwrite") boolean overwrite,
-      @Param(value = "path", dS = "run-{run.index:%04d}") String filePathTemplate) {
+      @Param(value = "path", dS = "run-{run.index:%04d}") String filePathTemplate
+  ) {
     return Naming.named(
         "saver[%s]".formatted(NamedFunction.name(f)),
-        (x, run, experiment) ->
-            save(f.apply(x), Utils.interpolate(filePathTemplate, experiment, run), overwrite));
+        (x, run, experiment) -> save(f.apply(x), Utils.interpolate(filePathTemplate, experiment, run), overwrite)
+    );
   }
 
   @SuppressWarnings("unused")
@@ -119,8 +127,7 @@ public class Consumers {
   public static <X, O> TriConsumer<X, Run<?, ?, ?, ?>, Experiment> telegram(
       @Param(value = "of", dNPM = "f.identity()") Function<X, O> f,
       @Param(
-              value = "title",
-              dS = // spotless:off
+          value = "title", dS = // spotless:off
               """
                   Experiment:
                   \t{name}
@@ -129,13 +136,14 @@ public class Consumers {
                   .name}
                   \tProblem: {run.problem.name}
                   \tSeed: {run.randomGenerator.seed}""" // spotless:on
-              )
-          String titleTemplate,
+      ) String titleTemplate,
       @Param("chatId") String chatId,
-      @Param("botIdFilePath") String botIdFilePath) {
+      @Param("botIdFilePath") String botIdFilePath
+  ) {
     TelegramClient client = new TelegramClient(new File(botIdFilePath), Long.parseLong(chatId));
     return Naming.named(
         "telegram[%s→to:%s]".formatted(NamedFunction.name(f), chatId),
-        (x, run, experiment) -> client.send(Utils.interpolate(titleTemplate, experiment, run), f.apply(x)));
+        (x, run, experiment) -> client.send(Utils.interpolate(titleTemplate, experiment, run), f.apply(x))
+    );
   }
 }

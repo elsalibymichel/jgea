@@ -36,16 +36,17 @@ public class SmoothedLocalBest extends LocalBest {
   protected <Q> PartialObservation<Q> computeNewOtherCoords(
       List<Double> theseCoords,
       Collection<PartialObservation<Q>> observations,
-      PartialComparator<Q> qComparator) {
+      PartialComparator<Q> qComparator
+  ) {
     Collection<PartialObservation<Q>> firsts = PartiallyOrderedCollection.from(
-            observations, (PartialComparator<? super PartialObservation<Q>>)
-                (po1, po2) -> qComparator.compare(po1.q(), po2.q()))
+        observations,
+        (PartialComparator<? super PartialObservation<Q>>) (po1, po2) -> qComparator.compare(po1.q(), po2.q())
+    )
         .firsts();
     PartialObservation<Q> bestPO = firsts.stream().findFirst().orElseThrow();
     List<Double> currentOtherCoords = getOtherCoords(theseCoords);
     List<Double> newOtherCoords = IntStream.range(0, currentOtherCoords.size())
-        .mapToObj(i ->
-            step(currentOtherCoords.get(i), bestPO.otherCoords().get(i)))
+        .mapToObj(i -> step(currentOtherCoords.get(i), bestPO.otherCoords().get(i)))
         .toList();
     return new PartialObservation<>(newOtherCoords, bestPO.q());
   }

@@ -91,13 +91,15 @@ public class TelegramClient {
         case NamedParamMap npm -> {
           if (!title.isEmpty()) {
             sendMarkdownText(
-                "NamedParamMap from: %s\n`%s`".formatted(StringUtils.getUserMachineName(), title));
+                "NamedParamMap from: %s\n`%s`".formatted(StringUtils.getUserMachineName(), title)
+            );
           }
           sendText(MapNamedParamMap.prettyToString(npm));
         }
         case null -> throw new IllegalArgumentException("Cannot send null data of type %s");
         default -> throw new IllegalArgumentException(
-            "Cannot send data of type %s".formatted(o.getClass().getSimpleName()));
+            "Cannot send data of type %s".formatted(o.getClass().getSimpleName())
+        );
       }
     } catch (IOException e) {
       throw new RuntimeException("Cannot send '%s'".formatted(title), e);

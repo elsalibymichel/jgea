@@ -1,18 +1,19 @@
 ea.experiment(
   runs = (randomGenerator = (seed = [1]) * [m.defaultRG()]) * [ea.run(
       name = "robotnav_maze_tree";
-        problem = ea.p.numEnvTo(
-        dT = 0.1;
-        finalT = 20;
-        environment = ds.e.navigation(
-          arena = e_maze;
-          initialRobotXRange = m.range(min = 0.5; max = 0.5);
-          initialRobotYRange = m.range(min = 0.75; max = 0.75);
-          robotMaxV = 0.05
+      problem = ea.p.simToSbbmo(
+        simulation = ds.sat.fromEnvironment(
+          environment = ds.e.navigation(
+            arena = e_maze;
+            initialRobotXRange = m.range(min = 0.5; max = 0.5);
+            initialRobotYRange = m.range(min = 0.75; max = 0.75);
+            robotMaxV = 0.05
+          );
+          % stopCondition = predicate.lt(f = ds.e.n.distanceFromTarget(); t = 0.01);
+          dT = 0.1;
+          tRange = m.range(min = 0; max = 20)
         );
-        stopCondition = predicate.lt(f = ds.e.n.distanceFromTarget(); t = 0.01);
-        f = ds.e.n.finalTimePlusD();
-        type = minimize
+        toMinObjectives = [ds.e.n.finalTimePlusD()]
       );
       solver = ea.s.mapElites(
         representation = ea.representation.multiSRTree();
@@ -21,13 +22,13 @@ ea.experiment(
         nEval = 4000;
         descriptors = [
           ea.s.me.d.descriptor(
-            f = ds.e.n.x(of = ds.e.n.finalRobotP(of = ea.f.simOutcome(of = ea.f.quality())));
+            f = ds.e.n.x(of = ds.e.n.finalRobotP(of = ea.f.behavior(of = ea.f.quality())));
             min = 0;
             max = 1;
             nOfBins = 10
           );
           ea.s.me.d.descriptor(
-            f = ds.e.n.y(of = ds.e.n.finalRobotP(of = ea.f.simOutcome(of = ea.f.quality())));
+            f = ds.e.n.y(of = ds.e.n.finalRobotP(of = ea.f.behavior(of = ea.f.quality())));
             min = 0;
             max = 1;
             nOfBins = 10
@@ -39,18 +40,18 @@ ea.experiment(
   listeners = [
     ea.l.console(
       functions = [
-        ea.f.simQuality(of = ea.f.quality(of = ea.f.best()); format = "%9.5f")
+        f.mapValue(key = "final.td"; of = ea.f.behaviorQuality(of = ea.f.quality(of = ea.f.best())); format = "%6.4f")
       ];
-      onlyLast = true
+      onlyLast = false
     );
-    ea.l.runSaver(
-      filePathTemplate = "../best-traj-{solver.name}-{randomGenerator.seed:%04d}";
+    ea.l.saveForRun(
+      path = "../../Documenti/experiments/{name}/{startTime}/best-traj-{run.solver.name}-{run.randomGenerator.seed:%04d}";
       of = ea.acc.lastBest();
-      processors = [ea.f.toImage(image = ds.d.navigation(); of = ea.f.simOutcome(of = ea.f.quality()))]
+      processor = ea.f.toImage(image = ds.d.navigation(); of = ea.f.behavior(of = ea.f.quality()))
     );
-    ea.l.expPlotSaver(
-      filePath = "../fitness";
-      of = ea.plot.multi.quality(y = ea.f.simQuality(of = ea.f.quality(of = ea.f.best())))
+    ea.l.savePlotForExp(
+      path = "../../Documenti/experiments/{name}/{startTime}/best-fitness";
+      plot = ea.plot.multi.quality(q = f.mapValue(key = "final.td"; of = ea.f.behaviorQuality()))
     )
   ]
 )

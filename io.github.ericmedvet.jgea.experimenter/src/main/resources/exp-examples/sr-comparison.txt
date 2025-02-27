@@ -1,19 +1,16 @@
-$nEvals = [1000]
+$nEvals = [10000]
 
 ea.experiment(
-  runs = (randomGenerator = (seed = [1:1:5]) * [m.defaultRG()]) *
+  runs = (randomGenerator = (seed = [1:1:3]) * [m.defaultRG()]) *
     (problem = [
-      ea.p.ur.synthetic(name = "keijzer6");
-      ea.p.ur.synthetic(name = "nguyen7");
-      ea.p.ur.synthetic(name = "korns12");
-      ea.p.ur.synthetic(name = "vladislavleva4")
+      ea.p.moToSo(objective = mse; moProblem = ea.p.ur.synthetic(name = "keijzer6"));
+      ea.p.moToSo(objective = mse; moProblem = ea.p.ur.synthetic(name = "nguyen7"));
+      ea.p.moToSo(objective = mse; moProblem = ea.p.ur.synthetic(name = "vladislavleva4"));
+      ea.p.moToSo(objective = mse; moProblem = ea.p.ur.bundled(name = "concrete"; xScaling = standardization; yScaling = symmetric_min_max));
+      ea.p.moToSo(objective = mse; moProblem = ea.p.ur.bundled(name = "energy-efficiency"; xScaling = standardization; yScaling = symmetric_min_max))
     ]) *
     (solver = (nEval = $nEvals) * [
-      ea.s.ga(
-        name = "gp";
-        representation = ea.r.srTree();
-        mapper = ea.m.srTreeToNurf()
-      );
+      ea.s.srGp(name = "gp");
       ea.s.ga(
         name = "ga+mlp";
         representation = ea.r.doubleString();
@@ -26,16 +23,16 @@ ea.experiment(
     ea.l.console(
       functions = [
         ea.f.size(of = ea.f.genotype(of = ea.f.best()); format = "%3d");
-        ea.f.quality(of = ea.f.best(); format = "%6.2f");
-        f.percentile(of = f.each(of = ea.f.all(); mapF = ea.f.quality()); p = 75; format = "%6.2f");
-        ea.f.hist(of = f.each(of = ea.f.all(); mapF = ea.f.quality()));
-        ea.f.validationQuality(format = "%6.2f")
+        f.mapValue(key = mse; of = ea.f.quality(of = ea.f.best()); format = "%6.2f");
+        f.percentile(of = f.each(of = ea.f.all(); mapF = f.mapValue(key = mse; of = ea.f.quality())); p = 75; format = "%6.2f");
+        ea.f.hist(of = f.each(of = ea.f.all(); mapF = f.mapValue(key = mse; of = ea.f.quality())));
+        f.mapValue(key = mse; of = ea.f.validationQuality(); format = "%6.2f")
       ];
-      onlyLast = true
+      onlyLast = false
     );
     ea.l.savePlotForExp(
-      path = "../../experiments/jgea/results/{name}/{startTime}/sr";
-      plot = ea.plot.multi.quality()
+      path = "../../Documenti/experiments/{name}/{startTime}/best-fitness";
+      plot = ea.plot.multi.quality(q = f.mapValue(key = mse))
     )
   ]
 )

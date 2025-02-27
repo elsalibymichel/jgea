@@ -33,7 +33,9 @@ public interface MEIndividual<G, S, Q> extends Individual<G, S, Q> {
   }
 
   static <G, S, Q> MEIndividual<G, S, Q> from(
-      Individual<G, S, Q> individual, List<MapElites.Descriptor<G, S, Q>> descriptors) {
+      Individual<G, S, Q> individual,
+      List<MapElites.Descriptor<G, S, Q>> descriptors
+  ) {
     return of(
         individual.id(),
         individual.genotype(),
@@ -42,7 +44,8 @@ public interface MEIndividual<G, S, Q> extends Individual<G, S, Q> {
         individual.genotypeBirthIteration(),
         individual.qualityMappingIteration(),
         individual.parentIds(),
-        descriptors.stream().map(d -> d.coordinate(individual)).toList());
+        descriptors.stream().map(d -> d.coordinate(individual)).toList()
+    );
   }
 
   static <G, S, Q> MEIndividual<G, S, Q> of(
@@ -53,7 +56,8 @@ public interface MEIndividual<G, S, Q> extends Individual<G, S, Q> {
       long genotypeBirthIteration,
       long qualityMappingIteration,
       Collection<Long> parentIds,
-      List<MapElites.Descriptor.Coordinate> coordinates) {
+      List<MapElites.Descriptor.Coordinate> coordinates
+  ) {
     record HardIndividual<G, S, Q>(
         long id,
         G genotype,
@@ -62,8 +66,8 @@ public interface MEIndividual<G, S, Q> extends Individual<G, S, Q> {
         long genotypeBirthIteration,
         long qualityMappingIteration,
         Collection<Long> parentIds,
-        List<MapElites.Descriptor.Coordinate> coordinates)
-        implements MEIndividual<G, S, Q> {}
+        List<MapElites.Descriptor.Coordinate> coordinates
+    ) implements MEIndividual<G, S, Q> {}
     return new HardIndividual<>(
         id,
         genotype,
@@ -72,7 +76,8 @@ public interface MEIndividual<G, S, Q> extends Individual<G, S, Q> {
         genotypeBirthIteration,
         qualityMappingIteration,
         parentIds,
-        coordinates);
+        coordinates
+    );
   }
 
   default MEIndividual<G, S, Q> updatedWithQuality(Q q) {
@@ -84,7 +89,8 @@ public interface MEIndividual<G, S, Q> extends Individual<G, S, Q> {
         genotypeBirthIteration(),
         qualityMappingIteration(),
         parentIds(),
-        coordinates());
+        coordinates()
+    );
   }
 
   default MEIndividual<G, S, Q> updateQuality(Q quality, long qualityMappingIteration) {

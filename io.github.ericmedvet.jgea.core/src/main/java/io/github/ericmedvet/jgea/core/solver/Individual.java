@@ -44,7 +44,8 @@ public interface Individual<G, S, Q> extends Serializable {
       AbstractPopulationBasedIterativeSolver.ChildGenotype<G> childGenotype,
       Function<? super G, ? extends S> solutionMapper,
       Function<? super S, ? extends Q> qualityFunction,
-      long iteration) {
+      long iteration
+  ) {
     S solution = solutionMapper.apply(childGenotype.genotype());
     Q quality = qualityFunction.apply(solution);
     return of(
@@ -54,7 +55,8 @@ public interface Individual<G, S, Q> extends Serializable {
         quality,
         iteration,
         iteration,
-        childGenotype.parentIds());
+        childGenotype.parentIds()
+    );
   }
 
   static <G, S, Q> Individual<G, S, Q> of(
@@ -64,7 +66,8 @@ public interface Individual<G, S, Q> extends Serializable {
       Q quality,
       long genotypeBirthIteration,
       long qualityMappingIteration,
-      Collection<Long> parentIds) {
+      Collection<Long> parentIds
+  ) {
     record HardIndividual<G, S, Q>(
         long id,
         G genotype,
@@ -72,14 +75,23 @@ public interface Individual<G, S, Q> extends Serializable {
         Q quality,
         long genotypeBirthIteration,
         long qualityMappingIteration,
-        Collection<Long> parentIds)
-        implements Individual<G, S, Q> {}
+        Collection<Long> parentIds
+    ) implements Individual<G, S, Q> {}
     return new HardIndividual<>(
-        id, genotype, solution, quality, genotypeBirthIteration, qualityMappingIteration, parentIds);
+        id,
+        genotype,
+        solution,
+        quality,
+        genotypeBirthIteration,
+        qualityMappingIteration,
+        parentIds
+    );
   }
 
   default Individual<G, S, Q> updatedWithQuality(
-      Function<? super S, ? extends Q> qualityFunction, long qualityMappingIteration) {
+      Function<? super S, ? extends Q> qualityFunction,
+      long qualityMappingIteration
+  ) {
     return of(
         id(),
         genotype(),
@@ -87,7 +99,8 @@ public interface Individual<G, S, Q> extends Serializable {
         qualityFunction.apply(solution()),
         genotypeBirthIteration(),
         qualityMappingIteration,
-        parentIds());
+        parentIds()
+    );
   }
 
   default Individual<G, S, Q> updateQuality(Q quality, long qualityMappingIteration) {

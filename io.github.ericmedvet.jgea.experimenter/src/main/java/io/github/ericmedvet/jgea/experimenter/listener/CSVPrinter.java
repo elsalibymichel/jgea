@@ -56,7 +56,8 @@ public class CSVPrinter<E, K> implements ListenerFactory<E, K> {
       String filePath,
       String errorString,
       String intFormat,
-      String doubleFormat) {
+      String doubleFormat
+  ) {
     this.eFunctions = eFunctions.stream().map(NamedFunction::from).toList();
     this.kFunctions = kFunctions.stream().map(NamedFunction::from).toList();
     this.filePath = filePath;
@@ -69,15 +70,19 @@ public class CSVPrinter<E, K> implements ListenerFactory<E, K> {
   @Override
   public Listener<E> build(K k) {
     List<?> kValues = kFunctions.stream().map(f -> f.apply(k)).toList();
-    List<String> headers = Misc.concat(List.of(kFunctions, eFunctions)).stream()
+    List<String> headers = Misc.concat(List.of(kFunctions, eFunctions))
+        .stream()
         .map(f -> f.name())
         .toList();
     return Naming.named(
         "csv(%s)"
-            .formatted(Stream.concat(
+            .formatted(
+                Stream.concat(
                     eFunctions.stream().map(f -> f.name()),
-                    kFunctions.stream().map(f -> f.name()))
-                .collect(Collectors.joining(";"))),
+                    kFunctions.stream().map(f -> f.name())
+                )
+                    .collect(Collectors.joining(";"))
+            ),
         (Listener<E>) (e -> {
           List<?> eValues = eFunctions.stream()
               .map(f -> {
@@ -109,10 +114,15 @@ public class CSVPrinter<E, K> implements ListenerFactory<E, K> {
                     new PrintStream(file),
                     CSVFormat.Builder.create()
                         .setDelimiter(";")
-                        .build());
-                L.info(String.format(
-                    "File '%s' created and header for %d columns written",
-                    file.getPath(), eFunctions.size() + kFunctions.size()));
+                        .build()
+                );
+                L.info(
+                    String.format(
+                        "File '%s' created and header for %d columns written",
+                        file.getPath(),
+                        eFunctions.size() + kFunctions.size()
+                    )
+                );
               } catch (IOException ex) {
                 L.severe(String.format("Cannot create CSVPrinter: %s", ex));
                 return;
@@ -140,7 +150,8 @@ public class CSVPrinter<E, K> implements ListenerFactory<E, K> {
             }
             lineCounter = lineCounter + 1;
           }
-        }));
+        })
+    );
   }
 
   @Override

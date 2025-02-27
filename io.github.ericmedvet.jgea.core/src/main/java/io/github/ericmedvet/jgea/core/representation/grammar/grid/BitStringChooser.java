@@ -39,7 +39,10 @@ public class BitStringChooser<S, O> implements Chooser<S, O> {
   }
 
   public static <S, D, O> Function<BitString, D> mapper(
-      Grammar<S, O> grammar, Developer<S, D, O> developer, D defaultDeveloped) {
+      Grammar<S, O> grammar,
+      Developer<S, D, O> developer,
+      D defaultDeveloped
+  ) {
     return is -> {
       BitStringChooser<S, O> chooser = new BitStringChooser<>(is, grammar);
       return developer.develop(chooser).orElse(defaultDeveloped);
