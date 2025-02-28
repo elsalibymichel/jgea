@@ -288,8 +288,8 @@ public class SingleMutationExperiments {
                 "ea.p.ps.synthetic(name = \"sLengther\"; metrics = [fail_rate; avg_raw_dissimilarity; exception_error_rate; profile_avg_steps; profile_avg_tot_size])"
         );
 
-        Network goodNetwork = rIntSumgoodNetwork;
-        ProgramSynthesisProblem psb = rIntSumpsb;
+        Network goodNetwork = iTriMaxgoodNetwork;
+        ProgramSynthesisProblem psb = iTriMaxpsb;
 
 
         TTPNDrawer drawer = new TTPNDrawer(TTPNDrawer.Configuration.DEFAULT);
@@ -298,6 +298,22 @@ public class SingleMutationExperiments {
         drawer.show(goodNetwork);
 
         System.out.println("Good network:");
+
+        psb.caseProvider()
+                .stream()
+                .forEach(
+                        e -> {
+                            InstrumentedProgram.InstrumentedOutcome outcome = runner.run(goodNetwork, e.input());
+                            System.out.printf(
+                                    "in=%s\tactualOut=%s\tpredOut=%s exc=%s%n",
+                                    e.input(),
+                                    e.output().outputs(),
+                                    outcome.outputs(),
+                                    outcome.exception()
+                            );
+                        }
+                );
+
         System.out.println(psb.qualityFunction().apply(runner.asInstrumentedProgram(goodNetwork)));
 
 

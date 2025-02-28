@@ -298,7 +298,7 @@ public class MutationExperiments {
 
     System.out.print("\t\t\tWire Swapper Mutation \t\t\t\t\t\t\t\t\t\t\t\t Gate Inserter Mutation \t\t\t\t\t\t\t\t\t\t\t\t Gate Remover Mutation\n");
 
-    System.out.println("\t\t\tUniqueness\tNeutrality\tFail_Rate\tAvg_Diss\tAvg_Steps\t\t\tUniqueness\tNeutrality\tFail_Rate\tAvg_Diss\tAvg_Steps\t\t\t\tUniqueness\tNeutrality\tFail_Rate\tAvg_Diss\tAvg_Steps");
+    System.out.println("\t\tAvg_Steps_Original\tUniqueness\tNeutrality\tFail_Rate\tAvg_Diss\tAvg_Steps\t\t\tUniqueness\tNeutrality\tFail_Rate\tAvg_Diss\tAvg_Steps\t\t\t\tUniqueness\tNeutrality\tFail_Rate\tAvg_Diss\tAvg_Steps");
 
     List<Network> networks = List.of(
             rIntSumgoodNetwork, iArraySumgoodNetwork,
@@ -321,7 +321,10 @@ public class MutationExperiments {
       ProgramSynthesisProblem psb = psbs.get(j);
       String problemName = problemNames.get(j);
 
-      System.out.print(problemName + "\t");
+      System.out.print(problemName + "\t\t\t");
+
+      System.out.print(psb.qualityFunction().apply(runner.asInstrumentedProgram((goodNetwork))).get("profile_avg_steps") + "\t\t\t");
+
 
       for (Mutation<Network> mutation : List.of(wsMutation, giMutation, grMutation)) {
         double totalFailRate = 0;
@@ -352,8 +355,8 @@ public class MutationExperiments {
         double uniqueness = mutatedNetworks.size();
         double neutrality = neutralCount;
 
-        System.out.printf("%.1f\t\t\t",uniqueness);
-        System.out.printf("%.1f\t\t\t",neutrality);
+        System.out.printf("%.1f\t\t\t",uniqueness/10);
+        System.out.printf("%.1f\t\t\t",neutrality/10);
 
         System.out.printf("%.1f\t\t\t",totalFailRate / 10);
         System.out.printf("%.1f\t\t\t",totalAvgRawDissimilarity / 10);
