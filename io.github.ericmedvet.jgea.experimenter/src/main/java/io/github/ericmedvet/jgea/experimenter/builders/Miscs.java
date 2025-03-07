@@ -38,6 +38,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
@@ -109,6 +110,14 @@ public class Miscs {
   @Cacheable
   public static <K, V> Map.Entry<K, V> entry(@Param("key") K key, @Param("value") V value) {
     return Map.entry(key, value);
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static BinaryOperator<Double> lossyAverage(
+          @Param(value = "memoryFactor", dD = 0.5) double memoryFactor
+  ){
+    return (q1, q2) -> q1 * memoryFactor + (1 - memoryFactor) * q2;
   }
 
   @SuppressWarnings("unused")
