@@ -28,7 +28,6 @@ import io.github.ericmedvet.jgea.core.representation.programsynthesis.RunProfile
 import io.github.ericmedvet.jgea.core.representation.programsynthesis.type.Type;
 import io.github.ericmedvet.jgea.core.util.Misc;
 import io.github.ericmedvet.jnb.datastructure.TriFunction;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
