@@ -30,8 +30,10 @@ import io.github.ericmedvet.jnb.datastructure.DoubleRange;
 import io.github.ericmedvet.jviz.core.drawer.Drawer;
 import java.awt.*;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -57,9 +59,9 @@ public class TTPNDrawer implements Drawer<Network> {
         Color.BLACK,
         Map.ofEntries(
             Map.entry(Base.INT, Color.BLUE),
-            Map.entry(Base.REAL, Color.CYAN),
+            Map.entry(Base.REAL, Color.CYAN.darker().darker()),
             Map.entry(Base.BOOLEAN, Color.RED),
-            Map.entry(Base.STRING, Color.GREEN)
+            Map.entry(Base.STRING, Color.GREEN.darker().darker())
         ),
         Color.DARK_GRAY,
         100,
@@ -81,7 +83,7 @@ public class TTPNDrawer implements Drawer<Network> {
     );
   }
 
-  private record Metrics(
+  protected record Metrics(
       double w, double h, int iW, int iH, Map<Integer, Point> gatePoints, Map<Integer, SequencedSet<Wire>> xGapWires,
       Map<Integer, SequencedSet<Wire>> yGapWires
   ) {
@@ -108,6 +110,26 @@ public class TTPNDrawer implements Drawer<Network> {
   }
 
   private record Point(int x, int y) {}
+
+  private static boolean areXAligned(Point2D p1, Point2D p2, Point2D p3) {
+    if (p1.getX() == p2.getX() && p2.getX() == p3.getX()) {
+      if (p1.getY() <= p2.getY() && p2.getY() <= p3.getY()) {
+        return true;
+      }
+      return p1.getY() >= p2.getY() && p2.getY() >= p3.getY();
+    }
+    return false;
+  }
+
+  private static boolean areYAligned(Point2D p1, Point2D p2, Point2D p3) {
+    if (p1.getY() == p2.getY() && p2.getY() == p3.getY()) {
+      if (p1.getX() <= p2.getX() && p2.getX() <= p3.getX()) {
+        return true;
+      }
+      return p1.getX() >= p2.getX() && p2.getX() >= p3.getX();
+    }
+    return false;
+  }
 
   private static Map<Integer, Point> computeGatePoints(Network network) {
     Map<Integer, Point> map = new TreeMap<>();
@@ -178,7 +200,14 @@ public class TTPNDrawer implements Drawer<Network> {
     return -1;
   }
 
-  private Path2D computeWirePath(Metrics m, Wire w, Network network) {
+  private static Path2D toPath(List<Point2D> points) {
+    Path2D path = new Path2D.Double();
+    path.moveTo(points.getFirst().getX(), points.getFirst().getY());
+    IntStream.range(1, points.size()).forEach(i -> path.lineTo(points.get(i).getX(), points.get(i).getY()));
+    return path;
+  }
+
+  protected List<Point2D> computeWirePoints(Metrics m, Wire w, Network network) {
     Point srcPoint = m.gatePoints.get(w.src().gateIndex());
     Point dstPoint = m.gatePoints.get(w.dst().gateIndex());
     double srcX = gateXRange(srcPoint.x, m).max();
@@ -193,16 +222,16 @@ public class TTPNDrawer implements Drawer<Network> {
         network.gates().get(w.dst().gateIndex()).inputPorts().size(),
         gateYRange(dstPoint.y, m)
     );
-    Path2D p = new Path2D.Double();
-    p.moveTo(srcX, srcY);
+    List<Point2D> points = new ArrayList<>();
+    points.add(new Point2D.Double(srcX, srcY));
     double wp1x = nThPos(
         indexOf(w, m.xGapWires().get(srcPoint.x)),
         m.xGapWires().get(srcPoint.x).size(),
         gapXRange(srcPoint.x, m)
     );
-    p.lineTo(wp1x, srcY);
+    points.add(new Point2D.Double(wp1x, srcY));
     if (srcPoint.x + 1 == dstPoint.x) {
-      p.lineTo(wp1x, dstY);
+      points.add(new Point2D.Double(wp1x, dstY));
     } else {
       double wp2y = nThPos(
           indexOf(w, m.yGapWires().get(dstPoint.y)),
@@ -214,12 +243,24 @@ public class TTPNDrawer implements Drawer<Network> {
           m.xGapWires().get(dstPoint.x - 1).size(),
           gapXRange(dstPoint.x - 1, m)
       );
-      p.lineTo(wp1x, wp2y);
-      p.lineTo(wp3x, wp2y);
-      p.lineTo(wp3x, dstY);
+      points.add(new Point2D.Double(wp1x, wp2y));
+      points.add(new Point2D.Double(wp3x, wp2y));
+      points.add(new Point2D.Double(wp3x, dstY));
     }
-    p.lineTo(dstX, dstY);
-    return p;
+    points.add(new Point2D.Double(dstX, dstY));
+    // simplify
+    List<Point2D> simpliefiedPoints = new ArrayList<>();
+    points.forEach(p -> {
+      if (simpliefiedPoints.size() >= 2) {
+        Point2D last = simpliefiedPoints.getLast();
+        Point2D secondLast = simpliefiedPoints.get(simpliefiedPoints.size() - 2);
+        if (areXAligned(secondLast, last, p) || areYAligned(secondLast, last, p)) {
+          simpliefiedPoints.removeLast();
+        }
+      }
+      simpliefiedPoints.add(p);
+    });
+    return simpliefiedPoints;
   }
 
   @Override
@@ -231,7 +272,7 @@ public class TTPNDrawer implements Drawer<Network> {
     network.wires().forEach(w -> drawWire(g, m, w, network));
   }
 
-  private void drawGate(Graphics2D g, Metrics m, int gi, Network network) {
+  protected void drawGate(Graphics2D g, Metrics m, int gi, Network network) {
     DoubleRange xR = gateXRange(m.gatePoints.get(gi).x, m);
     DoubleRange yR = gateYRange(m.gatePoints.get(gi).y, m);
     // draw gate
@@ -383,8 +424,8 @@ public class TTPNDrawer implements Drawer<Network> {
     }
   }
 
-  private void drawWire(Graphics2D g, Metrics m, Wire w, Network network) {
-    Path2D path = computeWirePath(m, w, network);
+  protected void drawWire(Graphics2D g, Metrics m, Wire w, Network network) {
+    Path2D path = toPath(computeWirePoints(m, w, network));
     Stroke stroke = g.getStroke();
     g.setColor(configuration.borderColor);
     g.setStroke(
