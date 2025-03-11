@@ -1,5 +1,5 @@
 $SIMULATION = ds.bat.fromEnvironment(
-  tRange = misc.range(min = 0; max = 30);
+  tRange = misc.range(min = 0; max = 60);
   dT = 0.05;
   environment = ds.e.pong(racketsInitialYRange = m.range(min=25.0;max=25.0));
   stopCondition = predicate.not(condition = predicate.always())
@@ -18,8 +18,8 @@ $VS_SELF = ds.f.selfBiSimulator(
 
 ea.experiment(
   runs =
-    (randomGenerator = (seed = [1:1:2]) * [m.defaultRG()]) *
-    (solver = (nEval = [1000]) * [
+    (randomGenerator = (seed = [1:1:10]) * [m.defaultRG()]) *
+    (solver = (nEval = [100000]) * [
       ea.s.ga(
         name = "ga-tree";
         representation = ea.r.srTree();
@@ -113,22 +113,6 @@ ea.experiment(
       path = "../results/{name}/{startTime}/archive-{run.problem.name}-{run.solver.name}-{run.randomGenerator.seed:%03d}";
       plot = ea.plot.single.me();
       condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "biMe")
-    );
-    ea.l.saveForRun(
-      of = ea.acc.lastBest();
-      processor = ea.f.toVideo(
-        video = ea.misc.toVideo(drawer = ds.d.pong());
-        of = $VS_SELF
-      );
-      path = "../results/{name}/{startTime}/best-vs-self-{run.solver.name}-{run.randomGenerator.seed:%04d}"
-    );
-    ea.l.saveForRun(
-      of = ea.acc.lastBest();
-      processor = ea.f.toVideo(
-        video = ea.misc.toVideo(drawer = ds.d.pong());
-        of = $VS_OPPONENT
-      );
-      path = "../results/{name}/{startTime}/best-vs-simple-{run.solver.name}-{run.randomGenerator.seed:%04d}"
     );
     ea.l.bestCsv(
         path = "../results/{name}/{startTime}/allBest.csv";

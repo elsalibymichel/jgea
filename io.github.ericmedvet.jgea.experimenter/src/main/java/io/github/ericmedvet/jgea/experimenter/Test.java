@@ -5,76 +5,226 @@ import io.github.ericmedvet.jnb.core.NamedBuilder;
 import io.github.ericmedvet.jnb.datastructure.DoubleRange;
 import io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction;
 import io.github.ericmedvet.jnb.datastructure.Pair;
-import io.github.ericmedvet.jsdynsym.buildable.builders.NumericalDynamicalSystems;
 import io.github.ericmedvet.jsdynsym.control.BiSimulation;
 import io.github.ericmedvet.jsdynsym.control.HomogeneousBiAgentTask;
-import io.github.ericmedvet.jsdynsym.control.Simulation;
-import io.github.ericmedvet.jsdynsym.control.navigation.NavigationEnvironment;
 import io.github.ericmedvet.jsdynsym.control.pong.PongAgent;
 import io.github.ericmedvet.jsdynsym.control.pong.PongEnvironment;
-import io.github.ericmedvet.jsdynsym.core.DynamicalSystem;
-import io.github.ericmedvet.jsdynsym.core.numerical.MultivariateRealFunction;
 import io.github.ericmedvet.jsdynsym.core.numerical.NumericalDynamicalSystem;
-import io.github.ericmedvet.jsdynsym.core.numerical.ann.MultiLayerPerceptron;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 public class Test {
     private static final NamedBuilder<Object> BUILDER = NamedBuilder.fromDiscovery();
     
+    @SuppressWarnings("unchecked")
     public static void main(String[] args) {
-        String problemEnvironment = "ds.e.pong()";
-        String mapper = "ea.m.dsToNpnds(of = ea.m.identity(); npnds = ds.num.mlp(activationFunction = tanh; innerLayerRatio = 4; nOfInnerLayers = 1))";
-        String fitnessFunction = "ds.e.pong.scoreDiff1()";
+        String folder = "/home/il_bello/IdeaProjects/results/pong-no-video/2025-03-10--16-59-15/";
+        String resultsCSVPath = folder + "allBest.csv";
+        String score1 = "ds.e.pong.score1()";
+        String score2 = "ds.e.pong.score2()";
+        String numberCollisionsWithBall1 = "ds.e.pong.numberOfCollisionsWithBall1()";
+        String numberCollisionsWithBall2 = "ds.e.pong.numberOfCollisionsWithBall2()";
         
-        String genotype = "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";
-        String resultsCSVPath = "/home/il_bello/IdeaProjects/results/pong-test/2025-03-07--18-55-46/allBest.csv";
+        Map<String, Integer> opponentIndices = new HashMap<>();
+        List<String> opponentNames = new ArrayList<>();
+        List<Pair<String, NumericalDynamicalSystem<?>>> opponents = new ArrayList<>();
+        int maxSeed = 0;
+        
         try (Reader reader = Files.newBufferedReader(Paths.get(resultsCSVPath))) {
             CSVParser csvParser = CSVFormat.Builder.create().setDelimiter(";").build().parse(reader);
-            CSVRecord headerCSV = csvParser.getRecords().getFirst();
+            List<CSVRecord> records = csvParser.getRecords();
+            CSVRecord headerCSV = records.getFirst();
+            
+            int mapperColumnIndex = 0, genotypeColumnIndex = 0, nameColumnIndex = 0, seedColumnIndex = 0;
+            for (int i = 0; i < headerCSV.size(); i++) {
+                String columnName = headerCSV.get(i);
+                if (columnName.contains("mapper")) {
+                    mapperColumnIndex = i;
+                } else if (columnName.contains("genotype")) {
+                    genotypeColumnIndex = i;
+                } else if (columnName.contains("name")) {
+                    nameColumnIndex = i;
+                } else if (columnName.contains("seed")) {
+                    seedColumnIndex = i;
+                }
+            }
+            
+            Function<String, Object> deserializer = (Function<String, Object>) BUILDER.build("f.fromBase64()");
+            PongEnvironment environment = (PongEnvironment) BUILDER.build("ds.e.pong()");
+            NumericalDynamicalSystem<?> exampleNDS = environment.exampleAgent();
+            
+            for (int i = 1; i < records.size(); i++) {
+                NumericalDynamicalSystem<?> opponent = ((InvertibleMapper<Object, NumericalDynamicalSystem<?>>) BUILDER.build(records.get(i).get(mapperColumnIndex)))
+                        .mapperFor(exampleNDS)
+                        .apply(deserializer.apply(records.get(i).get(genotypeColumnIndex)));
+                String name = records.get(i).get(nameColumnIndex);
+                maxSeed = Math.max(maxSeed, Integer.parseInt(records.get(i).get(seedColumnIndex)));
+                if (!opponentIndices.containsKey(name)) {
+                    opponentIndices.put(name, opponentNames.size());
+                    opponentNames.add(name);
+                }
+                opponents.add(new Pair<>(name, opponent));
+            }
+            
+            opponentIndices.put("simple", opponentNames.size());
+            opponentNames.add("simple");
+            for (int i = 0; i < maxSeed; i++) {
+                opponents.add(new Pair<>("simple", new PongAgent()));
+            }
+            
+            int numOpponents = opponentNames.size();
+            String[][] scoreMatrix = new String[numOpponents][numOpponents];
+            String[][] collisionsMatrix = new String[numOpponents][numOpponents];
+            int[][] matchCounts = new int[numOpponents][numOpponents];
+            double[][] totalScore1 = new double[numOpponents][numOpponents];
+            double[][] totalScore2 = new double[numOpponents][numOpponents];
+            double[][] totalCollisions1 = new double[numOpponents][numOpponents];
+            double[][] totalCollisions2 = new double[numOpponents][numOpponents];
+            
+            HomogeneousBiAgentTask<NumericalDynamicalSystem<?>, double[], double[], PongEnvironment.State> task =
+                    HomogeneousBiAgentTask.fromHomogenousBiEnvironment(() -> environment, s -> false, new DoubleRange(0, 60), 0.05);
+            
+            for (Pair<String, NumericalDynamicalSystem<?>> opponent1 : opponents) {
+                for (Pair<String, NumericalDynamicalSystem<?>> opponent2 : opponents) {
+                    int index1 = opponentIndices.get(opponent1.first());
+                    int index2 = opponentIndices.get(opponent2.first());
+                    
+                    BiSimulation.Outcome<HomogeneousBiAgentTask.Step<double[], double[], PongEnvironment.State>> matchOutcome =
+                            task.simulate(new Pair<>(opponent1.second(), opponent2.second()));
+                    
+                    double fitness1 = ((FormattedNamedFunction<BiSimulation.Outcome<HomogeneousBiAgentTask.Step<double[], double[], PongEnvironment.State>>, Double>) BUILDER.build(score1)).apply(matchOutcome);
+                    double fitness2 = ((FormattedNamedFunction<BiSimulation.Outcome<HomogeneousBiAgentTask.Step<double[], double[], PongEnvironment.State>>, Double>) BUILDER.build(score2)).apply(matchOutcome);
+                    double collisions1 = ((FormattedNamedFunction<BiSimulation.Outcome<HomogeneousBiAgentTask.Step<double[], double[], PongEnvironment.State>>, Double>) BUILDER.build(numberCollisionsWithBall1)).apply(matchOutcome);
+                    double collisions2 = ((FormattedNamedFunction<BiSimulation.Outcome<HomogeneousBiAgentTask.Step<double[], double[], PongEnvironment.State>>, Double>) BUILDER.build(numberCollisionsWithBall2)).apply(matchOutcome);
+                    
+                    totalScore1[index1][index2] += fitness1;
+                    totalScore2[index1][index2] += fitness2;
+                    totalCollisions1[index1][index2] += collisions1;
+                    totalCollisions2[index1][index2] += collisions2;
+                    matchCounts[index1][index2]++;
+                }
+            }
+            
+            for (int i = 0; i < numOpponents; i++) {
+                for (int j = 0; j < numOpponents; j++) {
+                    if (matchCounts[i][j] > 0) {
+                        scoreMatrix[i][j] = (totalScore1[i][j] / matchCounts[i][j]) + " / " + (totalScore2[i][j] / matchCounts[i][j]);
+                        collisionsMatrix[i][j] = (totalCollisions1[i][j] / matchCounts[i][j]) + " / " + (totalCollisions2[i][j] / matchCounts[i][j]);
+                    }
+                }
+            }
+            
+            try (BufferedWriter scoreWriter = Files.newBufferedWriter(Paths.get(folder + "scores.csv"));
+                 BufferedWriter collisionsWriter = Files.newBufferedWriter(Paths.get(folder + "collisions.csv"))) {
+                scoreWriter.write(";" + String.join(";", opponentNames) + "\n");
+                collisionsWriter.write(";" + String.join(";", opponentNames) + "\n");
+                for (int i = 0; i < numOpponents; i++) {
+                    scoreWriter.write(opponentNames.get(i) + ";" + String.join(";", scoreMatrix[i]) + "\n");
+                    collisionsWriter.write(opponentNames.get(i) + ";" + String.join(";", collisionsMatrix[i]) + "\n");
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+
+/*
+public class Test {
+    private static final NamedBuilder<Object> BUILDER = NamedBuilder.fromDiscovery();
+    
+    public static void main(String[] args) {
+        String resultsCSVPath = "/home/il_bello/IdeaProjects/results/pong-test/2025-03-07--18-55-46/allBest.csv";
+        String problemEnvironment = "ds.e.pong()";
+        String score1 = "ds.e.pong.score1()";
+        String score2 = "ds.e.pong.score2()";
+        String numberCollisionsWithBall1 = "ds.e.pong.numberOfCollisionsWithBall1()";
+        String numberCollisionsWithBall2 = "ds.e.pong.numberOfCollisionsWithBall2()";
+        try (Reader reader = Files.newBufferedReader(Paths.get(resultsCSVPath))) {
+            CSVParser csvParser = CSVFormat.Builder.create().setDelimiter(";").build().parse(reader);
+            List<CSVRecord> records = csvParser.getRecords();
+            CSVRecord headerCSV = records.getFirst();
             int mCIndex = 0;
             int gCIndex = 0;
+            int nCIndex = 0;
+            int sCIndex = 0;
             for (int i = 0; i < headerCSV.size(); i++) {
                 String columnName = headerCSV.get(i);
                 if (columnName.contains("mapper")) {
                     mCIndex = i;
                 } else if (columnName.contains("genotype")) {
                     gCIndex = i;
+                } else if (columnName.contains("name")) {
+                    nCIndex = i;
+                } else if (columnName.contains("seed")) {
+                    sCIndex = i;
                 }
             }
             final int mapperColumnIndex = mCIndex;
             final int genotypeColumnIndex = gCIndex;
+            final int nameColumnIndex = nCIndex;
+            final int seedColumnIndex = sCIndex;
             @SuppressWarnings("unchecked") Function<String, Object> deserializer = ((Function<String, Object>) BUILDER.build("f.fromBase64()"));
             PongEnvironment environment = (PongEnvironment) BUILDER.build(problemEnvironment);
             NumericalDynamicalSystem<?> exampleNDS = environment.exampleAgent();
-            //noinspection unchecked
-            List<? extends NumericalDynamicalSystem<?>> opponentsList = csvParser.stream().map(
-                    record -> ((InvertibleMapper<Object, NumericalDynamicalSystem<?>>) BUILDER.build(record.get(mapperColumnIndex))).mapperFor(exampleNDS)
-                            .apply(deserializer.apply(genotype))
-            ).toList().addLast((NumericalDynamicalSystem<?>) BUILDER.build("ds.opponent.pong.simple()"));
+            List<Pair<String, NumericalDynamicalSystem<?>>> opponents = new ArrayList<>();
+            int maxSeed = 0;
+            for (int i = 1; i < records.size(); i++) {
+                //noinspection unchecked
+                NumericalDynamicalSystem<?> opponent = ((InvertibleMapper<Object, NumericalDynamicalSystem<?>>) BUILDER.build(records.get(i).get(mapperColumnIndex)))
+                        .mapperFor(exampleNDS)
+                        .apply(deserializer.apply(records.get(i).get(genotypeColumnIndex)));
+                String name = records.get(i).get(nameColumnIndex);
+                maxSeed = Math.max(maxSeed, Integer.parseInt(records.get(i).get(seedColumnIndex)));
+                opponents.addLast(new Pair<>(name, opponent));
+                //opponentsList.addLast(opponent);
+            }
+            //opponentsList.add((NumericalDynamicalSystem<?>) BUILDER.build("ds.opponent.pong.simple()"));
+            for (int i = 0; i < maxSeed; i++) {
+                opponents.addLast(new Pair<>("simple", new PongAgent()));
+            }
+            HomogeneousBiAgentTask<NumericalDynamicalSystem<?>, double[], double[], PongEnvironment.State> task =
+                    HomogeneousBiAgentTask.fromHomogenousBiEnvironment(() -> environment, s -> false, new DoubleRange(0, 30), 0.05);
+            for (Pair<String, NumericalDynamicalSystem<?>> opponent1 : opponents) {
+                for (Pair<String, NumericalDynamicalSystem<?>> opponent2 : opponents) {
+                    Pair<String, String> matchName = new Pair<>(opponent1.first(), opponent2.first());
+                    BiSimulation.Outcome<HomogeneousBiAgentTask.Step<double[], double[], PongEnvironment.State>> matchOutcome =
+                            task.simulate(new Pair<>(opponent1.second(), opponent2.second()));
+                    @SuppressWarnings("unchecked") double fitness1 = (
+                            (FormattedNamedFunction<BiSimulation.Outcome<HomogeneousBiAgentTask.Step<double[], double[], PongEnvironment.State>>, Double>) BUILDER.build(score1)
+                    ).apply(matchOutcome);
+                    @SuppressWarnings("unchecked") double fitness2 = (
+                            (FormattedNamedFunction<BiSimulation.Outcome<HomogeneousBiAgentTask.Step<double[], double[], PongEnvironment.State>>, Double>) BUILDER.build(score2)
+                    ).apply(matchOutcome);
+                    @SuppressWarnings("unchecked") double collisions1 = (
+                            (FormattedNamedFunction<BiSimulation.Outcome<HomogeneousBiAgentTask.Step<double[], double[], PongEnvironment.State>>, Double>) BUILDER.build(numberCollisionsWithBall1)
+                    ).apply(matchOutcome);
+                    @SuppressWarnings("unchecked") double collisions2 = (
+                            (FormattedNamedFunction<BiSimulation.Outcome<HomogeneousBiAgentTask.Step<double[], double[], PongEnvironment.State>>, Double>) BUILDER.build(numberCollisionsWithBall2)
+                    ).apply(matchOutcome);
+                    System.out.println(fitness1 + "/" + fitness2 + "   " + collisions1 + "/" + collisions2);
+                }
+            }
+            
             
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         
-        //noinspection unchecked
-        Function<Object, NumericalDynamicalSystem<?>> phi = ;
-        NumericalDynamicalSystem<?> agent1 = phi.apply(deserializer.apply(genotype));
-        HomogeneousBiAgentTask<NumericalDynamicalSystem<?>, double[], double[], PongEnvironment.State> task =
-                HomogeneousBiAgentTask.fromHomogenousBiEnvironment(() -> environment, s -> false, new DoubleRange(0, 20), 0.05);
-        BiSimulation.Outcome<HomogeneousBiAgentTask.Step<double[], double[], PongEnvironment.State>> outcome =
-                task.simulate(new Pair<>(agent1, agent1));
-        @SuppressWarnings("unchecked") double fitnessValue = ((FormattedNamedFunction<BiSimulation.Outcome<HomogeneousBiAgentTask.Step<double[], double[], PongEnvironment.State>>, Double>) BUILDER.build(fitnessFunction)).apply(outcome);
-        System.out.println(fitnessValue);
+        
     }
     
 }
+*/
