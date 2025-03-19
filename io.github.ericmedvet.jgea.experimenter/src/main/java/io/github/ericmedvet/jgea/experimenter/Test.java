@@ -30,7 +30,7 @@ public class Test {
     
     @SuppressWarnings("unchecked")
     public static void main(String[] args) {
-        String folder = "/home/il_bello/IdeaProjects/results/pong-no-video/2025-03-10--16-59-15/";
+        String folder = "/home/il_bello/IdeaProjects/results/pong-video/2025-03-14--14-31-22/";
         String resultsCSVPath = folder + "allBest.csv";
         String score1 = "ds.e.pong.score1()";
         String score2 = "ds.e.pong.score2()";
@@ -120,14 +120,14 @@ public class Test {
             for (int i = 0; i < numOpponents; i++) {
                 for (int j = 0; j < numOpponents; j++) {
                     if (matchCounts[i][j] > 0) {
-                        scoreMatrix[i][j] = (totalScore1[i][j] / matchCounts[i][j]) + " / " + (totalScore2[i][j] / matchCounts[i][j]);
-                        collisionsMatrix[i][j] = (totalCollisions1[i][j] / matchCounts[i][j]) + " / " + (totalCollisions2[i][j] / matchCounts[i][j]);
+                        scoreMatrix[i][j] = " = " + (totalScore1[i][j] / matchCounts[i][j]) + " / " + (totalScore2[i][j] / matchCounts[i][j]);
+                        collisionsMatrix[i][j] = " = " + (totalCollisions1[i][j] / matchCounts[i][j]) + " / " + (totalCollisions2[i][j] / matchCounts[i][j]);
                     }
                 }
             }
             
-            try (BufferedWriter scoreWriter = Files.newBufferedWriter(Paths.get(folder + "scores.csv"));
-                 BufferedWriter collisionsWriter = Files.newBufferedWriter(Paths.get(folder + "collisions.csv"))) {
+            try (BufferedWriter scoreWriter = Files.newBufferedWriter(Paths.get(folder + "scores-formula.csv"));
+                 BufferedWriter collisionsWriter = Files.newBufferedWriter(Paths.get(folder + "collisions-formula.csv"))) {
                 scoreWriter.write(";" + String.join(";", opponentNames) + "\n");
                 collisionsWriter.write(";" + String.join(";", opponentNames) + "\n");
                 for (int i = 0; i < numOpponents; i++) {

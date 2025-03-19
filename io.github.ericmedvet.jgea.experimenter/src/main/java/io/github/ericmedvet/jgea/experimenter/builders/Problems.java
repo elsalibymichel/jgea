@@ -28,9 +28,11 @@ import io.github.ericmedvet.jnb.core.Param;
 import io.github.ericmedvet.jnb.datastructure.NamedFunction;
 import io.github.ericmedvet.jnb.datastructure.Pair;
 import io.github.ericmedvet.jsdynsym.control.*;
+
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -43,6 +45,40 @@ public class Problems {
     public enum OptimizationType {
         @SuppressWarnings("unused") MINIMIZE, MAXIMIZE
     }
+    
+    @SuppressWarnings("unused")
+    @Cacheable
+    public static <S, B extends BiSimulation.Outcome<BS>, BS, Q, C extends Comparable<C>> TotalOrderQualityBasedProblem<S, Q> biSimToQb(
+            @Param(value = "name", iS = "{simulation.name}") String name,
+            @Param("simulation") HomogeneousBiSimulation<S, BS, B> simulation,
+            @Param(value = "cFunction", dNPM = "f.identity()") Function<Q, C> comparableFunction,
+            @Param(value = "type", dS = "minimize") OptimizationType type,
+            @Param(value = "qFunction") Function<B, Q> qFunction,
+            @Param(value = "trainingOpponent") Supplier<S> trainingOpponent
+            ) {
+        return new TotalOrderQualityBasedProblem<>() {
+            @Override
+            public Function<S, Q> qualityFunction() {
+                return (s -> qFunction.apply(simulation.simulate(s, trainingOpponent.get())));
+            }
+            
+            @Override
+            public Comparator<Q> totalOrderComparator() {
+                return type.equals(OptimizationType.MAXIMIZE) ? Comparator.comparing(comparableFunction)
+                        .reversed() : Comparator.comparing(comparableFunction);
+            }
+            
+            @Override
+            public Optional<S> example() {
+                return simulation.homogeneousExample();
+            }
+            
+            @Override
+            public String toString() {
+                return "%s[%s]".formatted(name, String.join(";", NamedFunction.name(qFunction)));
+            }
+        };
+    }
 
     @SuppressWarnings("unused")
     @Cacheable
@@ -52,34 +88,39 @@ public class Problems {
             @Param("simulation") HomogeneousBiSimulation<S, BS, B> simulation,
             @Param(value = "cFunction", dNPM = "f.identity()") Function<Q, C> comparableFunction,
             @Param(value = "type", dS = "minimize") OptimizationType type,
-            @Param(value = "f1") Function<B, Q> firstQualityFunction,
-            @Param(value = "f2") Function<B, Q> secondQualityFunction
+            @Param(value = "qFunction1") Function<B, Q> qFunction1,
+            @Param(value = "qFunction2") Function<B, Q> qFunction2
     ) {
-        return new TotalOrderQualityBasedBiProblem<S, B, Q>() {
+        return new TotalOrderQualityBasedBiProblem<>() {
             @Override
             public Comparator<Q> totalOrderComparator() {
                 return type.equals(OptimizationType.MAXIMIZE) ? Comparator.comparing(comparableFunction)
                         .reversed() : Comparator.comparing(comparableFunction);
             }
-
+            
             @Override
             public BiFunction<S, S, B> outcomeFunction() {
                 return simulation::simulate;
             }
-
+            
             @Override
             public Function<B, Q> firstQualityFunction() {
-                return firstQualityFunction;
+                return qFunction1;
             }
-
+            
             @Override
             public Function<B, Q> secondQualityFunction() {
-                return firstQualityFunction;
+                return qFunction1;
             }
-
+            
             @Override
             public Optional<S> example() {
                 return simulation.homogeneousExample();
+            }
+            
+            @Override
+            public String toString() {
+                return "%s[%s]".formatted(name, String.join(";", NamedFunction.name(qFunction1), NamedFunction.name(qFunction2)));
             }
         };
     }
@@ -183,7 +224,7 @@ public class Problems {
                                 Pair::second
                         )
                 );
-        return new SimpleMOProblem<S, O>() {
+        return new SimpleMOProblem<>() {
             @Override
             public SequencedMap<String, Comparator<O>> comparators() {
                 return comparators;

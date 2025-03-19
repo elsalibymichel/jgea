@@ -1,5 +1,5 @@
 $SIMULATION = ds.bat.fromEnvironment(
-  tRange = misc.range(min = 0; max = 60);
+  tRange = misc.range(min = 0; max = 30);
   dT = 0.05;
   environment = ds.e.pong(racketsInitialYRange = m.range(min=25.0;max=25.0));
   stopCondition = predicate.not(condition = predicate.always())
@@ -18,32 +18,50 @@ $VS_SELF = ds.f.selfBiSimulator(
 
 ea.experiment(
   runs =
-    (randomGenerator = (seed = [1:1:10]) * [m.defaultRG()]) *
-    (solver = (nEval = [100000]) * [
+    (randomGenerator = (seed = [1:1:5]) * [m.defaultRG()]) *
+    (solver = (nEval = [30000]) * [
       ea.s.ga(
-        name = "ga-tree";
+        name = "self-ga-tree";
         representation = ea.r.srTree();
         mapper = ea.m.nurfToNds(of = ea.m.srTreeToNurf())
       );
       ea.s.ga(
-        name = "ga";
+        name = "self-ga-ann";
         representation = ea.r.doubleString();
         mapper = ea.m.dsToNpnds(npnds = ds.num.mlp(innerLayerRatio = 4; nOfInnerLayers = 1))
       );
+      ea.s.mapElites(
+        name = "self-me-ann";
+        representation = ea.r.doubleString();
+        mapper = ea.m.dsToNpnds(npnds = ds.num.mlp(innerLayerRatio = 4; nOfInnerLayers = 1));
+        descriptors = [ % Prendere descrittori Lippolis "covering.txt"
+          ea.s.me.d.descriptor(f = f.avg(of = f.nkTh(of = ea.f.genotype(); n = 2; k = 0)); min = -1; max = 1);
+          ea.s.me.d.descriptor(f = f.avg(of = f.nkTh(of = ea.f.genotype(); n = 2; k = 1)); min = -1; max = 1)
+        ]
+      );
+      ea.s.mapElites(
+        name = "self-me-tree";
+        representation = ea.r.srTree();
+        mapper = ea.m.nurfToNds(of = ea.m.srTreeToNurf());
+        descriptors = [
+          ea.s.me.d.descriptor(f = ea.f.treeSize(of = ea.f.genotype()); min = 0; max = 250; nOfBins = 10);
+          ea.s.me.d.descriptor(f = f.size(of = f.filter(of = ea.f.treeLeaves(of = ea.f.genotype()); condition = predicate.matches(f = f.toString(); regex = "i[0-9]+"))); min = 0; max = 30; nOfBins = 10)
+        ]
+      );
       ea.s.biGa(
-        name = "biga";
+        name = "bi-ga-ann";
         fitnessReducer = ea.misc.lossyAverage();
         representation = ea.r.doubleString();
         mapper = ea.m.dsToNpnds(npnds = ds.num.mlp(innerLayerRatio = 4; nOfInnerLayers = 1))
       );
       ea.s.biGa(
-        name = "biga-tree";
+        name = "bi-ga-tree";
         fitnessReducer = ea.misc.lossyAverage();
         representation = ea.r.srTree();
         mapper = ea.m.nurfToNds(of = ea.m.srTreeToNurf())
       );
       ea.s.biMapElites(
-        name = "bime";
+        name = "bi-me-ann";
         fitnessReducer = ea.misc.lossyAverage();
         representation = ea.r.doubleString();
         mapper = ea.m.dsToNpnds(npnds = ds.num.mlp(innerLayerRatio = 4; nOfInnerLayers = 1));
@@ -54,7 +72,7 @@ ea.experiment(
         ]
       );
       ea.s.biMapElites(
-        name = "bime-tree";
+        name = "bi-me-tree";
         fitnessReducer = ea.misc.lossyAverage();
         representation = ea.r.srTree();
         mapper = ea.m.nurfToNds(of = ea.m.srTreeToNurf());
@@ -67,8 +85,8 @@ ea.experiment(
     ]) *
     (problem = [ea.p.biSimToBqb(
       simulation = $SIMULATION;
-      f1 = ds.e.pong.scoreDiff1();
-      f2 = ds.e.pong.scoreDiff2();
+      qFunction1 = ds.e.pong.scoreDiff1();
+      qFunction2 = ds.e.pong.scoreDiff2();
       type = maximize
     )]) *
     [ea.run()];
