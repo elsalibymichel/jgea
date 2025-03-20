@@ -303,20 +303,13 @@ public class CoMapElites<G1, G2, S1, S2, S, Q> extends AbstractPopulationBasedIt
     updateStrategies(newState, coMEIndividuals);
     // update archive
     PartialComparator<? super CoMEIndividual<G1, G2, S1, S2, S, Q>> partialComparatorInner = partialComparator(problem);
-    @SuppressWarnings("unchecked") PartialComparator<? super CoMEPartialIndividual<?, ?, G1, G2, S1, S2, S, Q>> partialComparator = (
-        pi1,
-        pi2
-    ) -> partialComparatorInner.compare(
-        (CoMEIndividual<G1, G2, S1, S2, S, Q>) pi1,
-        (CoMEIndividual<G1, G2, S1, S2, S, Q>) pi2
-    );
     Archive<CoMEPartialIndividual<G1, S1, G1, G2, S1, S2, S, Q>> archive1 = newState.archive1()
         .updated(
             coMEIndividuals.stream()
                 .map(CoMEPartialIndividual::from1)
                 .toList(),
             MEIndividual::bins,
-            partialComparator
+            partialComparatorInner.on(CoMEPartialIndividual::completeIndividual)
         );
     Archive<CoMEPartialIndividual<G2, S2, G1, G2, S1, S2, S, Q>> archive2 = newState.archive2()
         .updated(
@@ -324,7 +317,7 @@ public class CoMapElites<G1, G2, S1, S2, S, Q> extends AbstractPopulationBasedIt
                 .map(CoMEPartialIndividual::from2)
                 .toList(),
             MEIndividual::bins,
-            partialComparator
+            partialComparatorInner.on(CoMEPartialIndividual::completeIndividual)
         );
     // return state
     return newState.updatedWithIteration(populationSize, populationSize, archive1, archive2, strategy1, strategy2);
@@ -402,24 +395,17 @@ public class CoMapElites<G1, G2, S1, S2, S, Q> extends AbstractPopulationBasedIt
     PartialComparator<? super CoMEIndividual<G1, G2, S1, S2, S, Q>> partialComparatorInner = partialComparator(
         state.problem()
     );
-    @SuppressWarnings("unchecked") PartialComparator<? super CoMEPartialIndividual<?, ?, G1, G2, S1, S2, S, Q>> partialComparator = (
-        pi1,
-        pi2
-    ) -> partialComparatorInner.compare(
-        (CoMEIndividual<G1, G2, S1, S2, S, Q>) pi1,
-        (CoMEIndividual<G1, G2, S1, S2, S, Q>) pi2
-    );
     Archive<CoMEPartialIndividual<G1, S1, G1, G2, S1, S2, S, Q>> archive1 = state.archive1()
         .updated(
             offspring.stream().map(CoMEPartialIndividual::from1).toList(),
             MEIndividual::bins,
-            partialComparator
+            partialComparatorInner.on(CoMEPartialIndividual::completeIndividual)
         );
     Archive<CoMEPartialIndividual<G2, S2, G1, G2, S1, S2, S, Q>> archive2 = state.archive2()
         .updated(
             offspring.stream().map(CoMEPartialIndividual::from2).toList(),
             MEIndividual::bins,
-            partialComparator
+            partialComparatorInner.on(CoMEPartialIndividual::completeIndividual)
         );
     // return state
     return state.updatedWithIteration(
