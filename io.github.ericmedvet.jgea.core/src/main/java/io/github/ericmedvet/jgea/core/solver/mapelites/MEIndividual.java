@@ -23,14 +23,11 @@ package io.github.ericmedvet.jgea.core.solver.mapelites;
 import io.github.ericmedvet.jgea.core.solver.Individual;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 public interface MEIndividual<G, S, Q> extends Individual<G, S, Q> {
 
   List<MapElites.Descriptor.Coordinate> coordinates();
-
-  default List<Integer> bins() {
-    return coordinates().stream().map(MapElites.Descriptor.Coordinate::bin).toList();
-  }
 
   static <G, S, Q> MEIndividual<G, S, Q> from(
       Individual<G, S, Q> individual,
@@ -67,7 +64,20 @@ public interface MEIndividual<G, S, Q> extends Individual<G, S, Q> {
         long qualityMappingIteration,
         Collection<Long> parentIds,
         List<MapElites.Descriptor.Coordinate> coordinates
-    ) implements MEIndividual<G, S, Q> {}
+    ) implements MEIndividual<G, S, Q> {
+      @Override
+      public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass())
+          return false;
+        HardIndividual<?, ?, ?> that = (HardIndividual<?, ?, ?>) o;
+        return id == that.id;
+      }
+
+      @Override
+      public int hashCode() {
+        return Objects.hashCode(id);
+      }
+    }
     return new HardIndividual<>(
         id,
         genotype,
@@ -78,6 +88,10 @@ public interface MEIndividual<G, S, Q> extends Individual<G, S, Q> {
         parentIds,
         coordinates
     );
+  }
+
+  default List<Integer> bins() {
+    return coordinates().stream().map(MapElites.Descriptor.Coordinate::bin).toList();
   }
 
   default MEIndividual<G, S, Q> updatedWithQuality(Q q) {

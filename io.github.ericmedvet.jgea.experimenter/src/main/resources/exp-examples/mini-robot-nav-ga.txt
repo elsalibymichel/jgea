@@ -9,38 +9,23 @@ ea.experiment(
             initialRobotYRange = m.range(min = 0.75; max = 0.75);
             robotMaxV = 0.05
           );
-          % stopCondition = predicate.lt(f = ds.e.n.distanceFromTarget(); t = 0.01);
           dT = 0.1;
-          tRange = m.range(min = 0; max = 20)
+          tRange = m.range(min = 0; max = 60)
         );
-        toMinObjectives = [ds.e.n.finalTimePlusD()]
+        toMinObjectives = [ds.e.n.finalD()]
       );
-      solver = ea.s.mapElites(
+      solver = ea.s.ga(
         representation = ea.representation.multiSRTree();
         mapper = ea.mapper.nmrfToNds(of = ea.mapper.multiSrTreeToNmrf());
         nPop = 100;
-        nEval = 4000;
-        descriptors = [
-          ea.s.me.d.descriptor(
-            f = ds.e.n.x(of = ds.e.n.finalRobotP(of = ea.f.behavior(of = ea.f.quality())));
-            min = 0;
-            max = 1;
-            nOfBins = 10
-          );
-          ea.s.me.d.descriptor(
-            f = ds.e.n.y(of = ds.e.n.finalRobotP(of = ea.f.behavior(of = ea.f.quality())));
-            min = 0;
-            max = 1;
-            nOfBins = 10
-          )
-        ]
+        nEval = 50000
       )
     )
   ];
   listeners = [
     ea.l.console(
       functions = [
-        f.mapValue(key = "final.td"; of = ea.f.behaviorQuality(of = ea.f.quality(of = ea.f.best())); format = "%6.4f")
+        f.mapValue(key = "final.dist"; of = ea.f.behaviorQuality(of = ea.f.quality(of = ea.f.best())); format = "%6.4f")
       ];
       onlyLast = false
     );
@@ -51,7 +36,7 @@ ea.experiment(
     );
     ea.l.savePlotForExp(
       path = "../../Documenti/experiments/{name}/{startTime}/best-fitness";
-      plot = ea.plot.multi.quality(q = f.mapValue(key = "final.td"; of = ea.f.behaviorQuality()))
+      plot = ea.plot.multi.quality(q = f.mapValue(key = "final.dist"; of = ea.f.behaviorQuality()))
     )
   ]
 )

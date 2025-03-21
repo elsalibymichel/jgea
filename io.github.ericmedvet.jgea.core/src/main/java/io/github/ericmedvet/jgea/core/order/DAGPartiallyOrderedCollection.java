@@ -28,11 +28,13 @@ import java.util.stream.IntStream;
 public class DAGPartiallyOrderedCollection<T> extends AbstractPartiallyOrderedCollection<T> {
 
   private final Map<Integer, Node<T>> nodes;
+  private final Map<T, Integer> contentMap;
   private List<Collection<T>> fronts;
 
   public DAGPartiallyOrderedCollection(PartialComparator<? super T> partialComparator) {
     super(partialComparator);
-    this.nodes = new LinkedHashMap<>();
+    nodes = new LinkedHashMap<>();
+    contentMap = new HashMap<>();
     fronts = null;
   }
 
@@ -49,13 +51,14 @@ public class DAGPartiallyOrderedCollection<T> extends AbstractPartiallyOrderedCo
   @Override
   public void add(T t) {
     fronts = null;
-    for (Node<T> node : nodes.values()) {
+    for (Map.Entry<Integer, Node<T>> nodeEntry : nodes.entrySet()) {
       PartialComparator.PartialComparatorOutcome outcome = comparator().compare(
           t,
-          node.contents().getFirst()
+          nodeEntry.getValue().contents().getFirst()
       );
       if (outcome.equals(PartialComparator.PartialComparatorOutcome.SAME)) {
-        node.contents().add(t);
+        nodeEntry.getValue().contents().add(t);
+        contentMap.put(t, nodeEntry.getKey());
         return;
       }
     }
@@ -75,6 +78,7 @@ public class DAGPartiallyOrderedCollection<T> extends AbstractPartiallyOrderedCo
       }
     });
     nodes.put(newNodeIndex, newNode);
+    contentMap.put(t, newNodeIndex);
   }
 
   @Override
@@ -105,20 +109,19 @@ public class DAGPartiallyOrderedCollection<T> extends AbstractPartiallyOrderedCo
   @Override
   public boolean remove(T t) {
     boolean removed = false;
-    Optional<Map.Entry<Integer, Node<T>>> oEntry = nodes.entrySet()
-        .stream()
-        .filter(e -> e.getValue().contents.contains(t))
-        .findFirst();
-    if (oEntry.isPresent()) {
-      fronts = null;
-      removed = true;
-      int nodeIndex = oEntry.get().getKey();
-      Node<T> node = oEntry.get().getValue();
-      node.contents.remove(t);
-      if (node.contents.isEmpty()) {
-        nodes.remove(nodeIndex);
-        node.beforeNodes.forEach(ni -> nodes.get(ni).afterNodes.remove(nodeIndex));
-        node.afterNodes.forEach(ni -> nodes.get(ni).beforeNodes.remove(nodeIndex));
+    Integer nodeIndex = contentMap.get(t);
+    if (nodeIndex != null) {
+      contentMap.remove(t);
+      Node<T> node = nodes.get(nodeIndex);
+      if (node.contents.contains(t)) {
+        fronts = null;
+        removed = true;
+        node.contents.remove(t);
+        if (node.contents.isEmpty()) {
+          nodes.remove(nodeIndex);
+          node.beforeNodes.forEach(ni -> nodes.get(ni).afterNodes.remove(nodeIndex));
+          node.afterNodes.forEach(ni -> nodes.get(ni).beforeNodes.remove(nodeIndex));
+        }
       }
     }
     return removed;
@@ -136,5 +139,4 @@ public class DAGPartiallyOrderedCollection<T> extends AbstractPartiallyOrderedCo
         )
         .collect(Collectors.joining(";"));
   }
-
 }

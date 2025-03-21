@@ -22,6 +22,7 @@ package io.github.ericmedvet.jgea.core.solver;
 import io.github.ericmedvet.jgea.core.problem.QualityBasedProblem;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.function.Function;
 
 public interface Individual<G, S, Q> extends Serializable {
@@ -76,7 +77,20 @@ public interface Individual<G, S, Q> extends Serializable {
         long genotypeBirthIteration,
         long qualityMappingIteration,
         Collection<Long> parentIds
-    ) implements Individual<G, S, Q> {}
+    ) implements Individual<G, S, Q> {
+      @Override
+      public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass())
+          return false;
+        HardIndividual<?, ?, ?> that = (HardIndividual<?, ?, ?>) o;
+        return id == that.id;
+      }
+
+      @Override
+      public int hashCode() {
+        return Objects.hashCode(id);
+      }
+    }
     return new HardIndividual<>(
         id,
         genotype,

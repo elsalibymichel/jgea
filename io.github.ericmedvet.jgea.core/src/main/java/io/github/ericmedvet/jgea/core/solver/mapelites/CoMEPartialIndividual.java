@@ -22,6 +22,7 @@ package io.github.ericmedvet.jgea.core.solver.mapelites;
 import io.github.ericmedvet.jgea.core.solver.Individual;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 public interface CoMEPartialIndividual<GT, ST, G1, G2, S1, S2, S, Q> extends MEIndividual<GT, ST, Q> {
   CoMEIndividual<G1, G2, S1, S2, S, Q> completeIndividual();
@@ -96,7 +97,20 @@ public interface CoMEPartialIndividual<GT, ST, G1, G2, S1, S2, S, Q> extends MEI
         Collection<Long> parentIds,
         List<MapElites.Descriptor.Coordinate> coordinates,
         CoMEIndividual<G1, G2, S1, S2, S, Q> completeIndividual
-    ) implements CoMEPartialIndividual<GT, ST, G1, G2, S1, S2, S, Q> {}
+    ) implements CoMEPartialIndividual<GT, ST, G1, G2, S1, S2, S, Q> {
+      @Override
+      public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass())
+          return false;
+        HardIndividual<?, ?, ?, ?, ?, ?, ?, ?> that = (HardIndividual<?, ?, ?, ?, ?, ?, ?, ?>) o;
+        return id == that.id;
+      }
+
+      @Override
+      public int hashCode() {
+        return Objects.hashCode(id);
+      }
+    }
     return new HardIndividual<>(
         id,
         genotype,

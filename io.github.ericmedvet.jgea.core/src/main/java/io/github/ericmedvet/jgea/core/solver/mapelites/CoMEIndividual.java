@@ -23,6 +23,7 @@ package io.github.ericmedvet.jgea.core.solver.mapelites;
 import io.github.ericmedvet.jgea.core.solver.Individual;
 import io.github.ericmedvet.jnb.datastructure.Pair;
 import java.util.Collection;
+import java.util.Objects;
 
 public interface CoMEIndividual<G1, G2, S1, S2, S, Q> extends Individual<Pair<G1, G2>, S, Q> {
 
@@ -50,7 +51,20 @@ public interface CoMEIndividual<G1, G2, S1, S2, S, Q> extends Individual<Pair<G1
         Collection<Long> parentIds,
         MEIndividual<G1, S1, Q> individual1,
         MEIndividual<G2, S2, Q> individual2
-    ) implements CoMEIndividual<G1, G2, S1, S2, S, Q> {}
+    ) implements CoMEIndividual<G1, G2, S1, S2, S, Q> {
+      @Override
+      public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass())
+          return false;
+        HardIndividual<?, ?, ?, ?, ?, ?> that = (HardIndividual<?, ?, ?, ?, ?, ?>) o;
+        return id == that.id;
+      }
+
+      @Override
+      public int hashCode() {
+        return Objects.hashCode(id);
+      }
+    }
     return new HardIndividual<>(
         id,
         new Pair<>(individual1.genotype(), individual2.genotype()),
