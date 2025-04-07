@@ -52,11 +52,11 @@ public class PongFightsMatrix {
   @SuppressWarnings("unchecked")
   public static void main(String[] args) throws IOException {
     
-    String folder = "/home/il_bello/IdeaProjects/results/pong-ablation-study/2025-04-04--14-55-13/";
+    String folder = "/home/il_bello/IdeaProjects/results/pong-ablation-study/2025-04-07--14-56-10/";
     String CSVPath1 = folder + "allBest.csv";
+    boolean singleCSV = true;
     String CSVPath2 = folder + "";
     String delimiter = ";";
-    boolean singleCSV = true;
     
     String score1 = "ds.e.pong.score1()";
     String score2 = "ds.e.pong.score2()";
@@ -186,8 +186,8 @@ public class PongFightsMatrix {
       for (int i = 0; i < numOpponents; i++) {
         for (int j = 0; j < numOpponents; j++) {
           if (matchCounts[i][j] > 0) {
-            scoreMatrix[i][j] = " = " + (totalScore1[i][j] / matchCounts[i][j]) + " / " + (totalScore2[i][j] / matchCounts[i][j]);
-            collisionsMatrix[i][j] = " = " + (totalCollisions1[i][j] / matchCounts[i][j]) + " / " + (totalCollisions2[i][j] / matchCounts[i][j]);
+            scoreMatrix[i][j] = (" = " + (totalScore1[i][j] / matchCounts[i][j]) + " - " + (totalScore2[i][j] / matchCounts[i][j])).replace(".", ",");
+            collisionsMatrix[i][j] = (" = " + (totalCollisions1[i][j] / matchCounts[i][j]) + " - " + (totalCollisions2[i][j] / matchCounts[i][j])).replace(".", ",");
           }
         }
       }
