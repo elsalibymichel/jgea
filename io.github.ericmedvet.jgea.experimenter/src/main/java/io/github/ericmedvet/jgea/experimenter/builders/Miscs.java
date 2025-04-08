@@ -122,6 +122,12 @@ public class Miscs {
 
   @SuppressWarnings("unused")
   @Cacheable
+  public static BinaryOperator<Double> minValue() {
+    return Math::min;
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
   public static BufferedImage imgByName(
       @Param("name") String name,
       @Param(value = "gateBGColor", dNPM = "ea.misc.colorByName(name = black)") Color bgColor,

@@ -2152,6 +2152,12 @@ Produces <code><abbr title="java.util.Map">Map</abbr>&lt;K, V&gt;</code>; built 
 
 Produces <code><abbr title="java.util.Map">Map</abbr>&lt;K, V&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.mapFromLists()` by jgea-experimenter:2.7.1-SNAPSHOT
 
+### Builder `ea.misc.minValue()`
+
+`ea.misc.minValue()`
+
+Produces <code><abbr title="java.util.function.BinaryOperator">BinaryOperator</abbr>&lt;<abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.minValue()` by jgea-experimenter:2.7.1-SNAPSHOT
+
 ### Builder `ea.misc.sEntry()`
 
 `ea.misc.sEntry(key; value)`

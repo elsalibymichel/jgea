@@ -19,7 +19,13 @@ $VS_SELF = ds.f.selfBiSimulator(
 ea.experiment(
   runs =
     (randomGenerator = (seed = [1:1:10]) * [m.defaultRG()]) *
-    (solver = (nEval = [50000]) * [
+    (solver = (nEval = [10000]) * [
+      ea.s.biGa(
+        name = "bi-ga-ann-minValue";
+        fitnessReducer = ea.misc.minValue();
+        representation = ea.r.doubleString();
+        mapper = ea.m.dsToNpnds(npnds = ds.num.mlp(innerLayerRatio = 4; nOfInnerLayers = 1))
+      );
       ea.s.biGa(
         name = "bi-ga-ann-mf0.00";
         fitnessReducer = ea.misc.lossyAverage(memoryFactor=0);
@@ -27,26 +33,32 @@ ea.experiment(
         mapper = ea.m.dsToNpnds(npnds = ds.num.mlp(innerLayerRatio = 4; nOfInnerLayers = 1))
       );
       ea.s.biGa(
-        name = "bi-ga-ann-mf0.25";
-        fitnessReducer = ea.misc.lossyAverage(memoryFactor=0.25);
+        name = "bi-ga-ann-mf0.10";
+        fitnessReducer = ea.misc.lossyAverage(memoryFactor=0.10);
+        representation = ea.r.doubleString();
+        mapper = ea.m.dsToNpnds(npnds = ds.num.mlp(innerLayerRatio = 4; nOfInnerLayers = 1))
+      );
+      ea.s.biGa(
+        name = "bi-ga-ann-mf0.20";
+        fitnessReducer = ea.misc.lossyAverage(memoryFactor=0.20);
+        representation = ea.r.doubleString();
+        mapper = ea.m.dsToNpnds(npnds = ds.num.mlp(innerLayerRatio = 4; nOfInnerLayers = 1))
+      );
+      ea.s.biGa(
+        name = "bi-ga-ann-mf0.30";
+        fitnessReducer = ea.misc.lossyAverage(memoryFactor=0.30);
+        representation = ea.r.doubleString();
+        mapper = ea.m.dsToNpnds(npnds = ds.num.mlp(innerLayerRatio = 4; nOfInnerLayers = 1))
+      );
+      ea.s.biGa(
+        name = "bi-ga-ann-mf0.40";
+        fitnessReducer = ea.misc.lossyAverage(memoryFactor=0.40);
         representation = ea.r.doubleString();
         mapper = ea.m.dsToNpnds(npnds = ds.num.mlp(innerLayerRatio = 4; nOfInnerLayers = 1))
       );
       ea.s.biGa(
         name = "bi-ga-ann-mf0.50";
-        fitnessReducer = ea.misc.lossyAverage(memoryFactor=0.5);
-        representation = ea.r.doubleString();
-        mapper = ea.m.dsToNpnds(npnds = ds.num.mlp(innerLayerRatio = 4; nOfInnerLayers = 1))
-      );
-      ea.s.biGa(
-        name = "bi-ga-ann-mf0.75";
-        fitnessReducer = ea.misc.lossyAverage(memoryFactor=0.75);
-        representation = ea.r.doubleString();
-        mapper = ea.m.dsToNpnds(npnds = ds.num.mlp(innerLayerRatio = 4; nOfInnerLayers = 1))
-      );
-      ea.s.biGa(
-        name = "bi-ga-ann-mf1.00";
-        fitnessReducer = ea.misc.lossyAverage(memoryFactor=1);
+        fitnessReducer = ea.misc.lossyAverage(memoryFactor=0.50);
         representation = ea.r.doubleString();
         mapper = ea.m.dsToNpnds(npnds = ds.num.mlp(innerLayerRatio = 4; nOfInnerLayers = 1))
       )
