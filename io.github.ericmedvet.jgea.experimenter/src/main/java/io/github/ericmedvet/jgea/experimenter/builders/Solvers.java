@@ -316,7 +316,7 @@ public class Solvers {
       @Param("fitnessReducer") BinaryOperator<Q> fitnessReducer,
       @Param("emptyArchive") boolean emptyArchive,
       @Param("additionalIndividualComparators") List<PartialComparator<? super MEIndividual<G, S, Q>>> additionalIndividualComparators,
-      @Param("opponentsSelector") TriFunction<MEPopulationState<G, S, Q, QualityBasedBiProblem<S, O, Q>>, MEIndividual<G, S, Q>, RandomGenerator, List<MEIndividual<G, S, Q>>> opponentsSelector,
+      @Param("opponentsSelector") TriFunction<List<MEIndividual<G, S, Q>>, MEIndividual<G, S, Q>, RandomGenerator, List<MEIndividual<G, S, Q>>> opponentsSelector,
       @Param("fitnessAggregator") Function<List<Q>, Q> fitnessAggregator
   ) {
     return exampleS -> {
