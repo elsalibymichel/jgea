@@ -58,7 +58,13 @@ public class Miscs {
   public static <G, S, Q, O> GeneralizedMapElitesBiEvolver.OpponentSelector<G, S, Q, O> bestMESelector(
       @Param(value = "nOfOpponents", dI = 1) int nOfOpponents
   ) {
-    throw new RuntimeException("Not implemented"); //TODO check with Eric how to do this
+    return (population, individual, problem, random) ->
+        population.stream()
+        .sorted(
+            Comparator.comparing(MEIndividual::quality, problem.qualityComparator().comparator())  //TODO this is not ok because it throw exception if NOT_COMPARABLE
+        )
+        .limit(nOfOpponents)
+        .collect(Collectors.toList());
   }
 
   @SuppressWarnings("unused")
