@@ -61,8 +61,16 @@ public class Miscs {
       @Param(value = "nOfOpponents", dI = 1) int nOfOpponents
   ) {
     return (population, individual, problem, random) -> {
+      Collection<MEIndividual<G, S, Q>> evaluatedPopulation = population.stream().filter(i -> i.quality() != null).toList();
+      Collection<MEIndividual<G, S, Q>> nullQualityPopulation = population.stream().filter(i -> i.quality() == null).toList();
       PartialComparator<MEIndividual<G,S,Q>> partialComparator = (me1, me2) -> problem.qualityComparator().compare(me1.quality(), me2.quality());
-      List<Collection<MEIndividual<G, S, Q>>> fronts = PartiallyOrderedCollection.from(population, partialComparator).fronts();
+      List<Collection<MEIndividual<G, S, Q>>> fronts = new ArrayList<>(PartiallyOrderedCollection
+          .from(evaluatedPopulation, partialComparator)
+          .fronts());
+      
+      if (!nullQualityPopulation.isEmpty()) {
+        fronts.add(nullQualityPopulation);
+      }
       List<MEIndividual<G, S, Q>> opponents = new ArrayList<>();
       for (Collection<MEIndividual<G, S, Q>> front : fronts) {
         for (MEIndividual<G, S, Q> individualFromFront : front) {
