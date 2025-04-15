@@ -62,13 +62,20 @@ public class Miscs {
   ) {
     return (population, individual, problem, random) -> {
       PartialComparator<MEIndividual<G,S,Q>> partialComparator = (me1, me2) -> problem.qualityComparator().compare(me1.quality(), me2.quality());
-      PartiallyOrderedCollection.from(population, partialComparator).fronts(); //TODO integrate this code below
-      return population.stream()
-          .sorted(
-              Comparator.comparing(MEIndividual::quality, problem.qualityComparator().comparator())  //TODO this is not ok because it throw exception if NOT_COMPARABLE
-          )
-          .limit(nOfOpponents)
-          .collect(Collectors.toList());
+      List<Collection<MEIndividual<G, S, Q>>> fronts = PartiallyOrderedCollection.from(population, partialComparator).fronts();
+      List<MEIndividual<G, S, Q>> opponents = new ArrayList<>();
+      for (Collection<MEIndividual<G, S, Q>> front : fronts) {
+        for (MEIndividual<G, S, Q> individualFromFront : front) {
+          if (opponents.size() >= nOfOpponents) {
+            break;
+          }
+          opponents.add(individualFromFront);
+        }
+        if (opponents.size() >= nOfOpponents) {
+          break;
+        }
+      }
+      return opponents;
     };
   }
 
