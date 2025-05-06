@@ -35,32 +35,32 @@ public class Accumulators {
 
   @Alias(
       name = "bests", value = // spotless:off
-          """
-              all(
-                eFunction = ea.f.best()
-              )
-              """) // spotless:on
+            """
+                    all(
+                      eFunction = ea.f.best()
+                    )
+                    """) // spotless:on
   @Alias(
       name = "first", value = // spotless:off
-          """
-              all(
-                listFunction = f.nTh(n = 1)
-              )
-              """) // spotless:on
+            """
+                    all(
+                      listFunction = f.nTh(n = 1)
+                    )
+                    """) // spotless:on
   @Alias(
       name = "last", value = // spotless:off
-          """
-              all(
-                listFunction = f.nTh(n = -1)
-              )
-              """) // spotless:on
+            """
+                    all(
+                      listFunction = f.nTh(n = -1)
+                    )
+                    """) // spotless:on
   @Alias(
       name = "lastBest", value = // spotless:off
-          """
-              last(
-                eFunction = ea.f.best()
-              )
-              """) // spotless:on
+            """
+                    last(
+                      eFunction = ea.f.best()
+                    )
+                    """) // spotless:on
   @SuppressWarnings("unused")
   public static <E, F, O, R> AccumulatorFactory<E, O, R> all(
       @Param(value = "eFunction", dNPM = "f.identity()") Function<E, F> eFunction,

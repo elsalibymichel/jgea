@@ -106,4 +106,17 @@ public interface MEIndividual<G, S, Q> extends Individual<G, S, Q> {
         coordinates()
     );
   }
+
+  default MEIndividual<G, S, Q> updateQuality(Q quality, long qualityMappingIteration) {
+    return MEIndividual.of(
+        id(),
+        genotype(),
+        solution(),
+        quality,
+        genotypeBirthIteration(),
+        qualityMappingIteration,
+        parentIds(),
+        this.coordinates()
+    );
+  }
 }

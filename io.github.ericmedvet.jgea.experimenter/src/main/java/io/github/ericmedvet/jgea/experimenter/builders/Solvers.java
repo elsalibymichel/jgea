@@ -36,6 +36,8 @@ import io.github.ericmedvet.jgea.core.representation.graph.numeric.operatorgraph
 import io.github.ericmedvet.jgea.core.selector.Last;
 import io.github.ericmedvet.jgea.core.selector.Tournament;
 import io.github.ericmedvet.jgea.core.solver.*;
+import io.github.ericmedvet.jgea.core.solver.bi.StandardBiEvolver;
+import io.github.ericmedvet.jgea.core.solver.bi.mapelites.MapElitesBiEvolver;
 import io.github.ericmedvet.jgea.core.solver.cabea.CellularAutomataBasedSolver;
 import io.github.ericmedvet.jgea.core.solver.cabea.SubstrateFiller;
 import io.github.ericmedvet.jgea.core.solver.es.CMAEvolutionaryStrategy;
@@ -56,6 +58,7 @@ import io.github.ericmedvet.jnb.datastructure.Pair;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.DoubleStream;
 
@@ -191,14 +194,14 @@ public class Solvers {
 
   @Alias(
       name = "ttpnGp", value = // spotless:off
-      """
-          ga(name = "ttpnGp"; representation = ea.r.ttpn(); mapper = ea.m.ttpnToProgram(); crossoverP = 0.5)
-          """) // spotless:on
+            """
+                    ga(name = "ttpnGp"; representation = ea.r.ttpn(); mapper = ea.m.ttpnToProgram(); crossoverP = 0.5)
+                    """) // spotless:on
   @Alias(
       name = "srGp", value = // spotless:off
-      """
-          ga(name = "srGp"; representation = ea.r.srTree(); mapper = ea.m.srTreeToNurf())
-          """) // spotless:on
+            """
+                    ga(name = "srGp"; representation = ea.r.srTree(); mapper = ea.m.srTreeToNurf())
+                    """) // spotless:on
   @SuppressWarnings("unused")
   @Cacheable
   public static <G, S, Q> Function<S, StandardEvolver<G, S, Q>> ga(
@@ -228,6 +231,69 @@ public class Solvers {
           true,
           maxUniquenessAttempts,
           remap,
+          additionalIndividualComparators
+      );
+    };
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static <G, S, Q, O> Function<S, StandardBiEvolver<G, S, Q, O>> biGa(
+      @Param(value = "name", dS = "biGa") String name,
+      @Param("representation") Function<G, Representation<G>> representation,
+      @Param(value = "mapper", dNPM = "ea.m.identity()") InvertibleMapper<G, S> mapper,
+      @Param(value = "crossoverP", dD = 0.8d) double crossoverP,
+      @Param(value = "tournamentRate", dD = 0.05d) double tournamentRate,
+      @Param(value = "minNTournament", dI = 3) int minNTournament,
+      @Param(value = "nPop", dI = 100) int nPop,
+      @Param(value = "nEval", dI = 1000) int nEval,
+      @Param(value = "maxUniquenessAttempts", dI = 100) int maxUniquenessAttempts,
+      @Param("fitnessReducer") BinaryOperator<Q> fitnessReducer,
+      @Param("additionalIndividualComparators") List<PartialComparator<? super Individual<G, S, Q>>> additionalIndividualComparators
+  ) {
+    return exampleS -> {
+      Representation<G> r = representation.apply(mapper.exampleFor(exampleS));
+      return new StandardBiEvolver<>(
+          mapper.mapperFor(exampleS),
+          r.factory(),
+          nPop,
+          StopConditions.nOfFitnessEvaluations(nEval),
+          r.geneticOperators(crossoverP),
+          new Tournament(Math.max(minNTournament, (int) Math.ceil((double) nPop * tournamentRate))),
+          new Last(),
+          nPop,
+          true,
+          maxUniquenessAttempts,
+          fitnessReducer,
+          additionalIndividualComparators
+      );
+    };
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static <G, S, Q, O> Function<S, MapElitesBiEvolver<G, S, Q, O>> biMapElites(
+      @Param(value = "name", dS = "biMe") String name,
+      @Param("representation") Function<G, Representation<G>> representation,
+      @Param(value = "mapper", dNPM = "ea.m.identity()") InvertibleMapper<G, S> mapper,
+      @Param(value = "nPop", dI = 100) int nPop,
+      @Param(value = "nEval", dI = 1000) int nEval,
+      @Param("descriptors") List<MapElites.Descriptor<G, S, Q>> descriptors,
+      @Param("fitnessReducer") BinaryOperator<Q> fitnessReducer,
+      @Param("emptyArchive") boolean emptyArchive,
+      @Param("additionalIndividualComparators") List<PartialComparator<? super MEIndividual<G, S, Q>>> additionalIndividualComparators
+  ) {
+    return exampleS -> {
+      Representation<G> r = representation.apply(mapper.exampleFor(exampleS));
+      return new MapElitesBiEvolver<>(
+          mapper.mapperFor(exampleS),
+          r.factory(),
+          StopConditions.nOfFitnessEvaluations(nEval),
+          r.mutations().getFirst(),
+          nPop,
+          descriptors,
+          fitnessReducer,
+          emptyArchive,
           additionalIndividualComparators
       );
     };
