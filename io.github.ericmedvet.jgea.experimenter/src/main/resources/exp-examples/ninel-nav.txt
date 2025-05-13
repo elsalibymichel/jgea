@@ -1,0 +1,42 @@
+ea.experiment(
+  runs = (randomGenerator = (seed = [1]) * [m.defaultRG()]) * [ea.run(
+      name = "robotnav_maze_tree";
+      problem = ea.p.simToSbbmo(
+        simulation = ds.sat.fromEnvironment(
+          environment = ds.e.navigation(
+            arena = e_maze;
+            initialRobotXRange = m.range(min = 0.5; max = 0.5);
+            initialRobotYRange = m.range(min = 0.75; max = 0.75);
+            robotMaxV = 0.05
+          );
+          dT = 0.1;
+          tRange = m.range(min = 0; max = 60)
+        );
+        toMinObjectives = [ds.e.n.avgD()]
+      );
+      solver = ea.s.ga(
+        representation = ea.representation.doubleString();
+        mapper = ea.m.dsToNpnds(npnds = ds.num.mlp(innerLayerRatio = 4; nOfInnerLayers = 1));
+        nPop = 100;
+        nEval = 50000
+      )
+    )
+  ];
+  listeners = [
+    ea.l.console(
+      functions = [
+        f.mapValue(key = "avg.dist"; of = ea.f.behaviorQuality(of = ea.f.quality(of = ea.f.best())); format = "%6.4f")
+      ];
+      onlyLast = false
+    );
+    ea.l.saveForRun(
+      path = "/experiments/{name}/{startTime}/best-traj-{run.solver.name}-{run.randomGenerator.seed:%04d}";
+      of = ea.acc.lastBest();
+      processor = ea.f.toImage(image = ds.d.navigation(); of = ea.f.behavior(of = ea.f.quality()))
+    );
+    ea.l.savePlotForExp(
+      path = "/experiments/{name}/{startTime}/best-fitness";
+      plot = ea.plot.multi.quality(q = f.mapValue(key = "avg.dist"; of = ea.f.behaviorQuality()))
+    )
+  ]
+)

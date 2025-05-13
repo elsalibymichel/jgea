@@ -1,0 +1,64 @@
+ea.experiment(
+  runs = (randomGenerator = (seed = [1:1:1]) * [m.defaultRG()]) *
+  (solver = (nEval = [500]) *
+  [
+    ea.s.ga(
+      name = "ga-epistasis";
+      mapper = ea.mapper.pair(
+        first = ea.m.identity();
+        second = ea.m.dsToNpnds(npnds = ds.num.mlp(innerLayerRatio = 1; nOfInnerLayers = 2));
+        of = ea.m.splitter(of = ea.m.isIndexedDs())
+      );
+      representation = ea.representation.pair(
+        first = ea.representation.doubleString();
+        second = ea.representation.intString()
+      )
+    );
+    ea.s.ga(
+      name = "ga-pair-ds";
+      mapper = ea.mapper.pair(
+        first = ea.m.identity();
+        second = ea.m.dsToNpnds(npnds = ds.num.mlp(innerLayerRatio = 1; nOfInnerLayers = 2))
+      );
+      representation = ea.representation.pair(
+        first = ea.representation.doubleString();
+        second = ea.representation.doubleString()
+      )
+    );
+    ea.s.ga(
+      name = "ga-single-ds";
+      mapper = ea.mapper.pair(
+        first = ea.m.identity();
+        second = ea.m.dsToNpnds(npnds = ds.num.mlp(innerLayerRatio = 1; nOfInnerLayers = 2));
+        of = ea.m.splitter()
+      );
+      representation = ea.representation.doubleString()
+    )
+  ]) *
+  [ea.run(
+    problem = ea.p.simToSbbmo(
+      simulation = ds.s.variableSensorPositionsNavigation(arena = e_maze; nOfSensors = 9; finalT = 30);
+      toMinObjectives = [ds.e.n.avgD()]
+    )
+  )];
+  listeners = [
+    ea.l.console(
+      functions = [
+        f.mapValue(key = "avg.dist"; of = ea.f.behaviorQuality(of = ea.f.quality(of = ea.f.best())); format = "%6.4f");
+        ea.f.size(of = ea.f.genotype(of = ea.f.best()); format = "%3d");
+        ea.f.size(of = f.pairFirst(of = ea.f.genotype(of = ea.f.best())); format = "%3d");
+        ea.f.size(of = f.pairSecond(of = ea.f.genotype(of = ea.f.best())); format = "%3d")
+      ];
+      onlyLast = false
+    );
+    ea.l.savePlotForExp(
+      plot = ea.plot.multi.quality(q = f.mapValue(key = "avg.dist"; of = ea.f.behaviorQuality()));
+      path = "../fitness"
+    );
+    ea.l.saveForRun(
+      of = ea.acc.lastBest();
+      path = "../best-traj-{run.index:%04d}";
+      processor = ea.f.toImage(image = ds.d.navigation(); of = ea.f.behavior(of = ea.f.quality()))
+    )
+  ]
+)

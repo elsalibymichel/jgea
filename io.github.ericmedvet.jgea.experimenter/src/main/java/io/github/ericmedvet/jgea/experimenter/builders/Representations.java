@@ -172,6 +172,7 @@ public class Representations {
     };
   }
 
+
   @SuppressWarnings("unused")
   @Cacheable
   public static <G1, G2> Function<Pair<G1, G2>, Representation<Pair<G1, G2>>> pair(
@@ -244,4 +245,5 @@ public class Representations {
         List.of(new NetworkCrossover(maxNOfGates, subnetSizeRate, maxNOfAttempts, avoidDeadGates))
     );
   }
+
 }
