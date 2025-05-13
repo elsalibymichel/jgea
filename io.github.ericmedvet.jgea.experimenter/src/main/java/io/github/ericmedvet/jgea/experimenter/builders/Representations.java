@@ -246,37 +246,4 @@ public class Representations {
     );
   }
 
-  @SuppressWarnings("unused")
-  @Cacheable
-  public static Function<Pair<List<Double>, IntString>, Representation<Pair<Pair<List<Double>, IntString>, Pair<List<Double>, IntString>>>> epistasisRepresentation(
-      @Param("doubleListGenes") Function<List<Double>, Representation<List<Double>>> doubleListGenesRepresentation,
-      @Param("indexesString") Function<IntString, Representation<IntString>> indexesStringRepresentation,
-      @Param("numberOfGenesBody") int numGenesBody
-  ) {
-    // Here we suppose that body genes are first in the genes indexes list.
-    return pair -> {
-      List<Double> doubleList = pair.first();
-      IntString fullIntString = pair.second();
-
-      List<Integer> genesIndexList = fullIntString.genes();
-      int lowerBound = fullIntString.lowerBound();
-      int upperBound = fullIntString.upperBound();
-
-      List<Integer> bodyGenesIndexList = List.copyOf(genesIndexList.subList(0, numGenesBody));
-      List<Integer> brainGenesIndexList = List.copyOf(genesIndexList.subList(numGenesBody, genesIndexList.size()));
-
-      IntString JBody = new IntString(bodyGenesIndexList, lowerBound, upperBound);
-      IntString JBrain = new IntString(brainGenesIndexList, lowerBound, upperBound);
-
-      Representation<List<Double>> doubleListRep = doubleListGenesRepresentation.apply(doubleList);
-      Representation<IntString> bodyRep = indexesStringRepresentation.apply(JBody);
-      Representation<IntString> brainRep = indexesStringRepresentation.apply(JBrain);
-
-      return Representation.pair(
-          Representation.pair(doubleListRep, bodyRep),
-          Representation.pair(doubleListRep, brainRep)
-      );
-    };
-  }
-
 }

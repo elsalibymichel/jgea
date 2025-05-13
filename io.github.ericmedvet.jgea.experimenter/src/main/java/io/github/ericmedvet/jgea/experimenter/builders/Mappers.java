@@ -122,35 +122,6 @@ public class Mappers {
 
   @SuppressWarnings("unused")
   @Cacheable
-  public static <X> InvertibleMapper<X, Pair<List<Double>, List<Double>>> dsSplit(
-      @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Double>> beforeM
-  ) {
-    return beforeM.andThen(
-        InvertibleMapper.from(
-            (p, ds) -> {
-              if (p.first().size() + p.second().size() != ds.size()) {
-                throw new IllegalArgumentException(
-                    "Cannot split a double string with size %d in two double strings of sizes %d and %d"
-                        .formatted(
-                            ds.size(),
-                            p.first().size(),
-                            p.second().size()
-                        )
-                );
-              }
-              return new Pair<>(
-                  ds.subList(0, p.first().size()),
-                  ds.subList(p.first().size(), ds.size())
-              );
-            },
-            p -> Stream.concat(p.first().stream(), p.second().stream()).toList(),
-            "dsSplit"
-        )
-    );
-  }
-
-  @SuppressWarnings("unused")
-  @Cacheable
   public static <X> InvertibleMapper<X, BitString> dsToBitString(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Double>> beforeM,
       @Param(value = "t", dD = 0d) double t
