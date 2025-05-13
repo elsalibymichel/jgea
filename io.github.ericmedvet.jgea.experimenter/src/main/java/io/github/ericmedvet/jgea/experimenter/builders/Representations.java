@@ -245,13 +245,13 @@ public class Representations {
         List.of(new NetworkCrossover(maxNOfGates, subnetSizeRate, maxNOfAttempts, avoidDeadGates))
     );
   }
+
   @SuppressWarnings("unused")
   @Cacheable
-  public static Function<Pair<List<Double>, IntString>, Representation<
-          Pair<Pair<List<Double>, IntString>, Pair<List<Double>, IntString>>>> epistasisRepresentation(
-          @Param("doubleListGenes") Function<List<Double>, Representation<List<Double>>> doubleListGenesRepresentation,
-          @Param("indexesString") Function<IntString, Representation<IntString>> indexesStringRepresentation,
-          @Param("numberOfGenesBody") int numGenesBody
+  public static Function<Pair<List<Double>, IntString>, Representation<Pair<Pair<List<Double>, IntString>, Pair<List<Double>, IntString>>>> epistasisRepresentation(
+      @Param("doubleListGenes") Function<List<Double>, Representation<List<Double>>> doubleListGenesRepresentation,
+      @Param("indexesString") Function<IntString, Representation<IntString>> indexesStringRepresentation,
+      @Param("numberOfGenesBody") int numGenesBody
   ) {
     // Here we suppose that body genes are first in the genes indexes list.
     return pair -> {
@@ -273,8 +273,8 @@ public class Representations {
       Representation<IntString> brainRep = indexesStringRepresentation.apply(JBrain);
 
       return Representation.pair(
-              Representation.pair(doubleListRep, bodyRep),
-              Representation.pair(doubleListRep, brainRep)
+          Representation.pair(doubleListRep, bodyRep),
+          Representation.pair(doubleListRep, brainRep)
       );
     };
   }

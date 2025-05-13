@@ -56,7 +56,6 @@ import io.github.ericmedvet.jnb.datastructure.Pair;
 import io.github.ericmedvet.jsdynsym.buildable.builders.NumericalDynamicalSystems;
 import io.github.ericmedvet.jsdynsym.core.composed.Stepped;
 import io.github.ericmedvet.jsdynsym.core.numerical.*;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -329,10 +328,10 @@ public class Mappers {
     return beforeM.andThen(
         InvertibleMapper.from(
             (nmrf, g) -> NamedMultivariateRealFunction.from(
-                    new FunctionGraph(g, nmrf.xVarNames(), nmrf.yVarNames()),
-                    nmrf.xVarNames(),
-                    nmrf.yVarNames()
-                )
+                new FunctionGraph(g, nmrf.xVarNames(), nmrf.yVarNames()),
+                nmrf.xVarNames(),
+                nmrf.yVarNames()
+            )
                 .andThen(toOperator(postOperator)),
             nmrf -> FunctionGraph.sampleFor(nmrf.xVarNames(), nmrf.yVarNames()),
             "fGraphToNmrf[po=%s]".formatted(postOperator)
@@ -377,27 +376,37 @@ public class Mappers {
             (eDs, p) -> {
               // check for consistency of example and pair
               if (p.second().size() != eDs.size()) {
-                throw new IllegalArgumentException("Sizes of indexes and example do not match: %d vs. %d".formatted(
-                    p.second().size(),
-                    eDs.size()
-                ));
+                throw new IllegalArgumentException(
+                    "Sizes of indexes and example do not match: %d vs. %d".formatted(
+                        p.second().size(),
+                        eDs.size()
+                    )
+                );
               }
               if (p.second().lowerBound() != 0 || p.second()
                   .upperBound() != (int) Math.round(eDs.size() * relativeLength)) {
-                throw new IllegalArgumentException("Indexes domain is wrong: [%d,%d] expected, [%d,%d] found".formatted(
-                    0, (int) Math.round(eDs.size() * relativeLength),
-                    p.second().lowerBound(), p.second().upperBound()
-                ));
+                throw new IllegalArgumentException(
+                    "Indexes domain is wrong: [%d,%d] expected, [%d,%d] found".formatted(
+                        0,
+                        (int) Math.round(eDs.size() * relativeLength),
+                        p.second().lowerBound(),
+                        p.second().upperBound()
+                    )
+                );
               }
               // check for self-consistency of pair
               if (p.second().upperBound() != p.first().size() - 1) {
-                throw new IllegalArgumentException("Size of values does not match domain of indexes: %d vs. %d".formatted(
-                    p.first().size(),
-                    p.second().upperBound() + 1
-                ));
+                throw new IllegalArgumentException(
+                    "Size of values does not match domain of indexes: %d vs. %d".formatted(
+                        p.first().size(),
+                        p.second().upperBound() + 1
+                    )
+                );
               }
               // do the mapping
-              return p.second().genes().stream()
+              return p.second()
+                  .genes()
+                  .stream()
                   .map(i -> p.first().get(i))
                   .toList();
             },
@@ -773,11 +782,14 @@ public class Mappers {
             (ePair, ts) -> {
               // check for length consistency
               if (ePair.first().size() + ePair.second().size() != ts.size()) {
-                throw new IllegalArgumentException("Wrong input size: %d+%d=%d expected, %d found".formatted(
-                    ePair.first().size(), ePair.second().size(),
-                    ePair.first().size() + ePair.second().size(),
-                    ts.size()
-                ));
+                throw new IllegalArgumentException(
+                    "Wrong input size: %d+%d=%d expected, %d found".formatted(
+                        ePair.first().size(),
+                        ePair.second().size(),
+                        ePair.first().size() + ePair.second().size(),
+                        ts.size()
+                    )
+                );
               }
               // do the mapping
               return new Pair<>(
