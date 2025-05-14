@@ -46,13 +46,13 @@ public class PongFightsMatrix {
   @SuppressWarnings("unchecked")
   public static void main(String[] args) throws IOException {
 
-    String folder = "C:\\Users\\elsal\\IdeaProjects\\results\\pong-generalized-bi-me-selectors\\test_fitness\\";
+    String folder = "/home/il_bello/IdeaProjects/results/pong-generalized-bi-me-selectors/2025-04-15--15-02-33/";
     String CSVPath1 = folder + "allBest.csv";
     String CSVPath2 = folder + "";
     String delimiter = ";";
     boolean singleCSV = true;
 
-    String videoFolder = folder + "videos\\";
+    String videoFolder = folder + "videos/";
     Files.createDirectories(Paths.get(videoFolder));
 
     String score1 = "ds.e.pong.score1()";

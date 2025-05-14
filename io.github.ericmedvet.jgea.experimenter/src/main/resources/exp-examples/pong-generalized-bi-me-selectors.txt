@@ -31,6 +31,45 @@ ea.experiment(
         ];
         opponentsSelector = ea.misc.farthestMESelector(nOfOpponents = 2);
         fitnessAggregator = f.avg()
+      );
+      ea.s.generalizedBiMapElites(
+        name = "bi-me-tree-best1";
+        fitnessReducer = ea.misc.lossyAverage();
+        representation = ea.r.srTree();
+        mapper = ea.m.nurfToNds(of = ea.m.srTreeToNurf());
+        emptyArchive = false;
+        descriptors = [
+          ea.s.me.d.descriptor(f = ea.f.treeSize(of = ea.f.genotype()); min = 0; max = 250; nOfBins = 10);
+          ea.s.me.d.descriptor(f = f.size(of = f.filter(of = ea.f.treeLeaves(of = ea.f.genotype()); condition = predicate.matches(f = f.toString(); regex = "i[0-9]+"))); min = 0; max = 30; nOfBins = 10)
+        ];
+        opponentsSelector = ea.misc.bestMESelector(nOfOpponents = 1);
+        fitnessAggregator = f.avg()
+      );
+      ea.s.generalizedBiMapElites(
+        name = "bi-me-tree-best2";
+        fitnessReducer = ea.misc.lossyAverage();
+        representation = ea.r.srTree();
+        mapper = ea.m.nurfToNds(of = ea.m.srTreeToNurf());
+        emptyArchive = false;
+        descriptors = [
+          ea.s.me.d.descriptor(f = ea.f.treeSize(of = ea.f.genotype()); min = 0; max = 250; nOfBins = 10);
+          ea.s.me.d.descriptor(f = f.size(of = f.filter(of = ea.f.treeLeaves(of = ea.f.genotype()); condition = predicate.matches(f = f.toString(); regex = "i[0-9]+"))); min = 0; max = 30; nOfBins = 10)
+        ];
+        opponentsSelector = ea.misc.bestMESelector(nOfOpponents = 2);
+        fitnessAggregator = f.avg()
+      );
+      ea.s.generalizedBiMapElites(
+        name = "bi-me-tree-best3";
+        fitnessReducer = ea.misc.lossyAverage();
+        representation = ea.r.srTree();
+        mapper = ea.m.nurfToNds(of = ea.m.srTreeToNurf());
+        emptyArchive = false;
+        descriptors = [
+          ea.s.me.d.descriptor(f = ea.f.treeSize(of = ea.f.genotype()); min = 0; max = 250; nOfBins = 10);
+          ea.s.me.d.descriptor(f = f.size(of = f.filter(of = ea.f.treeLeaves(of = ea.f.genotype()); condition = predicate.matches(f = f.toString(); regex = "i[0-9]+"))); min = 0; max = 30; nOfBins = 10)
+        ];
+        opponentsSelector = ea.misc.bestMESelector(nOfOpponents = 3);
+        fitnessAggregator = f.avg()
       )
 ]) *
 
@@ -40,18 +79,6 @@ ea.experiment(
         qFunction1 = ds.e.pong.shiftedScoreDiff1();
         qFunction2 = ds.e.pong.shiftedScoreDiff2();
         type = maximize
-      );
-      ea.p.biSimToBqb(
-        simulation = $SIMULATION;
-        qFunction1 = ds.e.pong.scoreDiff1();
-        qFunction2 = ds.e.pong.scoreDiff2();
-        type = maximize
-      );
-      ea.p.biSimToBqb(
-        simulation = $SIMULATION;
-        qFunction1 = ds.e.pong.yOffsetFromBall1(ballXProximityThreshold = 0.1);
-        qFunction2 = ds.e.pong.yOffsetFromBall2(ballXProximityThreshold = 0.1);
-        type = minimize
       )
     ]) *
     [ea.run()];
