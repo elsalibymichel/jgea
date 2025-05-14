@@ -53,7 +53,6 @@ import io.github.ericmedvet.jviz.core.plot.image.*;
 import io.github.ericmedvet.jviz.core.plot.image.Configuration;
 import io.github.ericmedvet.jviz.core.plot.video.*;
 import io.github.ericmedvet.jviz.core.util.VideoUtils;
-
 import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.function.Function;
@@ -132,8 +131,7 @@ public class Functions {
   public static <X, G, S, Q> NamedFunction<X, Archive<? extends MEIndividual<G, S, Q>>> coMeArchive1(
       @Param(value = "of", dNPM = "f.identity()") Function<X, CoMEPopulationState<G, ?, S, ?, ?, Q, ?>> beforeF
   ) {
-    Function<CoMEPopulationState<G, ?, S, ?, ?, Q, ?>, Archive<? extends MEIndividual<G, S, Q>>> f =
-        CoMEPopulationState::archive1;
+    Function<CoMEPopulationState<G, ?, S, ?, ?, Q, ?>, Archive<? extends MEIndividual<G, S, Q>>> f = CoMEPopulationState::archive1;
     return NamedFunction.from(f, "coMe.archive1").compose(beforeF);
   }
 
@@ -142,8 +140,7 @@ public class Functions {
   public static <X, G, S, Q> NamedFunction<X, Archive<? extends MEIndividual<G, S, Q>>> coMeArchive2(
       @Param(value = "of", dNPM = "f.identity()") Function<X, CoMEPopulationState<?, G, ?, S, ?, Q, ?>> beforeF
   ) {
-    Function<CoMEPopulationState<?, G, ?, S, ?, Q, ?>, Archive<? extends MEIndividual<G, S, Q>>> f =
-        CoMEPopulationState::archive2;
+    Function<CoMEPopulationState<?, G, ?, S, ?, Q, ?>, Archive<? extends MEIndividual<G, S, Q>>> f = CoMEPopulationState::archive2;
     return NamedFunction.from(f, "coMe.archive2").compose(beforeF);
   }
 
@@ -217,14 +214,13 @@ public class Functions {
       @Param(value = "missingDataString", dS = "nan") String missingDataString,
       @Param(value = "mode", dS = "paper_friendly") io.github.ericmedvet.jviz.core.plot.csv.Configuration.Mode mode
   ) {
-    io.github.ericmedvet.jviz.core.plot.csv.Configuration configuration =
-        new io.github.ericmedvet.jviz.core.plot.csv.Configuration(
-            columnNameJoiner,
-            doubleFormat,
-            delimiter,
-            List.of(new io.github.ericmedvet.jviz.core.plot.csv.Configuration.Replacement("\\W+", ".")),
-            missingDataString
-        );
+    io.github.ericmedvet.jviz.core.plot.csv.Configuration configuration = new io.github.ericmedvet.jviz.core.plot.csv.Configuration(
+        columnNameJoiner,
+        doubleFormat,
+        delimiter,
+        List.of(new io.github.ericmedvet.jviz.core.plot.csv.Configuration.Replacement("\\W+", ".")),
+        missingDataString
+    );
     Function<P, String> f = p -> {
       if (p instanceof DistributionPlot dp) {
         return new DistributionPlotCsvBuilder(configuration, mode).apply(dp);
@@ -411,8 +407,10 @@ public class Functions {
         .stream()
         .distinct()
         .count() / (double) (is.size() - startOffset - endOffset);
-    return FormattedNamedFunction.from(f, format, "intra.epistasis[%d;%d]".formatted(startOffset, endOffset)).compose(
-        beforeF);
+    return FormattedNamedFunction.from(f, format, "intra.epistasis[%d;%d]".formatted(startOffset, endOffset))
+        .compose(
+            beforeF
+        );
   }
 
   @SuppressWarnings("unused")
@@ -870,18 +868,17 @@ public class Functions {
   @Cacheable
   public static <X, I extends Individual<?, S, Q>, S, Q, P extends QualityBasedProblem<S, Q>> FormattedNamedFunction<X, Q> validationQuality(
       @Param(value = "of", dNPM = "f.identity()") Function<X, POCPopulationState<?, ?, S, Q, P>> beforeF,
-      @Param(value = "individual", dNPM = "ea.f.best()") Function<POCPopulationState<?, ?, S, Q, P>, Individual<?, S,
-          Q>> individualF,
+      @Param(value = "individual", dNPM = "ea.f.best()") Function<POCPopulationState<?, ?, S, Q, P>, Individual<?, S, Q>> individualF,
       @Param(value = "format", dS = "%s") String format
   ) {
     Function<POCPopulationState<?, ?, S, Q, P>, Q> f = state -> state.problem()
         .validationQualityFunction()
         .apply(individualF.apply(state).solution());
     return FormattedNamedFunction.from(
-            f,
-            format,
-            "validation.quality[%s]".formatted(NamedFunction.name(individualF))
-        )
+        f,
+        format,
+        "validation.quality[%s]".formatted(NamedFunction.name(individualF))
+    )
         .compose(beforeF);
   }
 
@@ -902,8 +899,7 @@ public class Functions {
         encoder
     );
     Configuration iConfiguration = freeScales ? Configuration.FREE_SCALES : Configuration.DEFAULT;
-    io.github.ericmedvet.jviz.core.plot.video.Configuration vConfiguration =
-        io.github.ericmedvet.jviz.core.plot.video.Configuration.DEFAULT;
+    io.github.ericmedvet.jviz.core.plot.video.Configuration vConfiguration = io.github.ericmedvet.jviz.core.plot.video.Configuration.DEFAULT;
     Function<P, Video> f = p -> {
       if (p instanceof DistributionPlot dp) {
         BoxPlotVideoBuilder vb = new BoxPlotVideoBuilder(vConfiguration, iConfiguration, Configuration.BoxPlot.DEFAULT);
