@@ -52,7 +52,7 @@ ea.experiment(
     (problem = [ea.p.biSimToQb(
       simulation = $SIMULATION;
       qFunction = ds.e.pong.scoreDiff1();
-      trainingOpponent = ds.opponent.pong.simple();
+      trainingOpponent = m.supplier(of = ds.opponent.pong.simple());
       type = maximize
     )]) *
     [ea.run()];
