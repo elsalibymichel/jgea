@@ -4567,6 +4567,17 @@ Produces <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;?&
 
 Produces <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Predicates.any()` by jgea-experimenter:2.7.1-SNAPSHOT
 
+### Builder `predicate.divisibleBy()`
+
+`predicate.divisibleBy(f; divisor)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `f` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
+| `divisor` | d |  | <code>double</code> |
+
+Produces <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Predicates.divisibleBy()` by jgea-experimenter:2.7.1-SNAPSHOT
+
 ### Builder `predicate.eq()`
 
 `predicate.eq(f; v)`
