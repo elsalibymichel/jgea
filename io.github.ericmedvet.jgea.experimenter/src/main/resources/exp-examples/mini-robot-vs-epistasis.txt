@@ -4,7 +4,7 @@ ea.experiment(
   (solver = (nEval = [50000]) *
   [
     ea.s.ga(
-      name = "ga-epistasis-onefifth";
+      name = "ga-epistasis-0.2";
       mapper = ea.mapper.pair(
         first = ea.m.identity();
         second = $brainMapper;
@@ -16,7 +16,7 @@ ea.experiment(
       )
     );
     ea.s.ga(
-      name = "ga-epistasis-half";
+      name = "ga-epistasis-0.5";
       mapper = ea.mapper.pair(
         first = ea.m.identity();
         second = $brainMapper;
@@ -28,7 +28,7 @@ ea.experiment(
       )
     );
     ea.s.ga(
-      name = "ga-epistasis-one";
+      name = "ga-epistasis-1";
       mapper = ea.mapper.pair(
         first = ea.m.identity();
         second = $brainMapper;
@@ -40,7 +40,7 @@ ea.experiment(
       )
     );
     ea.s.ga(
-      name = "ga-epistasis-double";
+      name = "ga-epistasis-2";
       mapper = ea.mapper.pair(
         first = ea.m.identity();
         second = $brainMapper;
@@ -52,7 +52,7 @@ ea.experiment(
       )
     );
     ea.s.ga(
-      name = "ga-epistasis-five";
+      name = "ga-epistasis-5";
       mapper = ea.mapper.pair(
         first = ea.m.identity();
         second = $brainMapper;
@@ -105,7 +105,7 @@ ea.experiment(
       onlyLast = false
     );
     ea.l.bestCsv(
-      path = "results/{name}/{startTime}/results.csv";
+      path = "../results/{name}/{startTime}/results.csv";
       functions = [
         f.mapValue(key = "avg.dist"; of = ea.f.behaviorQuality(of = ea.f.quality(of = ea.f.best())); format = "%6.4f");
         ea.f.size(of = ea.f.genotype(of = ea.f.best()); format = "%3d");
@@ -123,18 +123,18 @@ ea.experiment(
     );
     ea.l.savePlotForExp(
       plot = ea.plot.multi.quality(q = f.mapValue(key = "avg.dist"; of = ea.f.behaviorQuality()));
-      path = "../best-fitness"
+      path = "../results/{name}/{startTime}/best-fitness"
     );
     ea.l.savePlotForExp(
       plot = ea.plot.multi.xyExp(
-        y = f.as(of = ea.f.intraEpistasis(of = f.pairSecond(of = ea.f.genotype(of = ea.f.best()))); name = "global.epistasis");
-        condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-epistasis-.*")
+        y = f.as(of = ea.f.intraEpistasis(of = f.pairSecond(of = ea.f.genotype(of = ea.f.best()))); name = "global.epistasis")
       );
-      path = "../best-global.epistasis"
+      path = "../results/{name}/{startTime}/best-global.epistasis";
+      condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-epistasis-.*")
     );
     ea.l.saveForRun(
       of = ea.acc.lastBest();
-      path = "../best-traj-{run.index:%04d}";
+      path = "../results/{name}/{startTime}/{run.solver.name}/best-traj-{run.index:%04d}";
       processor = ea.f.toImage(image = ds.d.navigation(); of = ea.f.behavior(of = ea.f.quality()))
     )
   ]
