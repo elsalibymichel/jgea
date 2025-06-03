@@ -25,7 +25,10 @@ import io.github.ericmedvet.jgea.core.operator.GeneticOperator;
 import io.github.ericmedvet.jgea.core.order.DAGPartiallyOrderedCollection;
 import io.github.ericmedvet.jgea.core.order.PartialComparator;
 import io.github.ericmedvet.jgea.core.order.PartiallyOrderedCollection;
+import io.github.ericmedvet.jgea.core.problem.MultiObjectiveProblem;
 import io.github.ericmedvet.jgea.core.problem.QualityBasedProblem;
+import io.github.ericmedvet.jgea.core.problem.TotalOrderQualityBasedProblem;
+import io.github.ericmedvet.jgea.core.selector.Last;
 import io.github.ericmedvet.jgea.core.selector.Selector;
 import io.github.ericmedvet.jgea.core.util.Misc;
 import java.util.*;
@@ -178,6 +181,15 @@ public abstract class AbstractStandardEvolver<T extends POCPopulationState<I, G,
         population,
         partialComparator(state.problem())
     );
+    // check if trivial case: total order or one objective and worst selector
+    if (state.problem() instanceof TotalOrderQualityBasedProblem<?, ?> || (state
+        .problem() instanceof MultiObjectiveProblem<?, ?, ?> && (((MultiObjectiveProblem<?, ?, ?>) state.problem())
+            .objectives()
+            .size() == 1))) {
+      if (unsurvivalSelector instanceof Last) {
+        return orderedPopulation.fronts().stream().flatMap(Collection::stream).limit(populationSize).toList();
+      }
+    }
     while (orderedPopulation.size() > populationSize) {
       I toRemoveIndividual = unsurvivalSelector.select(orderedPopulation, random);
       orderedPopulation.remove(toRemoveIndividual);
