@@ -117,7 +117,7 @@ public class Consumers {
       @Param(value = "path", dS = "run-{run.index:%04d}") String filePathTemplate
   ) {
     return Naming.named(
-        "saver[%s]".formatted(NamedFunction.name(f)),
+        "saver[%s;%s]".formatted(NamedFunction.name(f), filePathTemplate + (overwrite ? "(*)" : "")),
         (x, run, experiment) -> save(f.apply(x), Utils.interpolate(filePathTemplate, experiment, run), overwrite)
     );
   }
@@ -128,14 +128,14 @@ public class Consumers {
       @Param(value = "of", dNPM = "f.identity()") Function<X, O> f,
       @Param(
           value = "title", dS = // spotless:off
-              """
-                  Experiment:
-                  \t{name}
-                  Run {run.index}:
-                  \tSolver: {run.solver\
-                  .name}
-                  \tProblem: {run.problem.name}
-                  \tSeed: {run.randomGenerator.seed}""" // spotless:on
+          """
+              Experiment:
+              \t{name}
+              Run {run.index}:
+              \tSolver: {run.solver\
+              .name}
+              \tProblem: {run.problem.name}
+              \tSeed: {run.randomGenerator.seed}""" // spotless:on
       ) String titleTemplate,
       @Param("chatId") String chatId,
       @Param("botIdFilePath") String botIdFilePath

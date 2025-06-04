@@ -899,7 +899,10 @@ public class Functions {
         encoder
     );
     Configuration iConfiguration = freeScales ? Configuration.FREE_SCALES : Configuration.DEFAULT;
-    io.github.ericmedvet.jviz.core.plot.video.Configuration vConfiguration = io.github.ericmedvet.jviz.core.plot.video.Configuration.DEFAULT;
+    io.github.ericmedvet.jviz.core.plot.video.Configuration vConfiguration = new io.github.ericmedvet.jviz.core.plot.video.Configuration(
+        io.github.ericmedvet.jviz.core.plot.video.Configuration.DEFAULT.splitType(),
+        frameRate
+    );
     Function<P, Video> f = p -> {
       if (p instanceof DistributionPlot dp) {
         BoxPlotVideoBuilder vb = new BoxPlotVideoBuilder(vConfiguration, iConfiguration, Configuration.BoxPlot.DEFAULT);

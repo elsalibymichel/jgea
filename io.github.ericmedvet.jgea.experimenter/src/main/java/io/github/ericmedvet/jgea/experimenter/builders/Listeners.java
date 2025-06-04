@@ -303,17 +303,18 @@ public class Listeners {
   }
 
   @Alias(
-      name = "saveForExp", passThroughParams = {@PassThroughParam(name = "path", type = ParamMap.Type.STRING, value = "../run-{run.index:%04d}"), @PassThroughParam(name = "processor", type = ParamMap.Type.NAMED_PARAM_MAP)
+      name = "saveForExp", passThroughParams = {@PassThroughParam(name = "path", type = ParamMap.Type.STRING, value = "{experiment.name}"), @PassThroughParam(name = "processor", type = ParamMap.Type.NAMED_PARAM_MAP), @PassThroughParam(name = "overwrite", type = ParamMap.Type.BOOLEAN, value = "false")
       }, value = // spotless:off
       """
           onExpDone(
             preprocessor = $processor;
-            consumers = [ea.c.saver(path = $path)]
+            consumers = [ea.c.saver(path = $path; overwrite = $overwrite)]
           )
           """ // spotless:on
   )
   @Alias(
-      name = "savePlotForExp", passThroughParams = {@PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP)}, value = // spotless:off
+      name = "savePlotForExp", passThroughParams = {@PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP)
+      }, value = // spotless:off
       """
           saveForExp(
             of = $plot;
@@ -349,17 +350,18 @@ public class Listeners {
   }
 
   @Alias(
-      name = "saveForRun", passThroughParams = {@PassThroughParam(name = "path", type = ParamMap.Type.STRING, value = "run-{run.index:%04d}"), @PassThroughParam(name = "processor", type = ParamMap.Type.NAMED_PARAM_MAP)
+      name = "saveForRun", passThroughParams = {@PassThroughParam(name = "path", type = ParamMap.Type.STRING, value = "run-{run.index:%04d}"), @PassThroughParam(name = "overwrite", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "processor", type = ParamMap.Type.NAMED_PARAM_MAP)
       }, value = // spotless:off
       """
           onRunDone(
             preprocessor = $processor;
-            consumers = [ea.c.saver(path = $path)]
+            consumers = [ea.c.saver(path = $path; overwrite = $overwrite)]
           )
           """ // spotless:on
   )
   @Alias(
-      name = "savePlotForRun", passThroughParams = {@PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP)}, value = // spotless:off
+      name = "savePlotForRun", passThroughParams = {@PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP)
+      }, value = // spotless:off
       """
           saveForRun(
             of = $plot;
