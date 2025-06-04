@@ -295,7 +295,7 @@ public class Functions {
     Function<Individual<G, ?, ?>, G> f = Individual::genotype;
     return FormattedNamedFunction.from(f, format, "genotype").compose(beforeF);
   }
-  
+
   @SuppressWarnings("unused")
   @Cacheable
   public static <X> FormattedNamedFunction<X, List<Double>> getLayerWeights(
@@ -305,7 +305,7 @@ public class Functions {
   ) {
     Function<MultiLayerPerceptron, List<Double>> f = mlp -> {
       int[] neurons = new int[mlp.nOfLayers()];
-      for (int i = 0; i<neurons.length; i++){
+      for (int i = 0; i < neurons.length; i++) {
         neurons[i] = mlp.sizeOfLayer(i);
       }
       double[][][] unflat = MultiLayerPerceptron.unflat(mlp.getParams(), neurons);

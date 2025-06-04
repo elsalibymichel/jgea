@@ -54,11 +54,8 @@ import io.github.ericmedvet.jnb.datastructure.Grid;
 import io.github.ericmedvet.jnb.datastructure.NumericalParametrized;
 import io.github.ericmedvet.jnb.datastructure.Pair;
 import io.github.ericmedvet.jsdynsym.buildable.builders.NumericalDynamicalSystems;
-import io.github.ericmedvet.jsdynsym.core.StatelessSystem;
 import io.github.ericmedvet.jsdynsym.core.composed.Stepped;
 import io.github.ericmedvet.jsdynsym.core.numerical.*;
-import io.github.ericmedvet.jsdynsym.core.numerical.ann.MultiLayerPerceptron;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
