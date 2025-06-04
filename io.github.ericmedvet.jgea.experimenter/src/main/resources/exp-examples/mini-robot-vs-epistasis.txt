@@ -2,8 +2,8 @@ $brainMapper = ea.m.dsToNpnds(npnds = ds.num.mlp(innerLayerRatio = 1; nOfInnerLa
 $objName = "arena.coverage[10x10]"
 
 ea.experiment(
-  runs = (randomGenerator = (seed = [1:1:10]) * [m.defaultRG()]) *
-  (solver = (nEval = [2000]) *
+  runs = (randomGenerator = (seed = [1:1:1]) * [m.defaultRG()]) *
+  (solver = (nEval = [1000]) *
   [
     ea.s.ga(
       name = "ga-epistasis-0.2";
@@ -132,91 +132,104 @@ ea.experiment(
       ];
       onlyLast = false
     );
-    ea.l.savePlotForRun(
+    ea.l.savePlotAndCsvForRun(
       plot = ea.plot.multi.quality(q = f.mapValue(key = $objName; of = ea.f.behaviorQuality()));
+      overwrite = true;
       path = "../results/{name}/{startTime}/best-fitness"
     );
-    ea.l.savePlotForExp(
+    ea.l.savePlotAndCsvForRun(
       plot = ea.plot.multi.xyExp(
         y = f.as(of = ea.f.intraEpistasis(of = f.pairSecond(of = ea.f.genotype(of = ea.f.best()))); name = "best.global.epistasis")
       );
+      overwrite = true;
       path = "../results/{name}/{startTime}/best.global.epistasis";
       condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-epistasis-.*")
     );
-    ea.l.savePlotForExp(
+    ea.l.savePlotAndCsvForRun(
       plot = ea.plot.multi.xyExp(
         y = f.as(of = ea.f.intraEpistasis(of = f.pairSecond(of = ea.f.genotype(of = ea.f.best())); endOffset = 288); name = "best.body.epistasis")
       );
+      overwrite = true;
       path = "../results/{name}/{startTime}/best.body.epistasis";
       condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-epistasis-.*")
     );
-    ea.l.savePlotForExp(
+    ea.l.savePlotAndCsvForRun(
       plot = ea.plot.multi.xyExp(
         y = f.as(of = ea.f.intraEpistasis(of = f.pairSecond(of = ea.f.genotype(of = ea.f.best())); startOffset = 9); name = "best.brain.epistasis")
       );
+      overwrite = true;
       path = "../results/{name}/{startTime}/best.brain.epistasis";
       condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-epistasis-.*")
     );
-    ea.l.savePlotForExp(
+    ea.l.savePlotAndCsvForRun(
       plot = ea.plot.multi.xyExp(
         y = f.as(of = ea.f.crossEpistasis(of = f.pairSecond(of = ea.f.genotype(of = ea.f.best())); splitOffset = 9); name = "best.cross.body.brain.epistasis")
       );
+      overwrite = true;
       path = "../results/{name}/{startTime}/best.cross.body.brain.epistasis";
       condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-epistasis-.*")
     );
-    ea.l.savePlotForExp(
+    ea.l.savePlotAndCsvForRun(
       plot = ea.plot.multi.xyExp(
         y = f.as(of = f.avg(of = f.each(of = ea.f.all(); mapF = ea.f.intraEpistasis(of = f.pairSecond(of = ea.f.genotype())))); name = "avg.global.epistasis")
       );
+      overwrite = true;
       path = "../results/{name}/{startTime}/avg.global.epistasis";
       condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-epistasis-.*")
     );
-    ea.l.savePlotForExp(
+    ea.l.savePlotAndCsvForRun(
       plot = ea.plot.multi.xyExp(
         y = f.as(of = f.avg(of = f.each(of = ea.f.all(); mapF = ea.f.intraEpistasis(of = f.pairSecond(of = ea.f.genotype()); endOffset = 288))); name = "avg.body.epistasis")
       );
+      overwrite = true;
       path = "../results/{name}/{startTime}/avg.body.epistasis";
       condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-epistasis-.*")
     );
-    ea.l.savePlotForExp(
+    ea.l.savePlotAndCsvForRun(
       plot = ea.plot.multi.xyExp(
         y = f.as(of = f.avg(of = f.each(of = ea.f.all(); mapF = ea.f.intraEpistasis(of = f.pairSecond(of = ea.f.genotype()); startOffset = 9))); name = "avg.brain.epistasis")
       );
+      overwrite = true;
       path = "../results/{name}/{startTime}/avg.brain.epistasis";
       condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-epistasis-.*")
     );
-    ea.l.savePlotForExp(
+    ea.l.savePlotAndCsvForRun(
       plot = ea.plot.multi.xyExp(
         y = f.as(of = f.avg(of = f.each(of = ea.f.all(); mapF = ea.f.crossEpistasis(of = f.pairSecond(of = ea.f.genotype()); splitOffset = 9))); name = "avg.cross.body.brain.epistasis")
       );
+      overwrite = true;
       path = "../results/{name}/{startTime}/avg.cross.body.brain.epistasis";
       condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-epistasis-.*")
     );
-    ea.l.savePlotForExp(
+    ea.l.savePlotAndCsvForRun(
       plot = ea.plot.multi.xyExp(
         y = f.as(of = f.sd(of = f.each(of = ea.f.all(); mapF = ea.f.intraEpistasis(of = f.pairSecond(of = ea.f.genotype())))); name = "sd.global.epistasis")
       );
+      overwrite = true;
       path = "../results/{name}/{startTime}/sd.global.epistasis";
       condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-epistasis-.*")
     );
-    ea.l.savePlotForExp(
+    ea.l.savePlotAndCsvForRun(
       plot = ea.plot.multi.xyExp(
         y = f.as(of = f.sd(of = f.each(of = ea.f.all(); mapF = ea.f.intraEpistasis(of = f.pairSecond(of = ea.f.genotype()); endOffset = 288))); name = "sd.body.epistasis")
       );
+      overwrite = true;
       path = "../results/{name}/{startTime}/sd.body.epistasis";
       condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-epistasis-.*")
     );
-    ea.l.savePlotForExp(
+    ea.l.savePlotAndCsvForRun(
       plot = ea.plot.multi.xyExp(
         y = f.as(of = f.sd(of = f.each(of = ea.f.all(); mapF = ea.f.intraEpistasis(of = f.pairSecond(of = ea.f.genotype()); startOffset = 9))); name = "sd.brain.epistasis")
       );
+      overwrite = true;
       path = "../results/{name}/{startTime}/sd.brain.epistasis";
       condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-epistasis-.*")
     );
-    ea.l.savePlotForExp(
+    ea.l.savePlotAndCsvForRun(
       plot = ea.plot.multi.xyExp(
         y = f.as(of = f.sd(of = f.each(of = ea.f.all(); mapF = ea.f.crossEpistasis(of = f.pairSecond(of = ea.f.genotype()); splitOffset = 9))); name = "sd.cross.body.brain.epistasis")
       );
+      overwrite = true;
       path = "../results/{name}/{startTime}/sd.cross.body.brain.epistasis";
       condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-epistasis-.*")
     );

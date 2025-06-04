@@ -322,6 +322,19 @@ public class Listeners {
           )
           """ // spotless:on
   )
+  @Alias(
+      name = "savePlotAndCsvForExp", passThroughParams = {@PassThroughParam(name = "overwrite", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "path", type = ParamMap.Type.STRING, value = "{experiment.name}"), @PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP)
+      }, value = // spotless:off
+      """
+          onExpDone(
+            of = $plot;
+            consumers = [
+              ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.imagePlotter());
+              ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.csvPlotter())
+            ]
+          )
+          """ // spotless:on
+  )
   @SuppressWarnings("unused")
   public static <E, O, P> BiFunction<Experiment, ExecutorService, ListenerFactory<E, Run<?, ?, ?, ?>>> onExpDone(
       @Param("of") AccumulatorFactory<E, O, Run<?, ?, ?, ?>> accumulatorFactory,
@@ -378,6 +391,19 @@ public class Listeners {
             processor = f.identity()
           )
           """) // spotless:on
+  @Alias(
+      name = "savePlotAndCsvForRun", passThroughParams = {@PassThroughParam(name = "overwrite", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "path", type = ParamMap.Type.STRING, value = "{experiment.name}"), @PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP)
+      }, value = // spotless:off
+      """
+          onRunDone(
+            of = $plot;
+            consumers = [
+              ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.imagePlotter());
+              ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.csvPlotter())
+            ]
+          )
+          """ // spotless:on
+  )
   @SuppressWarnings("unused")
   public static <E, O, P> BiFunction<Experiment, ExecutorService, ListenerFactory<E, Run<?, ?, ?, ?>>> onRunDone(
       @Param("of") AccumulatorFactory<E, O, Run<?, ?, ?, ?>> accumulatorFactory,
