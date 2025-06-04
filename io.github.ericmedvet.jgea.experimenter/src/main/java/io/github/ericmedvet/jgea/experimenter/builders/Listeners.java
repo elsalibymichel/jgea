@@ -323,13 +323,13 @@ public class Listeners {
           """ // spotless:on
   )
   @Alias(
-      name = "savePlotAndCsvForExp", passThroughParams = {@PassThroughParam(name = "overwrite", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "path", type = ParamMap.Type.STRING, value = "{experiment.name}"), @PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP)
+      name = "savePlotAndCsvForExp", passThroughParams = {@PassThroughParam(name = "secondary", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "overwrite", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "path", type = ParamMap.Type.STRING, value = "{experiment.name}"), @PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP)
       }, value = // spotless:off
       """
           onExpDone(
             of = $plot;
             consumers = [
-              ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.imagePlotter());
+              ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.imagePlotter(secondary = $secondary));
               ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.csvPlotter())
             ]
           )
@@ -392,13 +392,13 @@ public class Listeners {
           )
           """) // spotless:on
   @Alias(
-      name = "savePlotAndCsvForRun", passThroughParams = {@PassThroughParam(name = "overwrite", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "path", type = ParamMap.Type.STRING, value = "{experiment.name}"), @PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP)
+      name = "savePlotAndCsvForRun", passThroughParams = {@PassThroughParam(name = "secondary", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "overwrite", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "path", type = ParamMap.Type.STRING, value = "{experiment.name}"), @PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP)
       }, value = // spotless:off
       """
           onRunDone(
             of = $plot;
             consumers = [
-              ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.imagePlotter());
+              ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.imagePlotter(secondary = $secondary));
               ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.csvPlotter())
             ]
           )
