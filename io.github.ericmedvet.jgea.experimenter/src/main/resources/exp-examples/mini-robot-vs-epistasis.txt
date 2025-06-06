@@ -1,5 +1,9 @@
 $brainMapper = ea.m.dsToNpnds(npnds = ds.num.mlp(innerLayerRatio = 1; nOfInnerLayers = 2))
 $objName = "arena.coverage[10x10]"
+$eRpresentation = ea.representation.pair(
+  first = ea.representation.doubleString();
+  second = ea.representation.intString(mutations = [ea.r.go.oneMutation(mutations = [ea.r.go.isSymbolCopyMutation(); ea.r.go.isFlipMutation()])])
+)
 
 ea.experiment(
   runs = (randomGenerator = (seed = [1:1:1]) * [m.defaultRG()]) *
@@ -12,22 +16,7 @@ ea.experiment(
         second = $brainMapper;
         of = ea.m.splitter(of = ea.m.isIndexed(relativeLength = 0.2))
       );
-      representation = ea.representation.pair(
-        first = ea.representation.doubleString();
-        second = ea.representation.intString()
-      )
-    );
-    ea.s.ga(
-      name = "ga-epistasis-0.5";
-      mapper = ea.mapper.pair(
-        first = ea.m.identity();
-        second = $brainMapper;
-        of = ea.m.splitter(of = ea.m.isIndexed(relativeLength = 0.5))
-      );
-      representation = ea.representation.pair(
-        first = ea.representation.doubleString();
-        second = ea.representation.intString()
-      )
+      representation = $eRpresentation
     );
     ea.s.ga(
       name = "ga-epistasis-1.0";
@@ -36,34 +25,7 @@ ea.experiment(
         second = $brainMapper;
         of = ea.m.splitter(of = ea.m.isIndexed(relativeLength = 1))
       );
-      representation = ea.representation.pair(
-        first = ea.representation.doubleString();
-        second = ea.representation.intString()
-      )
-    );
-    ea.s.ga(
-      name = "ga-epistasis-2.0";
-      mapper = ea.mapper.pair(
-        first = ea.m.identity();
-        second = $brainMapper;
-        of = ea.m.splitter(of = ea.m.isIndexed(relativeLength = 2))
-      );
-      representation = ea.representation.pair(
-        first = ea.representation.doubleString();
-        second = ea.representation.intString()
-      )
-    );
-    ea.s.ga(
-      name = "ga-epistasis-5.0";
-      mapper = ea.mapper.pair(
-        first = ea.m.identity();
-        second = $brainMapper;
-        of = ea.m.splitter(of = ea.m.isIndexed(relativeLength = 5))
-      );
-      representation = ea.representation.pair(
-        first = ea.representation.doubleString();
-        second = ea.representation.intString()
-      )
+      representation = $eRpresentation
     );
     ea.s.ga(
       name = "ga-pair-ds";

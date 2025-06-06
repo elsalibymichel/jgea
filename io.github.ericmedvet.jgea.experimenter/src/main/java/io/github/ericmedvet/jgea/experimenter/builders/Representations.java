@@ -87,7 +87,7 @@ public class Representations {
       @Param(value = "initialMaxV", dD = 1d) double initialMaxV,
       @Param(value = "mutations", dNPMs = {"ea.r.go.dsGaussianMutation()"
       }) List<Function<List<Double>, Mutation<List<Double>>>> mutations,
-      @Param(value = "xovers", dNPMs = {"ea.r.go.composedXover(xover = ea.r.go.bsUniformXover(); mutation = ea.r.go.bsFlipMutation())"
+      @Param(value = "xovers", dNPMs = {"ea.r.go.composedXover(xover = ea.r.go.dsSegmentGeometricXover(); mutation = ea.r.go.dsGaussianMutation())"
       }) List<Function<List<Double>, Crossover<List<Double>>>> xovers
   ) {
     return eDs -> new Representation<>(
