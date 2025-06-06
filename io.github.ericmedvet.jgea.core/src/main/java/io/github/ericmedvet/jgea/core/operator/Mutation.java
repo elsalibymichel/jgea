@@ -37,6 +37,13 @@ public interface Mutation<G> extends GeneticOperator<G> {
     return (k, random) -> k;
   }
 
+  static <G> Mutation<G> from(GeneticOperator<G> mutation) {
+    if (mutation.arity() != 1) {
+      throw new IllegalArgumentException("Invalid arity: %d found, 1 expected".formatted(mutation.arity()));
+    }
+    return (g, rnd) -> mutation.apply(List.of(g), rnd).getFirst();
+  }
+
   static <K> Mutation<K> oneOf(Map<Mutation<K>, Double> operators) {
     return (k, random) -> Misc.pickRandomly(operators, random).mutate(k, random);
   }

@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.random.RandomGenerator;
 
-public class IntStringGeneCopy implements Mutation<IntString> {
+public class IntStringSymbolCopy implements Mutation<IntString> {
   @Override
   public IntString mutate(IntString intString, RandomGenerator random) {
     List<Integer> genes = new ArrayList<>(intString.genes());

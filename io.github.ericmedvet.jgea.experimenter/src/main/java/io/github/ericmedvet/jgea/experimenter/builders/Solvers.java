@@ -175,7 +175,7 @@ public class Solvers {
   ) {
     return exampleS -> new CMAEvolutionaryStrategy<>(
         mapper.mapperFor(exampleS),
-        Representations.doubleString(initialMinV, initialMaxV, 0)
+        Representations.doubleString(initialMinV, initialMaxV, List.of(), List.of())
             .apply(mapper.exampleFor(exampleS))
             .factory(),
         StopConditions.nOfFitnessEvaluations(nEval)
@@ -245,7 +245,7 @@ public class Solvers {
   ) {
     return exampleS -> new DifferentialEvolution<>(
         mapper.mapperFor(exampleS),
-        Representations.doubleString(initialMinV, initialMaxV, 0)
+        Representations.doubleString(initialMinV, initialMaxV, List.of(), List.of())
             .apply(mapper.exampleFor(exampleS))
             .factory(),
         populationSize,
@@ -511,7 +511,7 @@ public class Solvers {
   ) {
     return exampleS -> new OpenAIEvolutionaryStrategy<>(
         mapper.mapperFor(exampleS),
-        Representations.doubleString(initialMinV, initialMaxV, 0)
+        Representations.doubleString(initialMinV, initialMaxV, List.of(), List.of())
             .apply(mapper.exampleFor(exampleS))
             .factory(),
         StopConditions.nOfFitnessEvaluations(nEval),
@@ -539,7 +539,7 @@ public class Solvers {
   ) {
     return exampleS -> new ParticleSwarmOptimization<>(
         mapper.mapperFor(exampleS),
-        Representations.doubleString(initialMinV, initialMaxV, 0)
+        Representations.doubleString(initialMinV, initialMaxV, List.of(), List.of())
             .apply(mapper.exampleFor(exampleS))
             .factory(),
         StopConditions.nOfFitnessEvaluations(nEval),
@@ -607,7 +607,7 @@ public class Solvers {
   ) {
     return exampleS -> new SimpleEvolutionaryStrategy<>(
         mapper.mapperFor(exampleS),
-        Representations.doubleString(initialMinV, initialMaxV, 0)
+        Representations.doubleString(initialMinV, initialMaxV, List.of(), List.of())
             .apply(mapper.exampleFor(exampleS))
             .factory(),
         nPop,

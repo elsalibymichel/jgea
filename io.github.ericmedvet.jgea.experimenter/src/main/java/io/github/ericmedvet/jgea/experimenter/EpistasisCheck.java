@@ -22,7 +22,6 @@ package io.github.ericmedvet.jgea.experimenter;
 import io.github.ericmedvet.jgea.core.InvertibleMapper;
 import io.github.ericmedvet.jgea.core.operator.Mutation;
 import io.github.ericmedvet.jgea.core.representation.sequence.integer.IntString;
-import io.github.ericmedvet.jgea.core.representation.sequence.numeric.GaussianMutation;
 import io.github.ericmedvet.jgea.core.solver.Individual;
 import io.github.ericmedvet.jgea.core.solver.mapelites.MapElites;
 import io.github.ericmedvet.jgea.core.util.Misc;
@@ -30,7 +29,10 @@ import io.github.ericmedvet.jnb.core.NamedBuilder;
 import io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction;
 import io.github.ericmedvet.jnb.datastructure.Grid;
 import io.github.ericmedvet.jnb.datastructure.Pair;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 import java.util.random.RandomGenerator;
@@ -39,7 +41,7 @@ import java.util.stream.IntStream;
 
 public class EpistasisCheck {
   public static void main(String[] args) {
-    RandomGenerator rg = new Random(1);
+    RandomGenerator rg = new Random();
     NamedBuilder<Object> nb = NamedBuilder.fromDiscovery();
     @SuppressWarnings("unchecked") FormattedNamedFunction<Pair<List<Double>, IntString>, Double> intraEpistasisF = ((FormattedNamedFunction<Pair<List<Double>, IntString>, Double>) nb
         .build(
@@ -61,7 +63,9 @@ public class EpistasisCheck {
             """
                 ea.representation.pair(
                   first = ea.representation.doubleString();
-                  second = ea.representation.intString()
+                  second = ea.representation.intString(
+                    mutations = [ea.r.go.oneMutation(mutations = [ea.r.go.isSymbolCopyMutation(); ea.r.go.isFlipMutation()])]
+                  )
                 )"""
         ));
     @SuppressWarnings("unchecked") InvertibleMapper<Pair<List<Double>, IntString>, Pair<List<Double>, List<Double>>> iMapper = ((InvertibleMapper<Pair<List<Double>, IntString>, Pair<List<Double>, List<Double>>>) nb
@@ -88,15 +92,15 @@ public class EpistasisCheck {
     Function<Pair<List<Double>, IntString>, Pair<List<Double>, List<Double>>> mapper = iMapper.mapperFor(
         exampleS
     );
-    Mutation<Pair<List<Double>, IntString>> mutation;
-    mutation = Mutation.pair(
-        new GaussianMutation(0.35d),
-        (is, rnd) -> {
-          List<Integer> genes = new ArrayList<>(is.genes());
-          genes.set(rnd.nextInt(genes.size()), genes.get(rnd.nextInt(genes.size())));
-          return new IntString(genes, is.lowerBound(), is.upperBound());
-        }
-    );
+    Mutation<Pair<List<Double>, IntString>> mutation = representation.mutations().getFirst();
+    //    mutation = Mutation.pair(
+    //        new GaussianMutation(0.35d),
+    //        (is, rnd) -> {
+    //          List<Integer> genes = new ArrayList<>(is.genes());
+    //          genes.set(rnd.nextInt(genes.size()), genes.get(rnd.nextInt(genes.size())));
+    //          return new IntString(genes, is.lowerBound(), is.upperBound());
+    //        }
+    //    );
     // random genotypes
     representation.factory().build(0, rg).forEach(g -> {
       System.out.println();
