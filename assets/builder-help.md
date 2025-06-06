@@ -385,7 +385,7 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedName
 | --- | --- | --- | --- |
 | `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, S&gt;</code> |
 | `simulation` | npm |  | <code><abbr title="io.github.ericmedvet.jsdynsym.control.HomogeneousBiSimulation">HomogeneousBiSimulation</abbr>&lt;S, SS, B&gt;</code> |
-| `opponent` | npm |  | <code><abbr title="java.util.function.Supplier">Supplier</abbr>&lt;S&gt;</code> |
+| `opponent` | npm |  | <code>S</code> |
 | `home` | b | `true` | <code>boolean</code> |
 | `format` | s | `%s` | <code><abbr title="java.lang.String">String</abbr></code> |
 
@@ -527,7 +527,7 @@ Aliases: `ds.opponent.pong`, `dynSys.opponent.pong`, `dynamicalSystem.opponent.p
 | --- | --- | --- | --- |
 | `deltaPosition` | d | `1.0` | <code>double</code> |
 
-Produces <code><abbr title="java.util.function.Supplier">Supplier</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.control.pong.PongAgent">PongAgent</abbr>&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.PongOpponents.simple()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jsdynsym.control.pong.PongAgent">PongAgent</abbr></code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.PongOpponents.simple()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ## Package `dynamicalSystem.simulation`
 
@@ -2287,7 +2287,7 @@ Produces <code><abbr title="java.awt.image.BufferedImage">BufferedImage</abbr></
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
-| `memoryFactor` | d | `0.2` | <code>double</code> |
+| `memoryFactor` | d | `0.5` | <code>double</code> |
 
 Produces <code><abbr title="java.util.function.BinaryOperator">BinaryOperator</abbr>&lt;<abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.lossyAverage()` by jgea-experimenter:2.7.1-SNAPSHOT
 

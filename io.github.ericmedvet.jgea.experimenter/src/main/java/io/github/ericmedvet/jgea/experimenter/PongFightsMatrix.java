@@ -52,9 +52,9 @@ public class PongFightsMatrix {
     String delimiter = ";";
     boolean singleCSV = false;
     boolean saveVideo = false;
-    
+
     String videoFolder = folder + "videos/";
-    if (saveVideo){
+    if (saveVideo) {
       Files.createDirectories(Paths.get(videoFolder));
     }
 
