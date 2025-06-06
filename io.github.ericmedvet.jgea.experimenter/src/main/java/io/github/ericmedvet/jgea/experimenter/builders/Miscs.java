@@ -187,7 +187,7 @@ public class Miscs {
   @SuppressWarnings("unused")
   @Cacheable
   public static BinaryOperator<Double> lossyAverage(
-      @Param(value = "memoryFactor", dD = 0.2) double memoryFactor
+      @Param(value = "memoryFactor", dD = 0.5) double memoryFactor
   ) {
     return (q1, q2) -> q1 * memoryFactor + (1 - memoryFactor) * q2;
   }

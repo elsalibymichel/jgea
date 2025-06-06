@@ -12,7 +12,7 @@ $VS_SELF = ds.f.selfBiSimulator(
 
 $VS_OPPONENT = ds.f.opponentBiSimulator(
   of = ea.f.solution();
-  opponent = ds.opponent.pong.simple();
+  opponent = m.supplier(of = ds.opponent.pong.simple());
   simulation = $SIMULATION
 )
 
@@ -24,7 +24,7 @@ $NEG_THRESHOLD = -0.5
 ea.experiment(
   runs =
     (randomGenerator = (seed = [1:1:10]) * [m.defaultRG()]) *
-    (solver = (nEval = [200000]) * [
+    (solver = (nEval = [100000]) * [
       ea.s.biMapElites(
         name = "bi-me-tree-random2";
         fitnessReducer = ea.misc.lossyAverage();
@@ -55,7 +55,8 @@ ea.experiment(
               ]
             );
             min = 0.0;
-            max = 1.0
+            max = 1.0;
+            nOfBins = 10
           );
           ea.s.me.d.descriptor(
             %f = f.size(of = f.filter(of = ea.f.getLayerWeights(of = ea.f.solution(); indexOfLayer = 1); condition = predicate.all(conditions = [predicate.lt(t = $THRESHOLD); predicate.gt(t = $NEG_THRESHOLD)])));
@@ -67,7 +68,8 @@ ea.experiment(
               ]
             );
             min = 0.0;
-            max = 1.0
+            max = 1.0;
+            nOfBins = 10
           )
         ];
         opponentsSelector = ea.misc.randomMESelector(nOfOpponents = 2);
@@ -116,7 +118,8 @@ ea.experiment(
               ]
             );
             min = 0.0;
-            max = 1.0
+            max = 1.0;
+            nOfBins = 10
           );
           ea.s.me.d.descriptor(
             %f = f.size(of = f.filter(of = ea.f.getLayerWeights(of = ea.f.solution(); indexOfLayer = 1); condition = predicate.all(conditions = [predicate.lt(t = $THRESHOLD); predicate.gt(t = $NEG_THRESHOLD)])));
@@ -128,7 +131,8 @@ ea.experiment(
               ]
             );
             min = 0.0;
-            max = 1.0
+            max = 1.0;
+            nOfBins = 10
           )
         ];
         opponentsSelector = ea.misc.farthestMESelector(nOfOpponents = 2);
@@ -151,7 +155,8 @@ ea.experiment(
               ]
             );
             min = 0.0;
-            max = 1.0
+            max = 1.0;
+            nOfBins = 10
           );
           ea.s.me.d.descriptor(
             %f = f.size(of = f.filter(of = ea.f.getLayerWeights(of = ea.f.solution(); indexOfLayer = 1); condition = predicate.all(conditions = [predicate.lt(t = $THRESHOLD); predicate.gt(t = $NEG_THRESHOLD)])));
@@ -163,7 +168,8 @@ ea.experiment(
               ]
             );
             min = 0.0;
-            max = 1.0
+            max = 1.0;
+            nOfBins = 10
           )
         ];
         opponentsSelector = ea.misc.nearestMESelector(nOfOpponents = 2);
@@ -194,7 +200,8 @@ ea.experiment(
               ]
             );
             min = 0.0;
-            max = 1.0
+            max = 1.0;
+            nOfBins = 10
           );
           ea.s.me.d.descriptor(
             %f = f.size(of = f.filter(of = ea.f.getLayerWeights(of = ea.f.solution(); indexOfLayer = 1); condition = predicate.all(conditions = [predicate.lt(t = $THRESHOLD); predicate.gt(t = $NEG_THRESHOLD)])));
@@ -206,7 +213,8 @@ ea.experiment(
               ]
             );
             min = 0.0;
-            max = 1.0
+            max = 1.0;
+            nOfBins = 10
           )
         ]
       );
@@ -243,58 +251,44 @@ ea.experiment(
     ea.l.console(
       functions = [
         ea.f.size(of = ea.f.genotype(of = ea.f.best()); format = "%3d");
-        ea.f.quality(of = ea.f.best(); format = "%4.1f");
-        ds.e.pong.scoreDiff1(of = f.composition(of = ea.f.best(); then = $VS_SELF); format = "%4.1f");
-        ds.e.pong.scoreDiff1(of = f.composition(of = ea.f.best(); then = $VS_OPPONENT); format = "%4.1f")
+        ea.f.quality(of = ea.f.best(); format = "%4.1f")
       ];
       onlyLast = false
     );
     ea.l.saveLastPopulationForRun(
       path = "../results/{name}/{startTime}/last-pop-{run.solver.name}-{run.randomGenerator.seed:%04d}"
     );
-    ea.l.savePlotForExp(
+    ea.l.savePlotAndCsvForExp(
+      path = "../results/{name}/{startTime}/best-q";
       plot = ea.plot.multi.quality(x = ea.f.nOfEvals());
-      consumers = [
-        ea.c.saver(path = "../results/{name}/{startTime}/best-q"; of = ea.f.imagePlotter(); overwrite = true);
-        ea.c.saver(path = "../results/{name}/{startTime}/best-q"; of = ea.f.csvPlotter(); overwrite = true)
-      ]
+      overwrite = true
     );
-    ea.l.savePlotForExp(
-      plot = ea.plot.multi.quality(x = ea.f.nOfEvals(); y = ds.e.pong.scoreDiff1(of = f.composition(of = ea.f.best(); then = $VS_SELF)));
-      consumers = [
-        ea.c.saver(path = "../results/{name}/{startTime}/best-vs-self"; of = ea.f.imagePlotter(); overwrite = true);
-        ea.c.saver(path = "../results/{name}/{startTime}/best-vs-self"; of = ea.f.csvPlotter(); overwrite = true)
-      ]
+    ea.l.savePlotAndCsvForExp(
+      path = "../results/{name}/{startTime}/best-vs-self";
+      plot = ea.plot.multi.quality(x = ea.f.nOfEvals(); y = ds.e.pong.shiftedScoreDiff1(of = f.composition(of = ea.f.best(); then = $VS_SELF)));
+      overwrite = true
     );
-    ea.l.savePlotForExp(
-      plot = ea.plot.multi.quality(x = ea.f.nOfEvals(); y = ds.e.pong.scoreDiff1(of = f.composition(of = ea.f.best(); then = $VS_OPPONENT)));
-      consumers = [
-        ea.c.saver(path = "../results/{name}/{startTime}/best-vs-opponent"; of = ea.f.imagePlotter(); overwrite = true);
-        ea.c.saver(path = "../results/{name}/{startTime}/best-vs-opponent"; of = ea.f.csvPlotter(); overwrite = true)
-      ]
+    ea.l.savePlotAndCsvForExp(
+      path = "../results/{name}/{startTime}/best-vs-opponent";
+      plot = ea.plot.multi.quality(x = ea.f.nOfEvals(); y = ds.e.pong.shiftedScoreDiff1(of = f.composition(of = ea.f.best(); then = $VS_OPPONENT)));
+      overwrite = true
     );
-    ea.l.savePlotForExp(
+    ea.l.savePlotAndCsvForExp(
+      path = "../results/{name}/{startTime}/avg-q";
       plot = ea.plot.multi.xyExp(x = ea.f.nOfEvals(); y = f.avg(of = f.each(mapF = ea.f.quality(); of = ea.f.all())));
-      consumers = [
-        ea.c.saver(path = "../results/{name}/{startTime}/avg-q"; of = ea.f.imagePlotter(); overwrite = true);
-        ea.c.saver(path = "../results/{name}/{startTime}/avg-q"; of = ea.f.csvPlotter(); overwrite = true)
-      ]
+      overwrite = true
     );
-    ea.l.savePlotForExp(
-      plot = ea.plot.multi.xyExp(x = ea.f.nOfEvals(); y = f.avg(of = f.each(mapF = ds.e.pong.scoreDiff1(of = f.composition(then = $VS_SELF)); of = ea.f.all())));
-      consumers = [
-        ea.c.saver(path = "../results/{name}/{startTime}/avg-vs-self"; of = ea.f.imagePlotter(); overwrite = true);
-        ea.c.saver(path = "../results/{name}/{startTime}/avg-vs-self"; of = ea.f.csvPlotter(); overwrite = true)
-      ]
+    ea.l.savePlotAndCsvForExp(
+      path = "../results/{name}/{startTime}/avg-vs-self";
+      plot = ea.plot.multi.xyExp(x = ea.f.nOfEvals(); y = f.avg(of = f.each(mapF = ds.e.pong.shiftedScoreDiff1(of = f.composition(then = $VS_SELF)); of = ea.f.all())));
+      overwrite = true
     );
-    ea.l.savePlotForExp(
-      consumers = [
-        ea.c.saver(path = "../results/{name}/{startTime}/avg-vs-opponent"; of = ea.f.imagePlotter(); overwrite = true);
-        ea.c.saver(path = "../results/{name}/{startTime}/avg-vs-opponent"; of = ea.f.csvPlotter(); overwrite = true)
-      ];
-      plot = ea.plot.multi.xyExp(x = ea.f.nOfEvals(); y = f.avg(of = f.each(mapF = ds.e.pong.scoreDiff1(of = f.composition(then = $VS_OPPONENT)); of = ea.f.all())))
+    ea.l.savePlotAndCsvForExp(
+      path = "../results/{name}/{startTime}/avg-vs-opponent";
+      plot = ea.plot.multi.xyExp(x = ea.f.nOfEvals(); y = f.avg(of = f.each(mapF = ds.e.pong.shiftedScoreDiff1(of = f.composition(then = $VS_OPPONENT)); of = ea.f.all())));
+      overwrite = true
     );
-    ea.l.savePlotForRun(
+    ea.l.savePlotAndCsvForRun(
       path = "../results/{name}/{startTime}/archive-{run.problem.name}-{run.solver.name}-{run.randomGenerator.seed:%03d}";
       plot = ea.plot.single.me();
       condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = ".*-me-.*")
@@ -303,9 +297,9 @@ ea.experiment(
     %    of = ea.acc.lastBest();
     %    processor = ea.f.toVideo(
     %      video = ea.misc.toVideo(drawer = ds.d.pong());
-    %      of = $VS_OPPONENT
+    %      of = $VS_SELF
     %    );
-    %    path = "../results/{name}/{startTime}/best-vs-simple-{run.solver.name}-{run.randomGenerator.seed:%04d}"
+    %    path = "../results/{name}/{startTime}/best-vs-self-{run.solver.name}-{run.randomGenerator.seed:%04d}"
     %  );
     ea.l.bestCsv(
         path = "../results/{name}/{startTime}/allBest.csv";

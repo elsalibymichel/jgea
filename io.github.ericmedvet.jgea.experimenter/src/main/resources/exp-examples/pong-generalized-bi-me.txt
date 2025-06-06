@@ -18,23 +18,10 @@ $VS_OPPONENT = ds.f.opponentBiSimulator(
 ea.experiment(
   runs =
     (randomGenerator = (seed = [1:1:5]) * [m.defaultRG()]) *
-    (solver = (nEval = [100000]) * [
+    (solver = (nEval = [200000]) * [
       ea.s.biMapElites(
-        name = "bi-me-tree-random2";
-        fitnessReducer = ea.misc.lossyAverage();
-        representation = ea.r.srTree();
-        mapper = ea.m.nurfToNds(of = ea.m.srTreeToNurf());
-        emptyArchive = false;
-        descriptors = [
-          ea.s.me.d.descriptor(f = ea.f.treeSize(of = ea.f.genotype()); min = 0; max = 250; nOfBins = 10);
-          ea.s.me.d.descriptor(f = f.size(of = f.filter(of = ea.f.treeLeaves(of = ea.f.genotype()); condition = predicate.matches(f = f.toString(); regex = "i[0-9]+"))); min = 0; max = 30; nOfBins = 10)
-        ];
-        opponentsSelector = ea.misc.randomMESelector(nOfOpponents = 2);
-        fitnessAggregator = f.avg()
-      );
-      ea.s.biMapElites(
-        name = "bi-me-tree-farthest2";
-        fitnessReducer = ea.misc.lossyAverage();
+        name = "bi-me-tree-farthest2-mf05";
+        fitnessReducer = ea.misc.lossyAverage(memoryFactor = 0.5);
         representation = ea.r.srTree();
         mapper = ea.m.nurfToNds(of = ea.m.srTreeToNurf());
         emptyArchive = false;
@@ -43,19 +30,6 @@ ea.experiment(
           ea.s.me.d.descriptor(f = f.size(of = f.filter(of = ea.f.treeLeaves(of = ea.f.genotype()); condition = predicate.matches(f = f.toString(); regex = "i[0-9]+"))); min = 0; max = 30; nOfBins = 10)
         ];
         opponentsSelector = ea.misc.farthestMESelector(nOfOpponents = 2);
-        fitnessAggregator = f.avg()
-      );
-      ea.s.biMapElites(
-        name = "bi-me-tree-nearest2";
-        fitnessReducer = ea.misc.lossyAverage();
-        representation = ea.r.srTree();
-        mapper = ea.m.nurfToNds(of = ea.m.srTreeToNurf());
-        emptyArchive = false;
-        descriptors = [
-          ea.s.me.d.descriptor(f = ea.f.treeSize(of = ea.f.genotype()); min = 0; max = 250; nOfBins = 10);
-          ea.s.me.d.descriptor(f = f.size(of = f.filter(of = ea.f.treeLeaves(of = ea.f.genotype()); condition = predicate.matches(f = f.toString(); regex = "i[0-9]+"))); min = 0; max = 30; nOfBins = 10)
-        ];
-        opponentsSelector = ea.misc.nearestMESelector(nOfOpponents = 2);
         fitnessAggregator = f.avg()
       )
 ]) *
@@ -70,9 +44,7 @@ ea.experiment(
     ea.l.console(
       functions = [
         ea.f.size(of = ea.f.genotype(of = ea.f.best()); format = "%3d");
-        ea.f.quality(of = ea.f.best(); format = "%4.1f");
-        ds.e.pong.scoreDiff1(of = f.composition(of = ea.f.best(); then = $VS_SELF); format = "%4.1f");
-        ds.e.pong.scoreDiff1(of = f.composition(of = ea.f.best(); then = $VS_OPPONENT); format = "%4.1f")
+        ea.f.quality(of = ea.f.best(); format = "%4.1f")
       ];
       onlyLast = false
     );
@@ -85,11 +57,11 @@ ea.experiment(
     );
     ea.l.savePlotForExp(
       path = "../results/{name}/{startTime}/best-vs-self";
-      plot = ea.plot.multi.quality(x = ea.f.nOfEvals(); y = ds.e.pong.scoreDiff1(of = f.composition(of = ea.f.best(); then = $VS_SELF)))
+      plot = ea.plot.multi.quality(x = ea.f.nOfEvals(); y = ds.e.pong.shiftedScoreDiff1(of = f.composition(of = ea.f.best(); then = $VS_SELF)))
     );
     ea.l.savePlotForExp(
       path = "../results/{name}/{startTime}/best-vs-opponent";
-      plot = ea.plot.multi.quality(x = ea.f.nOfEvals(); y = ds.e.pong.scoreDiff1(of = f.composition(of = ea.f.best(); then = $VS_OPPONENT)))
+      plot = ea.plot.multi.quality(x = ea.f.nOfEvals(); y = ds.e.pong.shiftedScoreDiff1(of = f.composition(of = ea.f.best(); then = $VS_OPPONENT)))
     );
     ea.l.savePlotForExp(
       path = "../results/{name}/{startTime}/avg-q";
@@ -97,25 +69,25 @@ ea.experiment(
     );
     ea.l.savePlotForExp(
       path = "../results/{name}/{startTime}/avg-vs-self";
-      plot = ea.plot.multi.xyExp(x = ea.f.nOfEvals(); y = f.avg(of = f.each(mapF = ds.e.pong.scoreDiff1(of = f.composition(then = $VS_SELF)); of = ea.f.all())))
+      plot = ea.plot.multi.xyExp(x = ea.f.nOfEvals(); y = f.avg(of = f.each(mapF = ds.e.pong.shiftedScoreDiff1(of = f.composition(then = $VS_SELF)); of = ea.f.all())))
     );
     ea.l.savePlotForExp(
       path = "../results/{name}/{startTime}/avg-vs-opponent";
-      plot = ea.plot.multi.xyExp(x = ea.f.nOfEvals(); y = f.avg(of = f.each(mapF = ds.e.pong.scoreDiff1(of = f.composition(then = $VS_OPPONENT)); of = ea.f.all())))
+      plot = ea.plot.multi.xyExp(x = ea.f.nOfEvals(); y = f.avg(of = f.each(mapF = ds.e.pong.shiftedScoreDiff1(of = f.composition(then = $VS_OPPONENT)); of = ea.f.all())))
     );
     ea.l.savePlotForRun(
       path = "../results/{name}/{startTime}/archive-{run.problem.name}-{run.solver.name}-{run.randomGenerator.seed:%03d}";
       plot = ea.plot.single.me();
       condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "biMe")
     );
-    ea.l.saveForRun(
-      of = ea.acc.lastBest();
-      processor = ea.f.toVideo(
-        video = ea.misc.toVideo(drawer = ds.d.pong());
-        of = $VS_OPPONENT
-      );
-      path = "../results/{name}/{startTime}/best-vs-simple-{run.solver.name}-{run.randomGenerator.seed:%04d}"
-    );
+    %  ea.l.saveForRun(
+    %    of = ea.acc.lastBest();
+    %    processor = ea.f.toVideo(
+    %      video = ea.misc.toVideo(drawer = ds.d.pong());
+    %      of = $VS_OPPONENT
+    %    );
+    %    path = "../results/{name}/{startTime}/best-vs-simple-{run.solver.name}-{run.randomGenerator.seed:%04d}"
+    %  );
     ea.l.bestCsv(
         path = "../results/{name}/{startTime}/allBest.csv";
         runFunctions = [
