@@ -42,6 +42,8 @@ import java.util.stream.IntStream;
 public class EpistasisCheck {
   public static void main(String[] args) {
     RandomGenerator rg = new Random();
+    int l1 = 18;
+    int l2 = 232;
     NamedBuilder<Object> nb = NamedBuilder.fromDiscovery();
     @SuppressWarnings("unchecked") FormattedNamedFunction<Pair<List<Double>, IntString>, Double> intraEpistasisF = ((FormattedNamedFunction<Pair<List<Double>, IntString>, Double>) nb
         .build(
@@ -51,12 +53,12 @@ public class EpistasisCheck {
     @SuppressWarnings("unchecked") FormattedNamedFunction<Pair<List<Double>, IntString>, Double> intraEpistasis1F = ((FormattedNamedFunction<Pair<List<Double>, IntString>, Double>) nb
         .build(
             """
-                ea.f.intraEpistasis(of = f.pairSecond(); endOffset = 50)"""
+                ea.f.intraEpistasis(of = f.pairSecond(); endOffset = %d)""".formatted(l2)
         ));
     @SuppressWarnings("unchecked") FormattedNamedFunction<Pair<List<Double>, IntString>, Double> intraEpistasis2F = ((FormattedNamedFunction<Pair<List<Double>, IntString>, Double>) nb
         .build(
             """
-                ea.f.intraEpistasis(of = f.pairSecond(); startOffset = 10)"""
+                ea.f.intraEpistasis(of = f.pairSecond(); startOffset = %d)""".formatted(l1)
         ));
     @SuppressWarnings("unchecked") Function<Pair<List<Double>, IntString>, Representation<Pair<List<Double>, IntString>>> representationF = ((Function<Pair<List<Double>, IntString>, Representation<Pair<List<Double>, IntString>>>) nb
         .build(
@@ -76,16 +78,18 @@ public class EpistasisCheck {
     @SuppressWarnings("unchecked") MapElites.Descriptor<Pair<List<Double>, IntString>, Pair<List<Double>, List<Double>>, Object> descriptor1 = ((MapElites.Descriptor<Pair<List<Double>, IntString>, Pair<List<Double>, List<Double>>, Object>) nb
         .build(
             """
-                ea.s.me.d.descriptor(f = ea.f.intraEpistasis(of = f.pairSecond(of = ea.f.genotype()); endOffset = 50); nOfBins = 10)"""
+                ea.s.me.d.descriptor(f = ea.f.intraEpistasis(of = f.pairSecond(of = ea.f.genotype()); endOffset = %d); nOfBins = 10)"""
+                .formatted(l2)
         ));
     @SuppressWarnings("unchecked") MapElites.Descriptor<Pair<List<Double>, IntString>, Pair<List<Double>, List<Double>>, Object> descriptor2 = ((MapElites.Descriptor<Pair<List<Double>, IntString>, Pair<List<Double>, List<Double>>, Object>) nb
         .build(
             """
-                ea.s.me.d.descriptor(f = ea.f.intraEpistasis(of = f.pairSecond(of = ea.f.genotype()); startOffset = 10); nOfBins = 10)"""
+                ea.s.me.d.descriptor(f = ea.f.intraEpistasis(of = f.pairSecond(of = ea.f.genotype()); startOffset = %d); nOfBins = 10)"""
+                .formatted(l1)
         ));
     Pair<List<Double>, List<Double>> exampleS = new Pair<>(
-        Collections.nCopies(10, 0d),
-        Collections.nCopies(50, 0d)
+        Collections.nCopies(l1, 0d),
+        Collections.nCopies(l2, 0d)
     );
     Pair<List<Double>, IntString> exampleG = iMapper.exampleFor(exampleS);
     Representation<Pair<List<Double>, IntString>> representation = representationF.apply(exampleG);
