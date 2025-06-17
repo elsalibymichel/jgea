@@ -3,7 +3,7 @@ $objName = "arena.coverage[10x10]"
 $eRpresentation = ea.representation.pair(
   first = ea.representation.doubleString();
   second = ea.representation.intString(
-    factory = ea.r.f.isUniformUnique();
+    factory = ea.r.f.isSequential();
     mutations = [ea.r.go.oneMutation(mutations = [ea.r.go.isSymbolCopyMutation(); ea.r.go.isFlipMutation()])]
   )
 )
