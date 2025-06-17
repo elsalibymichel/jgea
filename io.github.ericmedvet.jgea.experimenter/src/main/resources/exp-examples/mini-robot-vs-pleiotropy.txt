@@ -1,0 +1,204 @@
+$brainMapper = ea.m.dsToNpnds(npnds = ds.num.mlp(innerLayerRatio = 1; nOfInnerLayers = 2))
+$objName = "arena.coverage[10x10]"
+$eRpresentation = ea.representation.pair(
+  first = ea.representation.doubleString();
+  second = ea.representation.intString(mutations = [ea.r.go.oneMutation(mutations = [ea.r.go.isSymbolCopyMutation(); ea.r.go.isFlipMutation()])])
+)
+
+ea.experiment(
+  runs = (randomGenerator = (seed = [1:1:1]) * [m.defaultRG()]) *
+  (solver = (nEval = [1000]) *
+  [
+    ea.s.ga(
+      name = "ga-pleiotropy-0.2";
+      mapper = ea.mapper.pair(
+        first = ea.m.identity();
+        second = $brainMapper;
+        of = ea.m.splitter(of = ea.m.isIndexed(relativeLength = 0.2))
+      );
+      representation = $eRpresentation
+    );
+    ea.s.ga(
+      name = "ga-pleiotropy-1.0";
+      mapper = ea.mapper.pair(
+        first = ea.m.identity();
+        second = $brainMapper;
+        of = ea.m.splitter(of = ea.m.isIndexed(relativeLength = 1))
+      );
+      representation = $eRpresentation
+    );
+    ea.s.ga(
+      name = "ga-pair-ds";
+      mapper = ea.mapper.pair(
+        first = ea.m.identity();
+        second = $brainMapper
+      );
+      representation = ea.representation.pair(
+        first = ea.representation.doubleString();
+        second = ea.representation.doubleString()
+      )
+    );
+    ea.s.ga(
+      name = "ga-single-ds";
+      mapper = ea.mapper.pair(
+        first = ea.m.identity();
+        second = $brainMapper;
+        of = ea.m.splitter()
+      );
+      representation = ea.representation.doubleString()
+    )
+  ]) *
+  [ea.run(
+    problem = ea.p.simToSbbmo(
+      simulation = ds.s.variableSensorPositionsNavigation(arena = e_maze; nOfSensors = 9; finalT = 30);
+      toMaxObjectives = [ds.e.n.arenaCoverage()]
+    )
+  )];
+  listeners = [
+    ea.l.console(
+      functions = [
+        f.mapValue(key = $objName; of = ea.f.behaviorQuality(of = ea.f.quality(of = ea.f.best())); format = "%6.4f");
+        ea.f.size(of = ea.f.genotype(of = ea.f.best()); format = "%3d");
+        ea.f.size(of = f.pairFirst(of = ea.f.genotype(of = ea.f.best())); format = "%3d");
+        ea.f.size(of = f.pairSecond(of = ea.f.genotype(of = ea.f.best())); format = "%3d");
+        f.as(of = ea.f.isRedundancy(of = f.pairSecond(of = ea.f.genotype(of = ea.f.best()))); name = "global.pleiotropy");
+        f.as(of = ea.f.isRedundancy(of = f.pairSecond(of = ea.f.genotype(of = ea.f.best())); endOffset = 288); name = "body.pleiotropy");
+        f.as(of = ea.f.isRedundancy(of = f.pairSecond(of = ea.f.genotype(of = ea.f.best())); startOffset = 9); name = "brain.pleiotropy");
+        f.as(of = ea.f.isCrossRedundancy(of = f.pairSecond(of = ea.f.genotype(of = ea.f.best())); splitOffset = 9); name = "cross.body.brain.pleiotropy")
+
+      ];
+      onlyLast = false
+    );
+    ea.l.bestCsv(
+      path = "../results/{name}/{startTime}/results.csv";
+      functions = [
+        f.mapValue(key = $objName; of = ea.f.behaviorQuality(of = ea.f.quality(of = ea.f.best())); format = "%6.4f");
+        ea.f.size(of = ea.f.genotype(of = ea.f.best()); format = "%3d");
+        ea.f.size(of = f.pairFirst(of = ea.f.genotype(of = ea.f.best())); format = "%3d");
+        ea.f.size(of = f.pairSecond(of = ea.f.genotype(of = ea.f.best())); format = "%3d");
+        f.as(of = ea.f.isRedundancy(of = f.pairSecond(of = ea.f.genotype(of = ea.f.best()))); name = "best.global.pleiotropy");
+        f.as(of = ea.f.isRedundancy(of = f.pairSecond(of = ea.f.genotype(of = ea.f.best())); endOffset = 288); name = "best.body.pleiotropy");
+        f.as(of = ea.f.isRedundancy(of = f.pairSecond(of = ea.f.genotype(of = ea.f.best())); startOffset = 9); name = "best.brain.pleiotropy");
+        f.as(of = ea.f.isCrossRedundancy(of = f.pairSecond(of = ea.f.genotype(of = ea.f.best())); splitOffset = 9); name = "best.cross.body.brain.pleiotropy");
+        f.as(of = f.avg(of = f.each(of = ea.f.all(); mapF = ea.f.isRedundancy(of = f.pairSecond(of = ea.f.genotype())))); name = "avg.global.pleiotropy");
+        f.as(of = f.avg(of = f.each(of = ea.f.all(); mapF = ea.f.isRedundancy(of = f.pairSecond(of = ea.f.genotype()); endOffset = 288))); name = "avg.body.pleiotropy");
+        f.as(of = f.avg(of = f.each(of = ea.f.all(); mapF = ea.f.isRedundancy(of = f.pairSecond(of = ea.f.genotype()); startOffset = 9))); name = "avg.brain.pleiotropy");
+        f.as(of = f.avg(of = f.each(of = ea.f.all(); mapF = ea.f.isCrossRedundancy(of = f.pairSecond(of = ea.f.genotype()); splitOffset = 9))); name = "avg.cross.body.brain.pleiotropy");
+        f.as(of = f.sd(of = f.each(of = ea.f.all(); mapF = ea.f.isRedundancy(of = f.pairSecond(of = ea.f.genotype())))); name = "sd.global.pleiotropy");
+        f.as(of = f.sd(of = f.each(of = ea.f.all(); mapF = ea.f.isRedundancy(of = f.pairSecond(of = ea.f.genotype()); endOffset = 288))); name = "sd.body.pleiotropy");
+        f.as(of = f.sd(of = f.each(of = ea.f.all(); mapF = ea.f.isRedundancy(of = f.pairSecond(of = ea.f.genotype()); startOffset = 9))); name = "sd.brain.pleiotropy");
+        f.as(of = f.sd(of = f.each(of = ea.f.all(); mapF = ea.f.isCrossRedundancy(of = f.pairSecond(of = ea.f.genotype()); splitOffset = 9))); name = "sd.cross.body.brain.pleiotropy")
+      ];
+      runFunctions = [
+        ea.f.runKey(key = "run.problem.simulation.arena")
+      ];
+      onlyLast = false
+    );
+    ea.l.savePlotAndCsvForRun(
+      plot = ea.plot.multi.quality(q = f.mapValue(key = $objName; of = ea.f.behaviorQuality()));
+      overwrite = true;
+      path = "../results/{name}/{startTime}/best-fitness"
+    );
+    ea.l.savePlotAndCsvForRun(
+      plot = ea.plot.multi.xyExp(
+        y = f.as(of = ea.f.isRedundancy(of = f.pairSecond(of = ea.f.genotype(of = ea.f.best()))); name = "best.global.pleiotropy")
+      );
+      overwrite = true;
+      path = "../results/{name}/{startTime}/best.global.pleiotropy";
+      condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-pleiotropy-.*")
+    );
+    ea.l.savePlotAndCsvForRun(
+      plot = ea.plot.multi.xyExp(
+        y = f.as(of = ea.f.isRedundancy(of = f.pairSecond(of = ea.f.genotype(of = ea.f.best())); endOffset = 288); name = "best.body.pleiotropy")
+      );
+      overwrite = true;
+      path = "../results/{name}/{startTime}/best.body.pleiotropy";
+      condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-pleiotropy-.*")
+    );
+    ea.l.savePlotAndCsvForRun(
+      plot = ea.plot.multi.xyExp(
+        y = f.as(of = ea.f.isRedundancy(of = f.pairSecond(of = ea.f.genotype(of = ea.f.best())); startOffset = 9); name = "best.brain.pleiotropy")
+      );
+      overwrite = true;
+      path = "../results/{name}/{startTime}/best.brain.pleiotropy";
+      condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-pleiotropy-.*")
+    );
+    ea.l.savePlotAndCsvForRun(
+      plot = ea.plot.multi.xyExp(
+        y = f.as(of = ea.f.isCrossRedundancy(of = f.pairSecond(of = ea.f.genotype(of = ea.f.best())); splitOffset = 9); name = "best.cross.body.brain.pleiotropy")
+      );
+      overwrite = true;
+      path = "../results/{name}/{startTime}/best.cross.body.brain.pleiotropy";
+      condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-pleiotropy-.*")
+    );
+    ea.l.savePlotAndCsvForRun(
+      plot = ea.plot.multi.xyExp(
+        y = f.as(of = f.avg(of = f.each(of = ea.f.all(); mapF = ea.f.isRedundancy(of = f.pairSecond(of = ea.f.genotype())))); name = "avg.global.pleiotropy")
+      );
+      overwrite = true;
+      path = "../results/{name}/{startTime}/avg.global.pleiotropy";
+      condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-pleiotropy-.*")
+    );
+    ea.l.savePlotAndCsvForRun(
+      plot = ea.plot.multi.xyExp(
+        y = f.as(of = f.avg(of = f.each(of = ea.f.all(); mapF = ea.f.isRedundancy(of = f.pairSecond(of = ea.f.genotype()); endOffset = 288))); name = "avg.body.pleiotropy")
+      );
+      overwrite = true;
+      path = "../results/{name}/{startTime}/avg.body.pleiotropy";
+      condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-pleiotropy-.*")
+    );
+    ea.l.savePlotAndCsvForRun(
+      plot = ea.plot.multi.xyExp(
+        y = f.as(of = f.avg(of = f.each(of = ea.f.all(); mapF = ea.f.isRedundancy(of = f.pairSecond(of = ea.f.genotype()); startOffset = 9))); name = "avg.brain.pleiotropy")
+      );
+      overwrite = true;
+      path = "../results/{name}/{startTime}/avg.brain.pleiotropy";
+      condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-pleiotropy-.*")
+    );
+    ea.l.savePlotAndCsvForRun(
+      plot = ea.plot.multi.xyExp(
+        y = f.as(of = f.avg(of = f.each(of = ea.f.all(); mapF = ea.f.isCrossRedundancy(of = f.pairSecond(of = ea.f.genotype()); splitOffset = 9))); name = "avg.cross.body.brain.pleiotropy")
+      );
+      overwrite = true;
+      path = "../results/{name}/{startTime}/avg.cross.body.brain.pleiotropy";
+      condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-pleiotropy-.*")
+    );
+    ea.l.savePlotAndCsvForRun(
+      plot = ea.plot.multi.xyExp(
+        y = f.as(of = f.sd(of = f.each(of = ea.f.all(); mapF = ea.f.isRedundancy(of = f.pairSecond(of = ea.f.genotype())))); name = "sd.global.pleiotropy")
+      );
+      overwrite = true;
+      path = "../results/{name}/{startTime}/sd.global.pleiotropy";
+      condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-pleiotropy-.*")
+    );
+    ea.l.savePlotAndCsvForRun(
+      plot = ea.plot.multi.xyExp(
+        y = f.as(of = f.sd(of = f.each(of = ea.f.all(); mapF = ea.f.isRedundancy(of = f.pairSecond(of = ea.f.genotype()); endOffset = 288))); name = "sd.body.pleiotropy")
+      );
+      overwrite = true;
+      path = "../results/{name}/{startTime}/sd.body.pleiotropy";
+      condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-pleiotropy-.*")
+    );
+    ea.l.savePlotAndCsvForRun(
+      plot = ea.plot.multi.xyExp(
+        y = f.as(of = f.sd(of = f.each(of = ea.f.all(); mapF = ea.f.isRedundancy(of = f.pairSecond(of = ea.f.genotype()); startOffset = 9))); name = "sd.brain.pleiotropy")
+      );
+      overwrite = true;
+      path = "../results/{name}/{startTime}/sd.brain.pleiotropy";
+      condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-pleiotropy-.*")
+    );
+    ea.l.savePlotAndCsvForRun(
+      plot = ea.plot.multi.xyExp(
+        y = f.as(of = f.sd(of = f.each(of = ea.f.all(); mapF = ea.f.isCrossRedundancy(of = f.pairSecond(of = ea.f.genotype()); splitOffset = 9))); name = "sd.cross.body.brain.pleiotropy")
+      );
+      overwrite = true;
+      path = "../results/{name}/{startTime}/sd.cross.body.brain.pleiotropy";
+      condition = predicate.matches(f = ea.f.runKey(key = "run.solver.name"); regex = "ga-pleiotropy-.*")
+    );
+    ea.l.saveForRun(
+      of = ea.acc.lastBest();
+      path = "../results/{name}/{startTime}/{run.solver.name}/best-traj-{run.index:%04d}";
+      processor = ea.f.toImage(image = ds.d.navigation(); of = ea.f.behavior(of = ea.f.quality()))
+    )
+  ]
+)
