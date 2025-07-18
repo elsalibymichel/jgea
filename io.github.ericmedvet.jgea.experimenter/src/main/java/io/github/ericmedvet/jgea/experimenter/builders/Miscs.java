@@ -230,7 +230,7 @@ public class Miscs {
   public static BinaryOperator<Double> minValue() {
     return Math::min;
   }
-  
+
   @SuppressWarnings("unused")
   @Cacheable
   public static <G, S, Q, O> AbstractBiEvolver.OpponentsSelector<Individual<G, S, Q>, S, Q, O> randomSelector(
@@ -240,7 +240,7 @@ public class Miscs {
         .mapToObj(j -> Misc.pickRandomly(population, random))
         .toList();
   }
-  
+
   @SuppressWarnings("unused")
   @Cacheable
   public static <G, S, Q, O> AbstractBiEvolver.OpponentsSelector<MEIndividual<G, S, Q>, S, Q, O> randomMESelector(

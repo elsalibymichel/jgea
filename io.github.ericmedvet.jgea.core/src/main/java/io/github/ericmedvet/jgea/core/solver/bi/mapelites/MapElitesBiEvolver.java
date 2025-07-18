@@ -50,7 +50,7 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
   private final Mutation<G> mutation;
   private final List<MapElites.Descriptor<G, S, Q>> descriptors;
   private final boolean emptyArchive;
-  
+
   public MapElitesBiEvolver(
       Function<? super G, ? extends S> solutionMapper,
       Factory<? extends G> genotypeFactory,
@@ -64,7 +64,16 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
       OpponentsSelector<MEIndividual<G, S, Q>, S, Q, O> opponentsSelector,
       Function<List<Q>, Q> fitnessAggregator
   ) {
-    super(solutionMapper, genotypeFactory, stopCondition, false, fitnessReducer, additionalIndividualComparators, opponentsSelector, fitnessAggregator);
+    super(
+        solutionMapper,
+        genotypeFactory,
+        stopCondition,
+        false,
+        fitnessReducer,
+        additionalIndividualComparators,
+        opponentsSelector,
+        fitnessAggregator
+    );
     this.populationSize = populationSize;
     this.mutation = mutation;
     this.descriptors = descriptors;
@@ -238,9 +247,10 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
                 return i;
               }
               Q aggregatedQuality = fitnessAggregator.apply(newQualities);
-              Q finalQuality = (i.quality() != null) ?
-                  fitnessReducer.apply(i.quality(), aggregatedQuality) :
-                  aggregatedQuality;
+              Q finalQuality = (i.quality() != null) ? fitnessReducer.apply(
+                  i.quality(),
+                  aggregatedQuality
+              ) : aggregatedQuality;
               return i.updateQuality(finalQuality, i.qualityMappingIteration());
             }
         )

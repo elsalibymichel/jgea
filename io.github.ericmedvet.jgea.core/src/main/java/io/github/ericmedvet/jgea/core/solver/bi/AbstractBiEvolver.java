@@ -25,7 +25,6 @@ import io.github.ericmedvet.jgea.core.problem.QualityBasedBiProblem;
 import io.github.ericmedvet.jgea.core.solver.AbstractPopulationBasedIterativeSolver;
 import io.github.ericmedvet.jgea.core.solver.Individual;
 import io.github.ericmedvet.jgea.core.solver.POCPopulationState;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BinaryOperator;
@@ -38,7 +37,7 @@ public abstract class AbstractBiEvolver<T extends POCPopulationState<I, G, S, Q,
   protected final BinaryOperator<Q> fitnessReducer;
   protected final OpponentsSelector<I, S, Q, O> opponentsSelector;
   protected final Function<List<Q>, Q> fitnessAggregator;
-  
+
   @FunctionalInterface
   public interface OpponentsSelector<I, S, Q, O> {
     List<I> select(
@@ -48,7 +47,7 @@ public abstract class AbstractBiEvolver<T extends POCPopulationState<I, G, S, Q,
         RandomGenerator random
     );
   }
-  
+
   public record MatchOutcome<Q>(long id1, long id2, Q f1, Q f2) {
   }
 

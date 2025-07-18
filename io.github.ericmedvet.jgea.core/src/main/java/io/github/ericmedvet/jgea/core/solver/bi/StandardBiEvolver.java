@@ -31,7 +31,6 @@ import io.github.ericmedvet.jgea.core.solver.POCPopulationState;
 import io.github.ericmedvet.jgea.core.solver.SolverException;
 import io.github.ericmedvet.jgea.core.util.Misc;
 import io.github.ericmedvet.jnb.datastructure.Pair;
-
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -69,7 +68,16 @@ public class StandardBiEvolver<G, S, Q, O> extends AbstractBiEvolver<POCPopulati
       OpponentsSelector<Individual<G, S, Q>, S, Q, O> opponentsSelector,
       Function<List<Q>, Q> fitnessAggregator
   ) {
-    super(solutionMapper, genotypeFactory, stopCondition, false, fitnessReducer, additionalIndividualComparators, opponentsSelector, fitnessAggregator);
+    super(
+        solutionMapper,
+        genotypeFactory,
+        stopCondition,
+        false,
+        fitnessReducer,
+        additionalIndividualComparators,
+        opponentsSelector,
+        fitnessAggregator
+    );
     this.operators = operators;
     this.parentSelector = parentSelector;
     this.unsurvivalSelector = unsurvivalSelector;
@@ -117,7 +125,7 @@ public class StandardBiEvolver<G, S, Q, O> extends AbstractBiEvolver<POCPopulati
     }
     return offspringChildGenotypes;
   }
-  
+
   @Override
   public POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>> init(
       QualityBasedBiProblem<S, O, Q> problem,
@@ -129,20 +137,23 @@ public class StandardBiEvolver<G, S, Q, O> extends AbstractBiEvolver<POCPopulati
     Collection<? extends G> genotypes = genotypeFactory.build(populationSize, random);
     Collection<Individual<G, S, Q>> individuals = genotypes.stream()
         .map(
-            g -> Individual.<G,S,Q>of(
-            counter.getAndIncrement(),
-            g,
-            solutionMapper.apply(g),
-            null,
-            0,
-            0,
-            List.of()
-        ))
+            g -> Individual.<G, S, Q>of(
+                counter.getAndIncrement(),
+                g,
+                solutionMapper.apply(g),
+                null,
+                0,
+                0,
+                List.of()
+            )
+        )
         .toList();
     // determine matches
     Map<Pair<Long, Long>, Pair<Individual<G, S, Q>, Individual<G, S, Q>>> matches = new HashMap<>();
-    BiFunction<Individual<G, S, Q>, Individual<G, S, Q>, Pair<Long, Long>> individualsToIdPair =
-        (i1, i2) -> new Pair<>(Math.min(i1.id(), i2.id()), Math.max(i1.id(), i2.id()));
+    BiFunction<Individual<G, S, Q>, Individual<G, S, Q>, Pair<Long, Long>> individualsToIdPair = (i1, i2) -> new Pair<>(
+        Math.min(i1.id(), i2.id()),
+        Math.max(i1.id(), i2.id())
+    );
     for (Individual<G, S, Q> individual : individuals) {
       List<Individual<G, S, Q>> opponents = opponentsSelector.select(individuals, individual, problem, random);
       for (Individual<G, S, Q> opponent : opponents) {
@@ -151,18 +162,17 @@ public class StandardBiEvolver<G, S, Q, O> extends AbstractBiEvolver<POCPopulati
     }
     // execute matches
     List<Future<MatchOutcome<Q>>> futures = new ArrayList<>();
-    matches.values().forEach(matchPair ->
-        futures.add(executor.submit(() -> {
-          Individual<G, S, Q> i1 = matchPair.first();
-          Individual<G, S, Q> i2 = matchPair.second();
-          O outcome = problem.outcomeFunction().apply(i1.solution(), i2.solution());
-          return new MatchOutcome<>(
-              i1.id(),
-              i2.id(),
-              problem.firstQualityFunction().apply(outcome),
-              problem.secondQualityFunction().apply(outcome)
-          );
-        }))
+    matches.values().forEach(matchPair -> futures.add(executor.submit(() -> {
+      Individual<G, S, Q> i1 = matchPair.first();
+      Individual<G, S, Q> i2 = matchPair.second();
+      O outcome = problem.outcomeFunction().apply(i1.solution(), i2.solution());
+      return new MatchOutcome<>(
+          i1.id(),
+          i2.id(),
+          problem.firstQualityFunction().apply(outcome),
+          problem.secondQualityFunction().apply(outcome)
+      );
+    }))
     );
     Collection<MatchOutcome<Q>> matchesOutcomes = futures.stream()
         .map(f -> {
@@ -184,15 +194,17 @@ public class StandardBiEvolver<G, S, Q, O> extends AbstractBiEvolver<POCPopulati
         .map(i -> i.updateQuality(fitnessAggregator.apply(idsFitnessMap.getOrDefault(i.id(), List.of())), 0))
         .toList();
     // build state
-    POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>> state =
-        POCPopulationState.empty(problem, stopCondition());
+    POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>> state = POCPopulationState.empty(
+        problem,
+        stopCondition()
+    );
     return state.updatedWithIteration(
         populationSize,
         futures.size(),
         PartiallyOrderedCollection.from(updatedIndividuals, partialComparator(problem))
     );
   }
-  
+
   @Override
   public POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>> update(
       RandomGenerator random,
@@ -209,8 +221,10 @@ public class StandardBiEvolver<G, S, Q, O> extends AbstractBiEvolver<POCPopulati
     individuals.addAll(offspring);
     // determine matches
     Map<Pair<Long, Long>, Pair<Individual<G, S, Q>, Individual<G, S, Q>>> matches = new HashMap<>();
-    BiFunction<Individual<G, S, Q>, Individual<G, S, Q>, Pair<Long, Long>> individualsToIdPair =
-        (i1, i2) -> new Pair<>(Math.min(i1.id(), i2.id()), Math.max(i1.id(), i2.id()));
+    BiFunction<Individual<G, S, Q>, Individual<G, S, Q>, Pair<Long, Long>> individualsToIdPair = (i1, i2) -> new Pair<>(
+        Math.min(i1.id(), i2.id()),
+        Math.max(i1.id(), i2.id())
+    );
     for (Individual<G, S, Q> individual : individuals) {
       List<Individual<G, S, Q>> opponents = opponentsSelector.select(individuals, individual, state.problem(), random);
       for (Individual<G, S, Q> opponent : opponents) {
@@ -219,18 +233,17 @@ public class StandardBiEvolver<G, S, Q, O> extends AbstractBiEvolver<POCPopulati
     }
     // execute matches
     List<Future<MatchOutcome<Q>>> futures = new ArrayList<>();
-    matches.values().forEach(matchPair ->
-        futures.add(executor.submit(() -> {
-          Individual<G, S, Q> i1 = matchPair.first();
-          Individual<G, S, Q> i2 = matchPair.second();
-          O outcome = state.problem().outcomeFunction().apply(i1.solution(), i2.solution());
-          return new MatchOutcome<>(
-              i1.id(),
-              i2.id(),
-              state.problem().firstQualityFunction().apply(outcome),
-              state.problem().secondQualityFunction().apply(outcome)
-          );
-        }))
+    matches.values().forEach(matchPair -> futures.add(executor.submit(() -> {
+      Individual<G, S, Q> i1 = matchPair.first();
+      Individual<G, S, Q> i2 = matchPair.second();
+      O outcome = state.problem().outcomeFunction().apply(i1.solution(), i2.solution());
+      return new MatchOutcome<>(
+          i1.id(),
+          i2.id(),
+          state.problem().firstQualityFunction().apply(outcome),
+          state.problem().secondQualityFunction().apply(outcome)
+      );
+    }))
     );
     Collection<MatchOutcome<Q>> matchesOutcomes = futures.stream()
         .map(f -> {
@@ -255,9 +268,10 @@ public class StandardBiEvolver<G, S, Q, O> extends AbstractBiEvolver<POCPopulati
             return i; // Individual did not participate in any match
           }
           Q aggregatedQuality = fitnessAggregator.apply(qualities);
-          Q finalQuality = i.quality() != null ?
-              fitnessReducer.apply(i.quality(), aggregatedQuality) :
-              aggregatedQuality;
+          Q finalQuality = i.quality() != null ? fitnessReducer.apply(
+              i.quality(),
+              aggregatedQuality
+          ) : aggregatedQuality;
           return i.updateQuality(finalQuality, state.nOfIterations());
         })
         .toList();
