@@ -25,14 +25,29 @@ import io.github.ericmedvet.jgea.core.problem.QualityBasedBiProblem;
 import io.github.ericmedvet.jgea.core.solver.AbstractPopulationBasedIterativeSolver;
 import io.github.ericmedvet.jgea.core.solver.Individual;
 import io.github.ericmedvet.jgea.core.solver.POCPopulationState;
+
+import java.util.Collection;
 import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.random.RandomGenerator;
 
 public abstract class AbstractBiEvolver<T extends POCPopulationState<I, G, S, Q, P>, P extends QualityBasedBiProblem<S, O, Q>, I extends Individual<G, S, Q>, G, S, Q, O> extends AbstractPopulationBasedIterativeSolver<T, P, I, G, S, Q> {
 
   protected final BinaryOperator<Q> fitnessReducer;
+  protected final OpponentsSelector<I, S, Q, O> opponentsSelector;
+  protected final Function<List<Q>, Q> fitnessAggregator;
+
+  @FunctionalInterface
+  public interface OpponentsSelector<I, S, Q, O> {
+    List<I> select(
+        Collection<I> population,
+        I individual,
+        QualityBasedBiProblem<S, O, Q> problem,
+        RandomGenerator random
+    );
+  }
 
   public AbstractBiEvolver(
       Function<? super G, ? extends S> solutionMapper,
@@ -40,9 +55,13 @@ public abstract class AbstractBiEvolver<T extends POCPopulationState<I, G, S, Q,
       Predicate<? super T> stopCondition,
       boolean remap,
       BinaryOperator<Q> fitnessReducer,
-      List<PartialComparator<? super I>> additionalIndividualComparators
+      List<PartialComparator<? super I>> additionalIndividualComparators,
+      OpponentsSelector<I, S, Q, O> opponentsSelector,
+      Function<List<Q>, Q> fitnessAggregator
   ) {
     super(solutionMapper, genotypeFactory, stopCondition, remap, additionalIndividualComparators);
     this.fitnessReducer = fitnessReducer;
+    this.opponentsSelector = opponentsSelector;
+    this.fitnessAggregator = fitnessAggregator;
   }
 }

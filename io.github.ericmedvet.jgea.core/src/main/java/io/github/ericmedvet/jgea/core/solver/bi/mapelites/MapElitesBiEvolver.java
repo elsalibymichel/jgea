@@ -50,8 +50,6 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
   private final Mutation<G> mutation;
   private final List<MapElites.Descriptor<G, S, Q>> descriptors;
   private final boolean emptyArchive;
-  private final MapElitesBiEvolver.OpponentSelector<G, S, Q, O> opponentsSelector;
-  private final Function<List<Q>, Q> fitnessAggregator;
 
   public MapElitesBiEvolver(
       Function<? super G, ? extends S> solutionMapper,
@@ -63,26 +61,14 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
       BinaryOperator<Q> fitnessReducer,
       boolean emptyArchive,
       List<PartialComparator<? super MEIndividual<G, S, Q>>> additionalIndividualComparators,
-      MapElitesBiEvolver.OpponentSelector<G, S, Q, O> opponentsSelector,
+      OpponentsSelector<MEIndividual<G, S, Q>, S, Q, O> opponentsSelector,
       Function<List<Q>, Q> fitnessAggregator
   ) {
-    super(solutionMapper, genotypeFactory, stopCondition, false, fitnessReducer, additionalIndividualComparators);
+    super(solutionMapper, genotypeFactory, stopCondition, false, fitnessReducer, additionalIndividualComparators, opponentsSelector, fitnessAggregator);
     this.populationSize = populationSize;
     this.mutation = mutation;
     this.descriptors = descriptors;
     this.emptyArchive = emptyArchive;
-    this.opponentsSelector = opponentsSelector;
-    this.fitnessAggregator = fitnessAggregator;
-  }
-
-  @FunctionalInterface
-  public interface OpponentSelector<G, S, Q, O> {
-    List<MEIndividual<G, S, Q>> select(
-        Collection<MEIndividual<G, S, Q>> population,
-        MEIndividual<G, S, Q> individual,
-        QualityBasedBiProblem<S, O, Q> problem,
-        RandomGenerator random
-    );
   }
 
   @Override

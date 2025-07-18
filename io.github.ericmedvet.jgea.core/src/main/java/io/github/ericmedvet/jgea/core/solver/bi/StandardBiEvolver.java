@@ -62,9 +62,11 @@ public class StandardBiEvolver<G, S, Q, O> extends AbstractBiEvolver<POCPopulati
       boolean overlapping,
       int maxUniquenessAttempts,
       BinaryOperator<Q> fitnessReducer,
-      List<PartialComparator<? super Individual<G, S, Q>>> additionalIndividualComparators
+      List<PartialComparator<? super Individual<G, S, Q>>> additionalIndividualComparators,
+      OpponentsSelector<Individual<G, S, Q>, S, Q, O> opponentsSelector,
+      Function<List<Q>, Q> fitnessAggregator
   ) {
-    super(solutionMapper, genotypeFactory, stopCondition, false, fitnessReducer, additionalIndividualComparators);
+    super(solutionMapper, genotypeFactory, stopCondition, false, fitnessReducer, additionalIndividualComparators, opponentsSelector, fitnessAggregator);
     this.operators = operators;
     this.parentSelector = parentSelector;
     this.unsurvivalSelector = unsurvivalSelector;

@@ -37,6 +37,7 @@ import io.github.ericmedvet.jgea.core.representation.graph.numeric.operatorgraph
 import io.github.ericmedvet.jgea.core.selector.Last;
 import io.github.ericmedvet.jgea.core.selector.Tournament;
 import io.github.ericmedvet.jgea.core.solver.*;
+import io.github.ericmedvet.jgea.core.solver.bi.AbstractBiEvolver;
 import io.github.ericmedvet.jgea.core.solver.bi.StandardBiEvolver;
 import io.github.ericmedvet.jgea.core.solver.bi.mapelites.MapElitesBiEvolver;
 import io.github.ericmedvet.jgea.core.solver.cabea.CellularAutomataBasedSolver;
@@ -82,7 +83,9 @@ public class Solvers {
       @Param(value = "nEval", dI = 1000) int nEval,
       @Param(value = "maxUniquenessAttempts", dI = 100) int maxUniquenessAttempts,
       @Param("fitnessReducer") BinaryOperator<Q> fitnessReducer,
-      @Param("additionalIndividualComparators") List<PartialComparator<? super Individual<G, S, Q>>> additionalIndividualComparators
+      @Param("additionalIndividualComparators") List<PartialComparator<? super Individual<G, S, Q>>> additionalIndividualComparators,
+      @Param("opponentsSelector") AbstractBiEvolver.OpponentsSelector<Individual<G, S, Q>, S, Q, O> opponentsSelector,
+      @Param("fitnessAggregator") Function<List<Q>, Q> fitnessAggregator
   ) {
     return exampleS -> {
       Representation<G> r = representation.apply(mapper.exampleFor(exampleS));
@@ -98,7 +101,9 @@ public class Solvers {
           true,
           maxUniquenessAttempts,
           fitnessReducer,
-          additionalIndividualComparators
+          additionalIndividualComparators,
+          opponentsSelector,
+          fitnessAggregator
       );
     };
   }
@@ -115,7 +120,7 @@ public class Solvers {
       @Param("fitnessReducer") BinaryOperator<Q> fitnessReducer,
       @Param("emptyArchive") boolean emptyArchive,
       @Param("additionalIndividualComparators") List<PartialComparator<? super MEIndividual<G, S, Q>>> additionalIndividualComparators,
-      @Param("opponentsSelector") MapElitesBiEvolver.OpponentSelector<G, S, Q, O> opponentsSelector,
+      @Param("opponentsSelector") AbstractBiEvolver.OpponentsSelector<MEIndividual<G, S, Q>, S, Q, O> opponentsSelector,
       @Param("fitnessAggregator") Function<List<Q>, Q> fitnessAggregator
   ) {
     return exampleS -> {
