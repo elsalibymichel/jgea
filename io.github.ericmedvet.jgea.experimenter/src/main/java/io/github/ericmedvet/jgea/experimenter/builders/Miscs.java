@@ -21,6 +21,7 @@ package io.github.ericmedvet.jgea.experimenter.builders;
 
 import io.github.ericmedvet.jgea.core.order.PartialComparator;
 import io.github.ericmedvet.jgea.core.order.PartiallyOrderedCollection;
+import io.github.ericmedvet.jgea.core.solver.Individual;
 import io.github.ericmedvet.jgea.core.solver.bi.AbstractBiEvolver;
 import io.github.ericmedvet.jgea.core.solver.mapelites.MEIndividual;
 import io.github.ericmedvet.jgea.core.solver.mapelites.MapElites;
@@ -229,10 +230,20 @@ public class Miscs {
   public static BinaryOperator<Double> minValue() {
     return Math::min;
   }
-
+  
   @SuppressWarnings("unused")
   @Cacheable
-  public static <G, S, Q, O> AbstractBiEvolver.OpponentsSelector<G, S, Q, O> randomMESelector(
+  public static <G, S, Q, O> AbstractBiEvolver.OpponentsSelector<Individual<G, S, Q>, S, Q, O> randomSelector(
+      @Param(value = "nOfOpponents", dI = 1) int nOfOpponents
+  ) {
+    return (population, individual, problem, random) -> IntStream.range(0, nOfOpponents)
+        .mapToObj(j -> Misc.pickRandomly(population, random))
+        .toList();
+  }
+  
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static <G, S, Q, O> AbstractBiEvolver.OpponentsSelector<MEIndividual<G, S, Q>, S, Q, O> randomMESelector(
       @Param(value = "nOfOpponents", dI = 1) int nOfOpponents
   ) {
     return (population, individual, problem, random) -> IntStream.range(0, nOfOpponents)

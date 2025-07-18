@@ -50,7 +50,7 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
   private final Mutation<G> mutation;
   private final List<MapElites.Descriptor<G, S, Q>> descriptors;
   private final boolean emptyArchive;
-
+  
   public MapElitesBiEvolver(
       Function<? super G, ? extends S> solutionMapper,
       Factory<? extends G> genotypeFactory,
@@ -96,7 +96,7 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
             )
         )
         .toList();
-    Map<Pair<Long, Long>, Pair<MEIndividual<G, S, Q>, MEIndividual<G, S, Q>>> fights = new HashMap<>();
+    Map<Pair<Long, Long>, Pair<MEIndividual<G, S, Q>, MEIndividual<G, S, Q>>> matches = new HashMap<>();
     BiFunction<MEIndividual<G, S, Q>, MEIndividual<G, S, Q>, Pair<Long, Long>> individualsToIdPair = (
         i1,
         i2
@@ -104,25 +104,25 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
     for (MEIndividual<G, S, Q> individual : individuals) {
       List<MEIndividual<G, S, Q>> opponents = opponentsSelector.select(individuals, individual, problem, random);
       for (MEIndividual<G, S, Q> opponent : opponents) {
-        fights.putIfAbsent(individualsToIdPair.apply(individual, opponent), new Pair<>(individual, opponent));
+        matches.putIfAbsent(individualsToIdPair.apply(individual, opponent), new Pair<>(individual, opponent));
       }
     }
-    List<Future<FightOutcome<Q>>> futures = new ArrayList<>();
-    List<Pair<MEIndividual<G, S, Q>, MEIndividual<G, S, Q>>> fightsOpponents = fights.values().stream().toList();
-    for (int i = 0; i < fights.size(); i++) {
+    List<Future<MatchOutcome<Q>>> futures = new ArrayList<>();
+    List<Pair<MEIndividual<G, S, Q>, MEIndividual<G, S, Q>>> matchesOpponents = matches.values().stream().toList();
+    for (int i = 0; i < matches.size(); i++) {
       int index = i;
-      Future<FightOutcome<Q>> future = executor.submit(() -> {
-        Pair<MEIndividual<G, S, Q>, MEIndividual<G, S, Q>> fight = fightsOpponents.get(index);
-        MEIndividual<G, S, Q> i1 = fight.first();
-        MEIndividual<G, S, Q> i2 = fight.second();
+      Future<MatchOutcome<Q>> future = executor.submit(() -> {
+        Pair<MEIndividual<G, S, Q>, MEIndividual<G, S, Q>> match = matchesOpponents.get(index);
+        MEIndividual<G, S, Q> i1 = match.first();
+        MEIndividual<G, S, Q> i2 = match.second();
         O outcome = problem.outcomeFunction().apply(i1.solution(), i2.solution());
         Q firstQuality = problem.firstQualityFunction().apply(outcome);
         Q secondQuality = problem.secondQualityFunction().apply(outcome);
-        return new FightOutcome<>(i1.id(), i2.id(), firstQuality, secondQuality);
+        return new MatchOutcome<>(i1.id(), i2.id(), firstQuality, secondQuality);
       });
       futures.add(future);
     }
-    Collection<FightOutcome<Q>> fightsOutcomes = futures.stream()
+    Collection<MatchOutcome<Q>> matchesOutcomes = futures.stream()
         .map(listFuture -> {
           try {
             return listFuture.get();
@@ -132,7 +132,7 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
         })
         .toList();
     Map<Long, List<Q>> idsFitnessMap = new HashMap<>();
-    fightsOutcomes.forEach(fo -> {
+    matchesOutcomes.forEach(fo -> {
       idsFitnessMap.computeIfAbsent(fo.id1(), k -> new ArrayList<>()).add(fo.f1());
       idsFitnessMap.computeIfAbsent(fo.id2(), k -> new ArrayList<>()).add(fo.f2());
     });
@@ -182,7 +182,7 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
             )
             .toList()
     );
-    Map<Pair<Long, Long>, Pair<MEIndividual<G, S, Q>, MEIndividual<G, S, Q>>> fights = new HashMap<>();
+    Map<Pair<Long, Long>, Pair<MEIndividual<G, S, Q>, MEIndividual<G, S, Q>>> matches = new HashMap<>();
     BiFunction<MEIndividual<G, S, Q>, MEIndividual<G, S, Q>, Pair<Long, Long>> individualsToIdPair = (
         i1,
         i2
@@ -198,25 +198,25 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
           random
       );
       for (MEIndividual<G, S, Q> opponent : opponents) {
-        fights.putIfAbsent(individualsToIdPair.apply(individual, opponent), new Pair<>(individual, opponent));
+        matches.putIfAbsent(individualsToIdPair.apply(individual, opponent), new Pair<>(individual, opponent));
       }
     }
-    List<Future<FightOutcome<Q>>> futures = new ArrayList<>();
-    List<Pair<MEIndividual<G, S, Q>, MEIndividual<G, S, Q>>> fightsOpponents = fights.values().stream().toList();
-    for (int i = 0; i < fights.size(); i++) {
+    List<Future<MatchOutcome<Q>>> futures = new ArrayList<>();
+    List<Pair<MEIndividual<G, S, Q>, MEIndividual<G, S, Q>>> matchesOpponents = matches.values().stream().toList();
+    for (int i = 0; i < matches.size(); i++) {
       int index = i;
-      Future<FightOutcome<Q>> future = executor.submit(() -> {
-        Pair<MEIndividual<G, S, Q>, MEIndividual<G, S, Q>> fight = fightsOpponents.get(index);
-        MEIndividual<G, S, Q> i1 = fight.first();
-        MEIndividual<G, S, Q> i2 = fight.second();
+      Future<MatchOutcome<Q>> future = executor.submit(() -> {
+        Pair<MEIndividual<G, S, Q>, MEIndividual<G, S, Q>> match = matchesOpponents.get(index);
+        MEIndividual<G, S, Q> i1 = match.first();
+        MEIndividual<G, S, Q> i2 = match.second();
         O outcome = state.problem().outcomeFunction().apply(i1.solution(), i2.solution());
         Q firstQuality = state.problem().firstQualityFunction().apply(outcome);
         Q secondQuality = state.problem().secondQualityFunction().apply(outcome);
-        return new FightOutcome<>(i1.id(), i2.id(), firstQuality, secondQuality);
+        return new MatchOutcome<>(i1.id(), i2.id(), firstQuality, secondQuality);
       });
       futures.add(future);
     }
-    Collection<FightOutcome<Q>> fightsOutcomes = futures.stream()
+    Collection<MatchOutcome<Q>> matchesOutcomes = futures.stream()
         .map(listFuture -> {
           try {
             return listFuture.get();
@@ -226,18 +226,22 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
         })
         .toList();
     Map<Long, List<Q>> idsFitnessMap = new HashMap<>();
-    fightsOutcomes.forEach(fo -> {
+    matchesOutcomes.forEach(fo -> {
       idsFitnessMap.computeIfAbsent(fo.id1(), k -> new ArrayList<>()).add(fo.f1());
       idsFitnessMap.computeIfAbsent(fo.id2(), k -> new ArrayList<>()).add(fo.f2());
     });
     Collection<MEIndividual<G, S, Q>> updatedIndividuals = individuals.stream()
         .map(
             i -> {
-              Q newQuality = i.quality() != null ? fitnessReducer.apply(
-                  i.quality(),
-                  fitnessAggregator.apply(idsFitnessMap.get(i.id()))
-              ) : fitnessAggregator.apply(idsFitnessMap.get(i.id()));
-              return i.updateQuality(newQuality, i.qualityMappingIteration());
+              List<Q> newQualities = idsFitnessMap.getOrDefault(i.id(), List.of());
+              if (newQualities.isEmpty()) {
+                return i;
+              }
+              Q aggregatedQuality = fitnessAggregator.apply(newQualities);
+              Q finalQuality = (i.quality() != null) ?
+                  fitnessReducer.apply(i.quality(), aggregatedQuality) :
+                  aggregatedQuality;
+              return i.updateQuality(finalQuality, i.qualityMappingIteration());
             }
         )
         .toList();
@@ -253,8 +257,5 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
     }
     archive = archive.updated(updatedIndividuals, MEIndividual::bins, partialComparator(state.problem()));
     return state.updatedWithIteration(populationSize, futures.size(), archive);
-  }
-
-  public record FightOutcome<Q>(long id1, long id2, Q f1, Q f2) {
   }
 }

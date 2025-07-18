@@ -30,11 +30,14 @@ import io.github.ericmedvet.jgea.core.solver.Individual;
 import io.github.ericmedvet.jgea.core.solver.POCPopulationState;
 import io.github.ericmedvet.jgea.core.solver.SolverException;
 import io.github.ericmedvet.jgea.core.util.Misc;
+import io.github.ericmedvet.jnb.datastructure.Pair;
+
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -114,157 +117,154 @@ public class StandardBiEvolver<G, S, Q, O> extends AbstractBiEvolver<POCPopulati
     }
     return offspringChildGenotypes;
   }
-
-  protected POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>> init(
-      QualityBasedBiProblem<S, O, Q> problem
-  ) {
-    return POCPopulationState.empty(problem, stopCondition());
-  }
-
+  
   @Override
   public POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>> init(
       QualityBasedBiProblem<S, O, Q> problem,
       RandomGenerator random,
       ExecutorService executor
   ) throws SolverException {
+    // create initial genotypes and map to individuals with null quality
     AtomicLong counter = new AtomicLong(0);
-    List<? extends G> genotypes = genotypeFactory.build(populationSize, random);
-    List<? extends G> firstHalfGenotypes;
-    int half = populationSize / 2;
-    if (populationSize % 2 == 0) {
-      firstHalfGenotypes = genotypes.subList(0, half);
-    } else {
-      firstHalfGenotypes = genotypes.subList(0, half + 1);
-    }
-    List<? extends G> secondHalfGenotypes = genotypes.subList(half, populationSize);
-    List<Future<List<Individual<G, S, Q>>>> futures = new ArrayList<>();
-    for (int i = 0; i < firstHalfGenotypes.size(); i++) {
-      int index = i;
-      Future<List<Individual<G, S, Q>>> future = executor.submit(() -> {
-        G firstGenotype = firstHalfGenotypes.get(index);
-        G secondGenotype = secondHalfGenotypes.get(index);
-        S firstSolution = solutionMapper.apply(firstGenotype);
-        S secondSolution = solutionMapper.apply(secondGenotype);
-        O outcome = problem.outcomeFunction().apply(firstSolution, secondSolution);
-        Q firstQuality = problem.firstQualityFunction().apply(outcome);
-        Q secondQuality = problem.secondQualityFunction().apply(outcome);
-        Individual<G, S, Q> firstIndividual = Individual.of(
+    Collection<? extends G> genotypes = genotypeFactory.build(populationSize, random);
+    Collection<Individual<G, S, Q>> individuals = genotypes.stream()
+        .map(
+            g -> Individual.<G,S,Q>of(
             counter.getAndIncrement(),
-            firstGenotype,
-            firstSolution,
-            firstQuality,
+            g,
+            solutionMapper.apply(g),
+            null,
             0,
             0,
             List.of()
-        );
-        Individual<G, S, Q> secondIndividual = Individual.of(
-            counter.getAndIncrement(),
-            secondGenotype,
-            secondSolution,
-            secondQuality,
-            0,
-            0,
-            List.of()
-        );
-        return List.of(firstIndividual, secondIndividual);
-      });
-      futures.add(future);
+        ))
+        .toList();
+    // determine matches
+    Map<Pair<Long, Long>, Pair<Individual<G, S, Q>, Individual<G, S, Q>>> matches = new HashMap<>();
+    BiFunction<Individual<G, S, Q>, Individual<G, S, Q>, Pair<Long, Long>> individualsToIdPair =
+        (i1, i2) -> new Pair<>(Math.min(i1.id(), i2.id()), Math.max(i1.id(), i2.id()));
+    for (Individual<G, S, Q> individual : individuals) {
+      List<Individual<G, S, Q>> opponents = opponentsSelector.select(individuals, individual, problem, random);
+      for (Individual<G, S, Q> opponent : opponents) {
+        matches.putIfAbsent(individualsToIdPair.apply(individual, opponent), new Pair<>(individual, opponent));
+      }
     }
-    Collection<Individual<G, S, Q>> individuals = futures.stream()
-        .map(future -> {
+    // execute matches
+    List<Future<MatchOutcome<Q>>> futures = new ArrayList<>();
+    matches.values().forEach(matchPair ->
+        futures.add(executor.submit(() -> {
+          Individual<G, S, Q> i1 = matchPair.first();
+          Individual<G, S, Q> i2 = matchPair.second();
+          O outcome = problem.outcomeFunction().apply(i1.solution(), i2.solution());
+          return new MatchOutcome<>(
+              i1.id(),
+              i2.id(),
+              problem.firstQualityFunction().apply(outcome),
+              problem.secondQualityFunction().apply(outcome)
+          );
+        }))
+    );
+    Collection<MatchOutcome<Q>> matchesOutcomes = futures.stream()
+        .map(f -> {
           try {
-            return future.get();
+            return f.get();
           } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
           }
         })
-        .flatMap(Collection::stream)
         .toList();
-    POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>> state = POCPopulationState.empty(
-        problem,
-        stopCondition()
-    );
+    // aggregate fitness
+    Map<Long, List<Q>> idsFitnessMap = new HashMap<>();
+    matchesOutcomes.forEach(fo -> {
+      idsFitnessMap.computeIfAbsent(fo.id1(), k -> new ArrayList<>()).add(fo.f1());
+      idsFitnessMap.computeIfAbsent(fo.id2(), k -> new ArrayList<>()).add(fo.f2());
+    });
+    // update individuals with aggregated quality
+    Collection<Individual<G, S, Q>> updatedIndividuals = individuals.stream()
+        .map(i -> i.updateQuality(fitnessAggregator.apply(idsFitnessMap.getOrDefault(i.id(), List.of())), 0))
+        .toList();
+    // build state
+    POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>> state =
+        POCPopulationState.empty(problem, stopCondition());
     return state.updatedWithIteration(
         populationSize,
         futures.size(),
-        PartiallyOrderedCollection.from(individuals, partialComparator(problem))
+        PartiallyOrderedCollection.from(updatedIndividuals, partialComparator(problem))
     );
   }
-
+  
   @Override
   public POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>> update(
       RandomGenerator random,
       ExecutorService executor,
       POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>> state
   ) throws SolverException {
-    // create offspring genotypes with empty solution and quality
-    List<ChildGenotype<G>> offspringChildGenotypes = buildOffspringToMapGenotypes(state, random).stream().toList();
-    int nOfNewBirths = offspringChildGenotypes.size();
-    List<Individual<G, S, Q>> individuals = new ArrayList<>(
-        offspringChildGenotypes.stream()
-            .map(g -> Individual.<G, S, Q>from(g, solutionMapper, s -> null, state.nOfIterations()))
-            .toList()
+    // create offspring and build extended population
+    Collection<ChildGenotype<G>> offspringChildGenotypes = buildOffspringToMapGenotypes(state, random);
+    Collection<Individual<G, S, Q>> offspring = offspringChildGenotypes.stream()
+        .map(g -> Individual.<G, S, Q>from(g, solutionMapper, s -> null, state.nOfIterations()))
+        .toList();
+    Collection<Individual<G, S, Q>> individuals = new ArrayList<>();
+    individuals.addAll(state.pocPopulation().all());
+    individuals.addAll(offspring);
+    // determine matches
+    Map<Pair<Long, Long>, Pair<Individual<G, S, Q>, Individual<G, S, Q>>> matches = new HashMap<>();
+    BiFunction<Individual<G, S, Q>, Individual<G, S, Q>, Pair<Long, Long>> individualsToIdPair =
+        (i1, i2) -> new Pair<>(Math.min(i1.id(), i2.id()), Math.max(i1.id(), i2.id()));
+    for (Individual<G, S, Q> individual : individuals) {
+      List<Individual<G, S, Q>> opponents = opponentsSelector.select(individuals, individual, state.problem(), random);
+      for (Individual<G, S, Q> opponent : opponents) {
+        matches.putIfAbsent(individualsToIdPair.apply(individual, opponent), new Pair<>(individual, opponent));
+      }
+    }
+    // execute matches
+    List<Future<MatchOutcome<Q>>> futures = new ArrayList<>();
+    matches.values().forEach(matchPair ->
+        futures.add(executor.submit(() -> {
+          Individual<G, S, Q> i1 = matchPair.first();
+          Individual<G, S, Q> i2 = matchPair.second();
+          O outcome = state.problem().outcomeFunction().apply(i1.solution(), i2.solution());
+          return new MatchOutcome<>(
+              i1.id(),
+              i2.id(),
+              state.problem().firstQualityFunction().apply(outcome),
+              state.problem().secondQualityFunction().apply(outcome)
+          );
+        }))
     );
-    individuals.addAll(state.pocPopulation().all().stream().toList());
-    // randomly "pair" individuals
-    Collections.shuffle(individuals, random);
-    List<Individual<G, S, Q>> firstHalfIndividuals;
-    int half = individuals.size() / 2;
-    if (individuals.size() % 2 == 0) {
-      firstHalfIndividuals = individuals.subList(0, half);
-    } else {
-      firstHalfIndividuals = individuals.subList(0, half + 1);
-    }
-    List<Individual<G, S, Q>> secondHalfIndividuals = individuals.subList(half, individuals.size());
-    // prepare futures
-    List<Future<List<Individual<G, S, Q>>>> futures = new ArrayList<>();
-    for (int i = 0; i < firstHalfIndividuals.size(); i++) {
-      int index = i;
-      Future<List<Individual<G, S, Q>>> future = executor.submit(() -> {
-        Individual<G, S, Q> firstIndividual = firstHalfIndividuals.get(index);
-        Individual<G, S, Q> secondIndividual = secondHalfIndividuals.get(index);
-        O outcome = state.problem()
-            .outcomeFunction()
-            .apply(firstIndividual.solution(), secondIndividual.solution());
-        Q newFirstQuality = state.problem().firstQualityFunction().apply(outcome);
-        Q newSecondQuality = state.problem().secondQualityFunction().apply(outcome);
-        firstIndividual = Objects.isNull(firstIndividual.quality()) ? firstIndividual.updateQuality(
-            newFirstQuality,
-            state.nOfIterations()
-        ) : firstIndividual.updateQuality(
-            fitnessReducer.apply(firstIndividual.quality(), newFirstQuality),
-            state.nOfIterations()
-        );
-        secondIndividual = Objects.isNull(secondIndividual.quality()) ? secondIndividual.updateQuality(
-            newSecondQuality,
-            state.nOfIterations()
-        ) : secondIndividual.updateQuality(
-            fitnessReducer.apply(secondIndividual.quality(), newSecondQuality),
-            state.nOfIterations()
-        );
-        // If populationSize is odd, the last element of firstHalfGenotypes is the same as the first element of
-        // secondHalfGenotypes
-        if (individuals.size() % 2 != 0 && index != 0) {
-          return List.of(firstIndividual);
-        }
-        return List.of(firstIndividual, secondIndividual);
-      });
-      futures.add(future);
-    }
-    // extract future results
-    Collection<Individual<G, S, Q>> newPopulation = futures.stream()
-        .map(listFuture -> {
+    Collection<MatchOutcome<Q>> matchesOutcomes = futures.stream()
+        .map(f -> {
           try {
-            return listFuture.get();
+            return f.get();
           } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
           }
         })
-        .flatMap(Collection::stream)
         .toList();
-    newPopulation = trimPopulation(newPopulation, state, random);
+    // aggregate fitness
+    Map<Long, List<Q>> idsFitnessMap = new HashMap<>();
+    matchesOutcomes.forEach(fo -> {
+      idsFitnessMap.computeIfAbsent(fo.id1(), k -> new ArrayList<>()).add(fo.f1());
+      idsFitnessMap.computeIfAbsent(fo.id2(), k -> new ArrayList<>()).add(fo.f2());
+    });
+    // update individuals with aggregated quality
+    Collection<Individual<G, S, Q>> updatedIndividuals = individuals.stream()
+        .map(i -> {
+          List<Q> qualities = idsFitnessMap.getOrDefault(i.id(), List.of());
+          if (qualities.isEmpty()) {
+            return i; // Individual did not participate in any match
+          }
+          Q aggregatedQuality = fitnessAggregator.apply(qualities);
+          Q finalQuality = i.quality() != null ?
+              fitnessReducer.apply(i.quality(), aggregatedQuality) :
+              aggregatedQuality;
+          return i.updateQuality(finalQuality, state.nOfIterations());
+        })
+        .toList();
+    // trim population and update state
+    Collection<Individual<G, S, Q>> newPopulation = trimPopulation(updatedIndividuals, state, random);
     return state.updatedWithIteration(
-        nOfNewBirths,
+        offspring.size(),
         futures.size(),
         PartiallyOrderedCollection.from(newPopulation, partialComparator(state.problem()))
     );
