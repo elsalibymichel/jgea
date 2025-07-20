@@ -26,6 +26,7 @@ import io.github.ericmedvet.jgea.problem.booleanfunction.BooleanRegressionProble
 import java.util.List;
 import java.util.SequencedMap;
 import java.util.function.Function;
+import java.util.random.RandomGenerator;
 
 public class PrecomputedSyntheticBRProblem extends PrecomputedTargetEBProblem<BooleanFunction, boolean[], boolean[], BooleanRegressionProblem.Outcome, SequencedMap<String, Double>> implements SyntheticBRProblem {
 
@@ -35,9 +36,10 @@ public class PrecomputedSyntheticBRProblem extends PrecomputedTargetEBProblem<Bo
       Function<? super boolean[], ? extends boolean[]> target,
       IndexedProvider<boolean[]> inputProvider,
       IndexedProvider<boolean[]> validationInputProvider,
-      List<Metric> metrics
+      List<Metric> metrics,
+      RandomGenerator randomGenerator
   ) {
-    super(target, inputProvider, validationInputProvider);
+    super(target, inputProvider, validationInputProvider, randomGenerator);
     this.metrics = metrics;
   }
 

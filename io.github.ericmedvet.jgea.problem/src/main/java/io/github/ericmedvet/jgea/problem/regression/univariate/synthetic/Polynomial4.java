@@ -22,10 +22,11 @@ package io.github.ericmedvet.jgea.problem.regression.univariate.synthetic;
 
 import io.github.ericmedvet.jgea.problem.regression.MathUtils;
 import java.util.List;
+import java.util.random.RandomGenerator;
 
 public class Polynomial4 extends PrecomputedSyntheticURProblem {
 
-  public Polynomial4(List<Metric> metrics) {
+  public Polynomial4(List<Metric> metrics, RandomGenerator randomGenerator) {
     super(
         SyntheticURProblem.function(
             v -> {
@@ -36,7 +37,8 @@ public class Polynomial4 extends PrecomputedSyntheticURProblem {
         ),
         SyntheticURProblem.tupleProvider(MathUtils.pairwise(MathUtils.equispacedValues(-1, 1, .1))),
         SyntheticURProblem.tupleProvider(MathUtils.pairwise(MathUtils.equispacedValues(-1, 1, .01))),
-        metrics
+        metrics,
+        randomGenerator
     );
   }
 }

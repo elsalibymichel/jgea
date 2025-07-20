@@ -27,6 +27,7 @@ import io.github.ericmedvet.jgea.problem.regression.univariate.synthetic.*;
 import io.github.ericmedvet.jnb.core.*;
 import java.util.List;
 import java.util.Map;
+import java.util.random.RandomGenerator;
 
 @Discoverable(prefixTemplate = "ea.problem|p.univariateRegression|ur")
 public class UnivariateRegressionProblems {
@@ -67,16 +68,16 @@ public class UnivariateRegressionProblems {
   public static SyntheticURProblem synthetic(
       @Param("name") String name,
       @Param(value = "metrics", dSs = {"mse"}) List<UnivariateRegressionProblem.Metric> metrics,
-      @Param(value = "seed", dI = 1) int seed
+      @Param(value = "randomGenerator", dNPM = "m.defaultRG()") RandomGenerator randomGenerator
   ) {
     return switch (name) {
-      case "keijzer6" -> new Keijzer6(metrics);
-      case "nguyen7" -> new Nguyen7(metrics, seed);
-      case "pagie1" -> new Pagie1(metrics);
-      case "polynomial4" -> new Polynomial4(metrics);
-      case "vladislavleva4" -> new Vladislavleva4(metrics, seed);
-      case "korns12" -> new Korns12(metrics, seed);
-      case "xor" -> new Xor(metrics);
+      case "keijzer6" -> new Keijzer6(metrics, randomGenerator);
+      case "nguyen7" -> new Nguyen7(metrics, randomGenerator);
+      case "pagie1" -> new Pagie1(metrics, randomGenerator);
+      case "polynomial4" -> new Polynomial4(metrics, randomGenerator);
+      case "vladislavleva4" -> new Vladislavleva4(metrics, randomGenerator);
+      case "korns12" -> new Korns12(metrics, randomGenerator);
+      case "xor" -> new Xor(metrics, randomGenerator);
       default -> throw new IllegalArgumentException("Unknown synthetic function: %s".formatted(name));
     };
   }

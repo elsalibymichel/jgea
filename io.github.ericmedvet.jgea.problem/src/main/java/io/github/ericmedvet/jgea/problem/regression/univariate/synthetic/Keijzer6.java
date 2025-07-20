@@ -22,10 +22,11 @@ package io.github.ericmedvet.jgea.problem.regression.univariate.synthetic;
 
 import io.github.ericmedvet.jgea.problem.regression.MathUtils;
 import java.util.List;
+import java.util.random.RandomGenerator;
 
 public class Keijzer6 extends PrecomputedSyntheticURProblem {
 
-  public Keijzer6(List<Metric> metrics) {
+  public Keijzer6(List<Metric> metrics, RandomGenerator randomGenerator) {
     super(
         SyntheticURProblem.function(
             v -> {
@@ -39,7 +40,8 @@ public class Keijzer6 extends PrecomputedSyntheticURProblem {
         ),
         SyntheticURProblem.tupleProvider(MathUtils.pairwise(MathUtils.equispacedValues(1, 50, 1))),
         SyntheticURProblem.tupleProvider(MathUtils.pairwise(MathUtils.equispacedValues(1, 120, 1))),
-        metrics
+        metrics,
+        randomGenerator
     );
   }
 }

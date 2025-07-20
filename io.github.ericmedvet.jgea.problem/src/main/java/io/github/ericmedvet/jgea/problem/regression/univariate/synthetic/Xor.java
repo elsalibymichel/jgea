@@ -21,10 +21,11 @@
 package io.github.ericmedvet.jgea.problem.regression.univariate.synthetic;
 
 import java.util.List;
+import java.util.random.RandomGenerator;
 
 public class Xor extends PrecomputedSyntheticURProblem {
 
-  public Xor(List<Metric> metrics) {
+  public Xor(List<Metric> metrics, RandomGenerator randomGenerator) {
     super(
         SyntheticURProblem.function(
             vs -> {
@@ -50,7 +51,8 @@ public class Xor extends PrecomputedSyntheticURProblem {
                 new double[]{1d, 1d}
             )
         ),
-        metrics
+        metrics,
+        randomGenerator
     );
   }
 

@@ -22,16 +22,17 @@ package io.github.ericmedvet.jgea.problem.regression.univariate.synthetic;
 
 import io.github.ericmedvet.jgea.problem.regression.MathUtils;
 import java.util.List;
-import java.util.Random;
+import java.util.random.RandomGenerator;
 
 public class Nguyen7 extends PrecomputedSyntheticURProblem {
 
-  public Nguyen7(List<Metric> metrics, long seed) {
+  public Nguyen7(List<Metric> metrics, RandomGenerator randomGenerator) {
     super(
         SyntheticURProblem.function(v -> Math.log(v[0] + 1d) + Math.log(v[0] * v[0] + 1d), 1),
-        SyntheticURProblem.tupleProvider(MathUtils.pairwise(MathUtils.uniformSample(0, 2, 20, new Random(seed)))),
-        SyntheticURProblem.tupleProvider(MathUtils.pairwise(MathUtils.uniformSample(0, 2, 100, new Random(seed)))),
-        metrics
+        SyntheticURProblem.tupleProvider(MathUtils.pairwise(MathUtils.uniformSample(0, 2, 20, randomGenerator))),
+        SyntheticURProblem.tupleProvider(MathUtils.pairwise(MathUtils.uniformSample(0, 2, 100, randomGenerator))),
+        metrics,
+        randomGenerator
     );
   }
 }

@@ -45,9 +45,15 @@ public class PrecomputedSyntheticPSProblem extends PrecomputedTargetEBProblem<Pr
       IndexedProvider<List<Object>> inputProvider,
       IndexedProvider<List<Object>> validationInputProvider,
       List<Metric> metrics,
-      double maxDissimilarity
+      double maxDissimilarity,
+      RandomGenerator randomGenerator
   ) {
-    super(inputs -> ProgramSynthesisProblem.safelyExecute(target, inputs), inputProvider, validationInputProvider);
+    super(
+        inputs -> ProgramSynthesisProblem.safelyExecute(target, inputs),
+        inputProvider,
+        validationInputProvider,
+        randomGenerator
+    );
     this.metrics = metrics;
     inputTypes = target.inputTypes();
     outputTypes = target.outputTypes();
@@ -59,17 +65,18 @@ public class PrecomputedSyntheticPSProblem extends PrecomputedTargetEBProblem<Pr
       List<Metric> metrics,
       double maxDissimilarity,
       DataFactory dataFactory,
-      RandomGenerator rnd,
+      RandomGenerator randomGenerator,
       int nOfCases,
       int nOfValidationCases,
       double maxExceptionRate
   ) {
     this(
         target,
-        IndexedProvider.from(buildInputs(nOfCases, maxExceptionRate, target, dataFactory, rnd)),
-        IndexedProvider.from(buildInputs(nOfValidationCases, maxExceptionRate, target, dataFactory, rnd)),
+        IndexedProvider.from(buildInputs(nOfCases, maxExceptionRate, target, dataFactory, randomGenerator)),
+        IndexedProvider.from(buildInputs(nOfValidationCases, maxExceptionRate, target, dataFactory, randomGenerator)),
         metrics,
-        maxDissimilarity
+        maxDissimilarity,
+        randomGenerator
     );
   }
 

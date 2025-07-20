@@ -24,9 +24,10 @@ import io.github.ericmedvet.jgea.problem.booleanfunction.BooleanFunction;
 import io.github.ericmedvet.jgea.problem.booleanfunction.BooleanUtils;
 import io.github.ericmedvet.jsdynsym.core.numerical.MultivariateRealFunction;
 import java.util.List;
+import java.util.random.RandomGenerator;
 
 public class MultipleOutputParallelMultiplier extends PrecomputedSyntheticBRProblem {
-  public MultipleOutputParallelMultiplier(List<Metric> metrics, int n) {
+  public MultipleOutputParallelMultiplier(List<Metric> metrics, int n, RandomGenerator randomGenerator) {
     super(
         BooleanFunction.from(inputs -> compute(inputs, n), 2 * n, 2 * n),
         IndexedProvider.from(
@@ -41,7 +42,8 @@ public class MultipleOutputParallelMultiplier extends PrecomputedSyntheticBRProb
                     .toArray(String[]::new)
             )
         ),
-        metrics
+        metrics,
+        randomGenerator
     );
   }
 

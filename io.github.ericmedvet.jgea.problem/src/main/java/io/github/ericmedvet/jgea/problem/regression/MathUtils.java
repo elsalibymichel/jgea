@@ -28,7 +28,6 @@ import io.github.ericmedvet.jsdynsym.core.composed.AbstractComposed;
 import java.util.*;
 import java.util.function.UnaryOperator;
 import java.util.random.RandomGenerator;
-
 import org.apache.commons.math3.stat.StatUtils;
 
 public class MathUtils {

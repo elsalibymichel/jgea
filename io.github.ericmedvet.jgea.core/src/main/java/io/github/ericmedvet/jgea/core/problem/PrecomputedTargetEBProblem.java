@@ -21,6 +21,7 @@ package io.github.ericmedvet.jgea.core.problem;
 
 import io.github.ericmedvet.jgea.core.util.IndexedProvider;
 import java.util.function.Function;
+import java.util.random.RandomGenerator;
 
 public abstract class PrecomputedTargetEBProblem<S, EI, EO, EQ, Q> implements TargetEBProblem<S, EI, EO, EQ, Q> {
 
@@ -33,12 +34,13 @@ public abstract class PrecomputedTargetEBProblem<S, EI, EO, EQ, Q> implements Ta
   public PrecomputedTargetEBProblem(
       Function<? super EI, ? extends EO> target,
       IndexedProvider<EI> inputProvider,
-      IndexedProvider<EI> validationInputProvider
+      IndexedProvider<EI> validationInputProvider,
+      RandomGenerator randomGenerator
   ) {
     this.target = target;
     this.inputProvider = inputProvider;
     this.validationInputProvider = validationInputProvider;
-    caseProvider = inputProvider.then(ei -> new Example<>(ei, target.apply(ei)));
+    caseProvider = inputProvider.shuffled(randomGenerator).then(ei -> new Example<>(ei, target.apply(ei)));
     validationCaseProvider = validationInputProvider.then(ei -> new Example<>(ei, target.apply(ei)));
   }
 

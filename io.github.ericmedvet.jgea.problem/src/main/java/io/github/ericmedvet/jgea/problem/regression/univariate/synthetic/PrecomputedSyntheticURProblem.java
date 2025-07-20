@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SequencedMap;
 import java.util.function.Function;
+import java.util.random.RandomGenerator;
 
 public class PrecomputedSyntheticURProblem extends PrecomputedTargetEBProblem<NamedUnivariateRealFunction, Map<String, Double>, Double, UnivariateRegressionProblem.Outcome, SequencedMap<String, Double>> implements SyntheticURProblem {
 
@@ -36,9 +37,10 @@ public class PrecomputedSyntheticURProblem extends PrecomputedTargetEBProblem<Na
       Function<? super Map<String, Double>, ? extends Double> target,
       IndexedProvider<Map<String, Double>> inputProvider,
       IndexedProvider<Map<String, Double>> validationInputProvider,
-      List<Metric> metrics
+      List<Metric> metrics,
+      RandomGenerator randomGenerator
   ) {
-    super(target, inputProvider, validationInputProvider);
+    super(target, inputProvider, validationInputProvider, randomGenerator);
     this.metrics = metrics;
   }
 
