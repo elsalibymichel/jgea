@@ -45,7 +45,8 @@ public class UnivariateRegressionProblems {
       @Param("provider") IndexedProvider<ExampleBasedProblem.Example<Map<String, Double>, Map<String, Double>>> provider,
       @Param(value = "metrics", dSs = {"mse"}) List<UnivariateRegressionProblem.Metric> metrics,
       @Param(value = "nFolds", dI = 10) int nFolds,
-      @Param(value = "testFold", dI = 0) int testFold
+      @Param(value = "testFold", dI = 0) int testFold,
+      @Param(value = "randomGenerator", dNPM = "m.defaultRG()") RandomGenerator randomGenerator
   ) {
     String yVarName = provider.first()
         .output()
@@ -53,6 +54,7 @@ public class UnivariateRegressionProblems {
         .stream()
         .findFirst()
         .orElseThrow(() -> new RuntimeException("No output y var in datates"));
+    provider = provider.shuffled(randomGenerator);
     return UnivariateRegressionProblem.from(
         metrics,
         yVarName,
