@@ -19,6 +19,7 @@
  */
 package io.github.ericmedvet.jgea.experimenter.builders;
 
+import io.github.ericmedvet.jgea.core.InvertibleMapper;
 import io.github.ericmedvet.jgea.core.problem.BehaviorBasedProblem;
 import io.github.ericmedvet.jgea.core.problem.MultiTargetProblem;
 import io.github.ericmedvet.jgea.core.problem.Problem;
@@ -274,6 +275,18 @@ public class Functions {
   ) {
     Function<POCPopulationState<I, G, S, Q, ?>, Collection<I>> f = state -> state.pocPopulation().firsts();
     return NamedFunction.from(f, "firsts").compose(beforeF);
+  }
+
+  @SuppressWarnings("unused")
+  public static <X, G, S> FormattedNamedFunction<X, S> fromMapper(
+      @Param(value = "of", dNPM = "f.identity()") Function<X, G> beforeF,
+      @Param("mapper") InvertibleMapper<G, S> mapper,
+      @Param("example") S example,
+      @Param(value = "name", iS = "{mapper.name}") String name,
+      @Param(value = "format", dS = "%s") String format
+  ) {
+    NamedFunction<G, S> f = NamedFunction.from(mapper.mapperFor(example));
+    return FormattedNamedFunction.from(f, format, name).compose(beforeF);
   }
 
   @SuppressWarnings("unused")

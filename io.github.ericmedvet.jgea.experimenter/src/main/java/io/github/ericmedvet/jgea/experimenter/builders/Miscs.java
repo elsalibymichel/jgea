@@ -284,6 +284,12 @@ public class Miscs {
 
   @SuppressWarnings("unused")
   @Cacheable
+  public static Object nullValue() {
+    return null;
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
   public static <G, S, Q, O> AbstractBiEvolver.OpponentsSelector<MEIndividual<G, S, Q>, S, Q, O> farthestMESelector(
       @Param(value = "nOfOpponents", dI = 1) int nOfOpponents
   ) {

@@ -12,7 +12,7 @@ $VS_SELF = ds.f.selfBiSimulator(
 
 $VS_OPPONENT = ds.f.opponentBiSimulator(
   of = ea.f.solution();
-  opponent = m.supplier(of = ds.opponent.pong.simple());
+  opponent = ds.opponent.pong.simple();
   simulation = $SIMULATION
 )
 
