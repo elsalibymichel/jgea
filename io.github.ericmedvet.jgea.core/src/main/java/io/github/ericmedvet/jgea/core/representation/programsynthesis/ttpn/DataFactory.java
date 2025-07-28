@@ -87,7 +87,7 @@ public class DataFactory implements BiFunction<Type, RandomGenerator, Object> {
           .mapToObj(i -> apply(t, r))
           .toList();
     }
-    if (type instanceof Tuple(List<Type>types)) {
+    if (type instanceof Tuple(List<Type> types)) {
       return types.stream().map(t -> apply(t, r)).toList();
     }
     throw new IllegalArgumentException("Unsupported type %s".formatted(type));
