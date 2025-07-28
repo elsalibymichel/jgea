@@ -361,35 +361,35 @@ public class Functions {
     Function<P, BufferedImage> f = p -> {
       if (p instanceof DistributionPlot dp) {
         BoxPlotDrawer d = new BoxPlotDrawer(configuration, Configuration.BoxPlot.DEFAULT);
-        return d.build(iiAdapter.apply(d.imageInfo(dp)), dp);
+        return d.buildRaster(iiAdapter.apply(d.imageInfo(dp)), dp);
       }
       if (p instanceof LandscapePlot lsp) {
         LandscapePlotDrawer d = new LandscapePlotDrawer(
             configuration,
             Configuration.LandscapePlot.DEFAULT
         );
-        return d.build(iiAdapter.apply(d.imageInfo(lsp)), lsp);
+        return d.buildRaster(iiAdapter.apply(d.imageInfo(lsp)), lsp);
       }
       if (p instanceof XYDataSeriesPlot xyp) {
         AbstractXYDataSeriesPlotDrawer d = (!secondary) ? new LinesPlotDrawer(
             configuration,
             Configuration.LinesPlot.DEFAULT
         ) : new PointsPlotDrawer(configuration, Configuration.PointsPlot.DEFAULT);
-        return d.build(iiAdapter.apply(d.imageInfo(xyp)), xyp);
+        return d.buildRaster(iiAdapter.apply(d.imageInfo(xyp)), xyp);
       }
       if (p instanceof UnivariateGridPlot ugp) {
         UnivariateGridPlotDrawer d = new UnivariateGridPlotDrawer(
             configuration,
             Configuration.UnivariateGridPlot.DEFAULT
         );
-        return d.build(iiAdapter.apply(d.imageInfo(ugp)), ugp);
+        return d.buildRaster(iiAdapter.apply(d.imageInfo(ugp)), ugp);
       }
       if (p instanceof VectorialFieldPlot vfp) {
         VectorialFieldPlotDrawer d = new VectorialFieldPlotDrawer(
             configuration,
             Configuration.VectorialFieldPlot.DEFAULT
         );
-        return d.build(iiAdapter.apply(d.imageInfo(vfp)), vfp);
+        return d.buildRaster(iiAdapter.apply(d.imageInfo(vfp)), vfp);
       }
       throw new IllegalArgumentException(
           "Unsupported type of plot %s".formatted(p.getClass().getSimpleName())
@@ -778,7 +778,7 @@ public class Functions {
         w == -1 ? ii.w() : w,
         h == -1 ? ii.h() : h
     );
-    Function<D, BufferedImage> f = d -> imageBuilder.build(
+    Function<D, BufferedImage> f = d -> imageBuilder.buildRaster(
         iiAdapter.apply(imageBuilder.imageInfo(d)),
         d
     );

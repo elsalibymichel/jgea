@@ -130,7 +130,7 @@ public class Miscs {
       @Param(value = "marginRate", dD = 0.1) double marginRate
   ) {
     return ImageUtils.imageDrawer(bgColor, marginRate)
-        .build(new ImageBuilder.ImageInfo(w, h), ImageUtils.loadFromResource(name));
+        .buildRaster(new ImageBuilder.ImageInfo(w, h), ImageUtils.loadFromResource(name));
   }
 
   @SuppressWarnings("unused")
@@ -143,7 +143,7 @@ public class Miscs {
       @Param(value = "h", dI = 15) int h,
       @Param(value = "marginRate", dD = 0.1) double marginRate
   ) {
-    return ImageUtils.stringDrawer(fgColor, bgColor, marginRate).build(new ImageBuilder.ImageInfo(w, h), s);
+    return ImageUtils.stringDrawer(fgColor, bgColor, marginRate).buildRaster(new ImageBuilder.ImageInfo(w, h), s);
   }
 
   @SuppressWarnings("unused")
