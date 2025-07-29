@@ -330,7 +330,7 @@ public class Listeners {
             of = $plot;
             consumers = [
               ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.imagePlotter(secondary = $secondary; type = $type));
-              ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.csvPlotter())
+              ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.csvPlotter(); suffix = ".tsv")
             ]
           )
           """ // spotless:on
@@ -399,7 +399,7 @@ public class Listeners {
             of = $plot;
             consumers = [
               ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.imagePlotter(secondary = $secondary; type = $type));
-              ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.csvPlotter())
+              ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.csvPlotter(); suffix = ".tsv")
             ]
           )
           """ // spotless:on

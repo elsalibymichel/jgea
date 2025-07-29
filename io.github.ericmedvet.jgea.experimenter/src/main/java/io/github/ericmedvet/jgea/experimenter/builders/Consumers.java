@@ -66,7 +66,8 @@ public class Consumers {
   @SuppressWarnings("unused")
   @Cacheable
   public static TriConsumer<?, ?, ?> deaf() {
-    return Naming.named("deaf", (i1, i2, i3) -> {});
+    return Naming.named("deaf", (i1, i2, i3) -> {
+    });
   }
 
   private static void save(Object o, String filePath, boolean overwrite) {
@@ -81,7 +82,12 @@ public class Consumers {
           Files.writeString(file.toPath(), s, StandardOpenOption.WRITE, StandardOpenOption.CREATE);
         }
         case Video video -> {
-          Files.write(file.toPath(), video.data(), StandardOpenOption.WRITE, StandardOpenOption.CREATE);
+          Files.write(
+              file.toPath(),
+              video.data(),
+              StandardOpenOption.WRITE,
+              StandardOpenOption.CREATE
+          );
         }
         case byte[] data -> {
           try (OutputStream os = new FileOutputStream(file)) {
@@ -114,14 +120,17 @@ public class Consumers {
   public static <X, O> TriConsumer<X, Run<?, ?, ?, ?>, Experiment> saver(
       @Param(value = "of", dNPM = "f.identity()") Function<X, O> f,
       @Param(value = "overwrite") boolean overwrite,
-      @Param(value = "path", dS = "run-{run.index:%04d}") String filePathTemplate
-      // TODO add a parameter to change/suffix the file extension
+      @Param(value = "path", dS = "run-{run.index:%04d}") String filePathTemplate,
+      @Param(value = "suffix", dS = "") String suffix
   ) {
     return Naming.named(
-        "saver[%s;%s]".formatted(NamedFunction.name(f), filePathTemplate + (overwrite ? "(*)" : "")),
+        "saver[%s;%s]".formatted(
+            NamedFunction.name(f),
+            filePathTemplate + (overwrite ? "(*)" : "")
+        ),
         (TriConsumer<X, Run<?, ?, ?, ?>, Experiment>) (x, run, experiment) -> save(
             f.apply(x),
-            Utils.interpolate(filePathTemplate, experiment, run),
+            Utils.interpolate(filePathTemplate, experiment, run) + suffix,
             overwrite
         )
     );
