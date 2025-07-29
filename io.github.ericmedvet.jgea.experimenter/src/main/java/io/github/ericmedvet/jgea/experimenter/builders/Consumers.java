@@ -115,6 +115,7 @@ public class Consumers {
       @Param(value = "of", dNPM = "f.identity()") Function<X, O> f,
       @Param(value = "overwrite") boolean overwrite,
       @Param(value = "path", dS = "run-{run.index:%04d}") String filePathTemplate
+      // TODO add a parameter to change/suffix the file extension
   ) {
     return Naming.named(
         "saver[%s;%s]".formatted(NamedFunction.name(f), filePathTemplate + (overwrite ? "(*)" : "")),

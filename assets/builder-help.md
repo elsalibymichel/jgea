@@ -997,7 +997,7 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedName
 
 ### Builder `ea.function.imagePlotter()`
 
-`ea.f.imagePlotter(of; w; h; axesShow; titlesShow; independences; freeScales; secondary)`
+`ea.f.imagePlotter(of; w; h; axesShow; titlesShow; independences; freeScales; secondary; type)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -1009,8 +1009,9 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedName
 | `independences` | e[] | `[ROWS, COLS]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="io.github.ericmedvet.jviz.core.plot.image.Configuration$PlotMatrix$Independence">Configuration$PlotMatrix$Independence</abbr>&gt;</code> |
 | `freeScales` | b | `false` | <code>boolean</code> |
 | `secondary` | b | `false` | <code>boolean</code> |
+| `type` | s | `png` | <code><abbr title="java.lang.String">String</abbr></code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.NamedFunction">NamedFunction</abbr>&lt;X, <abbr title="java.awt.image.BufferedImage">BufferedImage</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Functions.imagePlotter()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.NamedFunction">NamedFunction</abbr>&lt;X, <abbr title="java.lang.Object">Object</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Functions.imagePlotter()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.function.isCrossRedundancy()`
 
@@ -1665,43 +1666,45 @@ Produces <code><abbr title="java.util.function.BiFunction">BiFunction</abbr>&lt;
 
 ### Builder `ea.listener.savePlotAndCsvForExp()`
 
-`ea.l.savePlotAndCsvForExp(of; preprocessor; consumers; deferred; condition; secondary; overwrite; path; plot)`
+`ea.l.savePlotAndCsvForExp(of; preprocessor; consumers; deferred; condition; secondary; overwrite; path; plot; type)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
 | `of` | npm | `null` | <code><abbr title="io.github.ericmedvet.jgea.core.listener.AccumulatorFactory">AccumulatorFactory</abbr>&lt;E, O, <abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;&gt;</code> |
 | `preprocessor` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super O, ? extends P&gt;</code> |
-| `consumers` | npm[] | `[ea.c.saver(path = "{experiment.name}"; of = ea.f.imagePlotter(secondary = false); overwrite = false), ea.c.saver(path = "{experiment.name}"; of = ea.f.csvPlotter(); overwrite = false)]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="io.github.ericmedvet.jnb.datastructure.TriConsumer">TriConsumer</abbr>&lt;? super P, <abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;, <abbr title="io.github.ericmedvet.jgea.experimenter.Experiment">Experiment</abbr>&gt;&gt;</code> |
+| `consumers` | npm[] | `[ea.c.saver(path = "{experiment.name}"; of = ea.f.imagePlotter(secondary = false; type = png); overwrite = false), ea.c.saver(path = "{experiment.name}"; of = ea.f.csvPlotter(); overwrite = false)]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="io.github.ericmedvet.jnb.datastructure.TriConsumer">TriConsumer</abbr>&lt;? super P, <abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;, <abbr title="io.github.ericmedvet.jgea.experimenter.Experiment">Experiment</abbr>&gt;&gt;</code> |
 | `deferred` | b | `false` | <code>boolean</code> |
 | `condition` | npm | `predicate.always()` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;&gt;</code> |
 | `secondary` | b | `false` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `overwrite` | b | `false` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `path` | s | `{experiment.name}` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `plot` | npm | `` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `type` | s | `png` | <code><abbr title="java.lang.String">String</abbr></code> |
 
 Produces <code><abbr title="java.util.function.BiFunction">BiFunction</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.experimenter.Experiment">Experiment</abbr>, <abbr title="java.util.concurrent.ExecutorService">ExecutorService</abbr>, <abbr title="io.github.ericmedvet.jgea.core.listener.ListenerFactory">ListenerFactory</abbr>&lt;E, <abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Listeners.onExpDone()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.listener.savePlotAndCsvForRun()`
 
-`ea.l.savePlotAndCsvForRun(of; preprocessor; consumers; deferred; condition; secondary; overwrite; path; plot)`
+`ea.l.savePlotAndCsvForRun(of; preprocessor; consumers; deferred; condition; secondary; overwrite; path; plot; type)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
 | `of` | npm | `null` | <code><abbr title="io.github.ericmedvet.jgea.core.listener.AccumulatorFactory">AccumulatorFactory</abbr>&lt;E, O, <abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;&gt;</code> |
 | `preprocessor` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super O, ? extends P&gt;</code> |
-| `consumers` | npm[] | `[ea.c.saver(path = "{experiment.name}"; of = ea.f.imagePlotter(secondary = false); overwrite = false), ea.c.saver(path = "{experiment.name}"; of = ea.f.csvPlotter(); overwrite = false)]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="io.github.ericmedvet.jnb.datastructure.TriConsumer">TriConsumer</abbr>&lt;? super P, <abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;, <abbr title="io.github.ericmedvet.jgea.experimenter.Experiment">Experiment</abbr>&gt;&gt;</code> |
+| `consumers` | npm[] | `[ea.c.saver(path = "{experiment.name}"; of = ea.f.imagePlotter(secondary = false; type = png); overwrite = false), ea.c.saver(path = "{experiment.name}"; of = ea.f.csvPlotter(); overwrite = false)]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="io.github.ericmedvet.jnb.datastructure.TriConsumer">TriConsumer</abbr>&lt;? super P, <abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;, <abbr title="io.github.ericmedvet.jgea.experimenter.Experiment">Experiment</abbr>&gt;&gt;</code> |
 | `deferred` | b | `false` | <code>boolean</code> |
 | `condition` | npm | `predicate.always()` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;&gt;</code> |
 | `secondary` | b | `false` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `overwrite` | b | `false` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `path` | s | `{experiment.name}` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `plot` | npm | `` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `type` | s | `png` | <code><abbr title="java.lang.String">String</abbr></code> |
 
 Produces <code><abbr title="java.util.function.BiFunction">BiFunction</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.experimenter.Experiment">Experiment</abbr>, <abbr title="java.util.concurrent.ExecutorService">ExecutorService</abbr>, <abbr title="io.github.ericmedvet.jgea.core.listener.ListenerFactory">ListenerFactory</abbr>&lt;E, <abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Listeners.onRunDone()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.listener.savePlotForExp()`
 
-`ea.l.savePlotForExp(of; preprocessor; consumers; deferred; condition; path; processor; overwrite; plot)`
+`ea.l.savePlotForExp(of; preprocessor; consumers; deferred; condition; path; processor; overwrite; plot; secondary; type)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -1711,15 +1714,17 @@ Produces <code><abbr title="java.util.function.BiFunction">BiFunction</abbr>&lt;
 | `deferred` | b | `false` | <code>boolean</code> |
 | `condition` | npm | `predicate.always()` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;&gt;</code> |
 | `path` | s | `{experiment.name}` | <code><abbr title="java.lang.String">String</abbr></code> |
-| `processor` | npm | `ea.f.imagePlotter()` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `processor` | npm | `ea.f.imagePlotter(secondary = false; type = png)` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `overwrite` | b | `false` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `plot` | npm | `` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `secondary` | b | `false` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `type` | s | `png` | <code><abbr title="java.lang.String">String</abbr></code> |
 
 Produces <code><abbr title="java.util.function.BiFunction">BiFunction</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.experimenter.Experiment">Experiment</abbr>, <abbr title="java.util.concurrent.ExecutorService">ExecutorService</abbr>, <abbr title="io.github.ericmedvet.jgea.core.listener.ListenerFactory">ListenerFactory</abbr>&lt;E, <abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Listeners.onExpDone()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.listener.savePlotForRun()`
 
-`ea.l.savePlotForRun(of; preprocessor; consumers; deferred; condition; path; overwrite; processor; plot)`
+`ea.l.savePlotForRun(of; preprocessor; consumers; deferred; condition; path; overwrite; processor; secondary; plot; type)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -1730,8 +1735,10 @@ Produces <code><abbr title="java.util.function.BiFunction">BiFunction</abbr>&lt;
 | `condition` | npm | `predicate.always()` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;&gt;</code> |
 | `path` | s | `run-{run.index:%04d}` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `overwrite` | b | `false` | <code><abbr title="java.lang.String">String</abbr></code> |
-| `processor` | npm | `ea.f.imagePlotter()` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `processor` | npm | `ea.f.imagePlotter(secondary = false; type = png)` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `secondary` | b | `false` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `plot` | npm | `` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `type` | s | `png` | <code><abbr title="java.lang.String">String</abbr></code> |
 
 Produces <code><abbr title="java.util.function.BiFunction">BiFunction</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.experimenter.Experiment">Experiment</abbr>, <abbr title="java.util.concurrent.ExecutorService">ExecutorService</abbr>, <abbr title="io.github.ericmedvet.jgea.core.listener.ListenerFactory">ListenerFactory</abbr>&lt;E, <abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Listeners.onRunDone()` by jgea-experimenter:2.7.1-SNAPSHOT
 

@@ -45,6 +45,7 @@ import io.github.ericmedvet.jnb.core.Param;
 import io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction;
 import io.github.ericmedvet.jnb.datastructure.Grid;
 import io.github.ericmedvet.jnb.datastructure.NamedFunction;
+import io.github.ericmedvet.jviz.core.drawer.Drawer;
 import io.github.ericmedvet.jviz.core.drawer.ImageBuilder;
 import io.github.ericmedvet.jviz.core.drawer.Video;
 import io.github.ericmedvet.jviz.core.drawer.VideoBuilder;
@@ -56,6 +57,7 @@ import io.github.ericmedvet.jviz.core.plot.video.*;
 import io.github.ericmedvet.jviz.core.util.VideoUtils;
 import java.awt.image.BufferedImage;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -330,7 +332,7 @@ public class Functions {
 
   @SuppressWarnings("unused")
   @Cacheable
-  public static <X, P extends XYPlot<D>, D> NamedFunction<X, BufferedImage> imagePlotter(
+  public static <X, P extends XYPlot<D>, D> NamedFunction<X, Object> imagePlotter(
       @Param(value = "of", dNPM = "f.identity()") Function<X, P> beforeF,
       @Param(value = "w", dI = -1) int w,
       @Param(value = "h", dI = -1) int h,
@@ -339,7 +341,8 @@ public class Functions {
       @Param(
           value = "independences", dSs = {"rows", "cols"}) List<Configuration.PlotMatrix.Independence> independences,
       @Param("freeScales") boolean freeScales,
-      @Param("secondary") boolean secondary
+      @Param("secondary") boolean secondary,
+      @Param(value = "type", dS = "png") String type
   ) {
     UnaryOperator<ImageBuilder.ImageInfo> iiAdapter = ii -> new ImageBuilder.ImageInfo(
         w == -1 ? ii.w() : w,
@@ -358,38 +361,69 @@ public class Functions {
         Configuration.BoxPlot.DEFAULT,
         false
     );
-    Function<P, BufferedImage> f = p -> {
+    class ConditionedDrawer<Y> implements BiFunction<Drawer<Y>, Y, Object> {
+      @Override
+      public Object apply(Drawer<Y> drawer, Y y) {
+        return switch (type.toLowerCase()) {
+          case "png" -> drawer.buildRaster(iiAdapter.apply(drawer.imageInfo(y)), y);
+          case "svg" -> drawer.buildVectorial(iiAdapter.apply(drawer.imageInfo(y)), y);
+          default -> throw new IllegalArgumentException(
+              "Invalid type '%s', which is not 'png' nor 'svg'".formatted(type)
+          );
+        };
+      }
+    }
+    Function<P, Object> f = p -> {
       if (p instanceof DistributionPlot dp) {
-        BoxPlotDrawer d = new BoxPlotDrawer(configuration, Configuration.BoxPlot.DEFAULT);
-        return d.buildRaster(iiAdapter.apply(d.imageInfo(dp)), dp);
+        return new ConditionedDrawer<DistributionPlot>().apply(
+            new BoxPlotDrawer(
+                configuration,
+                Configuration.BoxPlot.DEFAULT
+            ),
+            dp
+        );
       }
       if (p instanceof LandscapePlot lsp) {
-        LandscapePlotDrawer d = new LandscapePlotDrawer(
-            configuration,
-            Configuration.LandscapePlot.DEFAULT
+        return new ConditionedDrawer<LandscapePlot>().apply(
+            new LandscapePlotDrawer(
+                configuration,
+                Configuration.LandscapePlot.DEFAULT
+            ),
+            lsp
         );
-        return d.buildRaster(iiAdapter.apply(d.imageInfo(lsp)), lsp);
       }
       if (p instanceof XYDataSeriesPlot xyp) {
-        AbstractXYDataSeriesPlotDrawer d = (!secondary) ? new LinesPlotDrawer(
-            configuration,
-            Configuration.LinesPlot.DEFAULT
-        ) : new PointsPlotDrawer(configuration, Configuration.PointsPlot.DEFAULT);
-        return d.buildRaster(iiAdapter.apply(d.imageInfo(xyp)), xyp);
+        if (secondary) {
+          return new ConditionedDrawer<XYDataSeriesPlot>().apply(
+              new PointsPlotDrawer(configuration, Configuration.PointsPlot.DEFAULT),
+              xyp
+          );
+        }
+        return new ConditionedDrawer<XYDataSeriesPlot>().apply(
+            new LinesPlotDrawer(
+                configuration,
+                Configuration.LinesPlot.DEFAULT
+            ),
+            xyp
+        );
       }
       if (p instanceof UnivariateGridPlot ugp) {
-        UnivariateGridPlotDrawer d = new UnivariateGridPlotDrawer(
-            configuration,
-            Configuration.UnivariateGridPlot.DEFAULT
+        return new ConditionedDrawer<UnivariateGridPlot>().apply(
+            new UnivariateGridPlotDrawer(
+                configuration,
+                Configuration.UnivariateGridPlot.DEFAULT
+            ),
+            ugp
         );
-        return d.buildRaster(iiAdapter.apply(d.imageInfo(ugp)), ugp);
       }
       if (p instanceof VectorialFieldPlot vfp) {
-        VectorialFieldPlotDrawer d = new VectorialFieldPlotDrawer(
-            configuration,
-            Configuration.VectorialFieldPlot.DEFAULT
+        return new ConditionedDrawer<VectorialFieldPlot>().apply(
+            new VectorialFieldPlotDrawer(
+                configuration,
+                Configuration.VectorialFieldPlot.DEFAULT
+            ),
+            vfp
         );
-        return d.buildRaster(iiAdapter.apply(d.imageInfo(vfp)), vfp);
       }
       throw new IllegalArgumentException(
           "Unsupported type of plot %s".formatted(p.getClass().getSimpleName())
