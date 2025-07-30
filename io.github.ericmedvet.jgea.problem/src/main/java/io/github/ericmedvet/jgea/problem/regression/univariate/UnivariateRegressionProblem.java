@@ -34,8 +34,6 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public interface UnivariateRegressionProblem extends SimpleEBMOProblem<NamedUnivariateRealFunction, Map<String, Double>, Double, UnivariateRegressionProblem.Outcome, Double> {
-  record Outcome(double actual, double predicted) {}
-
   enum Metric implements Function<List<Outcome>, Double> {
     MAE(
         ys -> ys.stream()
@@ -59,6 +57,32 @@ public interface UnivariateRegressionProblem extends SimpleEBMOProblem<NamedUniv
             .mapToDouble(y -> (y.predicted - y.actual) * (y.predicted - y.actual))
             .average()
             .orElse(Double.NaN) / ys.stream().mapToDouble(y -> y.actual).average().orElse(1d)
+    ), R2(
+        ys -> {
+          double sumOfSquaredResiduals = ys.stream()
+              .mapToDouble(y -> (y.predicted - y.actual) * (y.predicted - y.actual))
+              .sum();
+          double actualMean = ys.stream().mapToDouble(y -> y.actual).average().orElseThrow();
+          double sumOfSquaredMeanResiduals = ys.stream()
+              .mapToDouble(y -> (actualMean - y.actual) * (actualMean - y.actual))
+              .sum();
+          return 1d - sumOfSquaredResiduals / sumOfSquaredMeanResiduals;
+        }
+    ), ABS_COR(
+        ys -> {
+          double actualMean = ys.stream().mapToDouble(y -> y.actual).average().orElseThrow();
+          double predictedMean = ys.stream().mapToDouble(y -> y.predicted).average().orElseThrow();
+          double sumOfCrossResiduals = ys.stream()
+              .mapToDouble(y -> (y.actual - actualMean) * (y.predicted - predictedMean))
+              .sum();
+          double sumOfActualSquaredMeanResiduals = ys.stream()
+              .mapToDouble(y -> (actualMean - y.actual) * (actualMean - y.actual))
+              .sum();
+          double sumOfPredictedSquaredMeanResiduals = ys.stream()
+              .mapToDouble(y -> (predictedMean - y.predicted) * (predictedMean - y.predicted))
+              .sum();
+          return sumOfCrossResiduals / Math.sqrt(sumOfPredictedSquaredMeanResiduals * sumOfActualSquaredMeanResiduals);
+        }
     );
 
     private final Function<List<Outcome>, Double> function;
@@ -78,9 +102,26 @@ public interface UnivariateRegressionProblem extends SimpleEBMOProblem<NamedUniv
     }
   }
 
+  record Outcome(double actual, double predicted) {}
+
   List<Metric> metrics();
 
   String yVarName();
+
+  static UnivariateRegressionProblem from(
+      List<Metric> metrics,
+      String yVarName,
+      IndexedProvider<Example<Map<String, Double>, Double>> caseProvider,
+      IndexedProvider<Example<Map<String, Double>, Double>> validationCaseProvider
+  ) {
+    record HardUnivariateRegressionProblem(
+        List<Metric> metrics,
+        String yVarName,
+        IndexedProvider<Example<Map<String, Double>, Double>> caseProvider,
+        IndexedProvider<Example<Map<String, Double>, Double>> validationCaseProvider
+    ) implements UnivariateRegressionProblem {}
+    return new HardUnivariateRegressionProblem(metrics, yVarName, caseProvider, validationCaseProvider);
+  }
 
   @Override
   default SequencedMap<String, Objective<List<Outcome>, Double>> aggregateObjectives() {
@@ -119,20 +160,5 @@ public interface UnivariateRegressionProblem extends SimpleEBMOProblem<NamedUniv
             yVarName()
         )
     );
-  }
-
-  static UnivariateRegressionProblem from(
-      List<Metric> metrics,
-      String yVarName,
-      IndexedProvider<Example<Map<String, Double>, Double>> caseProvider,
-      IndexedProvider<Example<Map<String, Double>, Double>> validationCaseProvider
-  ) {
-    record HardUnivariateRegressionProblem(
-        List<Metric> metrics,
-        String yVarName,
-        IndexedProvider<Example<Map<String, Double>, Double>> caseProvider,
-        IndexedProvider<Example<Map<String, Double>, Double>> validationCaseProvider
-    ) implements UnivariateRegressionProblem {}
-    return new HardUnivariateRegressionProblem(metrics, yVarName, caseProvider, validationCaseProvider);
   }
 }
