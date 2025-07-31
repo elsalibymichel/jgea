@@ -21,6 +21,7 @@ package io.github.ericmedvet.jgea.experimenter.builders;
 
 import io.github.ericmedvet.jgea.experimenter.listener.plot.AggregatedXYDataSeriesMRPAF;
 import io.github.ericmedvet.jgea.experimenter.listener.plot.DistributionMRPAF;
+import io.github.ericmedvet.jgea.experimenter.listener.plot.ScatterMRPAF;
 import io.github.ericmedvet.jnb.core.*;
 import io.github.ericmedvet.jnb.datastructure.DoubleRange;
 import java.util.List;
@@ -34,11 +35,47 @@ public class MultiPlots {
 
   @SuppressWarnings("unused")
   @Alias(
+      name = "scatterExp", value = // spotless:off
+      """
+          scatter(
+            xSubplot = ea.f.runString(name = problem; s = "{run.problem.name}");
+            ySubplot = ea.f.runString(name = none; s = "_");
+            group = ea.f.runString(name = solver; s = "{run.solver.name}");
+            predicateValue = ea.f.rate(of = ea.f.progress());
+            condition = predicate.gtEq(t = 1)
+          )
+          """) // spotless:on
+  public static <E, R, X> ScatterMRPAF<E, R, String, X> scatter(
+      @Param("xSubplot") Function<? super R, String> xSubplotFunction,
+      @Param("ySubplot") Function<? super R, String> ySubplotFunction,
+      @Param("group") Function<? super R, String> groupFunction,
+      @Param("x") Function<? super E, ? extends Number> xFunction,
+      @Param("y") Function<? super E, ? extends Number> yFunction,
+      @Param("predicateValue") Function<E, X> predicateValueFunction,
+      @Param(value = "condition", dNPM = "predicate.gtEq(t=1)") Predicate<X> condition,
+      @Param(value = "xRange", dNPM = "m.range(min=-Infinity;max=Infinity)") DoubleRange xRange,
+      @Param(value = "yRange", dNPM = "m.range(min=-Infinity;max=Infinity)") DoubleRange yRange
+  ) {
+    return new ScatterMRPAF<>(
+        xSubplotFunction,
+        ySubplotFunction,
+        groupFunction,
+        xFunction,
+        yFunction,
+        predicateValueFunction,
+        condition,
+        xRange,
+        yRange
+    );
+  }
+
+  @SuppressWarnings("unused")
+  @Alias(
       name = "xyExp", passThroughParams = {@PassThroughParam(name = "xQuantization", value = "1", type = ParamMap.Type.INT)}, value = // spotless:off
           """
               xy(
-                xSubplot = ea.f.runString(name = none; s = "_");
-                ySubplot = ea.f.runString(name = problem; s = "{run.problem.name}");
+                xSubplot = ea.f.runString(name = problem; s = "{run.problem.name}");
+                ySubplot = ea.f.runString(name = none; s = "_");
                 line = ea.f.runString(name = solver; s = "{run.solver.name}");
                 x = f.quantized(of = ea.f.nOfEvals(); q = $xQuantization)
               )
@@ -84,8 +121,8 @@ public class MultiPlots {
       name = "yBoxplotExp", value = // spotless:off
           """
               yBoxplot(
-                xSubplot = ea.f.runString(name = none; s = "_");
-                ySubplot = ea.f.runString(name = problem; s = "{run.problem.name}");
+                xSubplot = ea.f.runString(name = problem; s = "{run.problem.name}");
+                ySubplot = ea.f.runString(name = none; s = "_");
                 box = ea.f.runString(name = solver; s = "{run.solver.name}");
                 predicateValue = ea.f.rate(of = ea.f.progress());
                 condition = predicate.gtEq(t = 1)
@@ -121,4 +158,5 @@ public class MultiPlots {
         yRange
     );
   }
+
 }

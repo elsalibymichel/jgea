@@ -25,7 +25,6 @@ import io.github.ericmedvet.jgea.core.util.IndexedProvider;
 import io.github.ericmedvet.jgea.problem.regression.univariate.UnivariateRegressionProblem;
 import io.github.ericmedvet.jgea.problem.regression.univariate.synthetic.*;
 import io.github.ericmedvet.jnb.core.*;
-
 import java.util.List;
 import java.util.Map;
 import java.util.random.RandomGenerator;
@@ -37,10 +36,8 @@ public class UnivariateRegressionProblems {
 
   @SuppressWarnings("unused")
   @Alias(
-      name = "bundled", passThroughParams = {@PassThroughParam(name = "name", type = ParamMap.Type.STRING),
-      @PassThroughParam(name = "xScaling", value = "none", type = ParamMap.Type.STRING), @PassThroughParam(name =
-      "yScaling", value = "none", type = ParamMap.Type.STRING)
-  }, value = // spotless:off
+      name = "bundled", passThroughParams = {@PassThroughParam(name = "name", type = ParamMap.Type.STRING), @PassThroughParam(name = "xScaling", value = "none", type = ParamMap.Type.STRING), @PassThroughParam(name = "yScaling", value = "none", type = ParamMap.Type.STRING)
+      }, value = // spotless:off
       """
           fromData(provider = ea.provider.num.fromBundled(name = $name; xScaling = $xScaling; yScaling = $yScaling))
           """) // spotless:on
@@ -62,11 +59,12 @@ public class UnivariateRegressionProblems {
     if (shuffle) {
       provider = provider.shuffled(randomGenerator);
     }
-    IndexedProvider<ExampleBasedProblem.Example<Map<String, Double>, Double>> eProvider =
-        provider.then(e -> new ExampleBasedProblem.Example<>(
-        e.input(),
-        e.output().get(yVarName)
-    ));
+    IndexedProvider<ExampleBasedProblem.Example<Map<String, Double>, Double>> eProvider = provider.then(
+        e -> new ExampleBasedProblem.Example<>(
+            e.input(),
+            e.output().get(yVarName)
+        )
+    );
     if (nFolds > 0) {
       return UnivariateRegressionProblem.from(
           metrics,

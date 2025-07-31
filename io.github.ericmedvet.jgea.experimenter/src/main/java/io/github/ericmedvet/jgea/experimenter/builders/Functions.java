@@ -340,7 +340,6 @@ public class Functions {
       @Param(value = "titlesShow", dS = "border") Configuration.PlotMatrix.Show titlesShow,
       @Param(
           value = "independences", dSs = {"rows", "cols"}) List<Configuration.PlotMatrix.Independence> independences,
-      @Param("freeScales") boolean freeScales,
       @Param("secondary") boolean secondary,
       @Param(value = "type", dS = "png") String type
   ) {

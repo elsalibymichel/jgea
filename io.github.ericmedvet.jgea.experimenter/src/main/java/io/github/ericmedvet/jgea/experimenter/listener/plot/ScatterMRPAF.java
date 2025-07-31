@@ -20,75 +20,57 @@
 package io.github.ericmedvet.jgea.experimenter.listener.plot;
 
 import io.github.ericmedvet.jnb.datastructure.*;
-import io.github.ericmedvet.jviz.core.plot.*;
+import io.github.ericmedvet.jviz.core.plot.Value;
+import io.github.ericmedvet.jviz.core.plot.XYDataSeries;
+import io.github.ericmedvet.jviz.core.plot.XYDataSeriesPlot;
+import io.github.ericmedvet.jviz.core.plot.XYPlot;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
-public class AggregatedXYDataSeriesMRPAF<E, R, K> extends AbstractMultipleRPAF<E, XYDataSeriesPlot, R, List<XYDataSeries>, K, Table<Number, K, List<Number>>> {
+public class ScatterMRPAF<E, R, K, X> extends AbstractMultipleRPAF<E, XYDataSeriesPlot, R, List<XYDataSeries>, K, Map<K, List<XYDataSeries.Point>>> {
 
-  private final Function<? super R, ? extends K> lineFunction;
+  private final Function<? super R, ? extends K> groupFunction;
   private final Function<? super E, ? extends Number> xFunction;
   private final Function<? super E, ? extends Number> yFunction;
-  private final Function<List<Number>, Number> valueAggregator;
-  private final Function<List<Number>, Number> minAggregator;
-  private final Function<List<Number>, Number> maxAggregator;
+  private final Function<? super E, X> predicateValueFunction;
+  private final Predicate<? super X> predicate;
   private final DoubleRange xRange;
   private final DoubleRange yRange;
 
-  public AggregatedXYDataSeriesMRPAF(
+  public ScatterMRPAF(
       Function<? super R, ? extends K> xSubplotFunction,
       Function<? super R, ? extends K> ySubplotFunction,
-      Function<? super R, ? extends K> lineFunction,
+      Function<? super R, ? extends K> groupFunction,
       Function<? super E, ? extends Number> xFunction,
       Function<? super E, ? extends Number> yFunction,
-      Function<List<Number>, Number> valueAggregator,
-      Function<List<Number>, Number> minAggregator,
-      Function<List<Number>, Number> maxAggregator,
+      Function<? super E, X> predicateValueFunction,
+      Predicate<? super X> predicate,
       DoubleRange xRange,
       DoubleRange yRange
   ) {
     super(xSubplotFunction, ySubplotFunction);
-    this.lineFunction = lineFunction;
+    this.groupFunction = groupFunction;
     this.xFunction = xFunction;
     this.yFunction = yFunction;
-    this.valueAggregator = valueAggregator;
-    this.minAggregator = minAggregator;
-    this.maxAggregator = maxAggregator;
+    this.predicateValueFunction = predicateValueFunction;
+    this.predicate = predicate;
     this.xRange = xRange;
     this.yRange = yRange;
   }
 
   @Override
-  protected List<XYDataSeries> buildData(K xK, K yK, Table<Number, K, List<Number>> table) {
-    return table.colIndexes()
+  protected List<XYDataSeries> buildData(K xK, K yK, Map<K, List<XYDataSeries.Point>> map) {
+    return map.entrySet()
         .stream()
         .map(
-            lineK -> XYDataSeries.of(
-                FormattedFunction.format(lineFunction).formatted(lineK),
-                table.column(lineK)
-                    .entrySet()
-                    .stream()
-                    .filter(e -> e.getValue() != null)
-                    .map(
-                        e -> new XYDataSeries.Point(
-                            Value.of(e.getKey().doubleValue()),
-                            RangedValue.of(
-                                valueAggregator
-                                    .apply(e.getValue())
-                                    .doubleValue(),
-                                minAggregator
-                                    .apply(e.getValue())
-                                    .doubleValue(),
-                                maxAggregator
-                                    .apply(e.getValue())
-                                    .doubleValue()
-                            )
-                        )
-                    )
-                    .toList()
+            entry -> XYDataSeries.of(
+                FormattedFunction.format(groupFunction).formatted(entry.getKey()),
+                entry.getValue()
             )
-                .sorted()
         )
         .toList();
   }
@@ -132,25 +114,30 @@ public class AggregatedXYDataSeriesMRPAF<E, R, K> extends AbstractMultipleRPAF<E
   }
 
   @Override
-  protected Table<Number, K, List<Number>> init(K xK, K yK) {
-    return new HashMapTable<>();
+  protected Map<K, List<XYDataSeries.Point>> init(K xK, K yK) {
+    return new HashMap<>();
   }
 
   @Override
-  protected Table<Number, K, List<Number>> update(K xK, K yK, Table<Number, K, List<Number>> table, E e, R r) {
-    Number x = xFunction.apply(e);
-    K lineK = lineFunction.apply(r);
-    List<Number> values = table.get(x, lineK);
-    if (values == null) {
-      values = new ArrayList<>();
-      table.set(x, lineK, values);
+  protected Map<K, List<XYDataSeries.Point>> update(K xK, K yK, Map<K, List<XYDataSeries.Point>> map, E e, R r) {
+    X predicateValue = predicateValueFunction.apply(e);
+    if (predicate.test(predicateValue)) {
+      K groupK = groupFunction.apply(r);
+      map.putIfAbsent(groupK, new ArrayList<>());
+      map.get(groupK)
+          .add(
+              new XYDataSeries.Point(
+                  Value.of(xFunction.apply(e).doubleValue()),
+                  Value.of(yFunction.apply(e).doubleValue())
+              )
+          );
     }
-    values.add(yFunction.apply(e));
-    return table;
+    return map;
   }
 
   @Override
   public String toString() {
-    return "aggregatedXyMRPAF(xFunction=" + xFunction + ";yFunction=" + yFunction + ')';
+    return "scatterMRPAF(xFunction=" + xFunction + ";yFunction=" + yFunction + ')';
   }
+
 }

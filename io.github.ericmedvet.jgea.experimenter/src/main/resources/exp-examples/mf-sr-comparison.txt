@@ -73,6 +73,19 @@ ea.experiment(
       plot = ea.plot.multi.yBoxplotExp(y = f.mapValue(key = mse; of = ea.f.validationQuality()));
       type = svg
     );
+    ea.l.saveForExp(
+      path = "../../Documenti/experiments/{name}/{startTime}/final-best-validation-mse-vs-elapsed.avg";
+      of = ea.plot.multi.scatterExp(
+        x = ea.f.elapsedSecs();
+        y = f.mapValue(key = mse; of = ea.f.validationQuality())
+      );
+      processor = ea.f.imagePlotter(
+        axesShow = all;
+        independences = [all];
+        secondary = true;
+        type = svg
+      )
+    );
     ea.l.savePlotForRun(
       path = "../../Documenti/experiments/{name}/{startTime}/{run.solver.name}/{run.problem.name}/{run.randomGenerator.seed}-archive.svg";
       plot = ea.plot.single.me(
