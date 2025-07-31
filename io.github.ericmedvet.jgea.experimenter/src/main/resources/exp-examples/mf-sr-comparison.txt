@@ -12,15 +12,15 @@ ea.experiment(
     ]) *
     (solver = (nEval = $nEvals) * [
       ea.s.asyncScheduledMfMapElites(
-        name = "mf-me-flat";
-        schedule = ea.schedule.flat(value = 1);
+        name = "mf-me-linear";
+        schedule = ea.schedule.linear(min = 0; max = 1);
         representation = ea.r.srTree();
         mapper = ea.m.srTreeToNurf();
         descriptors = [$treeDesc1; $treeDesc2]
       );
       ea.s.asyncScheduledMfMapElites(
-        name = "mf-me-linear";
-        schedule = ea.schedule.linear(min = 0; max = 1);
+        name = "mf-me-flat";
+        schedule = ea.schedule.flat(value = 1);
         representation = ea.r.srTree();
         mapper = ea.m.srTreeToNurf();
         descriptors = [$treeDesc1; $treeDesc2]

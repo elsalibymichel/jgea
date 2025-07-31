@@ -31,6 +31,7 @@ import io.github.ericmedvet.jgea.core.solver.SolverException;
 import io.github.ericmedvet.jgea.core.solver.mapelites.MapElites.Descriptor;
 import io.github.ericmedvet.jgea.core.solver.mapelites.MapElites.Descriptor.Coordinate;
 import io.github.ericmedvet.jgea.core.util.Misc;
+
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
@@ -75,14 +76,15 @@ public class AsynchronousScheduledMFMapElites<G, S, Q> extends AbstractPopulatio
 
   private MEIndividual<G, S, Q> buildIndividual(
       ChildGenotype<G> childGenotype,
+      S solution,
       MultifidelityQualityBasedProblem.MultifidelityFunction<S, Q> qualityFunction,
+      long birthNOfIterations,
       long nOfIterations,
-      AtomicReference<Double> progressRate,
       Map<List<Integer>, Long> nOfEvaluationsMap,
-      Map<List<Integer>, Double> fidelityMap,
+      Map<List<Integer>, Double> currentFidelityMap,
+      Map<List<Integer>, Double> lastFidelityMap,
       Map<List<Integer>, Double> cumulativeFidelityMap
   ) {
-    S solution = solutionMapper.apply(childGenotype.genotype());
     List<Coordinate> coordinates = descriptors.stream()
         .map(
             d -> d.coordinate(
@@ -91,7 +93,7 @@ public class AsynchronousScheduledMFMapElites<G, S, Q> extends AbstractPopulatio
                     childGenotype.genotype(),
                     solution,
                     null,
-                    nOfIterations,
+                    birthNOfIterations,
                     nOfIterations,
                     childGenotype.parentIds()
                 )
@@ -99,20 +101,12 @@ public class AsynchronousScheduledMFMapElites<G, S, Q> extends AbstractPopulatio
         )
         .toList();
     List<Integer> bins = coordinates.stream().map(Coordinate::bin).toList();
-    fidelityMap.putIfAbsent(bins, schedule.applyAsDouble(0));
+    currentFidelityMap.putIfAbsent(bins, schedule.applyAsDouble(0));
+    lastFidelityMap.putIfAbsent(bins, schedule.applyAsDouble(0));
     nOfEvaluationsMap.putIfAbsent(bins, 0L);
-    //compute new fidelity
-    long localNOfEvaluations = nOfEvaluationsMap.compute(bins, (k, v) -> v + 1);
-    long maxNOfEvaluations = nOfEvaluationsMap.values().stream().mapToLong(Long::longValue).max().orElse(1);
-    double previousFidelity = fidelityMap.get(bins);
-    double localProgressRate = progressRate.get() * (double) localNOfEvaluations / (double) maxNOfEvaluations;
-    double currentFidelity = schedule.applyAsDouble(localProgressRate);
-    if (currentFidelity > previousFidelity) {
-      fidelityMap.put(bins, currentFidelity);
-    } else {
-      currentFidelity = previousFidelity;
-    }
+    double currentFidelity = currentFidelityMap.get(bins);
     Q quality = qualityFunction.apply(solution, currentFidelity);
+    nOfEvaluationsMap.compute(bins, (k, v) -> v + 1);
     cumulativeFidelityMap.put(bins, cumulativeFidelityMap.getOrDefault(bins, 0d) + currentFidelity);
     return MEIndividual.of(
         childGenotype.id(),
@@ -203,28 +197,32 @@ public class AsynchronousScheduledMFMapElites<G, S, Q> extends AbstractPopulatio
     AtomicBoolean stopped = new AtomicBoolean(false);
     Map<List<Integer>, MEIndividual<G, S, Q>> individualMap = new ConcurrentHashMap<>();
     Map<List<Integer>, Long> nOfEvaluationsMap = new ConcurrentHashMap<>();
-    Map<List<Integer>, Double> fidelityMap = new ConcurrentHashMap<>();
+    Map<List<Integer>, Double> currentFidelityMap = new ConcurrentHashMap<>();
+    Map<List<Integer>, Double> lastFidelityMap = new ConcurrentHashMap<>();
     Map<List<Integer>, Double> cumulativeFidelityMap = new ConcurrentHashMap<>();
     int capacity = new Archive<>(descriptors.stream().map(Descriptor::nOfBins).toList()).capacity();
     // build seed individual
+    G genotype = genotypeFactory.build(1, random).getFirst();
     MEIndividual<G, S, Q> seedIndividual = buildIndividual(
         new ChildGenotype<>(
             nOfBirths.getAndIncrement(),
-            genotypeFactory.build(1, random).getFirst(),
+            genotype,
             List.of()
         ),
+        solutionMapper.apply(genotype),
         problem.qualityFunction(),
         nOfIterations.get(),
-        progressRate,
+        nOfIterations.get(),
         nOfEvaluationsMap,
-        fidelityMap,
+        currentFidelityMap,
+        lastFidelityMap,
         cumulativeFidelityMap
     );
     individualMap.put(seedIndividual.bins(), seedIndividual);
     MultiFidelityMEPopulationState<G, S, Q, MultifidelityQualityBasedProblem<S, Q>> state = buildState(
         individualMap,
         nOfEvaluationsMap,
-        fidelityMap,
+        currentFidelityMap,
         cumulativeFidelityMap,
         nOfBirths,
         nOfIterations,
@@ -240,7 +238,8 @@ public class AsynchronousScheduledMFMapElites<G, S, Q> extends AbstractPopulatio
                     problem.qualityFunction(),
                     individualMap,
                     nOfEvaluationsMap,
-                    fidelityMap,
+                    currentFidelityMap,
+                    lastFidelityMap,
                     cumulativeFidelityMap,
                     nOfBirths,
                     nOfIterations,
@@ -274,7 +273,7 @@ public class AsynchronousScheduledMFMapElites<G, S, Q> extends AbstractPopulatio
         buildState(
             individualMap,
             nOfEvaluationsMap,
-            fidelityMap,
+            currentFidelityMap,
             cumulativeFidelityMap,
             nOfBirths,
             nOfIterations,
@@ -284,11 +283,22 @@ public class AsynchronousScheduledMFMapElites<G, S, Q> extends AbstractPopulatio
     );
   }
 
+  private double localFidelity(
+      List<Integer> bins,
+      AtomicReference<Double> progressRate,
+      Map<List<Integer>, Long> nOfEvaluationsMap
+  ) {
+    long maxNOfEvaluations = nOfEvaluationsMap.values().stream().mapToLong(Long::longValue).max().orElse(1);
+    double localProgressRate = progressRate.get() * (double) nOfEvaluationsMap.get(bins) / (double) maxNOfEvaluations;
+    return schedule.applyAsDouble(localProgressRate);
+  }
+
   private Runnable variationRunnable(
       MultifidelityQualityBasedProblem.MultifidelityFunction<S, Q> qualityFunction,
       Map<List<Integer>, MEIndividual<G, S, Q>> individualMap,
       Map<List<Integer>, Long> nOfEvaluationsMap,
-      Map<List<Integer>, Double> fidelityMap,
+      Map<List<Integer>, Double> currentFidelityMap,
+      Map<List<Integer>, Double> lastFidelityMap,
       Map<List<Integer>, Double> cumulativeFidelityMap,
       AtomicLong nOfBirths,
       AtomicLong nOfIterations,
@@ -310,17 +320,21 @@ public class AsynchronousScheduledMFMapElites<G, S, Q> extends AbstractPopulatio
         // find cell with lower number of variations
         MEIndividual<G, S, Q> parent = Misc.pickRandomly(individualMap.values(), random);
         // create new individual
+        long nowNOfIterations = nOfIterations.get();
+        G newGenotype = mutation.mutate(parent.genotype(), random);
         MEIndividual<G, S, Q> child = buildIndividual(
             new ChildGenotype<>(
                 nOfBirths.getAndIncrement(),
-                mutation.mutate(parent.genotype(), random),
+                newGenotype,
                 List.of(parent.id())
             ),
+            solutionMapper.apply(newGenotype),
             problem.qualityFunction(),
-            nOfIterations.get(),
-            progressRate,
+            nowNOfIterations,
+            nowNOfIterations,
             nOfEvaluationsMap,
-            fidelityMap,
+            currentFidelityMap,
+            lastFidelityMap,
             cumulativeFidelityMap
         );
         MEIndividual<G, S, Q> existingIndividual = individualMap.get(child.bins());
@@ -332,6 +346,11 @@ public class AsynchronousScheduledMFMapElites<G, S, Q> extends AbstractPopulatio
               .equals(
                   PartialComparator.PartialComparatorOutcome.BEFORE
               )) {
+            // update local fidelity
+            double newLocalFidelity = localFidelity(child.bins(), progressRate, nOfEvaluationsMap);
+            currentFidelityMap.put(child.bins(), newLocalFidelity);
+            // update existing and child
+            // TODO here
             individualMap.put(child.bins(), child);
           }
         }
@@ -342,7 +361,7 @@ public class AsynchronousScheduledMFMapElites<G, S, Q> extends AbstractPopulatio
           MultiFidelityMEPopulationState<G, S, Q, MultifidelityQualityBasedProblem<S, Q>> state = buildState(
               individualMap,
               nOfEvaluationsMap,
-              fidelityMap,
+              currentFidelityMap,
               cumulativeFidelityMap,
               nOfBirths,
               nOfIterations,
@@ -366,7 +385,8 @@ public class AsynchronousScheduledMFMapElites<G, S, Q> extends AbstractPopulatio
                   qualityFunction,
                   individualMap,
                   nOfEvaluationsMap,
-                  fidelityMap,
+                  currentFidelityMap,
+                  lastFidelityMap,
                   cumulativeFidelityMap,
                   nOfBirths,
                   nOfIterations,
