@@ -19,6 +19,7 @@
  */
 package io.github.ericmedvet.jgea.experimenter.builders;
 
+import io.github.ericmedvet.jgea.core.InvertibleMapper;
 import io.github.ericmedvet.jgea.core.problem.BehaviorBasedProblem;
 import io.github.ericmedvet.jgea.core.problem.MultiTargetProblem;
 import io.github.ericmedvet.jgea.core.problem.Problem;
@@ -470,7 +471,6 @@ public class Functions {
             ),
             ugp
         );
-        return d.build(iiAdapter.apply(d.imageInfo(ugp)), ugp);
       }
       if (p instanceof VectorialFieldPlot vfp) {
         return new ConditionedDrawer<VectorialFieldPlot>().apply(
@@ -480,7 +480,6 @@ public class Functions {
             ),
             vfp
         );
-        return d.build(iiAdapter.apply(d.imageInfo(vfp)), vfp);
       }
       throw new IllegalArgumentException(
           "Unsupported type of plot %s".formatted(p.getClass().getSimpleName())
