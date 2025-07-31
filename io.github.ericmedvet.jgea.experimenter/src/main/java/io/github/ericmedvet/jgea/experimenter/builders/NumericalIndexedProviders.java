@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-experimenter
  * %%
- * Copyright (C) 2018 - 2024 Eric Medvet
+ * Copyright (C) 2018 - 2025 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,20 +43,6 @@ public class NumericalIndexedProviders {
   }
 
   @Cacheable
-  public static NumericalDataset fromFile(
-      @Param("filePath") String filePath,
-      @Param(value = "xVarNamePattern", dS = "x.*") String xVarNamePattern,
-      @Param(value = "yVarNamePattern", dS = "y.*") String yVarNamePattern,
-      @Param(value = "limit", dI = Integer.MAX_VALUE) int limit
-  ) {
-    try (InputStream is = new FileInputStream(filePath)) {
-      return NumericalDataset.fromCSV(xVarNamePattern, yVarNamePattern, is, limit);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  @Cacheable
   public static NumericalDataset fromBundled(
       @Param("name") String name,
       @Param(value = "xScaling", dS = "none") NumericalDataset.Scaling xScaling,
@@ -69,9 +55,24 @@ public class NumericalIndexedProviders {
         case "wine" -> NumericalDataset.fromResourceCSV(".*", "quality", name, limit);
         case "energy-efficiency" -> NumericalDataset.fromResourceCSV("x[0-9]+", "y1", name, limit);
         case "xor" -> NumericalDataset.fromResourceCSV(".*", "y", name, limit);
+        case "feynman-III-10-19" -> NumericalDataset.fromResourceCSV(".*", "target", name, limit);
         default -> throw new IllegalArgumentException("Unknown bundled dataset: %s".formatted(name));
       };
       return dataset.xScaled(xScaling).yScaled(yScaling).prepared();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Cacheable
+  public static NumericalDataset fromFile(
+      @Param("filePath") String filePath,
+      @Param(value = "xVarNamePattern", dS = "x.*") String xVarNamePattern,
+      @Param(value = "yVarNamePattern", dS = "y.*") String yVarNamePattern,
+      @Param(value = "limit", dI = Integer.MAX_VALUE) int limit
+  ) {
+    try (InputStream is = new FileInputStream(filePath)) {
+      return NumericalDataset.fromCSV(xVarNamePattern, yVarNamePattern, is, limit);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

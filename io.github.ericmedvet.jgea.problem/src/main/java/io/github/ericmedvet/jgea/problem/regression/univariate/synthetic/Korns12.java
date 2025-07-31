@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-problem
  * %%
- * Copyright (C) 2018 - 2024 Eric Medvet
+ * Copyright (C) 2018 - 2025 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,25 +22,26 @@ package io.github.ericmedvet.jgea.problem.regression.univariate.synthetic;
 
 import io.github.ericmedvet.jgea.problem.regression.MathUtils;
 import java.util.List;
-import java.util.Random;
+import java.util.random.RandomGenerator;
 
 public class Korns12 extends PrecomputedSyntheticURProblem {
-  public Korns12(List<Metric> metrics, long seed) {
+  public Korns12(List<Metric> metrics, RandomGenerator randomGenerator) {
     super(
         SyntheticURProblem.function(v -> 2d - 2.1 * Math.cos(9.8 * v[0]) * Math.sin(1.3 * v[1]), 2),
         SyntheticURProblem.tupleProvider(
             MathUtils.pairwise(
-                MathUtils.uniformSample(-50, 50, 10000, new Random(seed)),
-                MathUtils.uniformSample(-50, 50, 10000, new Random(seed + 1))
+                MathUtils.uniformSample(-50, 50, 10000, randomGenerator),
+                MathUtils.uniformSample(-50, 50, 10000, randomGenerator)
             )
         ),
         SyntheticURProblem.tupleProvider(
             MathUtils.pairwise(
-                MathUtils.uniformSample(-50, 50, 10000, new Random(seed + 2)),
-                MathUtils.uniformSample(-50, 50, 10000, new Random(seed + 3))
+                MathUtils.uniformSample(-50, 50, 10000, randomGenerator),
+                MathUtils.uniformSample(-50, 50, 10000, randomGenerator)
             )
         ),
-        metrics
+        metrics,
+        randomGenerator
     );
   }
 }

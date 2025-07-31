@@ -23,47 +23,90 @@ import io.github.ericmedvet.jgea.core.problem.SimpleEBMOProblem;
 import io.github.ericmedvet.jgea.core.representation.NamedUnivariateRealFunction;
 import io.github.ericmedvet.jgea.core.util.IndexedProvider;
 import io.github.ericmedvet.jgea.core.util.Misc;
+import io.github.ericmedvet.jgea.core.util.Naming;
 import io.github.ericmedvet.jnb.datastructure.TriFunction;
 import io.github.ericmedvet.jsdynsym.core.numerical.UnivariateRealFunction;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.SequencedMap;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public interface UnivariateRegressionProblem extends SimpleEBMOProblem<NamedUnivariateRealFunction, Map<String, Double>, Double, UnivariateRegressionProblem.Outcome, Double> {
-  record Outcome(double actual, double predicted) {}
+  Comparator<Double> MINIMIZE = Double::compareTo;
+  Comparator<Double> MAXIMIZE = (v1, v2) -> {
+    if (Double.isNaN(v2)) {
+      return -1;
+    }
+    if (Double.isNaN(v1)) {
+      return 1;
+    }
+    return Double.compare(v2, v1);
+  };
 
   enum Metric implements Function<List<Outcome>, Double> {
     MAE(
         ys -> ys.stream()
             .mapToDouble(y -> Math.abs(y.predicted - y.actual))
             .average()
-            .orElse(Double.NaN)
+            .orElse(Double.NaN),
+        MINIMIZE
     ), MSE(
         ys -> ys.stream()
             .mapToDouble(y -> (y.predicted - y.actual) * (y.predicted - y.actual))
             .average()
-            .orElse(Double.NaN)
+            .orElse(Double.NaN),
+        MINIMIZE
     ), RMSE(
         ys -> Math.sqrt(
             ys.stream()
                 .mapToDouble(y -> (y.predicted - y.actual) * (y.predicted - y.actual))
                 .average()
                 .orElse(Double.NaN)
-        )
+        ),
+        MINIMIZE
     ), NMSE(
         ys -> ys.stream()
             .mapToDouble(y -> (y.predicted - y.actual) * (y.predicted - y.actual))
             .average()
-            .orElse(Double.NaN) / ys.stream().mapToDouble(y -> y.actual).average().orElse(1d)
+            .orElse(Double.NaN) / ys.stream().mapToDouble(y -> y.actual).average().orElse(1d),
+        MINIMIZE
+    ), R2(
+        ys -> {
+          double sumOfSquaredResiduals = ys.stream()
+              .mapToDouble(y -> (y.predicted - y.actual) * (y.predicted - y.actual))
+              .sum();
+          double actualMean = ys.stream().mapToDouble(y -> y.actual).average().orElseThrow();
+          double sumOfSquaredMeanResiduals = ys.stream()
+              .mapToDouble(y -> (actualMean - y.actual) * (actualMean - y.actual))
+              .sum();
+          return 1d - sumOfSquaredResiduals / sumOfSquaredMeanResiduals;
+        },
+        MAXIMIZE
+    ), ONE_MINUS_ABS_COR(
+        ys -> {
+          double actualMean = ys.stream().mapToDouble(y -> y.actual).average().orElseThrow();
+          double predictedMean = ys.stream().mapToDouble(y -> y.predicted).average().orElseThrow();
+          double sumOfCrossResiduals = ys.stream()
+              .mapToDouble(y -> (y.actual - actualMean) * (y.predicted - predictedMean))
+              .sum();
+          double sumOfActualSquaredMeanResiduals = ys.stream()
+              .mapToDouble(y -> (actualMean - y.actual) * (actualMean - y.actual))
+              .sum();
+          double sumOfPredictedSquaredMeanResiduals = ys.stream()
+              .mapToDouble(y -> (predictedMean - y.predicted) * (predictedMean - y.predicted))
+              .sum();
+          return 1d - Math.abs(
+              sumOfCrossResiduals / Math.sqrt(sumOfPredictedSquaredMeanResiduals * sumOfActualSquaredMeanResiduals)
+          );
+        },
+        MAXIMIZE
     );
 
     private final Function<List<Outcome>, Double> function;
+    private final Comparator<Double> comparator;
 
-    Metric(Function<List<Outcome>, Double> function) {
+    Metric(Function<List<Outcome>, Double> function, Comparator<Double> comparator) {
       this.function = function;
+      this.comparator = comparator;
     }
 
     @Override
@@ -71,15 +114,37 @@ public interface UnivariateRegressionProblem extends SimpleEBMOProblem<NamedUniv
       return function.apply(ys);
     }
 
+    public Comparator<Double> comparator() {
+      return comparator;
+    }
+
     @Override
     public String toString() {
       return name().toLowerCase();
     }
+
   }
+
+  record Outcome(double actual, double predicted) {}
 
   List<Metric> metrics();
 
   String yVarName();
+
+  static UnivariateRegressionProblem from(
+      List<Metric> metrics,
+      String yVarName,
+      IndexedProvider<Example<Map<String, Double>, Double>> caseProvider,
+      IndexedProvider<Example<Map<String, Double>, Double>> validationCaseProvider
+  ) {
+    record HardUnivariateRegressionProblem(
+        List<Metric> metrics,
+        String yVarName,
+        IndexedProvider<Example<Map<String, Double>, Double>> caseProvider,
+        IndexedProvider<Example<Map<String, Double>, Double>> validationCaseProvider
+    ) implements UnivariateRegressionProblem {}
+    return new HardUnivariateRegressionProblem(metrics, yVarName, caseProvider, validationCaseProvider);
+  }
 
   @Override
   default SequencedMap<String, Objective<List<Outcome>, Double>> aggregateObjectives() {
@@ -87,14 +152,20 @@ public interface UnivariateRegressionProblem extends SimpleEBMOProblem<NamedUniv
         .collect(
             Misc.toSequencedMap(
                 Enum::toString,
-                m -> new Objective<>(m, Double::compareTo)
+                m -> new Objective<>(m, m.comparator())
             )
         );
   }
 
   @Override
   default TriFunction<Map<String, Double>, Double, Double, Outcome> errorFunction() {
-    return (input, actualY, preditectY) -> new Outcome(actualY, preditectY);
+    return Naming.named(
+        "aY|pY",
+        (TriFunction<Map<String, Double>, Double, Double, Outcome>) (input, actualY, preditectY) -> new Outcome(
+            actualY,
+            preditectY
+        )
+    );
   }
 
   @Override
@@ -112,21 +183,5 @@ public interface UnivariateRegressionProblem extends SimpleEBMOProblem<NamedUniv
             yVarName()
         )
     );
-  }
-
-  static UnivariateRegressionProblem from(
-      List<Metric> metrics,
-      String yVarName,
-      IndexedProvider<Example<Map<String, Double>, Double>> caseProvider,
-      IndexedProvider<Example<Map<String, Double>, Double>> validationCaseProvider
-
-  ) {
-    record HardUnivariateRegressionProblem(
-        List<Metric> metrics,
-        String yVarName,
-        IndexedProvider<Example<Map<String, Double>, Double>> caseProvider,
-        IndexedProvider<Example<Map<String, Double>, Double>> validationCaseProvider
-    ) implements UnivariateRegressionProblem {}
-    return new HardUnivariateRegressionProblem(metrics, yVarName, caseProvider, validationCaseProvider);
   }
 }

@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-problem
  * %%
- * Copyright (C) 2018 - 2024 Eric Medvet
+ * Copyright (C) 2018 - 2025 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,10 +147,18 @@ public interface NumericalDataset extends IndexedProvider<ExampleBasedProblem.Ex
       String name,
       long limit
   ) throws IOException {
+    InputStream inputStream = NumericalDataset.class.getResourceAsStream(
+        "/datasets/regression/%s.csv".formatted(
+            name
+        )
+    );
+    if (inputStream == null) {
+      throw new IllegalArgumentException("Invalid resource CSV: %s".formatted(name));
+    }
     return fromCSV(
         xVarNamePattern,
         yVarNamePattern,
-        NumericalDataset.class.getResourceAsStream("/datasets/regression/%s.csv".formatted(name)),
+        inputStream,
         limit
     );
   }

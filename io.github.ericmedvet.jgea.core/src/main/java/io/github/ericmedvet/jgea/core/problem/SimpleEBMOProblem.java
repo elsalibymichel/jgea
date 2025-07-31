@@ -20,10 +20,12 @@
 package io.github.ericmedvet.jgea.core.problem;
 
 import io.github.ericmedvet.jgea.core.util.Misc;
+import io.github.ericmedvet.jnb.datastructure.NamedFunction;
 import java.util.Comparator;
 import java.util.List;
 import java.util.SequencedMap;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public interface SimpleEBMOProblem<S, EI, EO, EQ, O> extends EBMOProblem<S, EI, EO, EQ, SequencedMap<String, O>, O>, SimpleMOProblem<S, O> {
 
@@ -31,7 +33,20 @@ public interface SimpleEBMOProblem<S, EI, EO, EQ, O> extends EBMOProblem<S, EI, 
 
   @Override
   default Function<List<EQ>, SequencedMap<String, O>> aggregateFunction() {
-    return eqs -> Misc.sequencedTransformValues(aggregateObjectives(), obj -> obj.function().apply(eqs));
+    return NamedFunction.from(
+        eqs -> Misc.sequencedTransformValues(
+            aggregateObjectives(),
+            obj -> obj.function().apply(eqs)
+        ),
+        "(%s)".formatted(
+            aggregateObjectives().values()
+                .stream()
+                .map(obj -> obj.function().toString())
+                .collect(
+                    Collectors.joining(",")
+                )
+        )
+    );
   }
 
   @Override

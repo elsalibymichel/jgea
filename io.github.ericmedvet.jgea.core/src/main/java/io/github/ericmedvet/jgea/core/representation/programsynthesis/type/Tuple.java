@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-core
  * %%
- * Copyright (C) 2018 - 2024 Eric Medvet
+ * Copyright (C) 2018 - 2025 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public record Tuple(List<Type> types) implements Composed {
 
   @Override
   public boolean canTakeValuesOf(Type other) {
-    if (other instanceof Tuple(List<Type>otherTypes)) {
+    if (other instanceof Tuple(List<Type> otherTypes)) {
       if (otherTypes.size() == types.size()) {
         for (int i = 0; i < types.size(); i++) {
           if (!types.get(i).canTakeValuesOf(otherTypes.get(i))) {

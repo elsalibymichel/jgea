@@ -1,8 +1,8 @@
 /*-
  * ========================LICENSE_START=================================
- * jgea-problem
+ * jgea-core
  * %%
- * Copyright (C) 2018 - 2024 Eric Medvet
+ * Copyright (C) 2018 - 2025 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,7 +87,7 @@ public class DataFactory implements BiFunction<Type, RandomGenerator, Object> {
           .mapToObj(i -> apply(t, r))
           .toList();
     }
-    if (type instanceof Tuple(List<Type>types)) {
+    if (type instanceof Tuple(List<Type> types)) {
       return types.stream().map(t -> apply(t, r)).toList();
     }
     throw new IllegalArgumentException("Unsupported type %s".formatted(type));

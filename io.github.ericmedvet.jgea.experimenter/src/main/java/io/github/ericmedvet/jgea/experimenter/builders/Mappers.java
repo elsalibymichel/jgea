@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-experimenter
  * %%
- * Copyright (C) 2018 - 2024 Eric Medvet
+ * Copyright (C) 2018 - 2025 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -355,20 +355,20 @@ public class Mappers {
                     )
                 );
               }
-              if (p.second().lowerBound() != 0 || p.second().upperBound() != tsSize - 1) {
+              if (p.second().lowerBound() != 0 || p.second().upperBound() != tsSize) {
                 throw new IllegalArgumentException(
-                    "Indexes domain is wrong: [%d,%d] expected, [%d,%d] found".formatted(
+                    "Indexes domain is wrong: [%d,%d[ expected, [%d,%d[ found".formatted(
                         0,
-                        tsSize - 1,
+                        tsSize,
                         p.second().lowerBound(),
                         p.second().upperBound()
                     )
                 );
               }
               // check for self-consistency of pair
-              if (p.second().upperBound() != p.first().size() - 1) {
+              if (p.second().upperBound() != p.first().size()) {
                 throw new IllegalArgumentException(
-                    "Size of values does not match domain of indexes: %d vs. [%d,%d]".formatted(
+                    "Size of values does not match domain of indexes: %d vs. [%d,%d[".formatted(
                         p.first().size(),
                         0,
                         p.second().upperBound()
@@ -387,7 +387,7 @@ public class Mappers {
                 new IntString(
                     Collections.nCopies(eTs.size(), 0),
                     0,
-                    (int) Math.round(eTs.size() * relativeLength) - 1
+                    (int) Math.round(eTs.size() * relativeLength)
                 )
             ),
             "isIndexed[rl=%f]".formatted(relativeLength)

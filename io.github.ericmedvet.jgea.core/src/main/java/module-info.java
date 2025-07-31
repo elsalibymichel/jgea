@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-core
  * %%
- * Copyright (C) 2018 - 2024 Eric Medvet
+ * Copyright (C) 2018 - 2025 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,5 +63,6 @@ module io.github.ericmedvet.jgea.core {
   exports io.github.ericmedvet.jgea.core.solver.mapelites.strategy;
   exports io.github.ericmedvet.jgea.core.solver.bi;
   exports io.github.ericmedvet.jgea.core.solver.bi.mapelites;
+  exports io.github.ericmedvet.jgea.core.solver.multifidelity;
 
 }

@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-core
  * %%
- * Copyright (C) 2018 - 2024 Eric Medvet
+ * Copyright (C) 2018 - 2025 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,11 @@ import io.github.ericmedvet.jgea.core.listener.Accumulator;
 import io.github.ericmedvet.jgea.core.listener.AccumulatorFactory;
 import io.github.ericmedvet.jgea.core.listener.Listener;
 import io.github.ericmedvet.jgea.core.listener.ListenerFactory;
+import io.github.ericmedvet.jgea.core.problem.MultifidelityQualityBasedProblem.MultifidelityFunction;
+import io.github.ericmedvet.jnb.datastructure.NamedFunction;
 import io.github.ericmedvet.jnb.datastructure.TriConsumer;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.DoubleUnaryOperator;
+import io.github.ericmedvet.jnb.datastructure.TriFunction;
+import java.util.function.*;
 
 public class Naming {
 
@@ -104,7 +105,10 @@ public class Naming {
     };
   }
 
-  public static <E, K> ListenerFactory<E, K> named(String name, ListenerFactory<E, K> listenerFactory) {
+  public static <E, K> ListenerFactory<E, K> named(
+      String name,
+      ListenerFactory<E, K> listenerFactory
+  ) {
     return new ListenerFactory<>() {
       @Override
       public Listener<E> build(K k) {
@@ -145,7 +149,10 @@ public class Naming {
     };
   }
 
-  public static <I1, I2, I3> TriConsumer<I1, I2, I3> named(String name, TriConsumer<I1, I2, I3> consumer) {
+  public static <I1, I2, I3> TriConsumer<I1, I2, I3> named(
+      String name,
+      TriConsumer<I1, I2, I3> consumer
+  ) {
     return new TriConsumer<>() {
       @Override
       public void accept(I1 i1, I2 i2, I3 i3) {
@@ -172,4 +179,74 @@ public class Naming {
       }
     };
   }
+
+  public static <T, R> MultifidelityFunction<T, R> named(
+      String name,
+      MultifidelityFunction<T, R> multifidelityFunction
+  ) {
+    return new MultifidelityFunction<>() {
+      @Override
+      public R apply(T t, double fidelity) {
+        return multifidelityFunction.apply(t, fidelity);
+      }
+
+      @Override
+      public String toString() {
+        return name;
+      }
+    };
+  }
+
+  public static <T, R> Function<T, R> named(String name, Function<T, R> function) {
+    return NamedFunction.from(function, name);
+  }
+
+  public static <T, U, R> BiFunction<T, U, R> named(String name, BiFunction<T, U, R> biFunction) {
+    return new BiFunction<>() {
+      @Override
+      public R apply(T t, U u) {
+        return biFunction.apply(t, u);
+      }
+
+      @Override
+      public String toString() {
+        return name;
+      }
+    };
+  }
+
+  public static <I1, I2, I3, O> TriFunction<I1, I2, I3, O> named(
+      String name,
+      TriFunction<I1, I2, I3, O> triFunction
+  ) {
+    return new TriFunction<>() {
+      @Override
+      public O apply(I1 i1, I2 i2, I3 i3) {
+        return triFunction.apply(i1, i2, i3);
+      }
+
+      @Override
+      public String toString() {
+        return name;
+      }
+    };
+  }
+
+  public static <T> Predicate<T> named(
+      String name,
+      Predicate<T> predicate
+  ) {
+    return new Predicate<>() {
+      @Override
+      public boolean test(T t) {
+        return predicate.test(t);
+      }
+
+      @Override
+      public String toString() {
+        return name;
+      }
+    };
+  }
+
 }

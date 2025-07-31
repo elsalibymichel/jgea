@@ -89,7 +89,7 @@ public class TTPNOutcomeVideoBuilder implements VideoBuilder<Runner.TTPNInstrume
     TTPNDrawer drawer = new TTPNDrawer(configuration.drawerConfiguration);
     // obtain network image and structure
     ImageBuilder.ImageInfo imageInfo = new ImageBuilder.ImageInfo(videoInfo.w(), videoInfo.h());
-    BufferedImage networkImage = drawer.build(imageInfo, outcome.network());
+    BufferedImage networkImage = drawer.buildRaster(imageInfo, outcome.network());
     TTPNDrawer.Metrics m = TTPNDrawer.Metrics.of(
         networkImage.getWidth(),
         networkImage.getHeight(),

@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-problem
  * %%
- * Copyright (C) 2018 - 2024 Eric Medvet
+ * Copyright (C) 2018 - 2025 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,11 @@ package io.github.ericmedvet.jgea.problem.regression.univariate.synthetic;
 
 import io.github.ericmedvet.jgea.problem.regression.MathUtils;
 import java.util.List;
+import java.util.random.RandomGenerator;
 
 public class Pagie1 extends PrecomputedSyntheticURProblem {
 
-  public Pagie1(List<Metric> metrics) {
+  public Pagie1(List<Metric> metrics, RandomGenerator randomGenerator) {
     super(
         SyntheticURProblem.function(v -> 1d / (1d + Math.pow(v[0], -4d)) + 1d / (1d + Math.pow(v[1], -4d)), 2),
         SyntheticURProblem.tupleProvider(
@@ -34,7 +35,8 @@ public class Pagie1 extends PrecomputedSyntheticURProblem {
         SyntheticURProblem.tupleProvider(
             MathUtils.cartesian(MathUtils.equispacedValues(-5, 5, 0.1), MathUtils.equispacedValues(-5, 5, 0.1))
         ),
-        metrics
+        metrics,
+        randomGenerator
     );
   }
 }

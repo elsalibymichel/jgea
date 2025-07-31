@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-experimenter
  * %%
- * Copyright (C) 2018 - 2024 Eric Medvet
+ * Copyright (C) 2018 - 2025 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 package io.github.ericmedvet.jgea.experimenter.builders;
 
 import io.github.ericmedvet.jgea.core.ElitistGeneticAlgorithm;
+import io.github.ericmedvet.jgea.core.Factory;
 import io.github.ericmedvet.jgea.core.InvertibleMapper;
 import io.github.ericmedvet.jgea.core.distance.Jaccard;
 import io.github.ericmedvet.jgea.core.operator.GeneticOperator;
@@ -47,6 +48,7 @@ import io.github.ericmedvet.jgea.core.solver.es.OpenAIEvolutionaryStrategy;
 import io.github.ericmedvet.jgea.core.solver.es.SimpleEvolutionaryStrategy;
 import io.github.ericmedvet.jgea.core.solver.mapelites.*;
 import io.github.ericmedvet.jgea.core.solver.mapelites.strategy.CoMEStrategy;
+import io.github.ericmedvet.jgea.core.solver.multifidelity.ScheduledFidelityStandardEvolver;
 import io.github.ericmedvet.jgea.core.solver.pso.ParticleSwarmOptimization;
 import io.github.ericmedvet.jgea.core.solver.speciation.LazySpeciator;
 import io.github.ericmedvet.jgea.core.solver.speciation.SpeciatedEvolver;
@@ -61,6 +63,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.stream.DoubleStream;
 
@@ -68,6 +71,33 @@ import java.util.stream.DoubleStream;
 public class Solvers {
 
   private Solvers() {
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static <G, S, Q> Function<S, AsynchronousScheduledMFMapElites<G, S, Q>> asyncScheduledMfMapElites(
+      @Param(value = "name", iS = "asyncScheduledMfMapElites[{schedule.name}]") String name,
+      @Param("representation") Function<G, Representation<G>> representation,
+      @Param(value = "mapper", dNPM = "ea.m.identity()") InvertibleMapper<G, S> mapper,
+      @Param(value = "nOfBirthsForIteration", dI = 100) int nOfBirthsForIteration,
+      @Param(value = "nEval", dI = 1000) int nEval,
+      @Param("iComparators") List<PartialComparator<? super MEIndividual<G, S, Q>>> additionalIndividualComparators,
+      @Param("descriptors") List<MapElites.Descriptor<G, S, Q>> descriptors,
+      @Param(value = "schedule", dNPM = "ea.schedule.flat()") DoubleUnaryOperator schedule
+  ) {
+    return exampleS -> {
+      Representation<G> r = representation.apply(mapper.exampleFor(exampleS));
+      return new AsynchronousScheduledMFMapElites<>(
+          mapper.mapperFor(exampleS),
+          r.factory(),
+          StopConditions.nOfFitnessEvaluations(nEval),
+          additionalIndividualComparators,
+          r.mutations().getFirst(),
+          descriptors,
+          schedule,
+          nOfBirthsForIteration
+      );
+    };
   }
 
   @SuppressWarnings("unused")
@@ -178,15 +208,12 @@ public class Solvers {
   public static <S, Q> Function<S, CMAEvolutionaryStrategy<S, Q>> cmaEs(
       @Param(value = "name", dS = "cmaEs") String name,
       @Param(value = "mapper", dNPM = "ea.m.identity()") InvertibleMapper<List<Double>, S> mapper,
-      @Param(value = "initialMinV", dD = -1d) double initialMinV,
-      @Param(value = "initialMaxV", dD = 1d) double initialMaxV,
+      @Param(value = "factory", dNPM = "ea.r.f.dsUniform()") Function<List<Double>, Factory<List<Double>>> factory,
       @Param(value = "nEval", dI = 1000) int nEval
   ) {
     return exampleS -> new CMAEvolutionaryStrategy<>(
         mapper.mapperFor(exampleS),
-        Representations.doubleString(initialMinV, initialMaxV, 0)
-            .apply(mapper.exampleFor(exampleS))
-            .factory(),
+        factory.apply(mapper.exampleFor(exampleS)),
         StopConditions.nOfFitnessEvaluations(nEval)
     );
   }
@@ -244,8 +271,7 @@ public class Solvers {
   public static <S, Q> Function<S, DifferentialEvolution<S, Q>> differentialEvolution(
       @Param(value = "name", dS = "de") String name,
       @Param(value = "mapper", dNPM = "ea.m.identity()") InvertibleMapper<List<Double>, S> mapper,
-      @Param(value = "initialMinV", dD = -1d) double initialMinV,
-      @Param(value = "initialMaxV", dD = 1d) double initialMaxV,
+      @Param(value = "factory", dNPM = "ea.r.f.dsUniform()") Function<List<Double>, Factory<List<Double>>> factory,
       @Param(value = "populationSize", dI = 15) int populationSize,
       @Param(value = "nEval", dI = 1000) int nEval,
       @Param(value = "differentialWeight", dD = 0.5) double differentialWeight,
@@ -254,9 +280,7 @@ public class Solvers {
   ) {
     return exampleS -> new DifferentialEvolution<>(
         mapper.mapperFor(exampleS),
-        Representations.doubleString(initialMinV, initialMaxV, 0)
-            .apply(mapper.exampleFor(exampleS))
-            .factory(),
+        factory.apply(mapper.exampleFor(exampleS)),
         populationSize,
         StopConditions.nOfFitnessEvaluations(nEval),
         differentialWeight,
@@ -508,8 +532,7 @@ public class Solvers {
   public static <S, Q> Function<S, OpenAIEvolutionaryStrategy<S, Q>> openAiEs(
       @Param(value = "name", dS = "openAiEs") String name,
       @Param(value = "mapper", dNPM = "ea.m.identity()") InvertibleMapper<List<Double>, S> mapper,
-      @Param(value = "initialMinV", dD = -1d) double initialMinV,
-      @Param(value = "initialMaxV", dD = 1d) double initialMaxV,
+      @Param(value = "factory", dNPM = "ea.r.f.dsUniform()") Function<List<Double>, Factory<List<Double>>> factory,
       @Param(value = "sigma", dD = 0.02d) double sigma,
       @Param(value = "batchSize", dI = 30) int batchSize,
       @Param(value = "stepSize", dD = 0.02d) double stepSize,
@@ -520,9 +543,7 @@ public class Solvers {
   ) {
     return exampleS -> new OpenAIEvolutionaryStrategy<>(
         mapper.mapperFor(exampleS),
-        Representations.doubleString(initialMinV, initialMaxV, 0)
-            .apply(mapper.exampleFor(exampleS))
-            .factory(),
+        factory.apply(mapper.exampleFor(exampleS)),
         StopConditions.nOfFitnessEvaluations(nEval),
         batchSize,
         sigma,
@@ -538,8 +559,7 @@ public class Solvers {
   public static <S, Q> Function<S, ParticleSwarmOptimization<S, Q>> pso(
       @Param(value = "name", dS = "pso") String name,
       @Param(value = "mapper", dNPM = "ea.m.identity()") InvertibleMapper<List<Double>, S> mapper,
-      @Param(value = "initialMinV", dD = -1d) double initialMinV,
-      @Param(value = "initialMaxV", dD = 1d) double initialMaxV,
+      @Param(value = "factory", dNPM = "ea.r.f.dsUniform()") Function<List<Double>, Factory<List<Double>>> factory,
       @Param(value = "nEval", dI = 1000) int nEval,
       @Param(value = "nPop", dI = 100) int nPop,
       @Param(value = "w", dD = 0.8d) double w,
@@ -548,9 +568,7 @@ public class Solvers {
   ) {
     return exampleS -> new ParticleSwarmOptimization<>(
         mapper.mapperFor(exampleS),
-        Representations.doubleString(initialMinV, initialMaxV, 0)
-            .apply(mapper.exampleFor(exampleS))
-            .factory(),
+        factory.apply(mapper.exampleFor(exampleS)),
         StopConditions.nOfFitnessEvaluations(nEval),
         nPop,
         w,
@@ -602,11 +620,44 @@ public class Solvers {
 
   @SuppressWarnings("unused")
   @Cacheable
+  public static <G, S, Q> Function<S, ScheduledFidelityStandardEvolver<G, S, Q>> scheduledMfGa(
+      @Param(value = "name", iS = "scheduledMfGa[{schedule.name}]") String name,
+      @Param("representation") Function<G, Representation<G>> representation,
+      @Param(value = "mapper", dNPM = "ea.m.identity()") InvertibleMapper<G, S> mapper,
+      @Param(value = "crossoverP", dD = 0.8d) double crossoverP,
+      @Param(value = "tournamentRate", dD = 0.05d) double tournamentRate,
+      @Param(value = "minNTournament", dI = 3) int minNTournament,
+      @Param(value = "nPop", dI = 100) int nPop,
+      @Param(value = "nEval", dI = 1000) int nEval,
+      @Param(value = "maxUniquenessAttempts", dI = 100) int maxUniquenessAttempts,
+      @Param("iComparators") List<PartialComparator<? super Individual<G, S, Q>>> additionalIndividualComparators,
+      @Param(value = "schedule", dNPM = "ea.schedule.flat()") DoubleUnaryOperator schedule
+  ) {
+    return exampleS -> {
+      Representation<G> r = representation.apply(mapper.exampleFor(exampleS));
+      return new ScheduledFidelityStandardEvolver<>(
+          mapper.mapperFor(exampleS),
+          r.factory(),
+          nPop,
+          StopConditions.nOfFitnessEvaluations(nEval),
+          r.geneticOperators(crossoverP),
+          new Tournament(Math.max(minNTournament, (int) Math.ceil((double) nPop * tournamentRate))),
+          new Last(),
+          nPop,
+          true,
+          maxUniquenessAttempts,
+          additionalIndividualComparators,
+          schedule
+      );
+    };
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
   public static <S, Q> Function<S, SimpleEvolutionaryStrategy<S, Q>> simpleEs(
       @Param(value = "name", dS = "es") String name,
       @Param(value = "mapper", dNPM = "ea.m.identity()") InvertibleMapper<List<Double>, S> mapper,
-      @Param(value = "initialMinV", dD = -1d) double initialMinV,
-      @Param(value = "initialMaxV", dD = 1d) double initialMaxV,
+      @Param(value = "factory", dNPM = "ea.r.f.dsUniform()") Function<List<Double>, Factory<List<Double>>> factory,
       @Param(value = "sigma", dD = 0.35d) double sigma,
       @Param(value = "parentsRate", dD = 0.33d) double parentsRate,
       @Param(value = "nOfElites", dI = 1) int nOfElites,
@@ -616,9 +667,7 @@ public class Solvers {
   ) {
     return exampleS -> new SimpleEvolutionaryStrategy<>(
         mapper.mapperFor(exampleS),
-        Representations.doubleString(initialMinV, initialMaxV, 0)
-            .apply(mapper.exampleFor(exampleS))
-            .factory(),
+        factory.apply(mapper.exampleFor(exampleS)),
         nPop,
         StopConditions.nOfFitnessEvaluations(nEval),
         nOfElites,

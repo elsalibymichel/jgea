@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-problem
  * %%
- * Copyright (C) 2018 - 2024 Eric Medvet
+ * Copyright (C) 2018 - 2025 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,13 +22,13 @@ package io.github.ericmedvet.jgea.problem.regression.univariate.synthetic;
 
 import io.github.ericmedvet.jgea.problem.regression.MathUtils;
 import java.util.List;
-import java.util.Random;
+import java.util.random.RandomGenerator;
 
 public class Vladislavleva4 extends PrecomputedSyntheticURProblem {
 
   // aka: UBall5D,
   // https://www.researchgate.net/profile/Ekaterina_Katya_Vladislavleva/publication/224330345_Order_of_Nonlinearity_as_a_Complexity_Measure_for_Models_Generated_by_Symbolic_Regression_via_Pareto_Genetic_Programming/links/00b7d5306967756b1d000000.pdf
-  public Vladislavleva4(List<Metric> metrics, long seed) {
+  public Vladislavleva4(List<Metric> metrics, RandomGenerator randomGenerator) {
     super(
         SyntheticURProblem.function(
             v -> {
@@ -42,23 +42,24 @@ public class Vladislavleva4 extends PrecomputedSyntheticURProblem {
         ),
         SyntheticURProblem.tupleProvider(
             MathUtils.pairwise(
-                MathUtils.uniformSample(0.05, 6.05, 1024, new Random(seed)),
-                MathUtils.uniformSample(0.05, 6.05, 1024, new Random(seed + 1)),
-                MathUtils.uniformSample(0.05, 6.05, 1024, new Random(seed + 2)),
-                MathUtils.uniformSample(0.05, 6.05, 1024, new Random(seed + 3)),
-                MathUtils.uniformSample(0.05, 6.05, 1024, new Random(seed + 4))
+                MathUtils.uniformSample(0.05, 6.05, 1024, randomGenerator),
+                MathUtils.uniformSample(0.05, 6.05, 1024, randomGenerator),
+                MathUtils.uniformSample(0.05, 6.05, 1024, randomGenerator),
+                MathUtils.uniformSample(0.05, 6.05, 1024, randomGenerator),
+                MathUtils.uniformSample(0.05, 6.05, 1024, randomGenerator)
             )
         ),
         SyntheticURProblem.tupleProvider(
             MathUtils.pairwise(
-                MathUtils.uniformSample(-0.25, 6.35, 5000, new Random(seed)),
-                MathUtils.uniformSample(-0.25, 6.35, 5000, new Random(seed + 1)),
-                MathUtils.uniformSample(-0.25, 6.35, 5000, new Random(seed + 2)),
-                MathUtils.uniformSample(-0.25, 6.35, 5000, new Random(seed + 3)),
-                MathUtils.uniformSample(-0.25, 6.35, 5000, new Random(seed + 4))
+                MathUtils.uniformSample(-0.25, 6.35, 5000, randomGenerator),
+                MathUtils.uniformSample(-0.25, 6.35, 5000, randomGenerator),
+                MathUtils.uniformSample(-0.25, 6.35, 5000, randomGenerator),
+                MathUtils.uniformSample(-0.25, 6.35, 5000, randomGenerator),
+                MathUtils.uniformSample(-0.25, 6.35, 5000, randomGenerator)
             )
         ),
-        metrics
+        metrics,
+        randomGenerator
     );
   }
 }

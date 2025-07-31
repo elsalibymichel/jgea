@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-core
  * %%
- * Copyright (C) 2018 - 2024 Eric Medvet
+ * Copyright (C) 2018 - 2025 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 package io.github.ericmedvet.jgea.core.problem;
 
 import io.github.ericmedvet.jgea.core.order.PartialComparator;
+import io.github.ericmedvet.jgea.core.problem.MultifidelityQualityBasedProblem.MultifidelityFunction;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.Function;
@@ -54,6 +55,20 @@ public interface TotalOrderQualityBasedProblem<S, Q> extends QualityBasedProblem
       Comparator<Q> totalOrderComparator,
       @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<S> example
   ) {
+    if (qualityFunction instanceof MultifidelityQualityBasedProblem.MultifidelityFunction<S, Q> multifidelityQualityFunction) {
+      record HardTOMFQProblem<S, Q>(
+          MultifidelityFunction<S, Q> qualityFunction,
+          Function<S, Q> validationQualityFunction,
+          Comparator<Q> totalOrderComparator,
+          Optional<S> example
+      ) implements TotalOrderQualityBasedProblem<S, Q>, MultifidelityQualityBasedProblem<S, Q> {}
+      return new HardTOMFQProblem<>(
+          multifidelityQualityFunction,
+          validationQualityFunction,
+          totalOrderComparator,
+          example
+      );
+    }
     record HardTOQProblem<S, Q>(
         Function<S, Q> qualityFunction,
         Function<S, Q> validationQualityFunction,

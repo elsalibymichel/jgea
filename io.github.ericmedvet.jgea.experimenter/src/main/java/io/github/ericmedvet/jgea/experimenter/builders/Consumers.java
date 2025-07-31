@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-experimenter
  * %%
- * Copyright (C) 2018 - 2024 Eric Medvet
+ * Copyright (C) 2018 - 2025 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,40 +55,46 @@ public class Consumers {
   ) {
     return Naming.named(
         "%s[f=%s]".formatted(consumer, NamedFunction.name(f)),
-        (x, run, experiment) -> consumer.accept(innerF.apply(f.apply(x)), run, experiment)
+        (TriConsumer<X, Run<?, ?, ?, ?>, Experiment>) (x, run, experiment) -> consumer.accept(
+            innerF.apply(f.apply(x)),
+            run,
+            experiment
+        )
     );
   }
 
   @SuppressWarnings("unused")
   @Cacheable
   public static TriConsumer<?, ?, ?> deaf() {
-    return Naming.named("deaf", (i1, i2, i3) -> {});
+    return Naming.named("deaf", (i1, i2, i3) -> {
+    });
   }
 
   private static void save(Object o, String filePath, boolean overwrite) {
     File file = null;
     try {
+      file = Misc.robustGetFile(filePath, overwrite);
       switch (o) {
         case BufferedImage image -> {
-          file = Misc.robustGetFile(filePath + ".png", overwrite);
           ImageIO.write(image, "png", file);
         }
         case String s -> {
-          file = Misc.robustGetFile(filePath + ".txt", overwrite);
           Files.writeString(file.toPath(), s, StandardOpenOption.WRITE, StandardOpenOption.CREATE);
         }
         case Video video -> {
-          file = Misc.robustGetFile(filePath + ".mp4", overwrite);
-          Files.write(file.toPath(), video.data(), StandardOpenOption.WRITE, StandardOpenOption.CREATE);
+          Files.write(
+              file.toPath(),
+              video.data(),
+              StandardOpenOption.WRITE,
+              StandardOpenOption.CREATE
+          );
         }
         case byte[] data -> {
-          file = Misc.robustGetFile(filePath + ".bin", overwrite);
           try (OutputStream os = new FileOutputStream(file)) {
             os.write(data);
           }
         }
         case NamedParamMap npm -> {
-          file = Misc.robustGetFile(filePath + ".txt", overwrite);
           Files.writeString(
               file.toPath(),
               MapNamedParamMap.prettyToString(npm),
@@ -114,11 +120,19 @@ public class Consumers {
   public static <X, O> TriConsumer<X, Run<?, ?, ?, ?>, Experiment> saver(
       @Param(value = "of", dNPM = "f.identity()") Function<X, O> f,
       @Param(value = "overwrite") boolean overwrite,
-      @Param(value = "path", dS = "run-{run.index:%04d}") String filePathTemplate
+      @Param(value = "path", dS = "run-{run.index:%04d}") String filePathTemplate,
+      @Param(value = "suffix", dS = "") String suffix
   ) {
     return Naming.named(
-        "saver[%s;%s]".formatted(NamedFunction.name(f), filePathTemplate + (overwrite ? "(*)" : "")),
-        (x, run, experiment) -> save(f.apply(x), Utils.interpolate(filePathTemplate, experiment, run), overwrite)
+        "saver[%s;%s]".formatted(
+            NamedFunction.name(f),
+            filePathTemplate + (overwrite ? "(*)" : "")
+        ),
+        (TriConsumer<X, Run<?, ?, ?, ?>, Experiment>) (x, run, experiment) -> save(
+            f.apply(x),
+            Utils.interpolate(filePathTemplate, experiment, run) + suffix,
+            overwrite
+        )
     );
   }
 
@@ -143,7 +157,10 @@ public class Consumers {
     TelegramClient client = new TelegramClient(new File(botIdFilePath), Long.parseLong(chatId));
     return Naming.named(
         "telegram[%s→to:%s]".formatted(NamedFunction.name(f), chatId),
-        (x, run, experiment) -> client.send(Utils.interpolate(titleTemplate, experiment, run), f.apply(x))
+        (TriConsumer<X, Run<?, ?, ?, ?>, Experiment>) (x, run, experiment) -> client.send(
+            Utils.interpolate(titleTemplate, experiment, run),
+            f.apply(x)
+        )
     );
   }
 }

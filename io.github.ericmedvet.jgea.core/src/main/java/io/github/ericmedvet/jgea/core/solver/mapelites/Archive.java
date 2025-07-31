@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-core
  * %%
- * Copyright (C) 2018 - 2024 Eric Medvet
+ * Copyright (C) 2018 - 2025 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,11 @@ public class Archive<T> {
     map = new LinkedHashMap<>();
   }
 
+  public Archive(List<Integer> binUpperBounds, Map<List<Integer>, T> map) {
+    this.binUpperBounds = binUpperBounds;
+    this.map = map;
+  }
+
   public Archive(Archive<T> archive) {
     this(archive.binUpperBounds);
     map.putAll(archive.map);
@@ -51,12 +56,19 @@ public class Archive<T> {
     ts.forEach(t -> put(binsF.apply(t), t, partialComparator));
   }
 
-  public Archive<T> updated(
-      Collection<T> ts,
-      Function<? super T, ? extends List<Integer>> binsF,
-      PartialComparator<? super T> partialComparator
-  ) {
-    return new Archive<>(this, ts, binsF, partialComparator);
+  public Map<List<Integer>, T> asMap() {
+    return map;
+  }
+
+  public List<Integer> binUpperBounds() {
+    return binUpperBounds;
+  }
+
+  public int capacity() {
+    return binUpperBounds().stream()
+        .mapToInt(i -> i)
+        .reduce((i1, i2) -> i1 * i2)
+        .orElse(0);
   }
 
   public T get(List<Integer> bins) {
@@ -74,18 +86,11 @@ public class Archive<T> {
     }
   }
 
-  public List<Integer> binUpperBounds() {
-    return binUpperBounds;
-  }
-
-  public Map<List<Integer>, T> asMap() {
-    return map;
-  }
-
-  public int capacity() {
-    return binUpperBounds().stream()
-        .mapToInt(i -> i)
-        .reduce((i1, i2) -> i1 * i2)
-        .orElse(0);
+  public Archive<T> updated(
+      Collection<T> ts,
+      Function<? super T, ? extends List<Integer>> binsF,
+      PartialComparator<? super T> partialComparator
+  ) {
+    return new Archive<>(this, ts, binsF, partialComparator);
   }
 }

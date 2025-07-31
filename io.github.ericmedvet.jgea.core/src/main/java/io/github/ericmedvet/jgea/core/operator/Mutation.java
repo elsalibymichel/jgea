@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-core
  * %%
- * Copyright (C) 2018 - 2024 Eric Medvet
+ * Copyright (C) 2018 - 2025 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,13 @@ public interface Mutation<G> extends GeneticOperator<G> {
 
   static <K> Mutation<K> copy() {
     return (k, random) -> k;
+  }
+
+  static <G> Mutation<G> from(GeneticOperator<G> mutation) {
+    if (mutation.arity() != 1) {
+      throw new IllegalArgumentException("Invalid arity: %d found, 1 expected".formatted(mutation.arity()));
+    }
+    return (g, rnd) -> mutation.apply(List.of(g), rnd).getFirst();
   }
 
   static <K> Mutation<K> oneOf(Map<Mutation<K>, Double> operators) {

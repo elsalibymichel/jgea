@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-core
  * %%
- * Copyright (C) 2018 - 2024 Eric Medvet
+ * Copyright (C) 2018 - 2025 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,10 @@
 
 package io.github.ericmedvet.jgea.core.operator;
 
+import io.github.ericmedvet.jgea.core.util.Misc;
 import io.github.ericmedvet.jnb.datastructure.Pair;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.random.RandomGenerator;
 
@@ -29,6 +31,14 @@ import java.util.random.RandomGenerator;
 public interface Crossover<G> extends GeneticOperator<G> {
 
   G recombine(G g1, G g2, RandomGenerator random);
+
+  static <K> Crossover<K> from(GeneticOperator<K> op) {
+    return (g1, g2, random) -> op.apply(List.of(g1, g2), random).getFirst();
+  }
+
+  static <K> Crossover<K> oneOf(Map<Crossover<K>, Double> operators) {
+    return (k1, k2, random) -> Misc.pickRandomly(operators, random).recombine(k1, k2, random);
+  }
 
   static <G1, G2> Crossover<Pair<G1, G2>> pair(Crossover<G1> crossover1, Crossover<G2> crossover2) {
     return (p1, p2, random) -> new Pair<>(
@@ -40,10 +50,6 @@ public interface Crossover<G> extends GeneticOperator<G> {
   @SuppressWarnings("unused")
   static <K> Crossover<K> randomCopy() {
     return (g1, g2, random) -> random.nextBoolean() ? g1 : g2;
-  }
-
-  static <K> Crossover<K> from(GeneticOperator<K> op) {
-    return (g1, g2, random) -> op.apply(List.of(g1, g2), random).getFirst();
   }
 
   @Override
@@ -64,4 +70,5 @@ public interface Crossover<G> extends GeneticOperator<G> {
       return checker.test(child) ? child : (random.nextBoolean() ? parent1 : parent2);
     };
   }
+
 }

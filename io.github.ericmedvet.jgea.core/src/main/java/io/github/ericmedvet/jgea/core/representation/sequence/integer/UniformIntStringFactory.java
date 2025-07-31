@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-core
  * %%
- * Copyright (C) 2018 - 2024 Eric Medvet
+ * Copyright (C) 2018 - 2025 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,9 @@ import java.util.random.RandomGenerator;
 import java.util.stream.IntStream;
 
 public class UniformIntStringFactory implements IndependentFactory<IntString> {
-  private final int lowerBound;
-  private final int upperBound;
-  private final int size;
+  protected final int lowerBound;
+  protected final int upperBound;
+  protected final int size;
 
   public UniformIntStringFactory(int lowerBound, int upperBound, int size) {
     this.lowerBound = lowerBound;

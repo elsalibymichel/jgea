@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-core
  * %%
- * Copyright (C) 2018 - 2024 Eric Medvet
+ * Copyright (C) 2018 - 2025 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 package io.github.ericmedvet.jgea.core.solver;
 
+import io.github.ericmedvet.jgea.core.problem.MultifidelityQualityBasedProblem;
 import io.github.ericmedvet.jgea.core.problem.Problem;
 import io.github.ericmedvet.jgea.core.problem.QualityBasedProblem;
 import io.github.ericmedvet.jgea.core.util.Progress;
@@ -28,6 +29,12 @@ import java.util.function.Predicate;
 public class StopConditions {
 
   private StopConditions() {
+  }
+
+  public static <I extends Individual<G, S, Q>, G, S, Q, P extends MultifidelityQualityBasedProblem<S, Q>> ProgressBasedStopCondition<MultiFidelityPOCPopulationState<I, G, S, Q, P>> cumulativeFidelity(
+      final double f
+  ) {
+    return s -> new Progress(0, f, s.cumulativeFidelity());
   }
 
   @SuppressWarnings("unused")

@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-problem
  * %%
- * Copyright (C) 2018 - 2024 Eric Medvet
+ * Copyright (C) 2018 - 2025 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,11 @@ package io.github.ericmedvet.jgea.problem.regression.univariate.synthetic;
 
 import io.github.ericmedvet.jgea.problem.regression.MathUtils;
 import java.util.List;
+import java.util.random.RandomGenerator;
 
 public class SimpleComposed extends PrecomputedSyntheticURProblem {
 
-  public SimpleComposed(List<Metric> metrics) {
+  public SimpleComposed(List<Metric> metrics, RandomGenerator randomGenerator) {
     super(
         SyntheticURProblem.function(
             v -> {
@@ -37,7 +38,8 @@ public class SimpleComposed extends PrecomputedSyntheticURProblem {
         ),
         SyntheticURProblem.tupleProvider(MathUtils.pairwise(MathUtils.equispacedValues(-3, 3, .1))),
         SyntheticURProblem.tupleProvider(MathUtils.pairwise(MathUtils.equispacedValues(-5, 5, .05))),
-        metrics
+        metrics,
+        randomGenerator
     );
   }
 }
