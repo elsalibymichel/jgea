@@ -34,6 +34,7 @@ public class NumericalIndexedProviders {
   private NumericalIndexedProviders() {
   }
 
+  @SuppressWarnings("unused")
   @Cacheable
   public static NumericalDataset empty(
       @Param("xVars") List<String> xVarNames,
@@ -42,6 +43,7 @@ public class NumericalIndexedProviders {
     return NumericalDataset.from(xVarNames, yVarNames, IndexedProvider.from(List.of()));
   }
 
+  @SuppressWarnings("unused")
   @Cacheable
   public static NumericalDataset fromBundled(
       @Param("name") String name,
@@ -64,6 +66,7 @@ public class NumericalIndexedProviders {
     }
   }
 
+  @SuppressWarnings("unused")
   @Cacheable
   public static NumericalDataset fromFile(
       @Param("filePath") String filePath,
@@ -78,6 +81,7 @@ public class NumericalIndexedProviders {
     }
   }
 
+  @SuppressWarnings("unused")
   @Cacheable
   public static NumericalDataset scaled(
       @Param("of") NumericalDataset dataset,

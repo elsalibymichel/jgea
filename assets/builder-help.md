@@ -549,7 +549,7 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.Experiment">E
 
 ### Builder `ea.run()`
 
-`ea.run(name; solver; problem; randomGenerator)`
+`ea.run(name; solver; problem; randomGenerator; nOfThreads)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -557,6 +557,7 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.Experiment">E
 | `solver` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;S, ? extends <abbr title="io.github.ericmedvet.jgea.core.solver.AbstractPopulationBasedIterativeSolver">AbstractPopulationBasedIterativeSolver</abbr>&lt;? extends <abbr title="io.github.ericmedvet.jgea.core.solver.POCPopulationState">POCPopulationState</abbr>&lt;?, G, S, Q, P&gt;, P, ?, G, S, Q&gt;&gt;</code> |
 | `problem` | npm |  | <code>P</code> |
 | `randomGenerator` | npm |  | <code><abbr title="java.util.random.RandomGenerator">RandomGenerator</abbr></code> |
+| `nOfThreads` | i | `-1` | <code>int</code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr></code>; built from `io.github.ericmedvet.jgea.experimenter.Run()` by jgea-experimenter:2.7.1-SNAPSHOT
 

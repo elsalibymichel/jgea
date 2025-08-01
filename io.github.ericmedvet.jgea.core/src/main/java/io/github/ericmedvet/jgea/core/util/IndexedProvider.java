@@ -31,12 +31,11 @@ public interface IndexedProvider<T> {
   List<Integer> indexes();
 
   static <T> IndexedProvider<T> from(List<T> ts) {
-    List<Integer> indexes = Collections.synchronizedList(IntStream.range(0, ts.size()).boxed().toList());
-    List<T> safeTs = Collections.synchronizedList(Collections.unmodifiableList(ts));
+    List<Integer> indexes = IntStream.range(0, ts.size()).boxed().toList();
     return new IndexedProvider<>() {
       @Override
       public T get(int i) {
-        return safeTs.get(i);
+        return ts.get(i);
       }
 
       @Override
@@ -48,6 +47,21 @@ public interface IndexedProvider<T> {
 
   default List<T> all() {
     return stream().toList();
+  }
+
+  default IndexedProvider<T> asSynchronized() {
+    IndexedProvider<T> thisIndexedProvider = this;
+    return new IndexedProvider<T>() {
+      @Override
+      public synchronized T get(int i) {
+        return thisIndexedProvider.get(i);
+      }
+
+      @Override
+      public synchronized List<Integer> indexes() {
+        return thisIndexedProvider.indexes();
+      }
+    };
   }
 
   default T first() {
