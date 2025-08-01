@@ -24,11 +24,11 @@ import io.github.ericmedvet.jgea.core.representation.NamedUnivariateRealFunction
 import io.github.ericmedvet.jgea.core.representation.tree.Tree;
 import io.github.ericmedvet.jgea.core.util.Sized;
 import io.github.ericmedvet.jnb.datastructure.Parametrized;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.DoubleUnaryOperator;
-import java.util.function.Function;
 
 public class TreeBasedUnivariateRealFunction implements NamedUnivariateRealFunction, Sized, Parametrized<TreeBasedUnivariateRealFunction, Tree<Element>> {
 
@@ -41,40 +41,32 @@ public class TreeBasedUnivariateRealFunction implements NamedUnivariateRealFunct
       Tree<Element> tree,
       List<String> xVarNames,
       String yVarName,
-      DoubleUnaryOperator postOperator
+      DoubleUnaryOperator postOperator,
+      boolean simplify
   ) {
-    this.tree = tree;
+    this.tree = simplify?NumericTreeUtils.simplify(tree):tree;
     this.xVarNames = xVarNames;
     this.yVarName = yVarName;
     this.postOperator = postOperator;
   }
 
-  public TreeBasedUnivariateRealFunction(Tree<Element> tree, List<String> xVarNames, String yVarName) {
-    this(tree, xVarNames, yVarName, x -> x);
-  }
-
-  public static Tree<Element> sampleFor(List<String> xVarNames, @SuppressWarnings("unused") String yVarName) {
-    return Tree.of(
-        Element.Operator.ADDITION,
-        xVarNames.stream()
-            .map(s -> Tree.of((Element) new Element.Variable(s)))
-            .toList()
-    );
+  public TreeBasedUnivariateRealFunction(Tree<Element> tree, List<String> xVarNames, String yVarName, boolean simplify) {
+    this(tree, xVarNames, yVarName, x -> x,simplify);
   }
 
   protected static double compute(Tree<Element> tree, Map<String, Double> input) {
     if (tree.content() instanceof Element.Decoration) {
       throw new RuntimeException(String.format("Cannot compute: decoration node %s found", tree.content()));
     }
-    if (tree.content() instanceof Element.Variable variable) {
-      Double varValue = input.get(variable.name());
+    if (tree.content() instanceof Element.Variable(String name)) {
+      Double varValue = input.get(name);
       if (varValue == null) {
-        throw new RuntimeException(String.format("Undefined variable: %s", variable.name()));
+        throw new RuntimeException(String.format("Undefined variable: %s", name));
       }
       return varValue;
     }
-    if (tree.content() instanceof Element.Constant constant) {
-      return constant.value();
+    if (tree.content() instanceof Element.Constant(double value)) {
+      return value;
     }
     double[] childrenValues = new double[tree.nChildren()];
     int i = 0;
@@ -86,8 +78,13 @@ public class TreeBasedUnivariateRealFunction implements NamedUnivariateRealFunct
     return ((Element.Operator) tree.content()).applyAsDouble(childrenValues);
   }
 
-  public static Function<Tree<Element>, NamedUnivariateRealFunction> mapper(List<String> xVarNames, String yVarName) {
-    return t -> new TreeBasedUnivariateRealFunction(t, xVarNames, yVarName);
+  public static Tree<Element> sampleFor(List<String> xVarNames, @SuppressWarnings("unused") String yVarName) {
+    return Tree.of(
+        Element.Operator.ADDITION,
+        xVarNames.stream()
+            .map(s -> Tree.of((Element) new Element.Variable(s)))
+            .toList()
+    );
   }
 
   @Override

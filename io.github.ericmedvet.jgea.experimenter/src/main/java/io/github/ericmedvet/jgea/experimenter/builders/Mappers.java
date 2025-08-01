@@ -56,6 +56,7 @@ import io.github.ericmedvet.jnb.datastructure.Pair;
 import io.github.ericmedvet.jsdynsym.buildable.builders.NumericalDynamicalSystems;
 import io.github.ericmedvet.jsdynsym.core.composed.Stepped;
 import io.github.ericmedvet.jsdynsym.core.numerical.*;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -299,10 +300,10 @@ public class Mappers {
     return beforeM.andThen(
         InvertibleMapper.from(
             (nmrf, g) -> NamedMultivariateRealFunction.from(
-                new FunctionGraph(g, nmrf.xVarNames(), nmrf.yVarNames()),
-                nmrf.xVarNames(),
-                nmrf.yVarNames()
-            )
+                    new FunctionGraph(g, nmrf.xVarNames(), nmrf.yVarNames()),
+                    nmrf.xVarNames(),
+                    nmrf.yVarNames()
+                )
                 .andThen(toOperator(postOperator)),
             nmrf -> FunctionGraph.sampleFor(nmrf.xVarNames(), nmrf.yVarNames()),
             "fGraphToNmrf[po=%s]".formatted(postOperator)
@@ -786,14 +787,15 @@ public class Mappers {
   @Cacheable
   public static <X> InvertibleMapper<X, NamedUnivariateRealFunction> srTreeToNurf(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, Tree<Element>> beforeM,
+      @Param(value = "simplify", dB = false) boolean simplify,
       @Param(value = "postOperator", dNPM = "ds.f.doubleOp(activationF=identity)") Function<Double, Double> postOperator
   ) {
     return beforeM.andThen(
         InvertibleMapper.from(
-            (nurf, t) -> new TreeBasedUnivariateRealFunction(t, nurf.xVarNames(), nurf.yVarName())
+            (nurf, t) -> new TreeBasedUnivariateRealFunction(t, nurf.xVarNames(), nurf.yVarName(), simplify)
                 .andThen(toOperator(postOperator)),
             nurf -> TreeBasedUnivariateRealFunction.sampleFor(nurf.xVarNames(), nurf.yVarName()),
-            "srTreeToNurf[po=%s]".formatted(postOperator)
+            "srTreeToNurf[po=%s;simp=%s]".formatted(postOperator, Boolean.toString(simplify).substring(0, 1))
         )
     );
   }
