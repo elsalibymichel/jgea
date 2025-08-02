@@ -30,6 +30,10 @@ import java.util.stream.StreamSupport;
 
 public class Tree<C> implements Serializable, Sized, Iterable<Tree<C>> {
 
+  public final static String CHILDREN_START_DELIMITER = "(";
+  public final static String CHILDREN_END_DELIMITER = ")";
+  public final static String CHILDREN_SEPARATOR = ";";
+
   private final C content;
   private final List<Tree<C>> children = new ArrayList<>();
   private Tree<C> parent;
@@ -125,9 +129,9 @@ public class Tree<C> implements Serializable, Sized, Iterable<Tree<C>> {
 
   @Override
   public String toString() {
-    return content.toString() + (children.isEmpty() ? "" : ("(" + children.stream()
+    return content.toString() + (children.isEmpty() ? "" : (CHILDREN_START_DELIMITER + children.stream()
         .map(Tree::toString)
-        .collect(Collectors.joining(",")) + ")"));
+        .collect(Collectors.joining(CHILDREN_SEPARATOR)) + CHILDREN_END_DELIMITER));
   }
 
   public int height() {

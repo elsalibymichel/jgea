@@ -24,7 +24,6 @@ import io.github.ericmedvet.jgea.core.representation.NamedUnivariateRealFunction
 import io.github.ericmedvet.jgea.core.representation.tree.Tree;
 import io.github.ericmedvet.jgea.core.util.Sized;
 import io.github.ericmedvet.jnb.datastructure.Parametrized;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -44,14 +43,19 @@ public class TreeBasedUnivariateRealFunction implements NamedUnivariateRealFunct
       DoubleUnaryOperator postOperator,
       boolean simplify
   ) {
-    this.tree = simplify?NumericTreeUtils.simplify(tree):tree;
+    this.tree = simplify ? NumericTreeUtils.simplify(tree) : tree;
     this.xVarNames = xVarNames;
     this.yVarName = yVarName;
     this.postOperator = postOperator;
   }
 
-  public TreeBasedUnivariateRealFunction(Tree<Element> tree, List<String> xVarNames, String yVarName, boolean simplify) {
-    this(tree, xVarNames, yVarName, x -> x,simplify);
+  public TreeBasedUnivariateRealFunction(
+      Tree<Element> tree,
+      List<String> xVarNames,
+      String yVarName,
+      boolean simplify
+  ) {
+    this(tree, xVarNames, yVarName, x -> x, simplify);
   }
 
   protected static double compute(Tree<Element> tree, Map<String, Double> input) {

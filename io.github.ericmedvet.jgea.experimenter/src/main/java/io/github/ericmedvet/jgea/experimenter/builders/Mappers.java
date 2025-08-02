@@ -56,7 +56,6 @@ import io.github.ericmedvet.jnb.datastructure.Pair;
 import io.github.ericmedvet.jsdynsym.buildable.builders.NumericalDynamicalSystems;
 import io.github.ericmedvet.jsdynsym.core.composed.Stepped;
 import io.github.ericmedvet.jsdynsym.core.numerical.*;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -300,10 +299,10 @@ public class Mappers {
     return beforeM.andThen(
         InvertibleMapper.from(
             (nmrf, g) -> NamedMultivariateRealFunction.from(
-                    new FunctionGraph(g, nmrf.xVarNames(), nmrf.yVarNames()),
-                    nmrf.xVarNames(),
-                    nmrf.yVarNames()
-                )
+                new FunctionGraph(g, nmrf.xVarNames(), nmrf.yVarNames()),
+                nmrf.xVarNames(),
+                nmrf.yVarNames()
+            )
                 .andThen(toOperator(postOperator)),
             nmrf -> FunctionGraph.sampleFor(nmrf.xVarNames(), nmrf.yVarNames()),
             "fGraphToNmrf[po=%s]".formatted(postOperator)
