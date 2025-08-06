@@ -34,6 +34,7 @@ import io.github.ericmedvet.jgea.core.solver.POCPopulationState;
 import io.github.ericmedvet.jgea.core.solver.State;
 import io.github.ericmedvet.jgea.core.solver.cabea.GridPopulationState;
 import io.github.ericmedvet.jgea.core.solver.mapelites.*;
+import io.github.ericmedvet.jgea.core.util.FunctionUtils;
 import io.github.ericmedvet.jgea.core.util.Misc;
 import io.github.ericmedvet.jgea.core.util.Progress;
 import io.github.ericmedvet.jgea.core.util.Sized;
@@ -128,8 +129,25 @@ public class Functions {
   public static <X, I extends Individual<G, S, Q>, G, S, Q> NamedFunction<X, I> best(
       @Param(value = "of", dNPM = "f.identity()") Function<X, POCPopulationState<I, G, S, Q, ?>> beforeF
   ) {
-    Function<POCPopulationState<I, G, S, Q, ?>, I> f = state -> state.pocPopulation().firsts().iterator().next();
+    Function<POCPopulationState<I, G, S, Q, ?>, I> f = state -> state.pocPopulation()
+        .firsts()
+        .iterator()
+        .next();
     return NamedFunction.from(f, "best").compose(beforeF);
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static <T, R> NamedFunction<T, R> cached(
+      @Param(value = "of", dNPM = "f.identity()") Function<T, R> f
+  ) {
+    if (f instanceof FormattedNamedFunction<T, R> fnf) {
+      return FormattedNamedFunction.from(FunctionUtils.cached(fnf), fnf.format(), fnf.name());
+    }
+    if (f instanceof NamedFunction<T, R> nf) {
+      return NamedFunction.from(FunctionUtils.cached(nf), nf.name());
+    }
+    return NamedFunction.from(FunctionUtils.cached(f));
   }
 
   @SuppressWarnings("unused")
@@ -417,6 +435,7 @@ public class Functions {
         false
     );
     class ConditionedDrawer<Y> implements BiFunction<Drawer<Y>, Y, Object> {
+
       @Override
       public Object apply(Drawer<Y> drawer, Y y) {
         return switch (type.toLowerCase()) {

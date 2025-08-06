@@ -29,7 +29,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.logging.Logger;
 import java.util.random.RandomGenerator;
@@ -40,8 +39,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
-public interface NumericalDataset extends
-    IndexedProvider<ExampleBasedProblem.Example<Map<String, Double>, Map<String, Double>>> {
+public interface NumericalDataset extends IndexedProvider<ExampleBasedProblem.Example<Map<String, Double>, Map<String, Double>>> {
 
   enum Scaling {
     NONE, MIN_MAX, SYMMETRIC_MIN_MAX, STANDARDIZATION
@@ -100,7 +98,9 @@ public interface NumericalDataset extends
   ) throws IOException {
     Logger logger = Logger.getLogger(NumericalDataset.class.getName());
     try (inputStream) {
-      CSVParser parser = CSVFormat.Builder.create().setDelimiter(";").build()
+      CSVParser parser = CSVFormat.Builder.create()
+          .setDelimiter(";")
+          .build()
           .parse(new InputStreamReader(inputStream));
       List<CSVRecord> records = parser.getRecords();
       List<String> varNames = records.getFirst().stream().toList();
@@ -282,24 +282,25 @@ public interface NumericalDataset extends
     if (scaling.equals(Scaling.NONE)) {
       return this;
     }
-    List<VariableInfo> varInfos = xVarNames().stream().map(n -> VariableInfo.of(xValues(n).all()))
+    List<VariableInfo> varInfos = xVarNames().stream()
+        .map(n -> VariableInfo.of(xValues(n).all()))
         .toList();
     return from(
         xVarNames(),
         yVarNames(),
         dataPointProvider().then(
             vs -> IntStream.range(0, vs.length).mapToDouble(j -> {
-                  if (j >= xVarNames().size()) {
-                    return vs[j];
-                  }
-                  return switch (scaling) {
-                    case MIN_MAX -> varInfos.get(j).range.normalize(vs[j]);
-                    case SYMMETRIC_MIN_MAX ->
-                        DoubleRange.SYMMETRIC_UNIT.denormalize(varInfos.get(j).range.normalize(vs[j]));
-                    case STANDARDIZATION -> (vs[j] - varInfos.get(j).mean) / varInfos.get(j).sd;
-                    default -> vs[j];
-                  };
-                })
+              if (j >= xVarNames().size()) {
+                return vs[j];
+              }
+              return switch (scaling) {
+                case MIN_MAX -> varInfos.get(j).range.normalize(vs[j]);
+                case SYMMETRIC_MIN_MAX ->
+                  DoubleRange.SYMMETRIC_UNIT.denormalize(varInfos.get(j).range.normalize(vs[j]));
+                case STANDARDIZATION -> (vs[j] - varInfos.get(j).mean) / varInfos.get(j).sd;
+                default -> vs[j];
+              };
+            })
                 .toArray()
         )
     );
@@ -314,25 +315,26 @@ public interface NumericalDataset extends
     if (scaling.equals(Scaling.NONE)) {
       return this;
     }
-    List<VariableInfo> varInfos = yVarNames().stream().map(n -> VariableInfo.of(yValues(n).all()))
+    List<VariableInfo> varInfos = yVarNames().stream()
+        .map(n -> VariableInfo.of(yValues(n).all()))
         .toList();
     return from(
         xVarNames(),
         yVarNames(),
         dataPointProvider().then(
             vs -> IntStream.range(0, vs.length).mapToDouble(j -> {
-                  if (j < xVarNames().size()) {
-                    return vs[j];
-                  }
-                  VariableInfo vi = varInfos.get(j - xVarNames().size());
-                  return switch (scaling) {
-                    case MIN_MAX -> vi.range.normalize(vs[j]);
-                    case SYMMETRIC_MIN_MAX ->
-                        DoubleRange.SYMMETRIC_UNIT.denormalize(vi.range.normalize(vs[j]));
-                    case STANDARDIZATION -> (vs[j] - vi.mean) / vi.sd;
-                    default -> vs[j];
-                  };
-                })
+              if (j < xVarNames().size()) {
+                return vs[j];
+              }
+              VariableInfo vi = varInfos.get(j - xVarNames().size());
+              return switch (scaling) {
+                case MIN_MAX -> vi.range.normalize(vs[j]);
+                case SYMMETRIC_MIN_MAX ->
+                  DoubleRange.SYMMETRIC_UNIT.denormalize(vi.range.normalize(vs[j]));
+                case STANDARDIZATION -> (vs[j] - vi.mean) / vi.sd;
+                default -> vs[j];
+              };
+            })
                 .toArray()
         )
     );
