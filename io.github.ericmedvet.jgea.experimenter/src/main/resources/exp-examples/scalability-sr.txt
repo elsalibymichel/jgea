@@ -4,6 +4,7 @@ $treeDesc2 = ea.s.me.d.descriptor(f = f.size(of = f.filter(of = ea.f.treeLeaves(
 ea.experiment(
   runs = (nOfThreads = [1; 2; 3; 4; 5; 6; 8; 12; 16]) * (randomGenerator = (seed = [1:1:2]) * [m.defaultRG()]) *
     (problem = [
+      ea.p.moToSo(objective = mse; moProblem = ea.p.ur.synthetic(name = "nguyen7"));
       % ea.p.moToSo(objective = mse; moProblem = ea.p.ur.bundled(name = "feynman-III-10-19"));
       % ea.p.moToSo(objective = mse; moProblem = ea.p.ur.bundled(name = "concrete"));
       ea.p.moToSo(objective = mse; moProblem = ea.p.ur.bundled(name = "energy-efficiency"))
@@ -33,16 +34,21 @@ ea.experiment(
       ];
       onlyLast = true
     );
-    ea.l.savePlotForRun(
+    ea.l.saveForRun(
       path = "../../Documenti/experiments/{name}/{startTime}/elapsed.svg";
-      plot = ea.plot.multi.xyExp(
+      of = ea.plot.multi.xyExp(
+        ySubplot = ea.f.runString(name = problem; s = "{run.solver.name}");
         x = ea.f.asDouble(of = ea.f.runKey(key = "run.nOfThreads"));
         y = ea.f.elapsedSecs();
         useRunForY = true
       );
-      overwrite = true;
-      type = svg;
-      markers = true
+      processor = ea.f.imagePlotter(
+        axesShow = all;
+        independences = [all];
+        type = svg;
+        markers = true
+      );
+      overwrite = true
     )
   ]
 )

@@ -79,14 +79,21 @@ public class Consumers {
           ImageIO.write(image, "png", file);
         }
         case String s -> {
-          Files.writeString(file.toPath(), s, StandardOpenOption.WRITE, StandardOpenOption.CREATE);
+          Files.writeString(
+              file.toPath(),
+              s,
+              StandardOpenOption.WRITE,
+              StandardOpenOption.CREATE,
+              StandardOpenOption.TRUNCATE_EXISTING
+          );
         }
         case Video video -> {
           Files.write(
               file.toPath(),
               video.data(),
               StandardOpenOption.WRITE,
-              StandardOpenOption.CREATE
+              StandardOpenOption.CREATE,
+              StandardOpenOption.TRUNCATE_EXISTING
           );
         }
         case byte[] data -> {
@@ -99,7 +106,8 @@ public class Consumers {
               file.toPath(),
               MapNamedParamMap.prettyToString(npm),
               StandardOpenOption.WRITE,
-              StandardOpenOption.CREATE
+              StandardOpenOption.CREATE,
+              StandardOpenOption.TRUNCATE_EXISTING
           );
         }
         case null -> throw new IllegalArgumentException("Cannot save null data of type %s");
