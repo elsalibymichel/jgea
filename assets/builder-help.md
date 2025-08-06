@@ -315,6 +315,52 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedName
 
 Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.PongFunctions.scoreDiff2()` by jgea-experimenter:2.7.1-SNAPSHOT
 
+### Builder `dynamicalSystem.environment.pong.shiftedScoreDiff1()`
+
+`ds.e.pong.shiftedScoreDiff1(of; format)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jsdynsym.control.Simulation$Outcome">Simulation$Outcome</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.control.HomogeneousBiAgentTask$Step">HomogeneousBiAgentTask$Step</abbr>&lt;double[], double[], <abbr title="io.github.ericmedvet.jsdynsym.control.pong.PongEnvironment$State">PongEnvironment$State</abbr>&gt;&gt;&gt;</code> |
+| `format` | s | `%5.3f` | <code><abbr title="java.lang.String">String</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.PongFunctions.shiftedScoreDiff1()` by jgea-experimenter:2.7.1-SNAPSHOT
+
+### Builder `dynamicalSystem.environment.pong.shiftedScoreDiff2()`
+
+`ds.e.pong.shiftedScoreDiff2(of; format)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jsdynsym.control.Simulation$Outcome">Simulation$Outcome</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.control.HomogeneousBiAgentTask$Step">HomogeneousBiAgentTask$Step</abbr>&lt;double[], double[], <abbr title="io.github.ericmedvet.jsdynsym.control.pong.PongEnvironment$State">PongEnvironment$State</abbr>&gt;&gt;&gt;</code> |
+| `format` | s | `%5.3f` | <code><abbr title="java.lang.String">String</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.PongFunctions.shiftedScoreDiff2()` by jgea-experimenter:2.7.1-SNAPSHOT
+
+### Builder `dynamicalSystem.environment.pong.yOffsetFromBall1()`
+
+`ds.e.pong.yOffsetFromBall1(of; format; ballXProximityThreshold)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jsdynsym.control.Simulation$Outcome">Simulation$Outcome</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.control.HomogeneousBiAgentTask$Step">HomogeneousBiAgentTask$Step</abbr>&lt;double[], double[], <abbr title="io.github.ericmedvet.jsdynsym.control.pong.PongEnvironment$State">PongEnvironment$State</abbr>&gt;&gt;&gt;</code> |
+| `format` | s | `%5.0f` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `ballXProximityThreshold` | d | `0.2` | <code>double</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.PongFunctions.yOffsetFromBall1()` by jgea-experimenter:2.7.1-SNAPSHOT
+
+### Builder `dynamicalSystem.environment.pong.yOffsetFromBall2()`
+
+`ds.e.pong.yOffsetFromBall2(of; format; ballXProximityThreshold)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jsdynsym.control.Simulation$Outcome">Simulation$Outcome</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.control.HomogeneousBiAgentTask$Step">HomogeneousBiAgentTask$Step</abbr>&lt;double[], double[], <abbr title="io.github.ericmedvet.jsdynsym.control.pong.PongEnvironment$State">PongEnvironment$State</abbr>&gt;&gt;&gt;</code> |
+| `format` | s | `%5.0f` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `ballXProximityThreshold` | d | `0.2` | <code>double</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.PongFunctions.yOffsetFromBall2()` by jgea-experimenter:2.7.1-SNAPSHOT
+
 ## Package `dynamicalSystem.function`
 
 Aliases: `ds.f`, `ds.function`, `dynSys.f`, `dynSys.function`, `dynamicalSystem.f`, `dynamicalSystem.function`
@@ -330,6 +376,16 @@ Aliases: `ds.f`, `ds.function`, `dynSys.f`, `dynSys.function`, `dynamicalSystem.
 | `format` | s | `%.1f` | <code><abbr title="java.lang.String">String</abbr></code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.Functions.doubleOp()` by jgea-experimenter:2.7.1-SNAPSHOT
+
+### Builder `dynamicalSystem.function.inner()`
+
+`ds.f.inner(of)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jsdynsym.core.composed.Composed">Composed</abbr>&lt;C&gt;&gt;</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.NamedFunction">NamedFunction</abbr>&lt;X, C&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.Functions.inner()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `dynamicalSystem.function.opponentBiSimulator()`
 
@@ -1060,7 +1116,7 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedName
 
 ### Builder `ea.function.imagePlotter()`
 
-`ea.f.imagePlotter(of; w; h; axesShow; titlesShow; independences; secondary; type)`
+`ea.f.imagePlotter(of; w; h; axesShow; titlesShow; independences; secondary; markers; type)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -1071,6 +1127,7 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedName
 | `titlesShow` | e | `BORDER` | <code><abbr title="io.github.ericmedvet.jviz.core.plot.image.Configuration$PlotMatrix$Show">Configuration$PlotMatrix$Show</abbr></code> |
 | `independences` | e[] | `[ROWS, COLS]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="io.github.ericmedvet.jviz.core.plot.image.Configuration$PlotMatrix$Independence">Configuration$PlotMatrix$Independence</abbr>&gt;</code> |
 | `secondary` | b | `false` | <code>boolean</code> |
+| `markers` | b | `false` | <code>boolean</code> |
 | `type` | s | `png` | <code><abbr title="java.lang.String">String</abbr></code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.NamedFunction">NamedFunction</abbr>&lt;X, <abbr title="java.lang.Object">Object</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Functions.imagePlotter()` by jgea-experimenter:2.7.1-SNAPSHOT
@@ -1771,13 +1828,13 @@ Produces <code><abbr title="java.util.function.BiFunction">BiFunction</abbr>&lt;
 
 ### Builder `ea.listener.savePlotAndCsvForExp()`
 
-`ea.l.savePlotAndCsvForExp(of; preprocessor; consumers; deferred; condition; secondary; overwrite; path; plot; type)`
+`ea.l.savePlotAndCsvForExp(of; preprocessor; consumers; deferred; condition; secondary; overwrite; path; plot; type; markers)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
 | `of` | npm | `null` | <code><abbr title="io.github.ericmedvet.jgea.core.listener.AccumulatorFactory">AccumulatorFactory</abbr>&lt;E, O, <abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;&gt;</code> |
 | `preprocessor` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super O, ? extends P&gt;</code> |
-| `consumers` | npm[] | `[ea.c.saver(path = "{experiment.name}"; of = ea.f.imagePlotter(secondary = false; type = png); overwrite = false), ea.c.saver(path = "{experiment.name}"; of = ea.f.csvPlotter(); suffix = ".tsv"; overwrite = false)]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="io.github.ericmedvet.jnb.datastructure.TriConsumer">TriConsumer</abbr>&lt;? super P, <abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;, <abbr title="io.github.ericmedvet.jgea.experimenter.Experiment">Experiment</abbr>&gt;&gt;</code> |
+| `consumers` | npm[] | `[ea.c.saver(path = "{experiment.name}"; of = ea.f.imagePlotter(secondary = false; markers = false; type = png); overwrite = false), ea.c.saver(path = "{experiment.name}"; of = ea.f.csvPlotter(); suffix = ".tsv"; overwrite = false)]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="io.github.ericmedvet.jnb.datastructure.TriConsumer">TriConsumer</abbr>&lt;? super P, <abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;, <abbr title="io.github.ericmedvet.jgea.experimenter.Experiment">Experiment</abbr>&gt;&gt;</code> |
 | `deferred` | b | `false` | <code>boolean</code> |
 | `condition` | npm | `predicate.always()` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;&gt;</code> |
 | `secondary` | b | `false` | <code><abbr title="java.lang.String">String</abbr></code> |
@@ -1785,18 +1842,19 @@ Produces <code><abbr title="java.util.function.BiFunction">BiFunction</abbr>&lt;
 | `path` | s | `{experiment.name}` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `plot` | npm | `` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `type` | s | `png` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `markers` | b | `false` | <code><abbr title="java.lang.String">String</abbr></code> |
 
 Produces <code><abbr title="java.util.function.BiFunction">BiFunction</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.experimenter.Experiment">Experiment</abbr>, <abbr title="java.util.concurrent.ExecutorService">ExecutorService</abbr>, <abbr title="io.github.ericmedvet.jgea.core.listener.ListenerFactory">ListenerFactory</abbr>&lt;E, <abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Listeners.onExpDone()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.listener.savePlotAndCsvForRun()`
 
-`ea.l.savePlotAndCsvForRun(of; preprocessor; consumers; deferred; condition; secondary; overwrite; path; plot; type)`
+`ea.l.savePlotAndCsvForRun(of; preprocessor; consumers; deferred; condition; secondary; overwrite; path; plot; type; markers)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
 | `of` | npm | `null` | <code><abbr title="io.github.ericmedvet.jgea.core.listener.AccumulatorFactory">AccumulatorFactory</abbr>&lt;E, O, <abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;&gt;</code> |
 | `preprocessor` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super O, ? extends P&gt;</code> |
-| `consumers` | npm[] | `[ea.c.saver(path = "{experiment.name}"; of = ea.f.imagePlotter(secondary = false; type = png); overwrite = false), ea.c.saver(path = "{experiment.name}"; of = ea.f.csvPlotter(); suffix = ".tsv"; overwrite = false)]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="io.github.ericmedvet.jnb.datastructure.TriConsumer">TriConsumer</abbr>&lt;? super P, <abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;, <abbr title="io.github.ericmedvet.jgea.experimenter.Experiment">Experiment</abbr>&gt;&gt;</code> |
+| `consumers` | npm[] | `[ea.c.saver(path = "{experiment.name}"; of = ea.f.imagePlotter(secondary = false; markers = false; type = png); overwrite = false), ea.c.saver(path = "{experiment.name}"; of = ea.f.csvPlotter(); suffix = ".tsv"; overwrite = false)]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="io.github.ericmedvet.jnb.datastructure.TriConsumer">TriConsumer</abbr>&lt;? super P, <abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;, <abbr title="io.github.ericmedvet.jgea.experimenter.Experiment">Experiment</abbr>&gt;&gt;</code> |
 | `deferred` | b | `false` | <code>boolean</code> |
 | `condition` | npm | `predicate.always()` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;&gt;</code> |
 | `secondary` | b | `false` | <code><abbr title="java.lang.String">String</abbr></code> |
@@ -1804,12 +1862,13 @@ Produces <code><abbr title="java.util.function.BiFunction">BiFunction</abbr>&lt;
 | `path` | s | `{experiment.name}` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `plot` | npm | `` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `type` | s | `png` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `markers` | b | `false` | <code><abbr title="java.lang.String">String</abbr></code> |
 
 Produces <code><abbr title="java.util.function.BiFunction">BiFunction</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.experimenter.Experiment">Experiment</abbr>, <abbr title="java.util.concurrent.ExecutorService">ExecutorService</abbr>, <abbr title="io.github.ericmedvet.jgea.core.listener.ListenerFactory">ListenerFactory</abbr>&lt;E, <abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Listeners.onRunDone()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.listener.savePlotForExp()`
 
-`ea.l.savePlotForExp(of; preprocessor; consumers; deferred; condition; path; processor; overwrite; plot; secondary; type)`
+`ea.l.savePlotForExp(of; preprocessor; consumers; deferred; condition; path; processor; overwrite; plot; secondary; type; markers)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -1819,17 +1878,18 @@ Produces <code><abbr title="java.util.function.BiFunction">BiFunction</abbr>&lt;
 | `deferred` | b | `false` | <code>boolean</code> |
 | `condition` | npm | `predicate.always()` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;&gt;</code> |
 | `path` | s | `{experiment.name}` | <code><abbr title="java.lang.String">String</abbr></code> |
-| `processor` | npm | `ea.f.imagePlotter(secondary = false; type = png)` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `processor` | npm | `ea.f.imagePlotter(secondary = false; markers = false; type = png)` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `overwrite` | b | `false` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `plot` | npm | `` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `secondary` | b | `false` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `type` | s | `png` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `markers` | b | `false` | <code><abbr title="java.lang.String">String</abbr></code> |
 
 Produces <code><abbr title="java.util.function.BiFunction">BiFunction</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.experimenter.Experiment">Experiment</abbr>, <abbr title="java.util.concurrent.ExecutorService">ExecutorService</abbr>, <abbr title="io.github.ericmedvet.jgea.core.listener.ListenerFactory">ListenerFactory</abbr>&lt;E, <abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Listeners.onExpDone()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.listener.savePlotForRun()`
 
-`ea.l.savePlotForRun(of; preprocessor; consumers; deferred; condition; path; overwrite; processor; secondary; plot; type)`
+`ea.l.savePlotForRun(of; preprocessor; consumers; deferred; condition; path; overwrite; processor; secondary; plot; type; markers)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -1840,10 +1900,11 @@ Produces <code><abbr title="java.util.function.BiFunction">BiFunction</abbr>&lt;
 | `condition` | npm | `predicate.always()` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;&gt;</code> |
 | `path` | s | `run-{run.index:%04d}` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `overwrite` | b | `false` | <code><abbr title="java.lang.String">String</abbr></code> |
-| `processor` | npm | `ea.f.imagePlotter(secondary = false; type = png)` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `processor` | npm | `ea.f.imagePlotter(secondary = false; markers = false; type = png)` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `secondary` | b | `false` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `plot` | npm | `` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `type` | s | `png` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `markers` | b | `false` | <code><abbr title="java.lang.String">String</abbr></code> |
 
 Produces <code><abbr title="java.util.function.BiFunction">BiFunction</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.experimenter.Experiment">Experiment</abbr>, <abbr title="java.util.concurrent.ExecutorService">ExecutorService</abbr>, <abbr title="io.github.ericmedvet.jgea.core.listener.ListenerFactory">ListenerFactory</abbr>&lt;E, <abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Listeners.onRunDone()` by jgea-experimenter:2.7.1-SNAPSHOT
 
@@ -2468,7 +2529,7 @@ Aliases: `ea.plot.m`, `ea.plot.multi`
 
 ### Builder `ea.plot.multi.quality()`
 
-`ea.plot.m.quality(xSubplot; ySubplot; line; x; y; valueAggregator; minAggregator; maxAggregator; xRange; yRange; useRunForY; xQuantization; q)`
+`ea.plot.m.quality(xSubplot; ySubplot; line; x; y; valueAggregator; minAggregator; maxAggregator; xRange; yRange; limitOneYForRun; useRunForY; xQuantization; q)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -2482,6 +2543,7 @@ Aliases: `ea.plot.m`, `ea.plot.multi`
 | `maxAggregator` | npm | `f.percentile(p = 75)` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Number">Number</abbr>&gt;, <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
 | `xRange` | npm | `m.range(min = -Infinity; max = Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
 | `yRange` | npm | `m.range(min = -Infinity; max = Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
+| `limitOneYForRun` | b | `true` | <code>boolean</code> |
 | `useRunForY` | b | `false` | <code>boolean</code> |
 | `xQuantization` | i | `1` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `q` | npm | `f.identity()` | <code><abbr title="java.lang.String">String</abbr></code> |
@@ -2543,7 +2605,7 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 
 ### Builder `ea.plot.multi.uniqueness()`
 
-`ea.plot.m.uniqueness(xSubplot; ySubplot; line; x; y; valueAggregator; minAggregator; maxAggregator; xRange; yRange; useRunForY; xQuantization)`
+`ea.plot.m.uniqueness(xSubplot; ySubplot; line; x; y; valueAggregator; minAggregator; maxAggregator; xRange; yRange; limitOneYForRun; useRunForY; xQuantization)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -2557,6 +2619,7 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 | `maxAggregator` | npm | `f.percentile(p = 75)` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Number">Number</abbr>&gt;, <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
 | `xRange` | npm | `m.range(min = -Infinity; max = Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
 | `yRange` | npm | `m.range(min = -Infinity; max = Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
+| `limitOneYForRun` | b | `true` | <code>boolean</code> |
 | `useRunForY` | b | `false` | <code>boolean</code> |
 | `xQuantization` | i | `1` | <code><abbr title="java.lang.String">String</abbr></code> |
 
@@ -2580,7 +2643,7 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 
 ### Builder `ea.plot.multi.xy()`
 
-`ea.plot.m.xy(xSubplot; ySubplot; line; x; y; valueAggregator; minAggregator; maxAggregator; xRange; yRange; useRunForY)`
+`ea.plot.m.xy(xSubplot; ySubplot; line; x; y; valueAggregator; minAggregator; maxAggregator; xRange; yRange; limitOneYForRun; useRunForY)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -2594,13 +2657,14 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 | `maxAggregator` | npm | `f.percentile(p = 75)` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Number">Number</abbr>&gt;, <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
 | `xRange` | npm | `m.range(min = -Infinity; max = Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
 | `yRange` | npm | `m.range(min = -Infinity; max = Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
+| `limitOneYForRun` | b | `true` | <code>boolean</code> |
 | `useRunForY` | b | `false` | <code>boolean</code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.AggregatedXYDataSeriesMRPAF">AggregatedXYDataSeriesMRPAF</abbr>&lt;E, R, <abbr title="java.lang.String">String</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.MultiPlots.xy()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.plot.multi.xyExp()`
 
-`ea.plot.m.xyExp(xSubplot; ySubplot; line; x; y; valueAggregator; minAggregator; maxAggregator; xRange; yRange; useRunForY; xQuantization)`
+`ea.plot.m.xyExp(xSubplot; ySubplot; line; x; y; valueAggregator; minAggregator; maxAggregator; xRange; yRange; limitOneYForRun; useRunForY; xQuantization)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -2614,6 +2678,7 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 | `maxAggregator` | npm | `f.percentile(p = 75)` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Number">Number</abbr>&gt;, <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
 | `xRange` | npm | `m.range(min = -Infinity; max = Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
 | `yRange` | npm | `m.range(min = -Infinity; max = Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
+| `limitOneYForRun` | b | `true` | <code>boolean</code> |
 | `useRunForY` | b | `false` | <code>boolean</code> |
 | `xQuantization` | i | `1` | <code><abbr title="java.lang.String">String</abbr></code> |
 

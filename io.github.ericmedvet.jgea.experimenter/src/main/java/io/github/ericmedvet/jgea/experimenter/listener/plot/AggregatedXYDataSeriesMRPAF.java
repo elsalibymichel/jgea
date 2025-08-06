@@ -22,16 +22,20 @@ package io.github.ericmedvet.jgea.experimenter.listener.plot;
 import io.github.ericmedvet.jnb.datastructure.*;
 import io.github.ericmedvet.jviz.core.plot.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
-public abstract class AggregatedXYDataSeriesMRPAF<E, R, K> extends AbstractMultipleRPAF<E, XYDataSeriesPlot, R, List<XYDataSeries>, K, Table<Number, K, List<Number>>> {
+public abstract class AggregatedXYDataSeriesMRPAF<E, R, K> extends AbstractMultipleRPAF<E, XYDataSeriesPlot, R, List<XYDataSeries>, K, Table<Number, K, Map<R, List<Number>>>> {
 
   private final Function<? super R, ? extends K> lineFunction;
   private final Function<? super E, ? extends Number> yFunction;
   private final Function<List<Number>, Number> valueAggregator;
   private final Function<List<Number>, Number> minAggregator;
   private final Function<List<Number>, Number> maxAggregator;
+  private final UnaryOperator<List<Number>> rFilter;
   private final DoubleRange xRange;
   private final DoubleRange yRange;
 
@@ -43,6 +47,7 @@ public abstract class AggregatedXYDataSeriesMRPAF<E, R, K> extends AbstractMulti
       Function<List<Number>, Number> valueAggregator,
       Function<List<Number>, Number> minAggregator,
       Function<List<Number>, Number> maxAggregator,
+      UnaryOperator<List<Number>> rFilter,
       DoubleRange xRange,
       DoubleRange yRange
   ) {
@@ -52,12 +57,13 @@ public abstract class AggregatedXYDataSeriesMRPAF<E, R, K> extends AbstractMulti
     this.valueAggregator = valueAggregator;
     this.minAggregator = minAggregator;
     this.maxAggregator = maxAggregator;
+    this.rFilter = rFilter;
     this.xRange = xRange;
     this.yRange = yRange;
   }
 
   @Override
-  protected List<XYDataSeries> buildData(K xK, K yK, Table<Number, K, List<Number>> table) {
+  protected List<XYDataSeries> buildData(K xK, K yK, Table<Number, K, Map<R, List<Number>>> table) {
     return table.colIndexes()
         .stream()
         .map(
@@ -68,20 +74,28 @@ public abstract class AggregatedXYDataSeriesMRPAF<E, R, K> extends AbstractMulti
                     .stream()
                     .filter(e -> e.getValue() != null)
                     .map(
-                        e -> new XYDataSeries.Point(
-                            Value.of(e.getKey().doubleValue()),
-                            RangedValue.of(
-                                valueAggregator
-                                    .apply(e.getValue())
-                                    .doubleValue(),
-                                minAggregator
-                                    .apply(e.getValue())
-                                    .doubleValue(),
-                                maxAggregator
-                                    .apply(e.getValue())
-                                    .doubleValue()
-                            )
-                        )
+                        e -> {
+                          List<Number> values = e.getValue()
+                              .values()
+                              .stream()
+                              .map(rFilter)
+                              .flatMap(List::stream)
+                              .toList();
+                          return new XYDataSeries.Point(
+                              Value.of(e.getKey().doubleValue()),
+                              RangedValue.of(
+                                  valueAggregator
+                                      .apply(values)
+                                      .doubleValue(),
+                                  minAggregator
+                                      .apply(values)
+                                      .doubleValue(),
+                                  maxAggregator
+                                      .apply(values)
+                                      .doubleValue()
+                              )
+                          );
+                        }
                     )
                     .toList()
             )
@@ -129,20 +143,26 @@ public abstract class AggregatedXYDataSeriesMRPAF<E, R, K> extends AbstractMulti
   }
 
   @Override
-  protected Table<Number, K, List<Number>> init(K xK, K yK) {
+  protected Table<Number, K, Map<R, List<Number>>> init(K xK, K yK) {
     return new HashMapTable<>();
   }
 
   @Override
-  protected Table<Number, K, List<Number>> update(K xK, K yK, Table<Number, K, List<Number>> table, E e, R r) {
+  protected Table<Number, K, Map<R, List<Number>>> update(
+      K xK,
+      K yK,
+      Table<Number, K, Map<R, List<Number>>> table,
+      E e,
+      R r
+  ) {
     Number x = xValue(e, r);
     K lineK = lineFunction.apply(r);
-    List<Number> values = table.get(x, lineK);
+    Map<R, List<Number>> values = table.get(x, lineK);
     if (values == null) {
-      values = new ArrayList<>();
+      values = new HashMap<>();
       table.set(x, lineK, values);
     }
-    values.add(yFunction.apply(e));
+    values.computeIfAbsent(r, run -> new ArrayList<>()).add(yFunction.apply(e));
     return table;
   }
 

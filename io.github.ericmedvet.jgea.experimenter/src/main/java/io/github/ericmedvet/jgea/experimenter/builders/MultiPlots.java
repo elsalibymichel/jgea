@@ -29,6 +29,7 @@ import io.github.ericmedvet.jnb.datastructure.DoubleRange;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 @Discoverable(prefixTemplate = "ea.plot.multi|m")
 public class MultiPlots {
@@ -103,8 +104,11 @@ public class MultiPlots {
       @Param(value = "maxAggregator", dNPM = "f.percentile(p=75)") Function<List<Number>, Number> maxAggregator,
       @Param(value = "xRange", dNPM = "m.range(min=-Infinity;max=Infinity)") DoubleRange xRange,
       @Param(value = "yRange", dNPM = "m.range(min=-Infinity;max=Infinity)") DoubleRange yRange,
+      @Param(value = "limitOneYForRun", dB = true) boolean limitOneYForRun,
       @Param("useRunForY") boolean useRunForY
   ) {
+    UnaryOperator<List<Number>> rFilter = limitOneYForRun ? values -> List.of(values.getLast()) : UnaryOperator
+        .identity();
     if (useRunForY) {
       //noinspection unchecked
       return new RAggregatedXYDataSeriesMRPAF<>(
@@ -115,6 +119,7 @@ public class MultiPlots {
           valueAggregator,
           minAggregator,
           maxAggregator,
+          rFilter,
           xRange,
           yRange,
           (Function<? super R, ? extends Number>) xFunction
@@ -129,6 +134,7 @@ public class MultiPlots {
         valueAggregator,
         minAggregator,
         maxAggregator,
+        rFilter,
         xRange,
         yRange,
         (Function<? super E, ? extends Number>) xFunction

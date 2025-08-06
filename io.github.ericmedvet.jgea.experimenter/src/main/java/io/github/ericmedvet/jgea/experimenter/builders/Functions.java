@@ -56,6 +56,7 @@ import io.github.ericmedvet.jviz.core.plot.*;
 import io.github.ericmedvet.jviz.core.plot.csv.*;
 import io.github.ericmedvet.jviz.core.plot.image.*;
 import io.github.ericmedvet.jviz.core.plot.image.Configuration;
+import io.github.ericmedvet.jviz.core.plot.image.Configuration.LinesPlot;
 import io.github.ericmedvet.jviz.core.plot.video.*;
 import io.github.ericmedvet.jviz.core.util.VideoUtils;
 import java.awt.image.BufferedImage;
@@ -111,7 +112,7 @@ public class Functions {
       @Param(value = "format", dS = "%s") String format
   ) {
     Function<String, Double> f = Double::parseDouble;
-    return FormattedNamedFunction.from(f, format, NamedFunction.name(beforeF)).compose(beforeF);
+    return FormattedNamedFunction.from(f, format, NamedFunction.UNNAMED_NAME).compose(beforeF);
   }
 
   @SuppressWarnings("unused")
@@ -425,6 +426,7 @@ public class Functions {
       @Param(
           value = "independences", dSs = {"rows", "cols"}) List<Configuration.PlotMatrix.Independence> independences,
       @Param("secondary") boolean secondary,
+      @Param("markers") boolean markers,
       @Param(value = "type", dS = "png") String type
   ) {
     UnaryOperator<ImageBuilder.ImageInfo> iiAdapter = ii -> new ImageBuilder.ImageInfo(
@@ -437,7 +439,18 @@ public class Functions {
         Configuration.Colors.DEFAULT,
         Configuration.Text.DEFAULT,
         new Configuration.PlotMatrix(axesShow, titlesShow, new HashSet<>(independences)),
-        Configuration.LinesPlot.DEFAULT,
+        markers ? new LinesPlot(
+            LinesPlot.DEFAULT.strokeSizeRate(),
+            LinesPlot.DEFAULT.alpha(),
+            LinesPlot.DEFAULT.markerSizeRate(),
+            LinesPlot.DEFAULT.marker(),
+            true,
+            LinesPlot.DEFAULT.legendImageWRate(),
+            LinesPlot.DEFAULT.legendImageHRate(),
+            LinesPlot.DEFAULT.colors(),
+            LinesPlot.DEFAULT.xExtensionRate(),
+            LinesPlot.DEFAULT.yExtensionRate()
+        ) : Configuration.LinesPlot.DEFAULT,
         Configuration.PointsPlot.DEFAULT,
         Configuration.UnivariateGridPlot.DEFAULT,
         Configuration.LandscapePlot.DEFAULT,

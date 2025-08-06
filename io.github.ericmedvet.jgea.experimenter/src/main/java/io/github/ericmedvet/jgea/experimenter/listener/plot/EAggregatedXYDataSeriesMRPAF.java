@@ -23,6 +23,7 @@ import io.github.ericmedvet.jnb.datastructure.DoubleRange;
 import io.github.ericmedvet.jnb.datastructure.NamedFunction;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 public class EAggregatedXYDataSeriesMRPAF<E, R, K> extends AggregatedXYDataSeriesMRPAF<E, R, K> {
   private final Function<? super E, ? extends Number> xFunction;
@@ -35,6 +36,7 @@ public class EAggregatedXYDataSeriesMRPAF<E, R, K> extends AggregatedXYDataSerie
       Function<List<Number>, Number> valueAggregator,
       Function<List<Number>, Number> minAggregator,
       Function<List<Number>, Number> maxAggregator,
+      UnaryOperator<List<Number>> rFilter,
       DoubleRange xRange,
       DoubleRange yRange,
       Function<? super E, ? extends Number> xFunction
@@ -47,6 +49,7 @@ public class EAggregatedXYDataSeriesMRPAF<E, R, K> extends AggregatedXYDataSerie
         valueAggregator,
         minAggregator,
         maxAggregator,
+        rFilter,
         xRange,
         yRange
     );
