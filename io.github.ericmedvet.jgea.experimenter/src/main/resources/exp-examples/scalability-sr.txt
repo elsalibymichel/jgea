@@ -33,7 +33,7 @@ ea.experiment(
       ];
       onlyLast = true
     );
-    ea.l.savePlotForExp(
+    ea.l.savePlotForRun(
       path = "../../Documenti/experiments/{name}/{startTime}/elapsed.svg";
       plot = ea.plot.multi.yBoxplotExp(
         y = ea.f.elapsedSecs();
