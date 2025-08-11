@@ -20,12 +20,8 @@
 
 package io.github.ericmedvet.jgea.problem.regression.univariate.synthetic;
 
-import io.github.ericmedvet.jgea.core.representation.NamedUnivariateRealFunction;
 import io.github.ericmedvet.jgea.problem.regression.MathUtils;
-import io.github.ericmedvet.jsdynsym.core.numerical.MultivariateRealFunction;
-import io.github.ericmedvet.jsdynsym.core.numerical.UnivariateRealFunction;
 import java.util.List;
-import java.util.Random;
 import java.util.random.RandomGenerator;
 
 public class Keijzer6 extends PrecomputedSyntheticURProblem {
@@ -49,24 +45,4 @@ public class Keijzer6 extends PrecomputedSyntheticURProblem {
     );
   }
 
-  public static void main(String[] args) {
-    NamedUnivariateRealFunction f = NamedUnivariateRealFunction.from(
-        UnivariateRealFunction.from(
-            vs -> vs[0] * vs[0] + 1d,
-            1
-        ),
-        MultivariateRealFunction.varNames("x", 1),
-        "y"
-    );
-    SyntheticURProblem.function(
-        vs -> vs[0] * vs[0] + 1d,
-        1
-    );
-    Keijzer6 problem = new Keijzer6(List.of(Metric.MSE), new Random(1));
-    System.out.println(problem);
-    System.out.println(problem.qualityFunction().apply(f, 1d));
-    System.out.println(problem.qualityFunction().apply(f, 0.1d));
-    System.out.println(problem.qualityFunction().apply(f, 0.01d));
-    System.out.println(problem.toTotalOrderQualityBasedProblem("mse").qualityFunction());
-  }
 }

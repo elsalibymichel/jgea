@@ -19,19 +19,12 @@
  */
 package io.github.ericmedvet.jgea.core.representation.tree.numeric;
 
-import io.github.ericmedvet.jgea.core.IndependentFactory;
-import io.github.ericmedvet.jgea.core.representation.tree.RampedHalfAndHalf;
 import io.github.ericmedvet.jgea.core.representation.tree.Tree;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element.Constant;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element.Operator;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element.Variable;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.function.Consumer;
-import java.util.random.RandomGenerator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -422,76 +415,6 @@ public class NumericTreeUtils {
       throw new ParseException(i, Operator.class);
     }
 
-  }
-
-  public static void main(String[] args) {
-
-    RandomGenerator rg = new Random(0);
-
-    List<Map<String, Double>> dataset = IntStream.range(0, 10)
-        .mapToObj(
-            i -> Map.ofEntries(
-                Map.entry("x", (double) rg.nextInt(10)),
-                Map.entry("y", (double) rg.nextInt(10)),
-                Map.entry("z", (double) rg.nextInt(10))
-            )
-        )
-        .toList();
-
-    Consumer<String> checker = s -> {
-      TreeBasedUnivariateRealFunction origUrf = new TreeBasedUnivariateRealFunction(
-          parse(s),
-          List.of("x", "y"),
-          "z",
-          false
-      );
-      TreeBasedUnivariateRealFunction simplUrf = new TreeBasedUnivariateRealFunction(
-          parse(s),
-          List.of("x", "y"),
-          "z",
-          true
-      );
-      System.out.printf(
-          "%s -> %s -> %s -> %d/%d%n",
-          s,
-          parse(s),
-          simplify(parse(s)),
-          dataset.stream().filter(o -> simplUrf.compute(o).equals(origUrf.compute(o))).count(),
-          dataset.size()
-      );
-      dataset.stream()
-          .filter(o -> !simplUrf.compute(o).equals(origUrf.compute(o)))
-          .forEach(
-              o -> System.out.printf(
-                  "\t%s -> simp=%f orig=%f%n",
-                  o,
-                  simplUrf.computeAsDouble(o),
-                  origUrf.computeAsDouble(o)
-              )
-          );
-    };
-    checker.accept("-(²(÷(5.0;2.0));_(+(x;x)))");
-    checker.accept("+(x;1)");
-    checker.accept("+(x;x)");
-    checker.accept("+(x;-(1;x))");
-    checker.accept("*(x;log(exp(1)))");
-
-    RampedHalfAndHalf<? extends Serializable> factory = new RampedHalfAndHalf<>(
-        2,
-        8,
-        e -> switch (e) {
-          case Operator operator -> operator.arity();
-          default -> 0;
-        },
-        IndependentFactory.picker(Operator.values()),
-        IndependentFactory.oneOf(
-            IndependentFactory.picker(new Constant(1d), new Constant(2d), new Constant(5d)),
-            IndependentFactory.picker(new Variable("x"), new Variable("y"))
-        )
-    );
-
-    System.out.println("\nFactory!");
-    factory.build(100, rg).forEach(t -> checker.accept(t.toString()));
   }
 
 }
