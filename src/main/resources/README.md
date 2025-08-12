@@ -103,7 +103,7 @@ A problem can be solved by a `Solver`:
 ```java
 public interface Solver<P extends Problem<S>, S> {
   Collection<S> solve(
-      P problem, RandomGenerator random, ExecutorService executor
+      P problem, RandomGenerator random, Executor executor
   ) throws SolverException;
 }
 ```
@@ -112,11 +112,11 @@ The unique ability of a `Solver` is to solve a problem `P`. The return value of 
 
 In general, an implementation of a solver might be able to solve only a subset of the possible problems, i.e., only problems of a given type, here representated by `P`, e.g., `QualityBasedProblem<S, Double>`.
 
-The `solve()` method takes, besides the problem, a `RandomGenerator` and an `ExecutorService`, because a solver can be, in general, non-deterministic and capable of exploiting concurrency.
+The `solve()` method takes, besides the problem, a `RandomGenerator` and an `Executor`, because a solver can be, in general, non-deterministic and capable of exploiting concurrency.
 
 - The `RandomGenerator` instance is used for all the random choices, hence allowing for repeatability of the experimentation.
   **Note**: reproducibility, i.e., obtaining the same results in the same conditions, is not a direct consequence of repeatability if some conditions are not satisfied. JGEA attempts to meet all of these conditions: however, executing an evolutionary run with some parallelism leads in general to not meeting one condition.
-- The `ExecutorService` instance is used for distributing computation (usually, of the fitness of candidate solutions) across different workers of the executor.
+- The `Executor` instance is used for distributing computation (usually, of the fitness of candidate solutions) across different workers of the executor.
 
 Most of the solvers are iterative, i.e., the build solutions based on an iterative process.
 
@@ -124,7 +124,7 @@ Most of the solvers are iterative, i.e., the build solutions based on an iterati
 public interface IterativeSolver<T extends Copyable, P extends Problem<S>, S> extends Solver<P, S> {
   /* ... */
   default Collection<S> solve(
-      P problem, RandomGenerator random, ExecutorService executor, Listener<? super T> listener
+      P problem, RandomGenerator random, Executor executor, Listener<? super T> listener
   ) throws SolverException {
     /* ... */
   }
@@ -177,7 +177,7 @@ public class StandardEvolver<G, S, Q>
 }
 ```
 
-`StandardEvolver` automatically exploits parallelism using the `ExecutorService` parameter of `solve()`.
+`StandardEvolver` automatically exploits parallelism using the `Executor` parameter of `solve()`.
 
 `POCPopulationState` is a state that includes the population, in the form of a partially ordered set ([poset](https://en.wikipedia.org/wiki/Partially_ordered_set)).
 
@@ -206,76 +206,81 @@ In this example, JGEA is used for solving the *parity problem* with the standard
 
 ```java
 public class Example {
+
   public static void main(String[] args) {
-    ExecutorService executor =
-        Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
+    Executor executor =
+            Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
     @SuppressWarnings({"unchecked", "rawtypes"})
     ListenerFactory<POCPopulationState<?, ?, NamedUnivariateRealFunction, Double>, Void>
-        listenerFactory = new TabularPrinter<>(
-        (List) List.of(
-            nOfIterations(),
-            elapsedSeconds(),
-            nOfBirths(),
-            all().then(size()),
-            firsts().then(size()),
-            lasts().then(size()),
-            all().then(each(genotype())).then(uniqueness()),
-            all().then(each(solution())).then(uniqueness()),
-            all().then(each(quality())).then(uniqueness()),
-            best().then(genotype()).then(size()),
-            best().then(solution()).then(size()),
-            best().then(fitnessMappingIteration()),
-            NamedFunctions.<Individual<Object, Object, Double>, Object, Object, Double>best()
-                .then(quality())
-                .reformat("%5.3f"),
-            NamedFunctions.<Individual<Object, Object, Double>, Object, Object, Double>all()
-                .then(each(quality()))
-                .then(hist(8)),
-            best().then(solution()).reformat("%20.20s")
-        ),
-        List.of()
+            listenerFactory = new TabularPrinter<>(
+            (List) List.of(
+                    nOfIterations(),
+                    elapsedSeconds(),
+                    nOfBirths(),
+                    all().then(size()),
+                    firsts().then(size()),
+                    lasts().then(size()),
+                    all().then(each(genotype())).then(uniqueness()),
+                    all().then(each(solution())).then(uniqueness()),
+                    all().then(each(quality())).then(uniqueness()),
+                    best().then(genotype()).then(size()),
+                    best().then(solution()).then(size()),
+                    best().then(fitnessMappingIteration()),
+                    NamedFunctions.<Individual<Object, Object, Double>, Object, Object, Double>best()
+                            .then(quality())
+                            .reformat("%5.3f"),
+                    NamedFunctions.<Individual<Object, Object, Double>, Object, Object, Double>all()
+                            .then(each(quality()))
+                            .then(hist(8)),
+                    best().then(solution()).reformat("%20.20s")
+            ),
+            List.of()
     );
     Random r = new Random(1);
     SyntheticUnivariateRegressionProblem p = new Nguyen7(UnivariateRegressionFitness.Metric.MSE, 1);
     List<Element.Variable> variables = p.qualityFunction()
-        .getDataset()
-        .xVarNames()
-        .stream()
-        .map(Element.Variable::new)
-        .toList();
-    List<Element.Constant> constantElements = Stream.of(0.1, 1d, 10d).map(Element.Constant::new).toList();
+            .getDataset()
+            .xVarNames()
+            .stream()
+            .map(Element.Variable::new)
+            .toList();
+    List<Element.Constant> constantElements = Stream.of(0.1, 1d, 10d).map(Element.Constant::new)
+            .toList();
     IndependentFactory<Element> terminalFactory = IndependentFactory.oneOf(
-        IndependentFactory.picker(variables), IndependentFactory.picker(constantElements));
+            IndependentFactory.picker(variables), IndependentFactory.picker(constantElements));
     IndependentFactory<Element> nonTerminalFactory = IndependentFactory.picker(List.of(
-        Element.Operator.ADDITION,
-        Element.Operator.SUBTRACTION,
-        Element.Operator.MULTIPLICATION,
-        Element.Operator.PROT_DIVISION
+            Element.Operator.ADDITION,
+            Element.Operator.SUBTRACTION,
+            Element.Operator.MULTIPLICATION,
+            Element.Operator.PROT_DIVISION
     ));
-    TreeBuilder<Element> treeBuilder = new GrowTreeBuilder<>(x -> 2, nonTerminalFactory, terminalFactory);
+    TreeBuilder<Element> treeBuilder = new GrowTreeBuilder<>(x -> 2, nonTerminalFactory,
+            terminalFactory);
     // operators
     Map<GeneticOperator<Tree<Element>>, Double> geneticOperators = Map.ofEntries(
-        Map.entry(new SubtreeCrossover<>(10), 0.80),
-        Map.entry(new SubtreeMutation<>(10, treeBuilder), 0.20)
+            Map.entry(new SubtreeCrossover<>(10), 0.80),
+            Map.entry(new SubtreeMutation<>(10, treeBuilder), 0.20)
     );
     StandardEvolver<Tree<Element>, NamedUnivariateRealFunction, Double> solver = new StandardEvolver<>(
-        t -> new TreeBasedUnivariateRealFunction(
-            t,
-            p.qualityFunction().getDataset().xVarNames(),
-            p.qualityFunction().getDataset().yVarNames().get(0)
-        ),
-        new RampedHalfAndHalf<>(4, 10, x -> 2, nonTerminalFactory, terminalFactory),
-        100,
-        StopConditions.nOfFitnessEvaluations(10000),
-        geneticOperators,
-        new Tournament(5),
-        new Last(),
-        100,
-        true,
-        false
+            t -> new TreeBasedUnivariateRealFunction(
+                    t,
+                    p.qualityFunction().getDataset().xVarNames(),
+                    p.qualityFunction().getDataset().yVarNames().get(0)
+            ),
+            new RampedHalfAndHalf<>(4, 10, x -> 2, nonTerminalFactory, terminalFactory),
+            100,
+            StopConditions.nOfFitnessEvaluations(10000),
+            geneticOperators,
+            new Tournament(5),
+            new Last(),
+            100,
+            true,
+            false
     );
-    Collection<NamedUnivariateRealFunction> solutions = solver.solve(p, r, executor, listenerFactory.build(null));
+    Collection<NamedUnivariateRealFunction> solutions = solver.solve(p, r, executor,
+            listenerFactory.build(null));
     System.out.printf("Found %d solutions%n", solutions.size());
+    ((ExecutorService)executor).shutdown();
   }
 }
 ```
