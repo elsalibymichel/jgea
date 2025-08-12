@@ -23,7 +23,7 @@ import io.github.ericmedvet.jgea.core.util.Misc;
 import io.github.ericmedvet.jnb.datastructure.NamedFunction;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -89,8 +89,8 @@ public interface ListenerFactory<E, K> {
     );
   }
 
-  default ListenerFactory<E, K> deferred(ExecutorService executorService) {
-    return from("%s[deferred]".formatted(this), k -> build(k).deferred(executorService), this::shutdown);
+  default ListenerFactory<E, K> deferred(Executor executor) {
+    return from("%s[deferred]".formatted(this), k -> build(k).deferred(executor), this::shutdown);
   }
 
   default <F> ListenerFactory<F, K> forEach(Function<F, Collection<E>> splitter) {
@@ -136,7 +136,7 @@ public interface ListenerFactory<E, K> {
           }
 
           @Override
-          public Listener<E> deferred(ExecutorService executorService) {
+          public Listener<E> deferred(Executor executor) {
             return new Listener<>() {
               @Override
               public void listen(E e) {
@@ -145,7 +145,7 @@ public interface ListenerFactory<E, K> {
                   return;
                 }
                 counter.incrementAndGet();
-                executorService.submit(() -> {
+                executor.execute(() -> {
                   try {
                     innerListener.listen(e);
                   } catch (RuntimeException ex) {
@@ -168,7 +168,7 @@ public interface ListenerFactory<E, K> {
               @Override
               public void done() {
                 counter.incrementAndGet();
-                executorService.submit(() -> {
+                executor.execute(() -> {
                   try {
                     innerListener.done();
                   } catch (RuntimeException ex) {

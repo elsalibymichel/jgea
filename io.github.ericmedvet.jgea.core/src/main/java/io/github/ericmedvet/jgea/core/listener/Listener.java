@@ -22,7 +22,8 @@ package io.github.ericmedvet.jgea.core.listener;
 import io.github.ericmedvet.jgea.core.util.Misc;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
+
+import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -69,11 +70,11 @@ public interface Listener<E> {
     return all(List.of(this, other));
   }
 
-  default Listener<E> deferred(ExecutorService executorService) {
+  default Listener<E> deferred(Executor executor) {
     final Logger L = Logger.getLogger(Listener.class.getName());
     return from(
         "%s[deferered]".formatted(this),
-        e -> executorService.submit(
+        e -> executor.execute(
             () -> Misc.doOrLog(
                 () -> listen(e),
                 Logger.getLogger(Listener.class.getName()),
@@ -81,7 +82,7 @@ public interface Listener<E> {
                 t -> String.format("Listener %s cannot listen() event: %s", this, t)
             )
         ),
-        () -> executorService.submit(
+        () -> executor.execute(
             () -> Misc.doOrLog(
                 this::done,
                 Logger.getLogger(Listener.class.getName()),
