@@ -42,7 +42,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -65,22 +65,22 @@ public class Listeners {
     public ListenerFactoryAndMonitor(
         ListenerFactory<E, K> innerListenerFactory,
         Predicate<K> predicate,
-        ExecutorService executorService,
+        Executor executor,
         boolean onLast
     ) {
       this.innerListenerFactory = innerListenerFactory;
       if (onLast) {
-        if (executorService != null) {
+        if (executor != null) {
           outerListenerFactory = innerListenerFactory
               .onLast()
-              .deferred(executorService)
+              .deferred(executor)
               .conditional(predicate);
         } else {
           outerListenerFactory = innerListenerFactory.onLast().conditional(predicate);
         }
       } else {
-        if (executorService != null) {
-          outerListenerFactory = innerListenerFactory.deferred(executorService).conditional(predicate);
+        if (executor != null) {
+          outerListenerFactory = innerListenerFactory.deferred(executor).conditional(predicate);
         } else {
           outerListenerFactory = innerListenerFactory.conditional(predicate);
         }
@@ -111,7 +111,7 @@ public class Listeners {
   }
 
   @SuppressWarnings("unused")
-  public static <G, S, Q> BiFunction<Experiment, ExecutorService, ListenerFactory<POCPopulationState<?, G, S, Q, ?>, Run<?, G, S, Q>>> allCsv(
+  public static <G, S, Q> BiFunction<Experiment, Executor, ListenerFactory<POCPopulationState<?, G, S, Q, ?>, Run<?, G, S, Q>>> allCsv(
       @Param("path") String path,
       @Param(value = "errorString", dS = "NA") String errorString,
       @Param(value = "intFormat", dS = "%d") String intFormat,
@@ -138,7 +138,7 @@ public class Listeners {
         PopIndividualPair::individual,
         "individual"
     );
-    return (experiment, executorService) -> {
+    return (experiment, executor) -> {
       List<Function<? super PopIndividualPair<G, S, Q>, ?>> pairFunctions = new ArrayList<>();
       Stream.concat(defaultStateFunctions.stream(), stateFunctions.stream())
           .map(f -> (Function<? super PopIndividualPair<G, S, Q>, ?>) FormattedNamedFunction.from(f).compose(pairPopF))
@@ -189,14 +189,14 @@ public class Listeners {
       return new ListenerFactoryAndMonitor<>(
           allListenerFactory,
           runPredicate,
-          deferred ? executorService : null,
+          deferred ? executor : null,
           onlyLast
       );
     };
   }
 
   @SuppressWarnings("unused")
-  public static <G, S, Q> BiFunction<Experiment, ExecutorService, ListenerFactory<POCPopulationState<?, G, S, Q, ?>, Run<?, G, S, Q>>> bestCsv(
+  public static <G, S, Q> BiFunction<Experiment, Executor, ListenerFactory<POCPopulationState<?, G, S, Q, ?>, Run<?, G, S, Q>>> bestCsv(
       @Param("path") String path,
       @Param(value = "errorString", dS = "NA") String errorString,
       @Param(value = "intFormat", dS = "%d") String intFormat,
@@ -214,7 +214,7 @@ public class Listeners {
       @Param(value = "runCondition", dNPM = "predicate.always()") Predicate<Run<?, G, S, Q>> runPredicate,
       @Param(value = "stateCondition", dNPM = "predicate.always()") Predicate<POCPopulationState<?, G, S, Q, ?>> statePredicate
   ) {
-    return (experiment, executorService) -> new ListenerFactoryAndMonitor<>(
+    return (experiment, executor) -> new ListenerFactoryAndMonitor<>(
         new CSVPrinter<>(
             Stream.of(defaultStateFunctions, stateFunctions)
                 .flatMap(List::stream)
@@ -229,13 +229,13 @@ public class Listeners {
             doubleFormat
         ),
         runPredicate,
-        deferred ? executorService : null,
+        deferred ? executor : null,
         onlyLast
     );
   }
 
   @SuppressWarnings("unused")
-  public static <G, S, Q> BiFunction<Experiment, ExecutorService, ListenerFactory<POCPopulationState<?, G, S, Q, ?>, Run<?, G, S, Q>>> console(
+  public static <G, S, Q> BiFunction<Experiment, Executor, ListenerFactory<POCPopulationState<?, G, S, Q, ?>, Run<?, G, S, Q>>> console(
       @Param(
           value = "defaultFunctions", dNPMs = {"ea.f.nOfIterations()", "ea.f.nOfEvals()", "ea.f.nOfBirths()", "ea.f" + ".elapsedSecs()", "f.size(of=ea.f.all())", "f.size(of=ea.f.firsts())", "f.size(of=ea.f.lasts())", "f" + ".uniqueness(of=f.each(mapF=ea.f.genotype();of=ea.f.all()))", "f.uniqueness(of=f.each(mapF=ea.f.solution();" + "of=ea.f.all()))", "f.uniqueness(of=f.each(mapF=ea.f.quality();of=ea.f.all()))"
           }) List<Function<? super POCPopulationState<?, G, S, Q, ?>, ?>> defaultStateFunctions,
@@ -250,7 +250,7 @@ public class Listeners {
       @Param(value = "stateCondition", dNPM = "predicate.always()") Predicate<POCPopulationState<?, G, S, Q, ?>> statePredicate,
       @Param("logExceptions") boolean logExceptions
   ) {
-    return (experiment, executorService) -> new ListenerFactoryAndMonitor<>(
+    return (experiment, executor) -> new ListenerFactoryAndMonitor<>(
         new TabularPrinter<>(
             Stream.of(defaultStateFunctions, stateFunctions)
                 .flatMap(List::stream)
@@ -262,12 +262,12 @@ public class Listeners {
             logExceptions
         ),
         runPredicate,
-        deferred ? executorService : null,
+        deferred ? executor : null,
         onlyLast
     );
   }
 
-  public static <G, S, Q> BiFunction<Experiment, ExecutorService, ListenerFactory<POCPopulationState<?, G, S, Q, ?>, Run<?, G, S, Q>>> net(
+  public static <G, S, Q> BiFunction<Experiment, Executor, ListenerFactory<POCPopulationState<?, G, S, Q, ?>, Run<?, G, S, Q>>> net(
       @Param(
           value = "defaultFunctions", dNPMs = {"ea.f.nOfIterations()", "ea.f.nOfEvals()", "ea.f.nOfBirths()", "ea.f" + ".elapsedSecs()", "f.size(of=ea.f.all())", "f.size(of=ea.f.firsts())", "f.size(of=ea.f.lasts())", "f" + ".uniqueness(of=f.each(mapF=ea.f.genotype();of=ea.f.all()))", "f.uniqueness(of=f.each(mapF=ea.f.solution();" + "of=ea.f.all()))", "f.uniqueness(of=f.each(mapF=ea.f.quality();of=ea.f.all()))"
           }) List<NamedFunction<? super POCPopulationState<?, G, S, Q, ?>, ?>> defaultStateFunctions,
@@ -283,7 +283,7 @@ public class Listeners {
       @Param(value = "condition", dNPM = "predicate.always()") Predicate<Run<?, G, S, Q>> predicate
   ) {
     NetMultiSink netMultiSink = new NetMultiSink(pollInterval, serverAddress, serverPort, new File(serverKeyFilePath));
-    return (experiment, executorService) -> new ListenerFactoryAndMonitor<>(
+    return (experiment, executor) -> new ListenerFactoryAndMonitor<>(
         new SinkListenerFactory<>(
             Misc.concat(List.of(defaultStateFunctions, stateFunctions)),
             Stream.concat(defaultRunFunctions.stream(), runFunctions.stream())
@@ -298,7 +298,7 @@ public class Listeners {
             netMultiSink.getDatItemSink()
         ),
         predicate,
-        executorService,
+        executor,
         false
     );
   }
@@ -337,7 +337,7 @@ public class Listeners {
           """ // spotless:on
   )
   @SuppressWarnings("unused")
-  public static <E, O, P> BiFunction<Experiment, ExecutorService, ListenerFactory<E, Run<?, ?, ?, ?>>> onExpDone(
+  public static <E, O, P> BiFunction<Experiment, Executor, ListenerFactory<E, Run<?, ?, ?, ?>>> onExpDone(
       @Param("of") AccumulatorFactory<E, O, Run<?, ?, ?, ?>> accumulatorFactory,
       @Param(value = "preprocessor", dNPM = "f.identity()") Function<? super O, ? extends P> preprocessor,
       @Param(
@@ -345,7 +345,7 @@ public class Listeners {
       @Param(value = "deferred") boolean deferred,
       @Param(value = "condition", dNPM = "predicate.always()") Predicate<Run<?, ?, ?, ?>> predicate
   ) {
-    return (experiment, executorService) -> new ListenerFactoryAndMonitor<>(
+    return (experiment, executor) -> new ListenerFactoryAndMonitor<>(
         accumulatorFactory.thenOnShutdown(
             Naming.named(
                 consumers.toString(),
@@ -358,7 +358,7 @@ public class Listeners {
             )
         ),
         predicate,
-        deferred ? executorService : null,
+        deferred ? executor : null,
         false
     );
   }
@@ -406,7 +406,7 @@ public class Listeners {
           """ // spotless:on
   )
   @SuppressWarnings("unused")
-  public static <E, O, P> BiFunction<Experiment, ExecutorService, ListenerFactory<E, Run<?, ?, ?, ?>>> onRunDone(
+  public static <E, O, P> BiFunction<Experiment, Executor, ListenerFactory<E, Run<?, ?, ?, ?>>> onRunDone(
       @Param("of") AccumulatorFactory<E, O, Run<?, ?, ?, ?>> accumulatorFactory,
       @Param(value = "preprocessor", dNPM = "f.identity()") Function<? super O, ? extends P> preprocessor,
       @Param(
@@ -414,7 +414,7 @@ public class Listeners {
       @Param(value = "deferred") boolean deferred,
       @Param(value = "condition", dNPM = "predicate.always()") Predicate<Run<?, ?, ?, ?>> predicate
   ) {
-    return (experiment, executorService) -> new ListenerFactoryAndMonitor<>(
+    return (experiment, executor) -> new ListenerFactoryAndMonitor<>(
         accumulatorFactory.thenOnDone(
             Naming.named(
                 consumers.toString(),
@@ -425,7 +425,7 @@ public class Listeners {
             )
         ),
         predicate,
-        deferred ? executorService : null,
+        deferred ? executor : null,
         false
     );
   }
@@ -437,7 +437,7 @@ public class Listeners {
   }
 
   @SuppressWarnings("unused")
-  public static <G, S, Q> BiFunction<Experiment, ExecutorService, ListenerFactory<POCPopulationState<?, G, S, Q, ?>, Run<?, G, S, Q>>> tui(
+  public static <G, S, Q> BiFunction<Experiment, Executor, ListenerFactory<POCPopulationState<?, G, S, Q, ?>, Run<?, G, S, Q>>> tui(
       @Param(
           value = "defaultFunctions", dNPMs = {"ea.f.nOfIterations()", "ea.f.nOfEvals()", "ea.f.nOfBirths()", "ea.f" + ".elapsedSecs()", "f.size(of=ea.f.all())", "f.size(of=ea.f.firsts())", "f.size(of=ea.f.lasts())", "f" + ".uniqueness(of=f.each(mapF=ea.f.genotype();of=ea.f.all()))", "f.uniqueness(of=f.each(mapF=ea.f.solution();" + "of=ea.f.all()))", "f.uniqueness(of=f.each(mapF=ea.f.quality();of=ea.f.all()))"
           }) List<NamedFunction<? super POCPopulationState<?, G, S, Q, ?>, ?>> defaultStateFunctions,
@@ -464,7 +464,7 @@ public class Listeners {
         dataItemSinkSource
     )
         .run();
-    return (experiment, executorService) -> new ListenerFactoryAndMonitor<>(
+    return (experiment, executor) -> new ListenerFactoryAndMonitor<>(
         new SinkListenerFactory<>(
             Misc.concat(List.of(defaultStateFunctions, stateFunctions)),
             Stream.concat(defaultRunFunctions.stream(), runFunctions.stream())
@@ -479,7 +479,7 @@ public class Listeners {
             dataItemSinkSource
         ),
         predicate,
-        executorService,
+        executor,
         false
     );
   }

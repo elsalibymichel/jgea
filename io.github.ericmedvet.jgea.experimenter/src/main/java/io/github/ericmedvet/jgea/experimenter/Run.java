@@ -29,6 +29,7 @@ import io.github.ericmedvet.jnb.core.Discoverable;
 import io.github.ericmedvet.jnb.core.Param;
 import io.github.ericmedvet.jnb.core.ParamMap;
 import java.util.Collection;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
@@ -46,21 +47,23 @@ public record Run<P extends QualityBasedProblem<S, Q>, G, S, Q>(
 ) {
 
   public Collection<S> run(
-      ExecutorService executorService,
+      Executor executor,
       Listener<? super POCPopulationState<?, G, S, Q, P>> listener
   ) throws SolverException {
-    ExecutorService runExecutorService = nOfThreads > 0 ? Executors.newFixedThreadPool(nOfThreads) : executorService;
+    if (nOfThreads>0) {
+      executor = Executors.newFixedThreadPool(nOfThreads);
+    }
     try {
       return solver.apply(problem.example().orElse(null))
           .solve(
               problem,
               randomGenerator,
-              runExecutorService,
+              executor,
               listener
           );
     } finally {
       if (nOfThreads > 0) {
-        runExecutorService.shutdown();
+        ((ExecutorService)executor).shutdown();
       }
     }
   }
