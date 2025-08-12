@@ -30,7 +30,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -63,7 +63,7 @@ public class ParticleSwarmOptimization<S, Q> extends AbstractPopulationBasedIter
   public PSOState<S, Q> init(
       TotalOrderQualityBasedProblem<S, Q> problem,
       RandomGenerator random,
-      ExecutorService executor
+      Executor executor
   ) throws SolverException {
     PSOState<S, Q> newState = PSOState.empty(problem, stopCondition());
     // init positions
@@ -79,102 +79,108 @@ public class ParticleSwarmOptimization<S, Q> extends AbstractPopulationBasedIter
         .mapToDouble(v -> v)
         .max()
         .orElseThrow();
-    try {
-      Collection<PSOIndividual<S, Q>> individuals = getAll(
-          executor.invokeAll(
-              positions.stream()
-                  .map(p -> {
-                    RandomGenerator localRandomGenerator = new Random(random.nextLong());
-                    localRandomGenerator.nextDouble(); // because the first double is always around 0.7
-                    return (Callable<PSOIndividual<S, Q>>) () -> {
-                      S s = solutionMapper.apply(p);
-                      Q q = problem.qualityFunction().apply(s);
-                      return PSOIndividual.of(
-                          counter.getAndIncrement(),
-                          p,
-                          buildList(p.size(), () -> localRandomGenerator.nextDouble(-(max - min), max - min)),
-                          p,
-                          q,
-                          s,
-                          q,
-                          0,
-                          0,
-                          List.of()
-                      );
-                    };
-                  })
-                  .toList()
-          )
-      );
-      return newState.updatedWithIteration(
-          populationSize,
-          populationSize,
-          individuals,
-          individuals.stream().min(comparator(problem)).orElseThrow()
-      );
-    } catch (InterruptedException e) {
-      throw new SolverException(e);
-    }
+    Collection<PSOIndividual<S, Q>> individuals = parallelCall(
+        positions.stream()
+            .map(p -> {
+              RandomGenerator localRandomGenerator = new Random(random.nextLong());
+              localRandomGenerator.nextDouble(); // because the first double is always around 0.7
+              return (Callable<PSOIndividual<S, Q>>) () -> {
+                S s = solutionMapper.apply(p);
+                Q q = problem.qualityFunction().apply(s);
+                return PSOIndividual.of(
+                    counter.getAndIncrement(),
+                    p,
+                    buildList(
+                        p.size(),
+                        () -> localRandomGenerator.nextDouble(-(max - min), max - min)
+                    ),
+                    p,
+                    q,
+                    s,
+                    q,
+                    0,
+                    0,
+                    List.of()
+                );
+              };
+            })
+            .toList(),
+        executor
+    );
+    return newState.updatedWithIteration(
+        populationSize,
+        populationSize,
+        individuals,
+        individuals.stream().min(comparator(problem)).orElseThrow()
+    );
   }
 
   @Override
   public PSOState<S, Q> update(
       RandomGenerator random,
-      ExecutorService executor,
+      Executor executor,
       PSOState<S, Q> state
   ) throws SolverException {
     PSOIndividual<S, Q> knownBest = state.knownBest();
     List<Double> globalBestPosition = knownBest.position();
     AtomicLong counter = new AtomicLong(state.nOfBirths());
-    try {
-      Collection<PSOIndividual<S, Q>> individuals = getAll(
-          executor.invokeAll(
-              state.listPopulation()
-                  .stream()
-                  .map(i -> {
-                    RandomGenerator localRandomGenerator = new Random(random.nextLong());
-                    localRandomGenerator.nextDouble(); // because the first double is always around 0.73
-                    return (Callable<PSOIndividual<S, Q>>) () -> {
-                      double rParticle = localRandomGenerator.nextDouble();
-                      double rGlobal = localRandomGenerator.nextDouble();
-                      List<Double> vVel = mult(i.velocity(), w);
-                      List<Double> vParticle = mult(diff(i.bestKnownPosition(), i.position()), rParticle * phiParticle);
-                      List<Double> vGlobal = mult(diff(globalBestPosition, i.position()), rGlobal * phiGlobal);
-                      List<Double> newVelocity = sum(vVel, vParticle, vGlobal);
-                      List<Double> newPosition = sum(i.position(), newVelocity);
-                      S newSolution = solutionMapper.apply(newPosition);
-                      Q newQuality = state.problem().qualityFunction().apply(newSolution);
-                      List<Double> newBestKnownPosition = i.bestKnownPosition();
-                      Q newBestKnownQuality = i.bestKnownQuality();
-                      if (state.problem().totalOrderComparator().compare(newQuality, i.quality()) < 0) {
-                        newBestKnownPosition = newPosition;
-                        newBestKnownQuality = newQuality;
-                      }
-                      return PSOIndividual.of(
-                          counter.getAndIncrement(),
-                          newPosition,
-                          newVelocity,
-                          newBestKnownPosition,
-                          newBestKnownQuality,
-                          newSolution,
-                          newQuality,
-                          state.nOfIterations(),
-                          state.nOfIterations(),
-                          List.of(i.id())
-                      );
-                    };
-                  })
-                  .toList()
-          )
-      );
-      Comparator<? super PSOIndividual<S, Q>> comparator = comparator(state.problem());
-      List<PSOIndividual<S, Q>> sortedIndividuals = individuals.stream().sorted(comparator).toList();
-      if (comparator.compare(sortedIndividuals.getFirst(), knownBest) < 0) {
-        knownBest = sortedIndividuals.getFirst();
-      }
-      return state.updatedWithIteration(populationSize, populationSize, sortedIndividuals, knownBest);
-    } catch (InterruptedException e) {
-      throw new SolverException(e);
+    Collection<PSOIndividual<S, Q>> individuals = parallelCall(
+        state.listPopulation()
+            .stream()
+            .map(i -> {
+              RandomGenerator localRandomGenerator = new Random(random.nextLong());
+              localRandomGenerator.nextDouble(); // because the first double is always around 0.73
+              return (Callable<PSOIndividual<S, Q>>) () -> {
+                double rParticle = localRandomGenerator.nextDouble();
+                double rGlobal = localRandomGenerator.nextDouble();
+                List<Double> vVel = mult(i.velocity(), w);
+                List<Double> vParticle = mult(
+                    diff(i.bestKnownPosition(), i.position()),
+                    rParticle * phiParticle
+                );
+                List<Double> vGlobal = mult(
+                    diff(globalBestPosition, i.position()),
+                    rGlobal * phiGlobal
+                );
+                List<Double> newVelocity = sum(vVel, vParticle, vGlobal);
+                List<Double> newPosition = sum(i.position(), newVelocity);
+                S newSolution = solutionMapper.apply(newPosition);
+                Q newQuality = state.problem().qualityFunction().apply(newSolution);
+                List<Double> newBestKnownPosition = i.bestKnownPosition();
+                Q newBestKnownQuality = i.bestKnownQuality();
+                if (state.problem().totalOrderComparator().compare(newQuality, i.quality()) < 0) {
+                  newBestKnownPosition = newPosition;
+                  newBestKnownQuality = newQuality;
+                }
+                return PSOIndividual.of(
+                    counter.getAndIncrement(),
+                    newPosition,
+                    newVelocity,
+                    newBestKnownPosition,
+                    newBestKnownQuality,
+                    newSolution,
+                    newQuality,
+                    state.nOfIterations(),
+                    state.nOfIterations(),
+                    List.of(i.id())
+                );
+              };
+            })
+            .toList(),
+        executor
+    );
+    Comparator<? super PSOIndividual<S, Q>> comparator = comparator(state.problem());
+    List<PSOIndividual<S, Q>> sortedIndividuals = individuals.stream()
+        .sorted(comparator)
+        .toList();
+    if (comparator.compare(sortedIndividuals.getFirst(), knownBest) < 0) {
+      knownBest = sortedIndividuals.getFirst();
     }
+    return state.updatedWithIteration(
+        populationSize,
+        populationSize,
+        sortedIndividuals,
+        knownBest
+    );
   }
 }

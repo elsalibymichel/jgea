@@ -33,9 +33,8 @@ import io.github.ericmedvet.jgea.core.solver.mapelites.MapElites;
 import io.github.ericmedvet.jgea.core.util.Misc;
 import io.github.ericmedvet.jnb.datastructure.Pair;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -84,7 +83,7 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
   public MEPopulationState<G, S, Q, QualityBasedBiProblem<S, O, Q>> init(
       QualityBasedBiProblem<S, O, Q> problem,
       RandomGenerator random,
-      ExecutorService executor
+      Executor executor
   ) throws SolverException {
     // create new genotypes and split in two list of opponents
     AtomicLong counter = new AtomicLong(0);
@@ -116,11 +115,11 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
         matches.putIfAbsent(individualsToIdPair.apply(individual, opponent), new Pair<>(individual, opponent));
       }
     }
-    List<Future<MatchOutcome<Q>>> futures = new ArrayList<>();
+    List<Callable<MatchOutcome<Q>>> callables = new ArrayList<>(matches.size());
     List<Pair<MEIndividual<G, S, Q>, MEIndividual<G, S, Q>>> matchesOpponents = matches.values().stream().toList();
     for (int i = 0; i < matches.size(); i++) {
       int index = i;
-      Future<MatchOutcome<Q>> future = executor.submit(() -> {
+      callables.add(() -> {
         Pair<MEIndividual<G, S, Q>, MEIndividual<G, S, Q>> match = matchesOpponents.get(index);
         MEIndividual<G, S, Q> i1 = match.first();
         MEIndividual<G, S, Q> i2 = match.second();
@@ -129,17 +128,8 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
         Q secondQuality = problem.secondQualityFunction().apply(outcome);
         return new MatchOutcome<>(i1.id(), i2.id(), firstQuality, secondQuality);
       });
-      futures.add(future);
     }
-    Collection<MatchOutcome<Q>> matchesOutcomes = futures.stream()
-        .map(listFuture -> {
-          try {
-            return listFuture.get();
-          } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-          }
-        })
-        .toList();
+    Collection<MatchOutcome<Q>> matchesOutcomes = parallelCall(callables, executor);
     Map<Long, List<Q>> idsFitnessMap = new HashMap<>();
     matchesOutcomes.forEach(fo -> {
       idsFitnessMap.computeIfAbsent(fo.id1(), k -> new ArrayList<>()).add(fo.f1());
@@ -157,7 +147,7 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
     );
     return newState.updatedWithIteration(
         populationSize,
-        futures.size(),
+        callables.size(),
         newState.archive().updated(updatedIndividuals, MEIndividual::bins, partialComparator(problem))
     );
   }
@@ -165,7 +155,7 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
   @Override
   public MEPopulationState<G, S, Q, QualityBasedBiProblem<S, O, Q>> update(
       RandomGenerator random,
-      ExecutorService executor,
+      Executor executor,
       MEPopulationState<G, S, Q, QualityBasedBiProblem<S, O, Q>> state
   ) throws SolverException {
     // build offspring with empty quality
@@ -210,11 +200,11 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
         matches.putIfAbsent(individualsToIdPair.apply(individual, opponent), new Pair<>(individual, opponent));
       }
     }
-    List<Future<MatchOutcome<Q>>> futures = new ArrayList<>();
+    List<Callable<MatchOutcome<Q>>> callables = new ArrayList<>(matches.size());
     List<Pair<MEIndividual<G, S, Q>, MEIndividual<G, S, Q>>> matchesOpponents = matches.values().stream().toList();
     for (int i = 0; i < matches.size(); i++) {
       int index = i;
-      Future<MatchOutcome<Q>> future = executor.submit(() -> {
+      callables.add(() -> {
         Pair<MEIndividual<G, S, Q>, MEIndividual<G, S, Q>> match = matchesOpponents.get(index);
         MEIndividual<G, S, Q> i1 = match.first();
         MEIndividual<G, S, Q> i2 = match.second();
@@ -223,17 +213,8 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
         Q secondQuality = state.problem().secondQualityFunction().apply(outcome);
         return new MatchOutcome<>(i1.id(), i2.id(), firstQuality, secondQuality);
       });
-      futures.add(future);
     }
-    Collection<MatchOutcome<Q>> matchesOutcomes = futures.stream()
-        .map(listFuture -> {
-          try {
-            return listFuture.get();
-          } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-          }
-        })
-        .toList();
+    Collection<MatchOutcome<Q>> matchesOutcomes = parallelCall(callables, executor);
     Map<Long, List<Q>> idsFitnessMap = new HashMap<>();
     matchesOutcomes.forEach(fo -> {
       idsFitnessMap.computeIfAbsent(fo.id1(), k -> new ArrayList<>()).add(fo.f1());
@@ -266,6 +247,6 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
       archive = state.archive().updated(updatedIndividuals, MEIndividual::bins, updaterComparator);
     }
     archive = archive.updated(updatedIndividuals, MEIndividual::bins, partialComparator(state.problem()));
-    return state.updatedWithIteration(populationSize, futures.size(), archive);
+    return state.updatedWithIteration(populationSize, matchesOutcomes.size(), archive);
   }
 }

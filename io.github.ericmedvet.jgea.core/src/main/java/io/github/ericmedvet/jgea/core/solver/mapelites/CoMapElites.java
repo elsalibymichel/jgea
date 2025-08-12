@@ -34,7 +34,7 @@ import io.github.ericmedvet.jnb.datastructure.DoubleRange;
 import io.github.ericmedvet.jnb.datastructure.Pair;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -272,7 +272,7 @@ public class CoMapElites<G1, G2, S1, S2, S, Q> extends AbstractPopulationBasedIt
   public CoMEPopulationState<G1, G2, S1, S2, S, Q, QualityBasedProblem<S, Q>> init(
       QualityBasedProblem<S, Q> problem,
       RandomGenerator random,
-      ExecutorService executor
+      Executor executor
   ) throws SolverException {
     CoMEStrategy strategy1 = strategySupplier.get();
     CoMEStrategy strategy2 = strategySupplier.get();
@@ -293,7 +293,7 @@ public class CoMapElites<G1, G2, S1, S2, S, Q> extends AbstractPopulationBasedIt
         .stream()
         .map(g -> new ChildGenotype<G2>(counter.getAndIncrement(), g, List.of()))
         .toList();
-    Collection<CoMEIndividual<G1, G2, S1, S2, S, Q>> coMEIndividuals = getAll(
+    Collection<CoMEIndividual<G1, G2, S1, S2, S, Q>> coMEIndividuals = parallelCall(
         IntStream.range(0, populationSize)
             .mapToObj(i -> coMapCallable(childGenotypes1.get(i), childGenotypes2.get(i), newState, counter))
             .toList(),
@@ -326,12 +326,12 @@ public class CoMapElites<G1, G2, S1, S2, S, Q> extends AbstractPopulationBasedIt
   @Override
   public CoMEPopulationState<G1, G2, S1, S2, S, Q, QualityBasedProblem<S, Q>> update(
       RandomGenerator random,
-      ExecutorService executor,
+      Executor executor,
       CoMEPopulationState<G1, G2, S1, S2, S, Q, QualityBasedProblem<S, Q>> state
   ) throws SolverException {
     AtomicLong counter = new AtomicLong(state.nOfBirths());
     // reproduction 1
-    Collection<Pair<CoMEPartialIndividual<G1, S1, G1, G2, S1, S2, S, Q>, List<CoMEIndividual<G1, G2, S1, S2, S, Q>>>> reproduction1 = getAll(
+    Collection<Pair<CoMEPartialIndividual<G1, S1, G1, G2, S1, S2, S, Q>, List<CoMEIndividual<G1, G2, S1, S2, S, Q>>>> reproduction1 = parallelCall(
         IntStream.range(0, nOfOffspring / 2)
             .mapToObj(
                 i -> reproduceCallable(
@@ -356,7 +356,7 @@ public class CoMapElites<G1, G2, S1, S2, S, Q> extends AbstractPopulationBasedIt
         executor
     );
     // reproduction 2
-    Collection<Pair<CoMEPartialIndividual<G2, S2, G2, G1, S2, S1, S, Q>, List<CoMEIndividual<G2, G1, S2, S1, S, Q>>>> reproduction2 = getAll(
+    Collection<Pair<CoMEPartialIndividual<G2, S2, G2, G1, S2, S1, S, Q>, List<CoMEIndividual<G2, G1, S2, S1, S, Q>>>> reproduction2 = parallelCall(
         IntStream.range(0, nOfOffspring / 2)
             .mapToObj(
                 i -> reproduceCallable(

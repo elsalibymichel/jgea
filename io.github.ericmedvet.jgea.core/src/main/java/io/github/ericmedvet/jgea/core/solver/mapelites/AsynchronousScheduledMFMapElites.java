@@ -36,8 +36,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -88,7 +89,7 @@ public class AsynchronousScheduledMFMapElites<G, S, Q> extends AbstractPopulatio
     List<Integer> bins = coordinates.stream().map(Coordinate::bin).toList();
     double currentFidelity = currentFidelityMap.get(bins);
     Q quality = qualityFunction.apply(solution, currentFidelity);
-    nOfEvaluationsMap.compute(bins, (k, v) -> v + 1);
+    nOfEvaluationsMap.compute(bins, (k, v) -> Objects.requireNonNullElse(v, 0L) + 1);
     cumulativeFidelityMap.put(bins, cumulativeFidelityMap.getOrDefault(bins, 0d) + currentFidelity);
     return MEIndividual.of(
         id,
@@ -171,7 +172,7 @@ public class AsynchronousScheduledMFMapElites<G, S, Q> extends AbstractPopulatio
   public MultiFidelityMEPopulationState<G, S, Q, MultifidelityQualityBasedProblem<S, Q>> init(
       MultifidelityQualityBasedProblem<S, Q> problem,
       RandomGenerator random,
-      ExecutorService executor
+      Executor executor
   ) throws SolverException {
     throw new UnsupportedOperationException("This solver is not actually iterative");
   }
@@ -179,7 +180,7 @@ public class AsynchronousScheduledMFMapElites<G, S, Q> extends AbstractPopulatio
   @Override
   public MultiFidelityMEPopulationState<G, S, Q, MultifidelityQualityBasedProblem<S, Q>> update(
       RandomGenerator random,
-      ExecutorService executor,
+      Executor executor,
       MultiFidelityMEPopulationState<G, S, Q, MultifidelityQualityBasedProblem<S, Q>> state
   ) throws SolverException {
     throw new UnsupportedOperationException("This solver is not actually iterative");
@@ -189,7 +190,7 @@ public class AsynchronousScheduledMFMapElites<G, S, Q> extends AbstractPopulatio
   public Collection<S> solve(
       MultifidelityQualityBasedProblem<S, Q> problem,
       RandomGenerator random,
-      ExecutorService executor,
+      Executor executor,
       Listener<? super MultiFidelityMEPopulationState<G, S, Q, MultifidelityQualityBasedProblem<S, Q>>> listener
   ) throws SolverException {
     // init maps and counters
@@ -250,7 +251,7 @@ public class AsynchronousScheduledMFMapElites<G, S, Q> extends AbstractPopulatio
     // "iterate", ie, start capacity concurrent tasks
     IntStream.range(0, capacity)
         .forEach(
-            i -> executor.submit(
+            i -> executor.execute(
                 variationRunnable(
                     individualMap,
                     nOfEvaluationsMap,
@@ -324,7 +325,7 @@ public class AsynchronousScheduledMFMapElites<G, S, Q> extends AbstractPopulatio
       LocalDateTime startingDateTime,
       MultifidelityQualityBasedProblem<S, Q> problem,
       RandomGenerator random,
-      ExecutorService executor,
+      Executor executor,
       Listener<? super MultiFidelityMEPopulationState<G, S, Q, MultifidelityQualityBasedProblem<S, Q>>> listener
   ) {
     // increase counter of "pending" tasks
@@ -406,7 +407,7 @@ public class AsynchronousScheduledMFMapElites<G, S, Q> extends AbstractPopulatio
         }
         // start new variationRunnable on this cell
         if (!stopped.get()) {
-          executor.submit(
+          executor.execute(
               variationRunnable(
                   individualMap,
                   nOfEvaluationsMap,

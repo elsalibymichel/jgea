@@ -30,7 +30,7 @@ import io.github.ericmedvet.jgea.core.solver.ListPopulationState;
 import io.github.ericmedvet.jgea.core.solver.SolverException;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -67,22 +67,22 @@ public class SimpleEvolutionaryStrategy<S, Q> extends AbstractPopulationBasedIte
   public ListPopulationState<Individual<List<Double>, S, Q>, List<Double>, S, Q, TotalOrderQualityBasedProblem<S, Q>> init(
       TotalOrderQualityBasedProblem<S, Q> problem,
       RandomGenerator random,
-      ExecutorService executor
+      Executor executor
   ) throws SolverException {
     ListPopulationState<Individual<List<Double>, S, Q>, List<Double>, S, Q, TotalOrderQualityBasedProblem<S, Q>> newState = ListPopulationState
         .empty(problem, stopCondition());
     AtomicLong counter = new AtomicLong(0);
     List<? extends List<Double>> genotypes = genotypeFactory.build(populationSize, random);
-    Collection<Individual<List<Double>, S, Q>> newIndividuals = getAll(
-        map(
+    Collection<Individual<List<Double>, S, Q>> newIndividuals = parallelCall(
+        mapTasks(
             genotypes.stream()
                 .map(g -> new ChildGenotype<List<Double>>(counter.getAndIncrement(), g, List.of()))
                 .toList(),
             (cg, s, r) -> Individual.from(cg, solutionMapper, problem.qualityFunction(), s.nOfIterations()),
             newState,
-            random,
-            executor
-        )
+            random
+        ),
+        executor
     );
     return newState.updatedWithIteration(
         newIndividuals.size(),
@@ -94,7 +94,7 @@ public class SimpleEvolutionaryStrategy<S, Q> extends AbstractPopulationBasedIte
   @Override
   public ListPopulationState<Individual<List<Double>, S, Q>, List<Double>, S, Q, TotalOrderQualityBasedProblem<S, Q>> update(
       RandomGenerator random,
-      ExecutorService executor,
+      Executor executor,
       ListPopulationState<Individual<List<Double>, S, Q>, List<Double>, S, Q, TotalOrderQualityBasedProblem<S, Q>> state
   ) throws SolverException {
     // select elites

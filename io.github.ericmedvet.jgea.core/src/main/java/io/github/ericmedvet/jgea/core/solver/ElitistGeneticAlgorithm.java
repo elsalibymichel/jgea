@@ -27,7 +27,7 @@ import io.github.ericmedvet.jgea.core.selector.Selector;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
@@ -70,7 +70,7 @@ public class ElitistGeneticAlgorithm<G, S, Q> extends StandardEvolver<G, S, Q> {
   @Override
   public POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedProblem<S, Q>> update(
       RandomGenerator random,
-      ExecutorService executor,
+      Executor executor,
       POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedProblem<S, Q>> state
   ) throws SolverException {
     Collection<ChildGenotype<G>> offspringChildGenotypes = buildOffspringToMapGenotypes(state, random);

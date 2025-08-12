@@ -32,7 +32,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -79,7 +79,7 @@ public class OpenAIEvolutionaryStrategy<S, Q> extends AbstractPopulationBasedIte
   public OpenAIESState<S, Q> init(
       TotalOrderQualityBasedProblem<S, Q> problem,
       RandomGenerator random,
-      ExecutorService executor
+      Executor executor
   ) throws SolverException {
     OpenAIESState<S, Q> newState = OpenAIESState.empty(
         problem,
@@ -87,17 +87,22 @@ public class OpenAIEvolutionaryStrategy<S, Q> extends AbstractPopulationBasedIte
         unboxed(genotypeFactory.build(1, random).getFirst())
     );
     AtomicLong counter = new AtomicLong(0);
-    Collection<Individual<List<Double>, S, Q>> newIndividuals = getAll(
-        map(
+    Collection<Individual<List<Double>, S, Q>> newIndividuals = parallelCall(
+        mapTasks(
             genotypeFactory.build(2 * batchSize, random)
                 .stream()
                 .map(g -> new ChildGenotype<List<Double>>(counter.getAndIncrement(), g, List.of()))
                 .toList(),
-            (cg, s, r) -> Individual.from(cg, solutionMapper, s.problem().qualityFunction(), s.nOfIterations()),
+            (cg, s, r) -> Individual.from(
+                cg,
+                solutionMapper,
+                s.problem().qualityFunction(),
+                s.nOfIterations()
+            ),
             newState,
-            random,
-            executor
-        )
+            random
+        ),
+        executor
     );
     return newState.updatedWithIteration(
         newIndividuals,
@@ -112,7 +117,7 @@ public class OpenAIEvolutionaryStrategy<S, Q> extends AbstractPopulationBasedIte
   @Override
   public OpenAIESState<S, Q> update(
       RandomGenerator random,
-      ExecutorService executor,
+      Executor executor,
       OpenAIESState<S, Q> state
   ) throws SolverException {
     // produce noise vectors
@@ -121,22 +126,29 @@ public class OpenAIEvolutionaryStrategy<S, Q> extends AbstractPopulationBasedIte
         .toList();
     // evaluates scores (ie., map genotypes to individuals)
     List<List<Double>> plusGenotypes = samples.stream().map(s -> sum(s, state.center())).toList();
-    List<List<Double>> minusGenotypes = samples.stream().map(s -> sum(mult(s, -1), state.center())).toList();
+    List<List<Double>> minusGenotypes = samples.stream()
+        .map(s -> sum(mult(s, -1), state.center()))
+        .toList();
     AtomicLong counter = new AtomicLong(state.nOfBirths());
     List<Long> parentIds = state.listPopulation().stream().map(Individual::id).toList();
-    List<Individual<List<Double>, S, Q>> newIndividuals = getAll(
-        map(
+    List<Individual<List<Double>, S, Q>> newIndividuals = parallelCall(
+        mapTasks(
             Stream.of(plusGenotypes, minusGenotypes)
                 .flatMap(List::stream)
                 .toList()
                 .stream()
                 .map(g -> new ChildGenotype<>(counter.getAndIncrement(), g, parentIds))
                 .toList(),
-            (cg, s, r) -> Individual.from(cg, solutionMapper, s.problem().qualityFunction(), s.nOfIterations()),
+            (cg, s, r) -> Individual.from(
+                cg,
+                solutionMapper,
+                s.problem().qualityFunction(),
+                s.nOfIterations()
+            ),
             state,
-            random,
-            executor
-        )
+            random
+        ),
+        executor
     )
         .stream()
         .toList();
@@ -153,7 +165,12 @@ public class OpenAIEvolutionaryStrategy<S, Q> extends AbstractPopulationBasedIte
     double[] g = unboxed(
         meanList(
             IntStream.range(0, normalizedRanks.size())
-                .mapToObj(i -> mult(diff(newIndividuals.get(i).genotype(), state.center()), normalizedRanks.get(i)))
+                .mapToObj(
+                    i -> mult(
+                        diff(newIndividuals.get(i).genotype(), state.center()),
+                        normalizedRanks.get(i)
+                    )
+                )
                 .toList()
         )
     );

@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -99,7 +99,7 @@ public class CooperativeSolver<T1 extends POCPopulationState<Individual<G1, S1, 
   public CooperativeState<T1, T2, G1, G2, S1, S2, S, Q, QualityBasedProblem<S1, Q>, QualityBasedProblem<S2, Q>, QualityBasedProblem<S, Q>> init(
       QualityBasedProblem<S, Q> problem,
       RandomGenerator random,
-      ExecutorService executor
+      Executor executor
   ) throws SolverException {
     QualityBasedProblem<S1, Q> dummyProblem1 = problem(
         s1 -> null,
@@ -187,7 +187,7 @@ public class CooperativeSolver<T1 extends POCPopulationState<Individual<G1, S1, 
   @Override
   public CooperativeState<T1, T2, G1, G2, S1, S2, S, Q, QualityBasedProblem<S1, Q>, QualityBasedProblem<S2, Q>, QualityBasedProblem<S, Q>> update(
       RandomGenerator random,
-      ExecutorService executor,
+      Executor executor,
       CooperativeState<T1, T2, G1, G2, S1, S2, S, Q, QualityBasedProblem<S1, Q>, QualityBasedProblem<S2, Q>, QualityBasedProblem<S, Q>> coState
   ) throws SolverException {
     Collection<Individual<G1, S1, Q>> representatives1 = extractor1.select(coState.state1().pocPopulation(), random);

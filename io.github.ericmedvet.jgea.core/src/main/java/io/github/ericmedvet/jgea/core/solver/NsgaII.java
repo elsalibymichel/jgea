@@ -26,7 +26,7 @@ import io.github.ericmedvet.jgea.core.order.PartiallyOrderedCollection;
 import io.github.ericmedvet.jgea.core.problem.MultiObjectiveProblem;
 import io.github.ericmedvet.jgea.core.util.Misc;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -163,14 +163,14 @@ public class NsgaII<G, S, Q> extends AbstractPopulationBasedIterativeSolver<POCP
   public POCPopulationState<Individual<G, S, Q>, G, S, Q, MultiObjectiveProblem<S, Q, Double>> init(
       MultiObjectiveProblem<S, Q, Double> problem,
       RandomGenerator random,
-      ExecutorService executor
+      Executor executor
   ) throws SolverException {
     POCPopulationState<Individual<G, S, Q>, G, S, Q, MultiObjectiveProblem<S, Q, Double>> newState = POCPopulationState
         .empty(problem, stopCondition());
     AtomicLong counter = new AtomicLong(0);
     List<? extends G> genotypes = genotypeFactory.build(populationSize, random);
-    Collection<Individual<G, S, Q>> individuals = getAll(
-        map(
+    Collection<Individual<G, S, Q>> individuals = parallelCall(
+        mapTasks(
             genotypes.stream()
                 .map(g -> new ChildGenotype<G>(counter.getAndIncrement(), g, List.of()))
                 .toList(),
@@ -178,9 +178,9 @@ public class NsgaII<G, S, Q> extends AbstractPopulationBasedIterativeSolver<POCP
                 Individual.from(cg, solutionMapper, s.problem().qualityFunction(), s.nOfIterations())
             ),
             newState,
-            random,
-            executor
-        )
+            random
+        ),
+        executor
     );
     return newState.updatedWithIteration(
         genotypes.size(),
@@ -192,7 +192,7 @@ public class NsgaII<G, S, Q> extends AbstractPopulationBasedIterativeSolver<POCP
   @Override
   public POCPopulationState<Individual<G, S, Q>, G, S, Q, MultiObjectiveProblem<S, Q, Double>> update(
       RandomGenerator random,
-      ExecutorService executor,
+      Executor executor,
       POCPopulationState<Individual<G, S, Q>, G, S, Q, MultiObjectiveProblem<S, Q, Double>> state
   ) throws SolverException {
     // build offspring

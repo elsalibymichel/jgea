@@ -32,8 +32,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.random.RandomGenerator;
@@ -61,81 +62,59 @@ public abstract class AbstractPopulationBasedIterativeSolver<T extends POCPopula
     this.additionalIndividualComparators = additionalIndividualComparators;
   }
 
-  public record ChildGenotype<G>(long id, G genotype, Collection<Long> parentIds) {}
-
   protected static <P extends TotalOrderQualityBasedProblem<?, Q>, I extends Individual<?, ?, Q>, Q> Comparator<? super I> comparator(
       P problem
   ) {
     return (i1, i2) -> problem.totalOrderComparator().compare(i1.quality(), i2.quality());
   }
 
-  protected static <T> Collection<T> getAll(Collection<Future<T>> futures) throws SolverException {
-    List<T> results = new ArrayList<>();
-    for (Future<T> future : futures) {
-      try {
-        results.add(future.get());
-      } catch (InterruptedException | ExecutionException e) {
-        throw new SolverException(e);
-      }
-    }
-    return results;
-  }
-
-  protected static <T> Collection<T> getAll(
-      Collection<Callable<T>> callables,
-      ExecutorService executor
-  ) throws SolverException {
-    try {
-      return getAll(executor.invokeAll(callables));
-    } catch (SolverException | InterruptedException e) {
-      throw new SolverException(e);
-    }
-  }
-
-  protected static <T extends POCPopulationState<I, G, S, Q, P>, P extends QualityBasedProblem<S, Q>, I extends Individual<G, S, Q>, G, S, Q> Collection<Future<I>> map(
+  protected static <T extends POCPopulationState<I, G, S, Q, P>, P extends QualityBasedProblem<S, Q>, I extends Individual<G, S, Q>, G, S, Q> Collection<Callable<I>> mapTasks(
       Collection<ChildGenotype<G>> childGenotypes,
       TriFunction<ChildGenotype<G>, T, RandomGenerator, I> mapper,
       T state,
-      RandomGenerator random,
-      ExecutorService executor
+      RandomGenerator random
+  ) {
+    return childGenotypes.stream()
+        .map(tmg -> (Callable<I>) () -> mapper.apply(tmg, state, random))
+        .toList();
+  }
+
+  protected static <T> Collection<T> parallelCall(
+      Collection<Callable<T>> callables,
+      Executor executor
   ) throws SolverException {
     try {
-      return executor.invokeAll(
-          childGenotypes.stream()
-              .map(tmg -> (Callable<I>) () -> mapper.apply(tmg, state, random))
-              .toList()
-      );
-    } catch (InterruptedException e) {
+      List<FutureTask<T>> futures = callables.stream().map(FutureTask::new).toList();
+      futures.forEach(executor::execute);
+      List<T> ts = new ArrayList<>(futures.size());
+      for (Future<T> future : futures) {
+        ts.add(future.get());
+      }
+      return ts;
+    } catch (ExecutionException | InterruptedException e) {
       throw new SolverException(e);
     }
   }
 
-  protected static <T extends POCPopulationState<I, G, S, Q, P>, P extends QualityBasedProblem<S, Q>, I extends Individual<G, S, Q>, G, S, Q> Collection<Future<I>> remap(
+  protected static <T extends POCPopulationState<I, G, S, Q, P>, P extends QualityBasedProblem<S, Q>, I extends Individual<G, S, Q>, G, S, Q> Collection<Callable<I>> remapTasks(
       Collection<I> individuals,
       TriFunction<I, T, RandomGenerator, I> mapper,
       T state,
+      RandomGenerator random
+  ) {
+    return individuals.stream()
+        .map(i -> (Callable<I>) () -> mapper.apply(i, state, random))
+        .toList();
+  }
+
+  @Override
+  public Collection<S> extractSolutions(
+      P problem,
       RandomGenerator random,
-      ExecutorService executor
-  ) throws SolverException {
-    try {
-      return executor.invokeAll(
-          individuals.stream()
-              .map(i -> (Callable<I>) () -> mapper.apply(i, state, random))
-              .toList()
-      );
-    } catch (InterruptedException e) {
-      throw new SolverException(e);
-    }
-  }
-
-  @Override
-  public Collection<S> extractSolutions(P problem, RandomGenerator random, ExecutorService executor, T state) {
+      Executor executor,
+      T state
+  ) {
     return state.pocPopulation().firsts().stream().map(Individual::solution).toList();
-  }
-
-  @Override
-  public boolean terminate(RandomGenerator random, ExecutorService executor, T state) {
-    return stopCondition.test(state);
   }
 
   protected Collection<I> mapAll(
@@ -145,28 +124,30 @@ public abstract class AbstractPopulationBasedIterativeSolver<T extends POCPopula
       TriFunction<I, T, RandomGenerator, I> remapper,
       T state,
       RandomGenerator random,
-      ExecutorService executor
+      Executor executor
   ) throws SolverException {
     if (!remap) {
       return Stream.concat(
-          getAll(map(childGenotypes, mapper, state, random, executor)).stream(),
+          parallelCall(mapTasks(childGenotypes, mapper, state, random), executor).stream(),
           individuals.stream()
       )
           .toList();
     }
-    return getAll(
+    return parallelCall(
         Stream.concat(
-            map(childGenotypes, mapper, state, random, executor).stream(),
-            remap(individuals, remapper, state, random, executor).stream()
+            mapTasks(childGenotypes, mapper, state, random).stream(),
+            remapTasks(individuals, remapper, state, random).stream()
         )
-            .toList()
+            .toList(),
+        executor
     );
   }
 
   protected PartialComparator<? super I> partialComparator(
       P problem
   ) {
-    PartialComparator<? super I> basePC = (i1, i2) -> problem.qualityComparator().compare(i1.quality(), i2.quality());
+    PartialComparator<? super I> basePC = (i1, i2) -> problem.qualityComparator()
+        .compare(i1.quality(), i2.quality());
     if (additionalIndividualComparators.isEmpty()) {
       return basePC;
     }
@@ -180,5 +161,14 @@ public abstract class AbstractPopulationBasedIterativeSolver<T extends POCPopula
   protected Predicate<State<?, ?>> stopCondition() {
     //noinspection unchecked
     return (Predicate<State<?, ?>>) stopCondition;
+  }
+
+  @Override
+  public boolean terminate(RandomGenerator random, Executor executor, T state) {
+    return stopCondition.test(state);
+  }
+
+  public record ChildGenotype<G>(long id, G genotype, Collection<Long> parentIds) {
+
   }
 }

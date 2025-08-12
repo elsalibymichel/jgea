@@ -31,7 +31,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -141,7 +141,7 @@ public class CMAEvolutionaryStrategy<S, Q> extends AbstractPopulationBasedIterat
   public CMAESState<S, Q> init(
       TotalOrderQualityBasedProblem<S, Q> problem,
       RandomGenerator random,
-      ExecutorService executor
+      Executor executor
   ) throws SolverException {
     CMAESState<S, Q> newState = CMAESState.empty(
         problem,
@@ -150,16 +150,16 @@ public class CMAEvolutionaryStrategy<S, Q> extends AbstractPopulationBasedIterat
     );
     AtomicLong counter = new AtomicLong(0);
     List<? extends List<Double>> genotypes = genotypeFactory.build(populationSize, random);
-    Collection<CMAESIndividual<S, Q>> newIndividuals = getAll(
-        map(
+    Collection<CMAESIndividual<S, Q>> newIndividuals = parallelCall(
+        mapTasks(
             genotypes.stream()
                 .map(g -> new ChildGenotype<List<Double>>(counter.getAndIncrement(), g, List.of()))
                 .toList(),
             this::buildNewIndividual,
             newState,
-            random,
-            executor
-        )
+            random
+        ),
+        executor
     );
     return newState.updatedWithIteration(newIndividuals);
   }
@@ -167,7 +167,7 @@ public class CMAEvolutionaryStrategy<S, Q> extends AbstractPopulationBasedIterat
   @Override
   public CMAESState<S, Q> update(
       RandomGenerator random,
-      ExecutorService executor,
+      Executor executor,
       CMAESState<S, Q> state
   ) throws SolverException {
     // find best individuals
@@ -186,16 +186,16 @@ public class CMAEvolutionaryStrategy<S, Q> extends AbstractPopulationBasedIterat
     List<Long> parentIds = bestMuIndividuals.stream().map(Individual::id).toList();
     List<Double> emptyGenotype = List.of();
     AtomicLong counter = new AtomicLong(state.nOfBirths());
-    Collection<CMAESIndividual<S, Q>> newIndividuals = getAll(
-        map(
+    Collection<CMAESIndividual<S, Q>> newIndividuals = parallelCall(
+        mapTasks(
             IntStream.range(0, populationSize)
                 .mapToObj(i -> new ChildGenotype<>(counter.getAndIncrement(), emptyGenotype, parentIds))
                 .toList(),
             this::buildNewIndividual,
             state,
-            random,
-            executor
-        )
+            random
+        ),
+        executor
     );
     return state.updatedWithIteration(newIndividuals);
   }

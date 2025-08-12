@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -78,24 +78,24 @@ public class SpeciatedEvolver<G, S, Q> extends AbstractPopulationBasedIterativeS
   public SpeciatedPOCPopulationState<G, S, Q, QualityBasedProblem<S, Q>> init(
       QualityBasedProblem<S, Q> problem,
       RandomGenerator random,
-      ExecutorService executor
+      Executor executor
   ) throws SolverException {
     SpeciatedPOCPopulationState<G, S, Q, QualityBasedProblem<S, Q>> newState = SpeciatedPOCPopulationState.empty(
         problem,
         stopCondition()
     );
     AtomicLong counter = new AtomicLong(0);
-    Collection<Individual<G, S, Q>> newIndividuals = getAll(
-        map(
+    Collection<Individual<G, S, Q>> newIndividuals = parallelCall(
+        mapTasks(
             genotypeFactory.build(populationSize, random)
                 .stream()
                 .map(g -> new ChildGenotype<G>(counter.getAndIncrement(), g, List.of()))
                 .toList(),
             (cg, s, r) -> Individual.from(cg, solutionMapper, s.problem().qualityFunction(), s.nOfIterations()),
             newState,
-            random,
-            executor
-        )
+            random
+        ),
+        executor
     );
     return newState.updatedWithIteration(
         populationSize,
@@ -108,7 +108,7 @@ public class SpeciatedEvolver<G, S, Q> extends AbstractPopulationBasedIterativeS
   @Override
   public SpeciatedPOCPopulationState<G, S, Q, QualityBasedProblem<S, Q>> update(
       RandomGenerator random,
-      ExecutorService executor,
+      Executor executor,
       SpeciatedPOCPopulationState<G, S, Q, QualityBasedProblem<S, Q>> state
   ) throws SolverException {
     Collection<Individual<G, S, Q>> individuals = state.pocPopulation().all();

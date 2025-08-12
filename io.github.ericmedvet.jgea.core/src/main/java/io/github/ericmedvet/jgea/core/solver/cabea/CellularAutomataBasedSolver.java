@@ -34,7 +34,7 @@ import io.github.ericmedvet.jnb.datastructure.ArrayGrid;
 import io.github.ericmedvet.jnb.datastructure.Grid;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -95,7 +95,7 @@ public class CellularAutomataBasedSolver<G, S, Q> extends AbstractPopulationBase
   public GridPopulationState<G, S, Q, QualityBasedProblem<S, Q>> init(
       QualityBasedProblem<S, Q> problem,
       RandomGenerator random,
-      ExecutorService executor
+      Executor executor
   ) throws SolverException {
     GridPopulationState<G, S, Q, QualityBasedProblem<S, Q>> newState = GridPopulationState.empty(
         problem,
@@ -104,16 +104,16 @@ public class CellularAutomataBasedSolver<G, S, Q> extends AbstractPopulationBase
     List<Grid.Key> freeCells = substrate.keys().stream().filter(substrate::get).toList();
     AtomicLong counter = new AtomicLong(0);
     List<? extends G> genotypes = genotypeFactory.build(freeCells.size(), random);
-    List<Individual<G, S, Q>> newIndividuals = getAll(
-        map(
+    List<Individual<G, S, Q>> newIndividuals = parallelCall(
+        mapTasks(
             genotypes.stream()
                 .map(g -> new ChildGenotype<G>(counter.getAndIncrement(), g, List.of()))
                 .toList(),
             (cg, s, r) -> Individual.from(cg, solutionMapper, s.problem().qualityFunction(), s.nOfIterations()),
             newState,
-            random,
-            executor
-        )
+            random
+        ),
+        executor
     )
         .stream()
         .toList();
@@ -127,7 +127,7 @@ public class CellularAutomataBasedSolver<G, S, Q> extends AbstractPopulationBase
   @Override
   public GridPopulationState<G, S, Q, QualityBasedProblem<S, Q>> update(
       RandomGenerator random,
-      ExecutorService executor,
+      Executor executor,
       GridPopulationState<G, S, Q, QualityBasedProblem<S, Q>> state
   ) throws SolverException {
     AtomicLong counter = new AtomicLong(state.nOfBirths());
@@ -139,12 +139,7 @@ public class CellularAutomataBasedSolver<G, S, Q> extends AbstractPopulationBase
         .map(e -> processCell(e, partialComparator, state, new Random(random.nextLong()), counter))
         // this new random is needed for determinism, because process is done concurrently
         .toList();
-    Collection<CellProcessOutcome<Individual<G, S, Q>>> newEntries;
-    try {
-      newEntries = getAll(executor.invokeAll(callables));
-    } catch (InterruptedException e) {
-      throw new SolverException(e);
-    }
+    Collection<CellProcessOutcome<Individual<G, S, Q>>> newEntries = parallelCall(callables, executor);
     Grid<Individual<G, S, Q>> newGrid = new ArrayGrid<>(substrate.w(), substrate.h());
     newEntries.forEach(e -> newGrid.set(e.entry.key(), e.entry().value()));
     int updatedCells = (int) newEntries.stream().filter(cpo -> cpo.updated).count();

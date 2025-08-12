@@ -31,7 +31,7 @@ import io.github.ericmedvet.jgea.core.util.Misc;
 import io.github.ericmedvet.jnb.datastructure.DoubleRange;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -62,7 +62,10 @@ public class MapElites<G, S, Q> extends AbstractPopulationBasedIterativeSolver<M
   public record Descriptor<G, S, Q>(
       Function<Individual<G, S, Q>, Number> function, double min, double max, int nOfBins
   ) {
-    public record Coordinate(int bin, double value) {}
+
+    public record Coordinate(int bin, double value) {
+
+    }
 
     public Coordinate coordinate(Individual<G, S, Q> individual) {
       double value = function.apply(individual).doubleValue();
@@ -77,7 +80,7 @@ public class MapElites<G, S, Q> extends AbstractPopulationBasedIterativeSolver<M
   public MEPopulationState<G, S, Q, QualityBasedProblem<S, Q>> init(
       QualityBasedProblem<S, Q> problem,
       RandomGenerator random,
-      ExecutorService executor
+      Executor executor
   ) throws SolverException {
     MEPopulationState<G, S, Q, QualityBasedProblem<S, Q>> newState = MEPopulationState.empty(
         problem,
@@ -85,20 +88,25 @@ public class MapElites<G, S, Q> extends AbstractPopulationBasedIterativeSolver<M
         descriptors
     );
     AtomicLong counter = new AtomicLong(0);
-    Collection<MEIndividual<G, S, Q>> newIndividuals = getAll(
-        map(
+    Collection<MEIndividual<G, S, Q>> newIndividuals = parallelCall(
+        mapTasks(
             genotypeFactory.build(populationSize, random)
                 .stream()
                 .map(g -> new ChildGenotype<G>(counter.getAndIncrement(), g, List.of()))
                 .toList(),
             (cg, s, r) -> MEIndividual.from(
-                Individual.from(cg, solutionMapper, s.problem().qualityFunction(), s.nOfIterations()),
+                Individual.from(
+                    cg,
+                    solutionMapper,
+                    s.problem().qualityFunction(),
+                    s.nOfIterations()
+                ),
                 s.descriptors()
             ),
             newState,
-            random,
-            executor
-        )
+            random
+        ),
+        executor
     );
     return newState.updatedWithIteration(
         populationSize,
@@ -110,14 +118,14 @@ public class MapElites<G, S, Q> extends AbstractPopulationBasedIterativeSolver<M
   @Override
   public MEPopulationState<G, S, Q, QualityBasedProblem<S, Q>> update(
       RandomGenerator random,
-      ExecutorService executor,
+      Executor executor,
       MEPopulationState<G, S, Q, QualityBasedProblem<S, Q>> state
   ) throws SolverException {
     Collection<MEIndividual<G, S, Q>> individuals = state.archive().asMap().values();
     // build new genotypes
     AtomicLong counter = new AtomicLong(state.nOfBirths());
-    Collection<MEIndividual<G, S, Q>> newIndividuals = getAll(
-        map(
+    Collection<MEIndividual<G, S, Q>> newIndividuals = parallelCall(
+        mapTasks(
             IntStream.range(0, populationSize)
                 .mapToObj(j -> Misc.pickRandomly(individuals, random))
                 .map(
@@ -129,18 +137,24 @@ public class MapElites<G, S, Q> extends AbstractPopulationBasedIterativeSolver<M
                 )
                 .toList(),
             (cg, s, r) -> MEIndividual.from(
-                Individual.from(cg, solutionMapper, s.problem().qualityFunction(), s.nOfIterations()),
+                Individual.from(
+                    cg,
+                    solutionMapper,
+                    s.problem().qualityFunction(),
+                    s.nOfIterations()
+                ),
                 s.descriptors()
             ),
             state,
-            random,
-            executor
-        )
+            random
+        ),
+        executor
     );
     return state.updatedWithIteration(
         populationSize,
         populationSize,
-        state.archive().updated(newIndividuals, MEIndividual::bins, partialComparator(state.problem()))
+        state.archive()
+            .updated(newIndividuals, MEIndividual::bins, partialComparator(state.problem()))
     );
   }
 }
