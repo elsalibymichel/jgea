@@ -324,7 +324,6 @@ public class GridBiasesAndProps {
                       factoryChooserEntry.getKey(),
                       finalL
                   ) +
-                  //noinspection unchecked
                   mappingMetrics.stream()
                       .map(Map.Entry::getValue)
                       .map(f -> f.applyAsDouble((List<Mapped<?>>) mappeds, factoryChooser.distance))
