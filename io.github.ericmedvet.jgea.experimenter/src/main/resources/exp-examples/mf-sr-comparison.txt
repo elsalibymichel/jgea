@@ -79,8 +79,10 @@ ea.experiment(
         y = f.mapValue(key = mse; of = ea.f.validationQuality())
       );
       processor = ea.f.imagePlotter(
-        axesShow = all;
-        independences = [all];
+        configuration = ea.plot.conf.image(
+          axesShow = all;
+          axesIndependences = [all]
+        );
         secondary = true;
         type = svg
       )

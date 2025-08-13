@@ -56,7 +56,6 @@ import io.github.ericmedvet.jviz.core.plot.*;
 import io.github.ericmedvet.jviz.core.plot.csv.*;
 import io.github.ericmedvet.jviz.core.plot.image.*;
 import io.github.ericmedvet.jviz.core.plot.image.Configuration;
-import io.github.ericmedvet.jviz.core.plot.image.Configuration.LinesPlot;
 import io.github.ericmedvet.jviz.core.plot.video.*;
 import io.github.ericmedvet.jviz.core.util.VideoUtils;
 import java.awt.image.BufferedImage;
@@ -421,41 +420,13 @@ public class Functions {
       @Param(value = "of", dNPM = "f.identity()") Function<X, P> beforeF,
       @Param(value = "w", dI = -1) int w,
       @Param(value = "h", dI = -1) int h,
-      @Param(value = "axesShow", dS = "border") Configuration.PlotMatrix.Show axesShow,
-      @Param(value = "titlesShow", dS = "border") Configuration.PlotMatrix.Show titlesShow,
-      @Param(
-          value = "independences", dSs = {"rows", "cols"}) List<Configuration.PlotMatrix.Independence> independences,
+      @Param(value = "configuration", dNPM = "ea.plot.configuration.image()") Configuration configuration,
       @Param("secondary") boolean secondary,
-      @Param("markers") boolean markers,
       @Param(value = "type", dS = "png") String type
   ) {
     UnaryOperator<ImageBuilder.ImageInfo> iiAdapter = ii -> new ImageBuilder.ImageInfo(
         w == -1 ? ii.w() : w,
         h == -1 ? ii.h() : h
-    );
-    Configuration configuration = new Configuration(
-        Configuration.General.DEFAULT,
-        Configuration.Layout.DEFAULT,
-        Configuration.Colors.DEFAULT,
-        Configuration.Text.DEFAULT,
-        new Configuration.PlotMatrix(axesShow, titlesShow, new HashSet<>(independences)),
-        markers ? new LinesPlot(
-            LinesPlot.DEFAULT.strokeSizeRate(),
-            LinesPlot.DEFAULT.alpha(),
-            LinesPlot.DEFAULT.markerSizeRate(),
-            LinesPlot.DEFAULT.marker(),
-            true,
-            LinesPlot.DEFAULT.legendImageWRate(),
-            LinesPlot.DEFAULT.legendImageHRate(),
-            LinesPlot.DEFAULT.colors(),
-            LinesPlot.DEFAULT.xExtensionRate(),
-            LinesPlot.DEFAULT.yExtensionRate()
-        ) : Configuration.LinesPlot.DEFAULT,
-        Configuration.PointsPlot.DEFAULT,
-        Configuration.UnivariateGridPlot.DEFAULT,
-        Configuration.LandscapePlot.DEFAULT,
-        Configuration.BoxPlot.DEFAULT,
-        false
     );
     class ConditionedDrawer<Y> implements BiFunction<Drawer<Y>, Y, Object> {
 
@@ -473,52 +444,37 @@ public class Functions {
     Function<P, Object> f = p -> {
       if (p instanceof DistributionPlot dp) {
         return new ConditionedDrawer<DistributionPlot>().apply(
-            new BoxPlotDrawer(
-                configuration,
-                Configuration.BoxPlot.DEFAULT
-            ),
+            new BoxPlotDrawer(configuration),
             dp
         );
       }
       if (p instanceof LandscapePlot lsp) {
         return new ConditionedDrawer<LandscapePlot>().apply(
-            new LandscapePlotDrawer(
-                configuration,
-                Configuration.LandscapePlot.DEFAULT
-            ),
+            new LandscapePlotDrawer(configuration),
             lsp
         );
       }
       if (p instanceof XYDataSeriesPlot xyp) {
         if (secondary) {
           return new ConditionedDrawer<XYDataSeriesPlot>().apply(
-              new PointsPlotDrawer(configuration, Configuration.PointsPlot.DEFAULT),
+              new PointsPlotDrawer(configuration),
               xyp
           );
         }
         return new ConditionedDrawer<XYDataSeriesPlot>().apply(
-            new LinesPlotDrawer(
-                configuration,
-                Configuration.LinesPlot.DEFAULT
-            ),
+            new LinesPlotDrawer(configuration),
             xyp
         );
       }
       if (p instanceof UnivariateGridPlot ugp) {
         return new ConditionedDrawer<UnivariateGridPlot>().apply(
-            new UnivariateGridPlotDrawer(
-                configuration,
-                Configuration.UnivariateGridPlot.DEFAULT
-            ),
+            new UnivariateGridPlotDrawer(configuration),
             ugp
         );
       }
       if (p instanceof VectorialFieldPlot vfp) {
         return new ConditionedDrawer<VectorialFieldPlot>().apply(
-            new VectorialFieldPlotDrawer(
-                configuration,
-                Configuration.VectorialFieldPlot.DEFAULT
-            ),
+            new VectorialFieldPlotDrawer(configuration),
             vfp
         );
       }
@@ -1109,7 +1065,7 @@ public class Functions {
       @Param(value = "h", dI = -1) int h,
       @Param(value = "encoder", dS = "default") VideoUtils.EncoderFacility encoder,
       @Param(value = "frameRate", dD = 10) double frameRate,
-      @Param("freeScales") boolean freeScales,
+      @Param(value = "configuration", dNPM = "ea.plot.configuration.image()") Configuration iConfiguration,
       @Param("secondary") boolean secondary
   ) {
     UnaryOperator<VideoBuilder.VideoInfo> viAdapter = vi -> new VideoBuilder.VideoInfo(
@@ -1117,7 +1073,6 @@ public class Functions {
         h == -1 ? vi.h() : h,
         encoder
     );
-    Configuration iConfiguration = freeScales ? Configuration.FREE_SCALES : Configuration.DEFAULT;
     io.github.ericmedvet.jviz.core.plot.video.Configuration vConfiguration = new io.github.ericmedvet.jviz.core.plot.video.Configuration(
         io.github.ericmedvet.jviz.core.plot.video.Configuration.DEFAULT.splitType(),
         frameRate
@@ -1126,44 +1081,38 @@ public class Functions {
       if (p instanceof DistributionPlot dp) {
         BoxPlotVideoBuilder vb = new BoxPlotVideoBuilder(
             vConfiguration,
-            iConfiguration,
-            Configuration.BoxPlot.DEFAULT
+            iConfiguration
         );
         return vb.build(viAdapter.apply(vb.videoInfo(dp)), dp);
       }
       if (p instanceof LandscapePlot lsp) {
         LandscapePlotVideoBuilder vb = new LandscapePlotVideoBuilder(
             vConfiguration,
-            iConfiguration,
-            Configuration.LandscapePlot.DEFAULT
+            iConfiguration
         );
         return vb.build(viAdapter.apply(vb.videoInfo(lsp)), lsp);
       }
       if (p instanceof XYDataSeriesPlot xyp) {
         AbstractXYDataSeriesPlotVideoBuilder vb = (!secondary) ? new LinesPlotVideoBuilder(
             vConfiguration,
-            iConfiguration,
-            Configuration.LinesPlot.DEFAULT
+            iConfiguration
         ) : new PointsPlotVideoBuilder(
             vConfiguration,
-            iConfiguration,
-            Configuration.PointsPlot.DEFAULT
+            iConfiguration
         );
         return vb.build(viAdapter.apply(vb.videoInfo(xyp)), xyp);
       }
       if (p instanceof UnivariateGridPlot ugp) {
         UnivariatePlotVideoBuilder vb = new UnivariatePlotVideoBuilder(
             vConfiguration,
-            iConfiguration,
-            Configuration.UnivariateGridPlot.DEFAULT
+            iConfiguration
         );
         return vb.build(viAdapter.apply(vb.videoInfo(ugp)), ugp);
       }
       if (p instanceof VectorialFieldPlot vfp) {
         VectorialFieldVideoBuilder vb = new VectorialFieldVideoBuilder(
             vConfiguration,
-            iConfiguration,
-            Configuration.VectorialFieldPlot.DEFAULT
+            iConfiguration
         );
         return vb.build(viAdapter.apply(vb.videoInfo(vfp)), vfp);
       }

@@ -314,23 +314,23 @@ public class Listeners {
           """ // spotless:on
   )
   @Alias(
-      name = "savePlotForExp", passThroughParams = {@PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP), @PassThroughParam(name = "secondary", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "type", type = ParamMap.Type.STRING, value = "png"), @PassThroughParam(name = "markers", type = Type.BOOLEAN, value = "false")
+      name = "savePlotForExp", passThroughParams = {@PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP), @PassThroughParam(name = "secondary", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "type", type = ParamMap.Type.STRING, value = "png"), @PassThroughParam(name = "configuration", type = Type.NAMED_PARAM_MAP, value = "ea.plot.configuration.image()")
       }, value = // spotless:off
       """
           saveForExp(
             of = $plot;
-            processor = ea.f.imagePlotter(secondary = $secondary; type = $type; markers = $markers)
+            processor = ea.f.imagePlotter(secondary = $secondary; type = $type; configuration = $configuration)
           )
           """ // spotless:on
   )
   @Alias(
-      name = "savePlotAndCsvForExp", passThroughParams = {@PassThroughParam(name = "secondary", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "overwrite", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "path", type = ParamMap.Type.STRING, value = "{experiment.name}"), @PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP), @PassThroughParam(name = "type", type = ParamMap.Type.STRING, value = "png"), @PassThroughParam(name = "markers", type = Type.BOOLEAN, value = "false")
+      name = "savePlotAndCsvForExp", passThroughParams = {@PassThroughParam(name = "secondary", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "overwrite", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "path", type = ParamMap.Type.STRING, value = "{experiment.name}"), @PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP), @PassThroughParam(name = "type", type = ParamMap.Type.STRING, value = "png"), @PassThroughParam(name = "configuration", type = Type.NAMED_PARAM_MAP, value = "ea.plot.configuration.image()")
       }, value = // spotless:off
       """
           onExpDone(
             of = $plot;
             consumers = [
-              ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.imagePlotter(secondary = $secondary; type = $type; markers = $markers));
+              ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.imagePlotter(secondary = $secondary; type = $type; configuration = $configuration));
               ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.csvPlotter(); suffix = ".tsv")
             ]
           )
@@ -374,12 +374,12 @@ public class Listeners {
           """ // spotless:on
   )
   @Alias(
-      name = "savePlotForRun", passThroughParams = {@PassThroughParam(name = "secondary", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP), @PassThroughParam(name = "type", type = ParamMap.Type.STRING, value = "png"), @PassThroughParam(name = "markers", type = Type.BOOLEAN, value = "false")
+      name = "savePlotForRun", passThroughParams = {@PassThroughParam(name = "secondary", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP), @PassThroughParam(name = "type", type = ParamMap.Type.STRING, value = "png"), @PassThroughParam(name = "configuration", type = Type.NAMED_PARAM_MAP, value = "ea.plot.configuration.image()")
       }, value = // spotless:off
       """
           saveForRun(
             of = $plot;
-            processor = ea.f.imagePlotter(secondary = $secondary; type = $type; markers = $markers)
+            processor = ea.f.imagePlotter(secondary = $secondary; type = $type; configuration = $configuration)
           )
           """ // spotless:on
   )
@@ -393,13 +393,13 @@ public class Listeners {
           )
           """) // spotless:on
   @Alias(
-      name = "savePlotAndCsvForRun", passThroughParams = {@PassThroughParam(name = "secondary", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "overwrite", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "path", type = ParamMap.Type.STRING, value = "{experiment.name}"), @PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP), @PassThroughParam(name = "type", type = ParamMap.Type.STRING, value = "png"), @PassThroughParam(name = "markers", type = Type.BOOLEAN, value = "false")
+      name = "savePlotAndCsvForRun", passThroughParams = {@PassThroughParam(name = "secondary", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "overwrite", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "path", type = ParamMap.Type.STRING, value = "{experiment.name}"), @PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP), @PassThroughParam(name = "type", type = ParamMap.Type.STRING, value = "png"), @PassThroughParam(name = "configuration", type = Type.NAMED_PARAM_MAP, value = "ea.plot.configuration.image()")
       }, value = // spotless:off
       """
           onRunDone(
             of = $plot;
             consumers = [
-              ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.imagePlotter(secondary = $secondary; type = $type; markers = $markers));
+              ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.imagePlotter(secondary = $secondary; type = $type; configuration = $configuration));
               ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.csvPlotter(); suffix = ".tsv")
             ]
           )
