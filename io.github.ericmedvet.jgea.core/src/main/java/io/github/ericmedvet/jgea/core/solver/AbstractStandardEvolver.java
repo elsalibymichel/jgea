@@ -22,7 +22,7 @@ package io.github.ericmedvet.jgea.core.solver;
 import io.github.ericmedvet.jgea.core.Factory;
 import io.github.ericmedvet.jgea.core.IndependentFactory;
 import io.github.ericmedvet.jgea.core.operator.GeneticOperator;
-import io.github.ericmedvet.jgea.core.order.DAGPartiallyOrderedCollection;
+import io.github.ericmedvet.jgea.core.order.FastDAGPOC;
 import io.github.ericmedvet.jgea.core.order.PartialComparator;
 import io.github.ericmedvet.jgea.core.order.PartiallyOrderedCollection;
 import io.github.ericmedvet.jgea.core.problem.MultiObjectiveProblem;
@@ -76,6 +76,23 @@ public abstract class AbstractStandardEvolver<T extends POCPopulationState<I, G,
     this.maxUniquenessAttempts = maxUniquenessAttempts;
   }
 
+  protected abstract T init(P problem);
+
+  protected abstract I mapChildGenotype(
+      ChildGenotype<G> childGenotype,
+      T state,
+      RandomGenerator random
+  );
+
+  protected abstract I remapIndividual(I individual, T state, RandomGenerator random);
+
+  protected abstract T update(
+      T state,
+      Collection<I> individuals,
+      long nOfNewBirths,
+      long nOfNewFitnessEvaluations
+  );
+
   protected Collection<ChildGenotype<G>> buildOffspringToMapGenotypes(
       T state,
       RandomGenerator random
@@ -119,8 +136,6 @@ public abstract class AbstractStandardEvolver<T extends POCPopulationState<I, G,
     return offspringChildGenotypes;
   }
 
-  protected abstract T init(P problem);
-
   @Override
   public T init(P problem, RandomGenerator random, Executor executor) throws SolverException {
     T newState = init(problem);
@@ -156,43 +171,6 @@ public abstract class AbstractStandardEvolver<T extends POCPopulationState<I, G,
     );
   }
 
-  protected abstract I mapChildGenotype(
-      ChildGenotype<G> childGenotype,
-      T state,
-      RandomGenerator random
-  );
-
-  protected abstract I remapIndividual(I individual, T state, RandomGenerator random);
-
-  protected Collection<I> trimPopulation(
-      Collection<I> population,
-      T state,
-      RandomGenerator random
-  ) {
-    PartiallyOrderedCollection<I> orderedPopulation = new DAGPartiallyOrderedCollection<>(
-        population,
-        partialComparator(state.problem())
-    );
-    // check if trivial case: total order or one objective and worst selector
-    if (state.problem() instanceof TotalOrderQualityBasedProblem<?, ?> || (state
-        .problem() instanceof MultiObjectiveProblem<?, ?, ?> && (((MultiObjectiveProblem<?, ?, ?>) state.problem())
-            .objectives()
-            .size() == 1))) {
-      if (unsurvivalSelector instanceof Last) {
-        return orderedPopulation.fronts()
-            .stream()
-            .flatMap(Collection::stream)
-            .limit(populationSize)
-            .toList();
-      }
-    }
-    while (orderedPopulation.size() > populationSize) {
-      I toRemoveIndividual = unsurvivalSelector.select(orderedPopulation, random);
-      orderedPopulation.remove(toRemoveIndividual);
-    }
-    return orderedPopulation.all();
-  }
-
   @Override
   public T update(RandomGenerator random, Executor executor, T state) throws SolverException {
     Collection<ChildGenotype<G>> offspringChildGenotypes = buildOffspringToMapGenotypes(
@@ -221,10 +199,30 @@ public abstract class AbstractStandardEvolver<T extends POCPopulationState<I, G,
     );
   }
 
-  protected abstract T update(
+  protected Collection<I> trimPopulation(
+      Collection<I> population,
       T state,
-      Collection<I> individuals,
-      long nOfNewBirths,
-      long nOfNewFitnessEvaluations
-  );
+      RandomGenerator random
+  ) {
+    PartiallyOrderedCollection<I> orderedPopulation = new FastDAGPOC<>(partialComparator(state.problem()));
+    population.forEach(orderedPopulation::add);
+    // check if trivial case: total order or one objective and worst selector
+    if (state.problem() instanceof TotalOrderQualityBasedProblem<?, ?> || (state
+        .problem() instanceof MultiObjectiveProblem<?, ?, ?> && (((MultiObjectiveProblem<?, ?, ?>) state.problem())
+            .objectives()
+            .size() == 1))) {
+      if (unsurvivalSelector instanceof Last) {
+        return orderedPopulation.fronts()
+            .stream()
+            .flatMap(Collection::stream)
+            .limit(populationSize)
+            .toList();
+      }
+    }
+    while (orderedPopulation.size() > populationSize) {
+      I toRemoveIndividual = unsurvivalSelector.select(orderedPopulation, random);
+      orderedPopulation.remove(toRemoveIndividual);
+    }
+    return orderedPopulation.all();
+  }
 }

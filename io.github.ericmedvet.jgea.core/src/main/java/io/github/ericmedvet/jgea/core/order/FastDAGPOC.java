@@ -28,6 +28,7 @@ public class FastDAGPOC<T> extends AbstractPartiallyOrderedCollection<T> {
   private final Map<T, Integer> contentMap;
   private final Map<Integer, Integer> nodeFrontMap;
   private final SortedMap<Integer, Set<Integer>> frontMap;
+  private List<Collection<T>> precomputedFronts;
   private int maxId;
 
   public FastDAGPOC(PartialComparator<? super T> partialComparator) {
@@ -37,6 +38,7 @@ public class FastDAGPOC<T> extends AbstractPartiallyOrderedCollection<T> {
     nodeFrontMap = new LinkedHashMap<>();
     frontMap = new TreeMap<>();
     maxId = -1;
+    precomputedFronts = null;
   }
 
   private record Node<T>(
@@ -78,11 +80,14 @@ public class FastDAGPOC<T> extends AbstractPartiallyOrderedCollection<T> {
 
   @Override
   public List<Collection<T>> fronts() {
-    return frontMap.values()
-        .stream()
-        .map(ids -> (Collection<T>) ids.stream().flatMap(id -> nodeMap.get(id).contents.stream()).toList())
-        .filter(nodes -> !nodes.isEmpty())
-        .toList();
+    if (precomputedFronts == null) {
+      precomputedFronts = frontMap.values()
+          .stream()
+          .map(ids -> (Collection<T>) ids.stream().flatMap(id -> nodeMap.get(id).contents.stream()).toList())
+          .filter(nodes -> !nodes.isEmpty())
+          .toList();
+    }
+    return precomputedFronts;
   }
 
   @Override
@@ -130,6 +135,7 @@ public class FastDAGPOC<T> extends AbstractPartiallyOrderedCollection<T> {
         frontMap.get(oldFront).remove(node.id);
       }
       node.afterNodes.forEach(id -> updateNodeFront(nodeMap.get(id)));
+      precomputedFronts = null;
     }
   }
 

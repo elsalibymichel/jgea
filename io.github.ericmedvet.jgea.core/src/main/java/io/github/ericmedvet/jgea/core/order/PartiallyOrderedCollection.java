@@ -21,7 +21,9 @@
 package io.github.ericmedvet.jgea.core.order;
 
 import io.github.ericmedvet.jgea.core.util.Sized;
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.IntStream;
 
 public interface PartiallyOrderedCollection<T> extends Sized {
@@ -41,7 +43,8 @@ public interface PartiallyOrderedCollection<T> extends Sized {
   }
 
   static <T> PartiallyOrderedCollection<T> from(Collection<T> ts, PartialComparator<? super T> comparator) {
-    PartiallyOrderedCollection<T> poc = new DAGPartiallyOrderedCollection<>(ts, comparator);
+    PartiallyOrderedCollection<T> poc = new FastDAGPOC<>(comparator);
+    ts.forEach(poc::add);
     List<Collection<T>> fronts = poc.fronts();
     return new PartiallyOrderedCollection<>() {
       @Override

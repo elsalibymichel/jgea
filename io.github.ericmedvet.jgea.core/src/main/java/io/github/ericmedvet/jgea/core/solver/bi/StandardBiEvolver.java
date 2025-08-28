@@ -21,7 +21,7 @@ package io.github.ericmedvet.jgea.core.solver.bi;
 
 import io.github.ericmedvet.jgea.core.Factory;
 import io.github.ericmedvet.jgea.core.operator.GeneticOperator;
-import io.github.ericmedvet.jgea.core.order.DAGPartiallyOrderedCollection;
+import io.github.ericmedvet.jgea.core.order.FastDAGPOC;
 import io.github.ericmedvet.jgea.core.order.PartialComparator;
 import io.github.ericmedvet.jgea.core.order.PartiallyOrderedCollection;
 import io.github.ericmedvet.jgea.core.problem.QualityBasedBiProblem;
@@ -304,10 +304,10 @@ public class StandardBiEvolver<G, S, Q, O> extends AbstractBiEvolver<POCPopulati
       POCPopulationState<Individual<G, S, Q>, G, S, Q, QualityBasedBiProblem<S, O, Q>> state,
       RandomGenerator random
   ) {
-    PartiallyOrderedCollection<Individual<G, S, Q>> orderedPopulation = new DAGPartiallyOrderedCollection<>(
-        population,
+    PartiallyOrderedCollection<Individual<G, S, Q>> orderedPopulation = new FastDAGPOC<>(
         partialComparator(state.problem())
     );
+    population.forEach(orderedPopulation::add);
     while (orderedPopulation.size() > populationSize) {
       Individual<G, S, Q> toRemoveIndividual = unsurvivalSelector.select(orderedPopulation, random);
       orderedPopulation.remove(toRemoveIndividual);
