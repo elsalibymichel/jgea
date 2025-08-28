@@ -23,7 +23,6 @@ package io.github.ericmedvet.jgea.core.order;
 import io.github.ericmedvet.jgea.core.util.Misc;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class DAGPartiallyOrderedCollection<T> extends AbstractPartiallyOrderedCollection<T> {
 
@@ -127,16 +126,4 @@ public class DAGPartiallyOrderedCollection<T> extends AbstractPartiallyOrderedCo
     return removed;
   }
 
-  @Override
-  public String toString() {
-    List<Collection<T>> fronts = fronts();
-    return IntStream.range(0, fronts.size())
-        .mapToObj(
-            i -> "F%d:[%s]".formatted(
-                i,
-                fronts.get(i).stream().map(Object::toString).collect(Collectors.joining(";"))
-            )
-        )
-        .collect(Collectors.joining(";"));
-  }
 }

@@ -19,6 +19,11 @@
  */
 package io.github.ericmedvet.jgea.core.order;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 public abstract class AbstractPartiallyOrderedCollection<T> implements PartiallyOrderedCollection<T> {
   private final PartialComparator<? super T> partialComparator;
 
@@ -29,5 +34,18 @@ public abstract class AbstractPartiallyOrderedCollection<T> implements Partially
   @Override
   public PartialComparator<? super T> comparator() {
     return partialComparator;
+  }
+
+  @Override
+  public String toString() {
+    List<Collection<T>> fronts = fronts();
+    return IntStream.range(0, fronts.size())
+        .mapToObj(
+            i -> "F%d:[%s]".formatted(
+                i,
+                fronts.get(i).stream().map(Object::toString).collect(Collectors.joining(";"))
+            )
+        )
+        .collect(Collectors.joining(";"));
   }
 }
