@@ -55,6 +55,12 @@ ea.experiment(
         mapper = ea.m.srTreeToNurf()
       );
       ea.s.scheduledMfGa(
+        name = "mf-gp-flat-quarter";
+        schedule = ea.schedule.flat(value = 0.25);
+        representation = ea.r.srTree();
+        mapper = ea.m.srTreeToNurf()
+      );
+      ea.s.scheduledMfGa(
         name = "mf-gp-linear";
         schedule = ea.schedule.linear(min = 0; max = 1);
         representation = ea.r.srTree();
