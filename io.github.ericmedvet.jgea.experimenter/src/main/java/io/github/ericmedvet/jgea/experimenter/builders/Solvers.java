@@ -75,13 +75,14 @@ public class Solvers {
   @SuppressWarnings("unused")
   @Cacheable
   public static <G, S, Q> Function<S, AsynchronousScheduledMFMapElites<G, S, Q>> asyncScheduledMfMapElites(
-      @Param(value = "name", iS = "asyncScheduledMfMapElites[{schedule.name}]") String name,
+      @Param(value = "name", iS = "asyncScheduledMfMapElites[{schedule.name};rr={recomputationRatio:%0.2f}]") String name,
       @Param("representation") Function<G, Representation<G>> representation,
       @Param(value = "mapper", dNPM = "ea.m.identity()") InvertibleMapper<G, S> mapper,
       @Param(value = "nOfBirthsForIteration", dI = 100) int nOfBirthsForIteration,
       @Param(value = "stop", dNPM = "ea.sc.nOfQualityEvaluations()") ProgressBasedStopCondition<? super MultiFidelityMEPopulationState<G, S, Q, MultifidelityQualityBasedProblem<S, Q>>> stopCondition,
       @Param("iComparators") List<PartialComparator<? super MEIndividual<G, S, Q>>> additionalIndividualComparators,
       @Param("descriptors") List<MapElites.Descriptor<G, S, Q>> descriptors,
+      @Param(value = "recomputationRatio", dD = 0.5) double recomputationRatio,
       @Param(value = "schedule", dNPM = "ea.schedule.flat()") DoubleUnaryOperator schedule
   ) {
     return exampleS -> {
@@ -94,6 +95,7 @@ public class Solvers {
           r.mutations().getFirst(),
           descriptors,
           schedule,
+          recomputationRatio,
           nOfBirthsForIteration
       );
     };

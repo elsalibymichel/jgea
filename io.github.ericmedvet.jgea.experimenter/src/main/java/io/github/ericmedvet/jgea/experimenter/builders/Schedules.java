@@ -59,19 +59,19 @@ public class Schedules {
       return range::denormalize;
     }
     double size = values.size();
-    return p -> {
+    return x -> {
       for (int i = 1; i < values.size(); i++) {
-        double initP = (double) (i - 1) / size;
-        double endP = (double) (i) / size;
-        if (p >= initP && p <= endP) {
-          return new DoubleRange(values.get(i - 1), values.get(i)).denormalize(
-              new DoubleRange(initP, endP).normalize(p)
-          );
+        DoubleRange xRange = new DoubleRange(
+            (double) (i - 1) / (size - 1d),
+            (double) (i) / (size - 1d)
+        );
+        if (xRange.contains(x)) {
+          return new DoubleRange(values.get(i - 1), values.get(i)).denormalize(xRange.normalize(x));
         }
       }
       throw new IllegalArgumentException(
-          "Cannot determine schedule with p=%.3f and values=[%s]".formatted(
-              p,
+          "Cannot determine schedule with x=%.3f and values=[%s]".formatted(
+              x,
               values.stream().map("%.3f"::formatted).collect(Collectors.joining(", "))
           )
       );
@@ -84,7 +84,7 @@ public class Schedules {
       @Param(value = "name", iS = "flat[{value}]") String name,
       @Param(value = "value", dD = 1d) double value
   ) {
-    return p -> value;
+    return x -> value;
   }
 
   @SuppressWarnings("unused")
