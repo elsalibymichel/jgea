@@ -22,6 +22,7 @@ package io.github.ericmedvet.jgea.core.order;
 
 import java.util.List;
 
+// TODO this should be a Comparator
 public class LexicoGraphical<C extends Comparable<C>> implements PartialComparator<List<C>> {
 
   private final int[] order;
