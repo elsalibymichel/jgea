@@ -2526,7 +2526,7 @@ Aliases: `ea.plot.c`, `ea.plot.conf`, `ea.plot.configuration`
 
 ### Builder `ea.plot.configuration.image()`
 
-`ea.plot.c.image(axesShow; titleShow; axesIndependences; fontSizeRate; fontName; strokeSizeRate; markerSizeRate; alpha; linesMarkers; boxplotExtremeType; boxplotMidType; marker; debug)`
+`ea.plot.c.image(axesShow; titleShow; axesIndependences; fontSizeRate; fontName; strokeSizeRate; markerSizeRate; alpha; linesMarkers; boxplotExtremeType; boxplotMidType; boxplotMarkers; marker; debug)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -2541,6 +2541,7 @@ Aliases: `ea.plot.c`, `ea.plot.conf`, `ea.plot.configuration`
 | `linesMarkers` | b | `false` | <code>boolean</code> |
 | `boxplotExtremeType` | e | `IQR_1_5` | <code><abbr title="io.github.ericmedvet.jviz.core.plot.image.Configuration$BoxPlot$ExtremeType">Configuration$BoxPlot$ExtremeType</abbr></code> |
 | `boxplotMidType` | e | `MEDIAN` | <code><abbr title="io.github.ericmedvet.jviz.core.plot.image.Configuration$BoxPlot$MidType">Configuration$BoxPlot$MidType</abbr></code> |
+| `boxplotMarkers` | b | `false` | <code>boolean</code> |
 | `marker` | e | `CIRCLE` | <code><abbr title="io.github.ericmedvet.jviz.core.plot.image.XYPlotDrawer$Marker">XYPlotDrawer$Marker</abbr></code> |
 | `debug` | b | `false` | <code>boolean</code> |
 

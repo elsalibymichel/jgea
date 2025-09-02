@@ -2,14 +2,14 @@ $treeDesc1 = ea.s.me.d.descriptor(f = f.size(of = f.filter(of = ea.f.treeLeaves(
 $treeDesc2 = ea.s.me.d.descriptor(f = f.size(of = f.filter(of = ea.f.treeLeaves(of = ea.f.genotype()); condition = ea.predicate.isSrVariable())); min = 1; max = 64; nOfBins = 8)
 
 ea.experiment(
-  runs = (randomGenerator = (seed = [1:1:10]) * [m.defaultRG()]) *
+  runs = (randomGenerator = (seed = [1:1:5]) * [m.defaultRG()]) *
     (problem = [
       ea.p.moToSo(objective = mse; moProblem = ea.p.ur.synthetic(name = "keijzer6"));
       ea.p.moToSo(objective = mse; moProblem = ea.p.ur.synthetic(name = "nguyen7"));
       ea.p.moToSo(objective = mse; moProblem = ea.p.ur.bundled(name = "concrete"; xScaling = standardization; yScaling = symmetric_min_max));
       ea.p.moToSo(objective = mse; moProblem = ea.p.ur.bundled(name = "energy-efficiency"; xScaling = standardization; yScaling = symmetric_min_max))
     ]) *
-    (solver = (stop = ea.sc.nOfQualityEvaluations(n = 5000)) * [
+    (solver = (stop = ea.sc.nOfQualityEvaluations(n = 2000)) * [
       ea.s.asyncScheduledMfMapElites(
         name = "mf-me-flat";
         schedule = ea.schedule.flat(value = 1);
@@ -96,7 +96,11 @@ ea.experiment(
     ea.l.savePlotForExp(
       path = "../../Documenti/experiments/{name}/{startTime}/final-best-fitness.svg";
       plot = ea.plot.multi.qualityBoxplot(q = f.mapValue(key = mse));
-      type = svg
+      type = svg;
+      configuration = ea.plot.conf.image(
+        axesShow = all;
+        axesIndependences = [all]
+      )
     );
     ea.l.savePlotForExp(
       path = "../../Documenti/experiments/{name}/{startTime}/best-validation-mse.svg";
@@ -106,7 +110,11 @@ ea.experiment(
     ea.l.savePlotForExp(
       path = "../../Documenti/experiments/{name}/{startTime}/final-best-validation-mse.svg";
       plot = ea.plot.multi.yBoxplotExp(y = f.mapValue(key = mse; of = ea.f.validationQuality()));
-      type = svg
+      type = svg;
+      configuration = ea.plot.conf.image(
+        axesShow = all;
+        axesIndependences = [all]
+      )
     );
     ea.l.saveForRun(
       path = "../../Documenti/experiments/{name}/{startTime}/final-best-validation-mse-vs-elapsed.svg";

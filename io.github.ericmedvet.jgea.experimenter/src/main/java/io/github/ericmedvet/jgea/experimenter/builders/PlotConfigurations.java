@@ -64,6 +64,7 @@ public class PlotConfigurations {
       @Param("linesMarkers") boolean linesMarkers,
       @Param(value = "boxplotExtremeType", dS = "iqr_1_5") ExtremeType boxplotExtremeType,
       @Param(value = "boxplotMidType", dS = "median") MidType boxplotMidType,
+      @Param("boxplotMarkers") boolean boxplotMarkers,
       @Param(value = "marker", dS = "circle") Marker marker,
       @Param("debug") boolean debug
   ) {
@@ -110,6 +111,8 @@ public class PlotConfigurations {
         LandscapePlot.DEFAULT,
         new BoxPlot(
             BoxPlot.DEFAULT.strokeSizeRate() * strokeSizeRate,
+            BoxPlot.DEFAULT.markerSizeRate() * markerSizeRate,
+            marker,
             BoxPlot.DEFAULT.boxWRate(),
             BoxPlot.DEFAULT.whiskersWRate(),
             BoxPlot.DEFAULT.legendImageWRate(),
@@ -118,7 +121,9 @@ public class PlotConfigurations {
             boxplotMidType,
             alpha,
             BoxPlot.DEFAULT.colors(),
-            BoxPlot.DEFAULT.yExtensionRate()
+            BoxPlot.DEFAULT.yExtensionRate(),
+            boxplotMarkers,
+            BoxPlot.DEFAULT.jitter()
         ),
         VectorialFieldPlot.DEFAULT,
         debug
