@@ -31,7 +31,7 @@ public interface PartiallyOrderedCollection<T> extends Sized {
 
   PartialComparator<? super T> comparator();
 
-  List<Collection<T>> fronts();
+  List<? extends Collection<T>> fronts();
 
   boolean remove(T t);
 
@@ -45,7 +45,7 @@ public interface PartiallyOrderedCollection<T> extends Sized {
   static <T> PartiallyOrderedCollection<T> from(Collection<T> ts, PartialComparator<? super T> comparator) {
     PartiallyOrderedCollection<T> poc = new FastDAGPOC<>(comparator);
     ts.forEach(poc::add);
-    List<Collection<T>> fronts = poc.fronts();
+    List<? extends Collection<T>> fronts = poc.fronts();
     return new PartiallyOrderedCollection<>() {
       @Override
       public void add(T t) {
@@ -58,7 +58,7 @@ public interface PartiallyOrderedCollection<T> extends Sized {
       }
 
       @Override
-      public List<Collection<T>> fronts() {
+      public List<? extends Collection<T>> fronts() {
         return fronts;
       }
 
@@ -112,7 +112,7 @@ public interface PartiallyOrderedCollection<T> extends Sized {
   }
 
   default Collection<T> mids() {
-    List<Collection<T>> fronts = fronts();
+    List<? extends Collection<T>> fronts = fronts();
     if (fronts.size() > 2) {
       return IntStream.range(1, fronts.size() - 1).mapToObj(fronts::get).flatMap(Collection::stream).toList();
     }

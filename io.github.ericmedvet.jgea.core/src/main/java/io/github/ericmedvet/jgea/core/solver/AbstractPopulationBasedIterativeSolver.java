@@ -21,7 +21,6 @@
 package io.github.ericmedvet.jgea.core.solver;
 
 import io.github.ericmedvet.jgea.core.Factory;
-import io.github.ericmedvet.jgea.core.order.ParetoDominance;
 import io.github.ericmedvet.jgea.core.order.PartialComparator;
 import io.github.ericmedvet.jgea.core.problem.QualityBasedProblem;
 import io.github.ericmedvet.jgea.core.problem.TotalOrderQualityBasedProblem;
@@ -146,8 +145,7 @@ public abstract class AbstractPopulationBasedIterativeSolver<T extends POCPopula
   protected PartialComparator<? super I> partialComparator(
       P problem
   ) {
-    PartialComparator<? super I> basePC = (i1, i2) -> problem.qualityComparator()
-        .compare(i1.quality(), i2.quality());
+    PartialComparator<? super I> basePC = problem.qualityComparator().comparing(Individual::quality);
     if (additionalIndividualComparators.isEmpty()) {
       return basePC;
     }
@@ -155,7 +153,7 @@ public abstract class AbstractPopulationBasedIterativeSolver<T extends POCPopula
         Stream.of(basePC),
         additionalIndividualComparators.stream()
     ).toList();
-    return (i1, i2) -> ParetoDominance.compare(i1, i2, allPCs);
+    return PartialComparator.from(allPCs);
   }
 
   protected Predicate<State<?, ?>> stopCondition() {

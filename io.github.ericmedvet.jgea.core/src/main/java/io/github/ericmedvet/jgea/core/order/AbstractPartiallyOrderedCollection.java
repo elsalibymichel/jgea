@@ -38,7 +38,7 @@ public abstract class AbstractPartiallyOrderedCollection<T> implements Partially
 
   @Override
   public String toString() {
-    List<Collection<T>> fronts = fronts();
+    List<? extends Collection<T>> fronts = fronts();
     return IntStream.range(0, fronts.size())
         .mapToObj(
             i -> "F%d:[%s]".formatted(

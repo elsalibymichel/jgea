@@ -29,12 +29,10 @@ public interface BBMOProblem<S, B, BQ, O> extends MultiObjectiveProblem<S, Behav
 
   @Override
   default PartialComparator<BQ> behaviorQualityComparator() {
-    return (bq1, bq2) -> ParetoDominance.compare(
-        bq1,
-        bq2,
-        bq -> behaviorQualityObjectives().values().stream().map(obj -> (O) obj.function().apply(bq)).toList(),
-        behaviorQualityObjectives().values().stream().map(Objective::comparator).toList()
-    );
+    return new ParetoDominance<>(behaviorQualityObjectives().values().stream().map(Objective::comparator).toList())
+        .comparing(
+            bq -> behaviorQualityObjectives().values().stream().map(obj -> (O) obj.function().apply(bq)).toList()
+        );
   }
 
   @Override
@@ -47,6 +45,6 @@ public interface BBMOProblem<S, B, BQ, O> extends MultiObjectiveProblem<S, Behav
 
   @Override
   default PartialComparator<Outcome<B, BQ>> qualityComparator() {
-    return behaviorQualityComparator().on(Outcome::behaviorQuality);
+    return behaviorQualityComparator().comparing(Outcome::behaviorQuality);
   }
 }

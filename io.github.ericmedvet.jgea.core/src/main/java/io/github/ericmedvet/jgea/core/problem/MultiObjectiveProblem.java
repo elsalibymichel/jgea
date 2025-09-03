@@ -35,16 +35,15 @@ public interface MultiObjectiveProblem<S, Q, O> extends QualityBasedProblem<S, Q
 
   @Override
   default PartialComparator<Q> qualityComparator() {
-    return (q1, q2) -> ParetoDominance.compare(
-        q1,
-        q2,
-        q -> objectives().values()
-            .stream()
-            .map(obj -> (O) obj.function.apply(q))
-            .toList(),
+    return new ParetoDominance<>(
         objectives().values()
             .stream()
             .map(Objective::comparator)
+            .toList()
+    ).comparing(
+        q -> objectives().values()
+            .stream()
+            .map(obj -> (O) obj.function.apply(q))
             .toList()
     );
   }

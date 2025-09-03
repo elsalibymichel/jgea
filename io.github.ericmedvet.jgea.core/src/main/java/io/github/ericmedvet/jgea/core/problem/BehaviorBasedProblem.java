@@ -33,7 +33,7 @@ public interface BehaviorBasedProblem<S, B, BQ> extends QualityBasedProblem<S, B
 
   @Override
   default PartialComparator<Outcome<B, BQ>> qualityComparator() {
-    return behaviorQualityComparator().on(Outcome::behaviorQuality);
+    return behaviorQualityComparator().comparing(Outcome::behaviorQuality);
   }
 
   @Override

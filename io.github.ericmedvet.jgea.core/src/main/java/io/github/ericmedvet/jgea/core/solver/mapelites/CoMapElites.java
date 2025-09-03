@@ -309,7 +309,7 @@ public class CoMapElites<G1, G2, S1, S2, S, Q> extends AbstractPopulationBasedIt
                 .map(CoMEPartialIndividual::from1)
                 .toList(),
             MEIndividual::bins,
-            partialComparatorInner.on(CoMEPartialIndividual::completeIndividual)
+            partialComparatorInner.comparing(CoMEPartialIndividual::completeIndividual)
         );
     Archive<CoMEPartialIndividual<G2, S2, G1, G2, S1, S2, S, Q>> archive2 = newState.archive2()
         .updated(
@@ -317,7 +317,7 @@ public class CoMapElites<G1, G2, S1, S2, S, Q> extends AbstractPopulationBasedIt
                 .map(CoMEPartialIndividual::from2)
                 .toList(),
             MEIndividual::bins,
-            partialComparatorInner.on(CoMEPartialIndividual::completeIndividual)
+            partialComparatorInner.comparing(CoMEPartialIndividual::completeIndividual)
         );
     // return state
     return newState.updatedWithIteration(populationSize, populationSize, archive1, archive2, strategy1, strategy2);
@@ -399,13 +399,13 @@ public class CoMapElites<G1, G2, S1, S2, S, Q> extends AbstractPopulationBasedIt
         .updated(
             offspring.stream().map(CoMEPartialIndividual::from1).toList(),
             MEIndividual::bins,
-            partialComparatorInner.on(CoMEPartialIndividual::completeIndividual)
+            partialComparatorInner.comparing(CoMEPartialIndividual::completeIndividual)
         );
     Archive<CoMEPartialIndividual<G2, S2, G1, G2, S1, S2, S, Q>> archive2 = state.archive2()
         .updated(
             offspring.stream().map(CoMEPartialIndividual::from2).toList(),
             MEIndividual::bins,
-            partialComparatorInner.on(CoMEPartialIndividual::completeIndividual)
+            partialComparatorInner.comparing(CoMEPartialIndividual::completeIndividual)
         );
     // return state
     return state.updatedWithIteration(

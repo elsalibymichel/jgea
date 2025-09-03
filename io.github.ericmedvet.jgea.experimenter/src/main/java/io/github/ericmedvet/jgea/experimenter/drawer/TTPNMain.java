@@ -52,15 +52,12 @@ public class TTPNMain {
             Double::compareTo
         )
     );
-    PartialComparator<List<Double>> extendedBasePC = basePC.on(vs -> vs.subList(0, 2));
-    PartialComparator<List<Double>> addedPC = PartialComparator.from(Double::compareTo).on(List::getLast);
+    PartialComparator<List<Double>> extendedBasePC = basePC.comparing(vs -> vs.subList(0, 2));
+    PartialComparator<List<Double>> addedPC = PartialComparator.from(Double::compareTo).comparing(List::getLast);
     System.out.println(basePC.compare(List.of(1d, 2d), List.of(3d, 4d)));
     System.out.println(basePC.compare(List.of(1d, 5d), List.of(3d, 4d)));
     System.out.println(addedPC.compare(List.of(2d, 1d, 4d), List.of(4d, 3d, 4d)));
     System.out.println(extendedBasePC.compare(List.of(2d, 1d, 4d), List.of(4d, 3d, 4d)));
-    System.out.println(
-        ParetoDominance.compare(List.of(2d, 1d, 4d), List.of(4d, 3d, 4d), List.of(extendedBasePC, addedPC))
-    );
   }
 
   private static void doComputationStuff() throws NoSuchMethodException, ProgramExecutionException, NetworkStructureException, TypeException {

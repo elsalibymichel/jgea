@@ -21,6 +21,7 @@
 package io.github.ericmedvet.jgea.core.order;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.function.Function;
 
 @FunctionalInterface
@@ -32,29 +33,70 @@ public interface PartialComparator<K> {
 
   PartialComparatorOutcome compare(K k1, K k2);
 
+  default boolean isTotal() {
+    return false;
+  }
+
   static <C> PartialComparator<C> from(Comparator<? super C> comparator) {
-    return (c1, c2) -> {
-      int o = comparator.compare(c1, c2);
-      if (o < 0) {
-        return PartialComparatorOutcome.BEFORE;
+    return new PartialComparator<C>() {
+      @Override
+      public PartialComparatorOutcome compare(C c1, C c2) {
+        int o = comparator.compare(c1, c2);
+        if (o < 0) {
+          return PartialComparatorOutcome.BEFORE;
+        }
+        if (o == 0) {
+          return PartialComparatorOutcome.SAME;
+        }
+        return PartialComparatorOutcome.AFTER;
       }
-      if (o == 0) {
-        return PartialComparatorOutcome.SAME;
+
+      @Override
+      public boolean isTotal() {
+        return true;
       }
-      return PartialComparatorOutcome.AFTER;
     };
   }
 
   static <C extends Comparable<C>> PartialComparator<C> from(Class<C> comparableClass) {
-    return (c1, c2) -> {
-      int o = c1.compareTo(c2);
-      if (o < 0) {
-        return PartialComparatorOutcome.BEFORE;
+    return from(Comparator.naturalOrder());
+  }
+
+  static <C> PartialComparator<C> from(List<PartialComparator<? super C>> partialComparators) {
+    return new PartialComparator<C>() {
+      @Override
+      public PartialComparatorOutcome compare(C k1, C k2) {
+        int nOfBefore = 0;
+        int nOfAfter = 0;
+        int nOfSame = 0;
+        for (PartialComparator<? super C> partialComparator : partialComparators) {
+          PartialComparatorOutcome outcome = partialComparator.compare(k1, k2);
+          if (outcome.equals(PartialComparatorOutcome.NOT_COMPARABLE)) {
+            return outcome;
+          }
+          int incremented = switch (outcome) {
+            case BEFORE -> nOfBefore++;
+            case AFTER -> nOfAfter++;
+            case SAME -> nOfSame++;
+            default -> 0;
+          };
+        }
+        if (nOfBefore > 0 && nOfAfter == 0) {
+          return PartialComparatorOutcome.BEFORE;
+        }
+        if (nOfAfter > 0 && nOfBefore == 0) {
+          return PartialComparatorOutcome.AFTER;
+        }
+        if (nOfSame == partialComparators.size()) {
+          return PartialComparatorOutcome.SAME;
+        }
+        return PartialComparatorOutcome.NOT_COMPARABLE;
       }
-      if (o == 0) {
-        return PartialComparatorOutcome.SAME;
+
+      @Override
+      public boolean isTotal() {
+        return partialComparators.size() == 1 && partialComparators.getFirst().isTotal();
       }
-      return PartialComparatorOutcome.AFTER;
     };
   }
 
@@ -77,36 +119,59 @@ public interface PartialComparator<K> {
     };
   }
 
-  default <C> PartialComparator<C> comparing(Function<? super C, ? extends K> function) {
-    return (c1, c2) -> compare(function.apply(c1), function.apply(c2));
-  }
+  default <C> PartialComparator<C> comparing(Function<? super C, ? extends K> extractorFunction) {
+    PartialComparator<K> thisPartialComparator = this;
+    return new PartialComparator<>() {
+      @Override
+      public PartialComparatorOutcome compare(C c1, C c2) {
+        return thisPartialComparator.compare(extractorFunction.apply(c1), extractorFunction.apply(c2));
+      }
 
-  default <T> PartialComparator<T> on(Function<? super T, ? extends K> function) {
-    return (t1, t2) -> compare(function.apply(t1), function.apply(t2));
+      @Override
+      public boolean isTotal() {
+        return thisPartialComparator.isTotal();
+      }
+    };
   }
 
   default PartialComparator<K> reversed() {
-    PartialComparator<K> thisComparator = this;
-    return (k1, k2) -> {
-      PartialComparatorOutcome outcome = thisComparator.compare(k1, k2);
-      if (outcome.equals(PartialComparatorOutcome.BEFORE)) {
-        return PartialComparatorOutcome.AFTER;
+    PartialComparator<K> thisPartialComparator = this;
+    return new PartialComparator<>() {
+      @Override
+      public PartialComparatorOutcome compare(K k1, K k2) {
+        PartialComparatorOutcome outcome = thisPartialComparator.compare(k1, k2);
+        if (outcome.equals(PartialComparatorOutcome.BEFORE)) {
+          return PartialComparatorOutcome.AFTER;
+        }
+        if (outcome.equals(PartialComparatorOutcome.AFTER)) {
+          return PartialComparatorOutcome.BEFORE;
+        }
+        return outcome;
       }
-      if (outcome.equals(PartialComparatorOutcome.AFTER)) {
-        return PartialComparatorOutcome.BEFORE;
+
+      @Override
+      public boolean isTotal() {
+        return thisPartialComparator.isTotal();
       }
-      return outcome;
     };
   }
 
   default PartialComparator<K> thenComparing(PartialComparator<? super K> other) {
-    PartialComparator<K> thisComparator = this;
-    return (k1, k2) -> {
-      PartialComparatorOutcome outcome = thisComparator.compare(k1, k2);
-      if (!outcome.equals(PartialComparatorOutcome.SAME)) {
-        return outcome;
+    PartialComparator<K> thisPartialComparator = this;
+    return new PartialComparator<K>() {
+      @Override
+      public PartialComparatorOutcome compare(K k1, K k2) {
+        PartialComparatorOutcome outcome = thisPartialComparator.compare(k1, k2);
+        if (!outcome.equals(PartialComparatorOutcome.SAME)) {
+          return outcome;
+        }
+        return other.compare(k1, k2);
       }
-      return other.compare(k1, k2);
+
+      @Override
+      public boolean isTotal() {
+        return thisPartialComparator.isTotal() && other.isTotal();
+      }
     };
   }
 }
