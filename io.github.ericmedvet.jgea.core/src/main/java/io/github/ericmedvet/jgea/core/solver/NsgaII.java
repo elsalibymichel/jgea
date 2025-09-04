@@ -83,6 +83,18 @@ public class NsgaII<G, S, Q> extends AbstractPopulationBasedIterativeSolver<POCP
           individual.parentIds()
       );
     }
+
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof RankedIndividual<?, ?, ?> that))
+        return false;
+      return id() == that.id();
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(id());
+    }
   }
 
   private static <G, S, Q> Collection<RankedIndividual<G, S, Q>> decorate(
