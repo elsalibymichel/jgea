@@ -20,7 +20,6 @@
 
 package io.github.ericmedvet.jgea.core.representation.graph.numeric.functiongraph;
 
-import io.github.ericmedvet.jgea.core.representation.NamedMultivariateRealFunction;
 import io.github.ericmedvet.jgea.core.representation.graph.Graph;
 import io.github.ericmedvet.jgea.core.representation.graph.LinkedHashGraph;
 import io.github.ericmedvet.jgea.core.representation.graph.Node;
@@ -29,6 +28,7 @@ import io.github.ericmedvet.jgea.core.representation.graph.numeric.Input;
 import io.github.ericmedvet.jgea.core.representation.graph.numeric.Output;
 import io.github.ericmedvet.jgea.core.util.Sized;
 import io.github.ericmedvet.jnb.datastructure.Parametrized;
+import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedMultivariateRealFunction;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;

@@ -19,10 +19,10 @@
  */
 package io.github.ericmedvet.jgea.problem.ca;
 
-import io.github.ericmedvet.jgea.core.representation.NamedMultivariateRealFunction;
 import io.github.ericmedvet.jnb.datastructure.DoubleRange;
 import io.github.ericmedvet.jnb.datastructure.Grid;
 import io.github.ericmedvet.jsdynsym.core.numerical.MultivariateRealFunction;
+import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedMultivariateRealFunction;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

@@ -21,8 +21,6 @@
 package io.github.ericmedvet.jgea.experimenter.builders;
 
 import io.github.ericmedvet.jgea.core.InvertibleMapper;
-import io.github.ericmedvet.jgea.core.representation.NamedMultivariateRealFunction;
-import io.github.ericmedvet.jgea.core.representation.NamedUnivariateRealFunction;
 import io.github.ericmedvet.jgea.core.representation.grammar.Chooser;
 import io.github.ericmedvet.jgea.core.representation.grammar.Developer;
 import io.github.ericmedvet.jgea.core.representation.grammar.grid.*;
@@ -56,6 +54,8 @@ import io.github.ericmedvet.jnb.datastructure.Pair;
 import io.github.ericmedvet.jsdynsym.buildable.builders.NumericalDynamicalSystems;
 import io.github.ericmedvet.jsdynsym.core.composed.Stepped;
 import io.github.ericmedvet.jsdynsym.core.numerical.*;
+import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedMultivariateRealFunction;
+import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedUnivariateRealFunction;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;

@@ -21,7 +21,6 @@
 package io.github.ericmedvet.jgea.experimenter.builders;
 
 import io.github.ericmedvet.jgea.core.problem.Problem;
-import io.github.ericmedvet.jgea.core.representation.NamedUnivariateRealFunction;
 import io.github.ericmedvet.jgea.core.representation.grammar.grid.GridGrammar;
 import io.github.ericmedvet.jgea.core.representation.grammar.string.GrammarBasedProblem;
 import io.github.ericmedvet.jgea.core.representation.grammar.string.StringGrammar;
@@ -30,6 +29,7 @@ import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element;
 import io.github.ericmedvet.jnb.core.Cacheable;
 import io.github.ericmedvet.jnb.core.Discoverable;
 import io.github.ericmedvet.jnb.core.Param;
+import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedUnivariateRealFunction;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;

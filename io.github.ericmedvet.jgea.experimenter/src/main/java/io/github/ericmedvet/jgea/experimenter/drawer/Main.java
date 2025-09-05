@@ -19,7 +19,6 @@
  */
 package io.github.ericmedvet.jgea.experimenter.drawer;
 
-import io.github.ericmedvet.jgea.core.representation.NamedMultivariateRealFunction;
 import io.github.ericmedvet.jgea.problem.ca.MRCAMorphogenesis;
 import io.github.ericmedvet.jgea.problem.ca.MultivariateRealGridCellularAutomaton;
 import io.github.ericmedvet.jgea.problem.image.ImageUtils;
@@ -28,6 +27,7 @@ import io.github.ericmedvet.jnb.datastructure.DoubleRange;
 import io.github.ericmedvet.jnb.datastructure.Grid;
 import io.github.ericmedvet.jsdynsym.core.numerical.MultivariateRealFunction;
 import io.github.ericmedvet.jsdynsym.core.numerical.ann.MultiLayerPerceptron;
+import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedMultivariateRealFunction;
 import io.github.ericmedvet.jviz.core.drawer.ImageBuilder;
 import io.github.ericmedvet.jviz.core.drawer.VideoBuilder;
 import java.awt.*;

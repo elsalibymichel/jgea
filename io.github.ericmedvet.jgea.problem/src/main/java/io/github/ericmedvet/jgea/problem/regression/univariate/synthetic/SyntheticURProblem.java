@@ -20,10 +20,10 @@
 package io.github.ericmedvet.jgea.problem.regression.univariate.synthetic;
 
 import io.github.ericmedvet.jgea.core.problem.TargetEBProblem;
-import io.github.ericmedvet.jgea.core.representation.NamedUnivariateRealFunction;
 import io.github.ericmedvet.jgea.core.util.IndexedProvider;
 import io.github.ericmedvet.jgea.problem.regression.univariate.UnivariateRegressionProblem;
 import io.github.ericmedvet.jsdynsym.core.numerical.MultivariateRealFunction;
+import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedUnivariateRealFunction;
 import java.util.List;
 import java.util.Map;
 import java.util.SequencedMap;

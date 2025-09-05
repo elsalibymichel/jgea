@@ -21,11 +21,11 @@ package io.github.ericmedvet.jgea.problem.ca;
 
 import io.github.ericmedvet.jgea.core.distance.Distance;
 import io.github.ericmedvet.jgea.core.problem.ComparableQualityBasedProblem;
-import io.github.ericmedvet.jgea.core.representation.NamedMultivariateRealFunction;
 import io.github.ericmedvet.jgea.core.util.IntRange;
 import io.github.ericmedvet.jnb.datastructure.DoubleRange;
 import io.github.ericmedvet.jnb.datastructure.Grid;
 import io.github.ericmedvet.jsdynsym.core.numerical.MultivariateRealFunction;
+import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedMultivariateRealFunction;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;

@@ -21,10 +21,10 @@
 package io.github.ericmedvet.jgea.problem.regression;
 
 import io.github.ericmedvet.jgea.core.problem.ExampleBasedProblem;
-import io.github.ericmedvet.jgea.core.representation.NamedUnivariateRealFunction;
 import io.github.ericmedvet.jgea.core.util.Sized;
 import io.github.ericmedvet.jgea.problem.regression.univariate.UnivariateRegressionProblem;
 import io.github.ericmedvet.jsdynsym.core.composed.AbstractComposed;
+import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedUnivariateRealFunction;
 import java.util.*;
 import java.util.function.UnaryOperator;
 import java.util.random.RandomGenerator;

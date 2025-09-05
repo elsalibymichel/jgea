@@ -21,12 +21,12 @@
 package io.github.ericmedvet.jgea.problem.regression.multivariate;
 
 import io.github.ericmedvet.jgea.core.problem.*;
-import io.github.ericmedvet.jgea.core.representation.NamedMultivariateRealFunction;
 import io.github.ericmedvet.jgea.core.util.IndexedProvider;
 import io.github.ericmedvet.jgea.core.util.Misc;
 import io.github.ericmedvet.jgea.problem.regression.univariate.UnivariateRegressionProblem;
 import io.github.ericmedvet.jnb.datastructure.TriFunction;
 import io.github.ericmedvet.jsdynsym.core.numerical.MultivariateRealFunction;
+import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedMultivariateRealFunction;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

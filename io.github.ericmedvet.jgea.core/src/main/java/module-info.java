@@ -47,7 +47,6 @@ module io.github.ericmedvet.jgea.core {
   exports io.github.ericmedvet.jgea.core.representation.programsynthesis.type;
   exports io.github.ericmedvet.jgea.core.representation.programsynthesis.ttpn;
   exports io.github.ericmedvet.jgea.core.representation.grammar.grid;
-  exports io.github.ericmedvet.jgea.core.representation;
   exports io.github.ericmedvet.jgea.core.selector;
   exports io.github.ericmedvet.jgea.core.solver;
   exports io.github.ericmedvet.jgea.core.solver.mapelites;
