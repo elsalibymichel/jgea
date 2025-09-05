@@ -22,6 +22,7 @@ package io.github.ericmedvet.jgea.experimenter.listener.plot;
 import io.github.ericmedvet.jnb.datastructure.*;
 import io.github.ericmedvet.jviz.core.plot.Value;
 import io.github.ericmedvet.jviz.core.plot.XYDataSeries;
+import io.github.ericmedvet.jviz.core.plot.XYDataSeries.Point;
 import io.github.ericmedvet.jviz.core.plot.XYDataSeriesPlot;
 import io.github.ericmedvet.jviz.core.plot.XYPlot;
 import java.util.ArrayList;
@@ -65,6 +66,19 @@ public class ScatterMRPAF<E, R, K, X> extends AbstractMultipleRPAF<E, XYDataSeri
     this.rFilter = rFilter;
     this.xRange = xRange;
     this.yRange = yRange;
+  }
+
+  @Override
+  protected int size(Map<K, Map<R, List<Point>>> kMap) {
+    return kMap.values()
+        .stream()
+        .mapToInt(
+            rMap -> rMap.values()
+                .stream()
+                .mapToInt(List::size)
+                .sum()
+        )
+        .sum();
   }
 
   @Override

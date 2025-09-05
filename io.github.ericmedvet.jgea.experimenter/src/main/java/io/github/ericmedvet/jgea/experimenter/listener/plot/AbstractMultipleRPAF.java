@@ -20,12 +20,13 @@
 package io.github.ericmedvet.jgea.experimenter.listener.plot;
 
 import io.github.ericmedvet.jgea.core.listener.Accumulator;
+import io.github.ericmedvet.jgea.core.util.Sized;
 import io.github.ericmedvet.jnb.datastructure.HashMapTable;
 import io.github.ericmedvet.jnb.datastructure.Table;
 import io.github.ericmedvet.jviz.core.plot.XYPlot;
 import java.util.function.Function;
 
-public abstract class AbstractMultipleRPAF<E, P extends XYPlot<D>, R, D, K, V> implements PlotAccumulatorFactory<E, P, R, D> {
+public abstract class AbstractMultipleRPAF<E, P extends XYPlot<D>, R, D, K, V> implements PlotAccumulatorFactory<E, P, R, D>, Sized {
 
   protected final Function<? super R, ? extends K> xSubplotFunction;
   protected final Function<? super R, ? extends K> ySubplotFunction;
@@ -48,6 +49,13 @@ public abstract class AbstractMultipleRPAF<E, P extends XYPlot<D>, R, D, K, V> i
   protected abstract V init(K xK, K yK);
 
   protected abstract V update(K xK, K yK, V v, E e, R r);
+
+  protected abstract int size(V v);
+
+  @Override
+  public int size() {
+    return table.values().stream().mapToInt(this::size).sum();
+  }
 
   @Override
   public Accumulator<E, P> build(R r) {

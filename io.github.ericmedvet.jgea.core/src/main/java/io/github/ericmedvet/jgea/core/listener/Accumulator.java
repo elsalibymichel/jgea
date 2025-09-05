@@ -47,7 +47,7 @@ public interface Accumulator<E, O> extends Listener<E> {
       Accumulator<IE, IO> accumulator,
       Function<OE, IE> eFunction,
       Function<IO, OO> oGetterFunction,
-      Consumer<IO> ioConsumer
+      Consumer<Accumulator<IE, IO>> ioConsumer
   ) {
     return new Accumulator<>() {
       @Override
@@ -62,7 +62,7 @@ public interface Accumulator<E, O> extends Listener<E> {
 
       @Override
       public void done() {
-        ioConsumer.accept(accumulator.get());
+        ioConsumer.accept(accumulator);
       }
 
       @Override
@@ -120,7 +120,7 @@ public interface Accumulator<E, O> extends Listener<E> {
     return from("%s[then:%s]".formatted(this, function), this, Function.identity(), function, o -> {});
   }
 
-  default Accumulator<E, O> thenOnDone(Consumer<O> consumer) {
+  default Accumulator<E, O> thenOnDone(Consumer<Accumulator<E, O>> consumer) {
     return from(
         "%s[thenOnDone:%s]".formatted(this, consumer),
         this,

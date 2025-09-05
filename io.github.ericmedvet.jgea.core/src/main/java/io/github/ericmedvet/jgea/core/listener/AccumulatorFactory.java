@@ -21,11 +21,11 @@ package io.github.ericmedvet.jgea.core.listener;
 
 import io.github.ericmedvet.jgea.core.util.Naming;
 import io.github.ericmedvet.jnb.datastructure.NamedFunction;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.*;
 
 public interface AccumulatorFactory<E, O, K> extends ListenerFactory<E, K> {
+
   Accumulator<E, O> build(K k);
 
   @Override
@@ -43,7 +43,8 @@ public interface AccumulatorFactory<E, O, K> extends ListenerFactory<E, K> {
   }
 
   static <E, O, K> AccumulatorFactory<E, List<O>, K> collector(Function<E, O> function) {
-    return from("collector[%s]".formatted(function), k -> Accumulator.collector(function), () -> {});
+    return from("collector[%s]".formatted(function), k -> Accumulator.collector(function), () -> {
+    });
   }
 
   static <E, O, K> AccumulatorFactory<E, O, K> from(
@@ -72,28 +73,56 @@ public interface AccumulatorFactory<E, O, K> extends ListenerFactory<E, K> {
   static <E, O, K> AccumulatorFactory<E, O, K> last(BiFunction<E, K, O> function) {
     return from(
         "last[then:%s]".formatted(function),
-        k -> Accumulator.<E>last().then(NamedFunction.from(e -> function.apply(e, k), function.toString())),
-        () -> {}
+        k -> Accumulator.<E>last()
+            .then(NamedFunction.from(e -> function.apply(e, k), function.toString())),
+        () -> {
+        }
     );
   }
 
   default <Q> AccumulatorFactory<E, Q, K> then(Function<O, Q> function) {
-    return from("%s[then:%s]".formatted(this, function), k -> build(k).then(function), this::shutdown);
-  }
-
-  default AccumulatorFactory<E, O, K> thenOnDone(BiConsumer<K, O> consumer) {
     return from(
-        "%s[thenOnDone:%s]".formatted(this, consumer),
-        k -> build(k).thenOnDone(Naming.named(consumer.toString(), (Consumer<O>) o -> consumer.accept(k, o))),
+        "%s[then:%s]".formatted(this, function),
+        k -> build(k).then(function),
         this::shutdown
     );
   }
 
-  default AccumulatorFactory<E, O, K> thenOnShutdown(Consumer<List<O>> consumer) {
-    List<O> os = new ArrayList<>();
-    return from("%s[thenOnShutDown:%s]".formatted(this, consumer), k -> build(k).thenOnDone(os::add), () -> {
-      consumer.accept(os);
-      shutdown();
-    });
+  default AccumulatorFactory<E, O, K> thenOnDone(BiConsumer<K, Accumulator<E, O>> consumer) {
+    return from(
+        "%s[thenOnDone:%s]".formatted(this, consumer),
+        k -> build(k).thenOnDone(
+            Naming.named(consumer.toString(), (Consumer<Accumulator<E, O>>) a -> consumer.accept(k, a))
+        ),
+        this::shutdown
+    );
+  }
+
+  default <AO> AccumulatorFactory<E, O, K> thenOnShutdown(
+      Supplier<AO> initializer,
+      BiConsumer<Accumulator<E, O>, AO> updater,
+      Consumer<AO> consumer
+  ) {
+    AO accumulatedOutput = initializer.get();
+    return from(
+        "%s[thenOnShutDown:%s]".formatted(this, consumer),
+        k -> build(k).thenOnDone(a -> updater.accept(a, accumulatedOutput)),
+        () -> {
+          consumer.accept(accumulatedOutput);
+          shutdown();
+        }
+    );
+  }
+
+  default AccumulatorFactory<E, O, K> thenOnShutdown(Consumer<O> consumer) {
+    class Box<C> {
+
+      C content;
+    }
+    return thenOnShutdown(
+        () -> new Box<Accumulator<E, O>>(),
+        (o, box) -> box.content = o,
+        box -> consumer.accept(box.content.get())
+    );
   }
 }

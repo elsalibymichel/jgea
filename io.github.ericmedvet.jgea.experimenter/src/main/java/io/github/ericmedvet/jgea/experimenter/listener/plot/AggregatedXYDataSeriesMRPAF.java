@@ -63,6 +63,19 @@ public abstract class AggregatedXYDataSeriesMRPAF<E, R, K> extends AbstractMulti
   }
 
   @Override
+  protected int size(Table<Number, K, Map<R, List<Number>>> table) {
+    return table.values()
+        .stream()
+        .mapToInt(
+            map -> map.values()
+                .stream()
+                .mapToInt(List::size)
+                .sum()
+        )
+        .sum();
+  }
+
+  @Override
   protected List<XYDataSeries> buildData(K xK, K yK, Table<Number, K, Map<R, List<Number>>> table) {
     return table.colIndexes()
         .stream()

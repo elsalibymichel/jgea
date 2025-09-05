@@ -59,6 +59,7 @@ public class Listeners {
   }
 
   private static class ListenerFactoryAndMonitor<E, K> implements ListenerFactory<E, K>, ProgressMonitor {
+
     private final ListenerFactory<E, K> innerListenerFactory;
     private final ListenerFactory<E, K> outerListenerFactory;
 
@@ -129,7 +130,12 @@ public class Listeners {
       @Param(value = "runCondition", dNPM = "predicate.always()") Predicate<Run<?, G, S, Q>> runPredicate,
       @Param(value = "stateCondition", dNPM = "predicate.always()") Predicate<POCPopulationState<?, G, S, Q, ?>> statePredicate
   ) {
-    record PopIndividualPair<G, S, Q>(POCPopulationState<?, G, S, Q, ?> pop, Individual<G, S, Q> individual) {}
+    record PopIndividualPair<G, S, Q>(
+        POCPopulationState<?, G, S, Q, ?> pop,
+        Individual<G, S, Q> individual
+    ) {
+
+    }
     Function<? super PopIndividualPair<G, S, Q>, POCPopulationState<?, G, S, Q, ?>> pairPopF = NamedFunction.from(
         PopIndividualPair::pop,
         "state"
@@ -141,7 +147,10 @@ public class Listeners {
     return (experiment, executor) -> {
       List<Function<? super PopIndividualPair<G, S, Q>, ?>> pairFunctions = new ArrayList<>();
       Stream.concat(defaultStateFunctions.stream(), stateFunctions.stream())
-          .map(f -> (Function<? super PopIndividualPair<G, S, Q>, ?>) FormattedNamedFunction.from(f).compose(pairPopF))
+          .map(
+              f -> (Function<? super PopIndividualPair<G, S, Q>, ?>) FormattedNamedFunction.from(f)
+                  .compose(pairPopF)
+          )
           .forEach(pairFunctions::add);
       individualFunctions.stream()
           .map(f -> FormattedNamedFunction.from(f).compose(pairIndividualF))
@@ -282,7 +291,12 @@ public class Listeners {
       @Param(value = "pollInterval", dD = 1) double pollInterval,
       @Param(value = "condition", dNPM = "predicate.always()") Predicate<Run<?, G, S, Q>> predicate
   ) {
-    NetMultiSink netMultiSink = new NetMultiSink(pollInterval, serverAddress, serverPort, new File(serverKeyFilePath));
+    NetMultiSink netMultiSink = new NetMultiSink(
+        pollInterval,
+        serverAddress,
+        serverPort,
+        new File(serverKeyFilePath)
+    );
     return (experiment, executor) -> new ListenerFactoryAndMonitor<>(
         new SinkListenerFactory<>(
             Misc.concat(List.of(defaultStateFunctions, stateFunctions)),
@@ -349,9 +363,9 @@ public class Listeners {
         accumulatorFactory.thenOnShutdown(
             Naming.named(
                 consumers.toString(),
-                (Consumer<List<O>>) (os -> {
-                  if (!os.isEmpty()) {
-                    P p = preprocessor.apply(os.getLast());
+                (Consumer<O>) (o -> {
+                  if (o != null) {
+                    P p = preprocessor.apply(o);
                     consumers.forEach(c -> c.accept(p, null, experiment));
                   }
                 })
@@ -418,8 +432,8 @@ public class Listeners {
         accumulatorFactory.thenOnDone(
             Naming.named(
                 consumers.toString(),
-                (run, o) -> {
-                  P p = preprocessor.apply(o);
+                (run, a) -> {
+                  P p = preprocessor.apply(a.get());
                   consumers.forEach(c -> c.accept(p, run, experiment));
                 }
             )

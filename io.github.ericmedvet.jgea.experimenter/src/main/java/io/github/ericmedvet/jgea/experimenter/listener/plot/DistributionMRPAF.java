@@ -60,6 +60,19 @@ public class DistributionMRPAF<E, R, K, X> extends AbstractMultipleRPAF<E, Distr
   }
 
   @Override
+  protected int size(Map<K, Map<R, List<Number>>> kMap) {
+    return kMap.values()
+        .stream()
+        .mapToInt(
+            rMap -> rMap.values()
+                .stream()
+                .mapToInt(List::size)
+                .sum()
+        )
+        .sum();
+  }
+
+  @Override
   protected List<DistributionPlot.Data> buildData(K xK, K yK, Map<K, Map<R, List<Number>>> map) {
     return map.entrySet()
         .stream()
