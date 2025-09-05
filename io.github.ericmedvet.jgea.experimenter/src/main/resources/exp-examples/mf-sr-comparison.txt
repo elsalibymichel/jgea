@@ -126,7 +126,8 @@ ea.experiment(
         f.mapValue(key = mse; of = ea.f.quality(of = ea.f.best()); format = "%6.2f");
         f.percentile(of = f.each(of = ea.f.all(); mapF = f.mapValue(key = mse; of = ea.f.quality())); p = 75; format = "%6.2f");
         ea.f.hist(of = f.each(of = ea.f.all(); mapF = f.mapValue(key = mse; of = ea.f.quality())));
-        f.mapValue(key = mse; of = ea.f.validationQuality(); format = "%6.2f")
+        f.mapValue(key = mse; of = ea.f.validationQuality(); format = "%6.2f");
+        ea.f.timestamp()
       ];
       onlyLast = true
     );

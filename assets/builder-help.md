@@ -1460,6 +1460,16 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.NamedFunction
 
 Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Double">Double</abbr>&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Functions.targetDistances()` by jgea-experimenter:2.7.1-SNAPSHOT
 
+### Builder `ea.function.timestamp()`
+
+`ea.f.timestamp(format)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `format` | s | `%1$tH:%1$tM:%1$tS` | <code><abbr title="java.lang.String">String</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.time.LocalDateTime">LocalDateTime</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Functions.timestamp()` by jgea-experimenter:2.7.1-SNAPSHOT
+
 ### Builder `ea.function.toDoubleString()`
 
 `ea.f.toDoubleString(of)`

@@ -33,8 +33,18 @@ import io.github.ericmedvet.jgea.core.solver.MultiFidelityPOCPopulationState;
 import io.github.ericmedvet.jgea.core.solver.POCPopulationState;
 import io.github.ericmedvet.jgea.core.solver.State;
 import io.github.ericmedvet.jgea.core.solver.cabea.GridPopulationState;
-import io.github.ericmedvet.jgea.core.solver.mapelites.*;
-import io.github.ericmedvet.jgea.core.util.*;
+import io.github.ericmedvet.jgea.core.solver.mapelites.Archive;
+import io.github.ericmedvet.jgea.core.solver.mapelites.CoMEPopulationState;
+import io.github.ericmedvet.jgea.core.solver.mapelites.MAMEPopulationState;
+import io.github.ericmedvet.jgea.core.solver.mapelites.MEIndividual;
+import io.github.ericmedvet.jgea.core.solver.mapelites.MEPopulationState;
+import io.github.ericmedvet.jgea.core.solver.mapelites.MapElites;
+import io.github.ericmedvet.jgea.core.solver.mapelites.MultiFidelityMEPopulationState;
+import io.github.ericmedvet.jgea.core.util.FunctionUtils;
+import io.github.ericmedvet.jgea.core.util.Misc;
+import io.github.ericmedvet.jgea.core.util.Progress;
+import io.github.ericmedvet.jgea.core.util.Sized;
+import io.github.ericmedvet.jgea.core.util.TextPlotter;
 import io.github.ericmedvet.jgea.experimenter.Run;
 import io.github.ericmedvet.jgea.experimenter.Utils;
 import io.github.ericmedvet.jnb.core.Cacheable;
@@ -48,14 +58,40 @@ import io.github.ericmedvet.jviz.core.drawer.Drawer;
 import io.github.ericmedvet.jviz.core.drawer.ImageBuilder;
 import io.github.ericmedvet.jviz.core.drawer.Video;
 import io.github.ericmedvet.jviz.core.drawer.VideoBuilder;
-import io.github.ericmedvet.jviz.core.plot.*;
-import io.github.ericmedvet.jviz.core.plot.csv.*;
-import io.github.ericmedvet.jviz.core.plot.image.*;
+import io.github.ericmedvet.jviz.core.plot.DistributionPlot;
+import io.github.ericmedvet.jviz.core.plot.LandscapePlot;
+import io.github.ericmedvet.jviz.core.plot.UnivariateGridPlot;
+import io.github.ericmedvet.jviz.core.plot.VectorialFieldPlot;
+import io.github.ericmedvet.jviz.core.plot.XYDataSeriesPlot;
+import io.github.ericmedvet.jviz.core.plot.XYPlot;
+import io.github.ericmedvet.jviz.core.plot.csv.DistributionPlotCsvBuilder;
+import io.github.ericmedvet.jviz.core.plot.csv.LandscapePlotCsvBuilder;
+import io.github.ericmedvet.jviz.core.plot.csv.UnivariateGridPlotCsvBuilder;
+import io.github.ericmedvet.jviz.core.plot.csv.VectorialFieldPlotCsvBuilder;
+import io.github.ericmedvet.jviz.core.plot.csv.XYDataSeriesPlotCsvBuilder;
+import io.github.ericmedvet.jviz.core.plot.image.BoxPlotDrawer;
 import io.github.ericmedvet.jviz.core.plot.image.Configuration;
-import io.github.ericmedvet.jviz.core.plot.video.*;
+import io.github.ericmedvet.jviz.core.plot.image.LandscapePlotDrawer;
+import io.github.ericmedvet.jviz.core.plot.image.LinesPlotDrawer;
+import io.github.ericmedvet.jviz.core.plot.image.PointsPlotDrawer;
+import io.github.ericmedvet.jviz.core.plot.image.UnivariateGridPlotDrawer;
+import io.github.ericmedvet.jviz.core.plot.image.VectorialFieldPlotDrawer;
+import io.github.ericmedvet.jviz.core.plot.video.AbstractXYDataSeriesPlotVideoBuilder;
+import io.github.ericmedvet.jviz.core.plot.video.BoxPlotVideoBuilder;
+import io.github.ericmedvet.jviz.core.plot.video.LandscapePlotVideoBuilder;
+import io.github.ericmedvet.jviz.core.plot.video.LinesPlotVideoBuilder;
+import io.github.ericmedvet.jviz.core.plot.video.PointsPlotVideoBuilder;
+import io.github.ericmedvet.jviz.core.plot.video.UnivariatePlotVideoBuilder;
+import io.github.ericmedvet.jviz.core.plot.video.VectorialFieldVideoBuilder;
 import io.github.ericmedvet.jviz.core.util.VideoUtils;
 import java.awt.image.BufferedImage;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -859,6 +895,14 @@ public class Functions {
         .map(t -> problem.distance().apply(i.solution(), t))
         .toList();
     return FormattedNamedFunction.from(f, format, "target.distances").compose(beforeF);
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static <X> FormattedNamedFunction<X, LocalDateTime> timestamp(
+      @Param(value = "format", dS = "%1$tH:%1$tM:%1$tS") String format
+  ) {
+    return FormattedNamedFunction.from(x -> LocalDateTime.now(), format, "timestamp");
   }
 
   @SuppressWarnings("unused")
