@@ -37,6 +37,7 @@ import java.util.function.Function;
 import java.util.random.RandomGenerator;
 
 public class ScheduledFidelityStandardEvolver<G, S, Q> extends AbstractStandardEvolver<MultiFidelityPOCPopulationState<Individual<G, S, Q>, G, S, Q, MultifidelityQualityBasedProblem<S, Q>>, MultifidelityQualityBasedProblem<S, Q>, Individual<G, S, Q>, G, S, Q> {
+
   private final DoubleUnaryOperator schedule;
 
   public ScheduledFidelityStandardEvolver(
@@ -132,7 +133,7 @@ public class ScheduledFidelityStandardEvolver<G, S, Q> extends AbstractStandardE
     return state.updatedWithIteration(
         nOfNewBirths,
         nOfNewFitnessEvaluations,
-        currentFidelity(state) * nOfNewFitnessEvaluations,
+        Math.max(1d, currentFidelity(state) * nOfNewFitnessEvaluations),
         PartiallyOrderedCollection.from(individuals, partialComparator(state.problem()))
     );
   }
