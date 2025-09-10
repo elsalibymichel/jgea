@@ -112,11 +112,11 @@ public class MultiPlots {
       @Param(value = "xRange", dNPM = "m.range(min=-Infinity;max=Infinity)") DoubleRange xRange,
       @Param(value = "yRange", dNPM = "m.range(min=-Infinity;max=Infinity)") DoubleRange yRange,
       @Param(value = "limitOneYForRun", dB = true) boolean limitOneYForRun,
-      @Param("useRunForY") boolean useRunForY
+      @Param("useRunForX") boolean useRunForX
   ) {
     UnaryOperator<List<Number>> rFilter = limitOneYForRun ? values -> List.of(values.getLast()) : UnaryOperator
         .identity();
-    if (useRunForY) {
+    if (useRunForX) {
       //noinspection unchecked
       return new RAggregatedXYDataSeriesMRPAF<>(
           xSubplotFunction,

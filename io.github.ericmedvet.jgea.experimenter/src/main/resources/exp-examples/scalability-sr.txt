@@ -34,21 +34,19 @@ ea.experiment(
       ];
       onlyLast = true
     );
-    ea.l.saveForRun(
+    ea.l.savePlotForRun(
       path = "../../Documenti/experiments/{name}/{startTime}/elapsed.svg";
-      of = ea.plot.multi.xyExp(
+      plot = ea.plot.multi.xyExp(
         ySubplot = ea.f.runString(name = solver; s = "{run.solver.name}");
         x = ea.f.asDouble(of = ea.f.runKey(key = "run.nOfThreads"));
         y = ea.f.elapsedSecs();
-        useRunForY = true
+        useRunForX = true
       );
-      processor = ea.f.imagePlotter(
-        type = svg;
-        configuration = ea.plot.conf.image(
-          axesShow = all;
-          axesIndependences = [all];
-          linesMarkers = true
-        )
+      type = svg;
+      configuration = ea.plot.conf.image(
+        axesShow = all;
+        axesIndependences = [all];
+        linesMarkers = true
       );
       overwrite = true
     )
