@@ -87,7 +87,6 @@ public class AsynchronousScheduledMFMapElites<G, S, Q> extends AbstractPopulatio
       long nOfIterations,
       Map<List<Integer>, Long> nOfEvaluationsMap,
       Map<List<Integer>, Double> currentFidelityMap,
-      Map<List<Integer>, Double> individualFidelityMap,
       Map<List<Integer>, Double> cumulativeFidelityMap,
       AtomicReference<Double> progressRate
   ) {
@@ -227,7 +226,6 @@ public class AsynchronousScheduledMFMapElites<G, S, Q> extends AbstractPopulatio
         nOfIterations.get(),
         nOfEvaluationsMap,
         currentFidelityMap,
-        individualFidelityMap,
         cumulativeFidelityMap,
         progressRate
     );
@@ -353,7 +351,6 @@ public class AsynchronousScheduledMFMapElites<G, S, Q> extends AbstractPopulatio
             nowNOfIterations,
             nOfEvaluationsMap,
             currentFidelityMap,
-            individualFidelityMap,
             cumulativeFidelityMap,
             progressRate
         );
@@ -387,7 +384,6 @@ public class AsynchronousScheduledMFMapElites<G, S, Q> extends AbstractPopulatio
                   nowNOfIterations,
                   nOfEvaluationsMap,
                   currentFidelityMap,
-                  individualFidelityMap,
                   cumulativeFidelityMap,
                   progressRate
               );
