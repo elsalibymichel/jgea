@@ -80,20 +80,30 @@ public class Functions {
 
   @SuppressWarnings("unused")
   @Cacheable
-  public static <X, G> FormattedNamedFunction<X, Double> archiveCoverage(
-      @Param(value = "of", dNPM = "f.identity()") Function<X, Archive<G>> beforeF,
+  public static <X, T> FormattedNamedFunction<X, Collection<T>> archiveContents(
+      @Param(value = "of", dNPM = "f.identity()") Function<X, Archive<T>> beforeF,
       @Param(value = "format", dS = "%4.2f") String format
   ) {
-    Function<Archive<G>, Double> f = a -> (double) a.asMap().size() / (double) a.capacity();
+    Function<Archive<T>, Collection<T>> f = a -> a.asMap().values();
+    return FormattedNamedFunction.from(f, format, "contents").compose(beforeF);
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static <X, T> FormattedNamedFunction<X, Double> archiveCoverage(
+      @Param(value = "of", dNPM = "f.identity()") Function<X, Archive<T>> beforeF,
+      @Param(value = "format", dS = "%4.2f") String format
+  ) {
+    Function<Archive<T>, Double> f = a -> (double) a.asMap().size() / (double) a.capacity();
     return FormattedNamedFunction.from(f, format, "coverage").compose(beforeF);
   }
 
   @SuppressWarnings("unused")
   @Cacheable
-  public static <X, G> NamedFunction<X, Grid<G>> archiveToGrid(
-      @Param(value = "of", dNPM = "f.identity()") Function<X, Archive<G>> beforeF
+  public static <X, T> NamedFunction<X, Grid<T>> archiveToGrid(
+      @Param(value = "of", dNPM = "f.identity()") Function<X, Archive<T>> beforeF
   ) {
-    Function<Archive<G>, Grid<G>> f = a -> Grid.create(
+    Function<Archive<T>, Grid<T>> f = a -> Grid.create(
         a.binUpperBounds().getFirst(),
         a.binUpperBounds().get(1),
         (x, y) -> a.get(List.of(x, y))
@@ -712,10 +722,10 @@ public class Functions {
 
   @SuppressWarnings("unused")
   @Cacheable
-  public static <X, G, S, Q, I extends Individual<G, S, Q>> NamedFunction<X, Archive<MEIndividual<G, S, Q>>> postArchive(
+  public static <X, G, S, Q, I extends Individual<G, S, Q>> NamedFunction<X, Archive<MEIndividual<G, S, Q>>> computedArchive(
       @Param(value = "of", dNPM = "f.identity()") Function<X, Collection<I>> beforeF,
       @Param("descriptors") List<MapElites.Descriptor<G, S, Q>> descriptors,
-      @Param("qComparator") Function<X, PartialComparator<? super Q>> qPartialComparatorFunction
+      @Param(value = "qComparator", dNPM = "ea.f.qualityComparator(of = ea.f.problem())") Function<X, PartialComparator<? super Q>> qPartialComparatorFunction
   ) {
     Function<X, Archive<MEIndividual<G, S, Q>>> f = x -> {
       Collection<I> individuals = beforeF.apply(x);
@@ -730,7 +740,7 @@ public class Functions {
       meIndividuals.forEach(i -> archive.put(i.bins(), i, iPartialComparator));
       return archive;
     };
-    return NamedFunction.from(f, "archive[%s]".formatted(descriptors));
+    return NamedFunction.from(f, "computed.archive");
   }
 
   @SuppressWarnings("unused")

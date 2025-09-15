@@ -46,30 +46,31 @@ $annAltDesc2 = ea.s.me.d.descriptor(
   nOfBins = 8
 )
 
+$cArchive = ea.f.computedArchive(
+  of = ea.f.all();
+  descriptors = [$desc1; $desc2]
+)
+$qdScoreT = 0.2
+$qdScore = f.as(name = "qd.score"; of = f.sum(format = "%4.2f"; of = f.each(
+  of = ea.f.archiveContents(of = $cArchive);
+  mapF = f.clip(range = m.range(min = 0; max = $qdScoreT); of = f.mathOp(op = subtract; args = [
+    f.mathConst(v = $qdScoreT);
+    f.mapValue(key = mse; of = ea.f.quality())
+  ]))
+)))
+
 ea.experiment(
-  runs = (randomGenerator = (seed = [1:1:3]) * [m.defaultRG()]) *
+  runs = (randomGenerator = (seed = [1:1:1]) * [m.defaultRG()]) *
     (problem = [
       ea.p.moToSo(objective = mse; moProblem = ea.p.ur.synthetic(name = "keijzer6"));
       ea.p.moToSo(objective = mse; moProblem = ea.p.ur.synthetic(name = "nguyen7"));
-      ea.p.moToSo(objective = mse; moProblem = ea.p.ur.synthetic(name = "korns12"));
+      ea.p.moToSo(objective = mse; moProblem = ea.p.ur.synthetic(name = "vladislavleva4"));
       ea.p.moToSo(objective = mse; moProblem = ea.p.ur.bundled(name = "concrete"; xScaling = standardization; yScaling = symmetric_min_max));
       ea.p.moToSo(objective = mse; moProblem = ea.p.ur.bundled(name = "wine"; xScaling = standardization; yScaling = symmetric_min_max));
       ea.p.moToSo(objective = mse; moProblem = ea.p.ur.bundled(name = "energy-efficiency"; xScaling = standardization; yScaling = symmetric_min_max))
     ]) *
-    (solver = (stop = ea.sc.cumulativeFidelity(v = 1000)) * [
-      ea.s.asyncScheduledMfMapElites(
-        name = "ann-alt-mf-me-half-linear";
-        schedule = ea.schedule.evenPiecewise(values = [0; 1; 1]);
-        representation = ea.r.doubleString();
-        mapper = ea.m.nmrfToNurf(of = ea.m.dsToNmrf(npmrf = ds.num.mlp(innerLayers = [8])));
-        descriptors = [$annAltDesc1; $annAltDesc2]
-      );
-      ea.s.scheduledMfGa(
-        name = "mf-ga-linear";
-        schedule = ea.schedule.linear(min = 0; max = 1);
-        representation = ea.r.srTree();
-        mapper = ea.m.srTreeToNurf()
-      );
+    (solver = (stop = ea.sc.elapsed(v = 1)) * [
+      ea.s.srGp(name = "ga");
       ea.s.asyncScheduledMfMapElites(
         name = "mf-me-flat";
         schedule = ea.schedule.flat(value = 1);
@@ -138,7 +139,13 @@ ea.experiment(
         mapper = ea.m.srTreeToNurf();
         descriptors = [$treeDesc1; $treeDesc2]
       );
-      ea.s.srGp(name = "ga")
+      ea.s.asyncScheduledMfMapElites(
+        name = "ann-alt-mf-me-half-linear";
+        schedule = ea.schedule.evenPiecewise(values = [0; 1; 1]);
+        representation = ea.r.doubleString();
+        mapper = ea.m.nmrfToNurf(of = ea.m.dsToNmrf(npmrf = ds.num.mlp(innerLayers = [8])));
+        descriptors = [$annAltDesc1; $annAltDesc2]
+      )
     ]) * [
     ea.run()
   ];
@@ -151,11 +158,7 @@ ea.experiment(
         f.mapValue(key = mse; of = ea.f.validationQuality(); format = "%6.2f");
         ea.f.cumulativeFidelity();
         ea.f.archiveCoverage(of = ea.f.meArchive());
-        ea.f.archiveCoverage(of = ea.f.postArchive(
-          of = ea.f.all();
-          descriptors = [$annAltDesc1; $annAltDesc2];
-          qComparator = ea.f.qualityComparator(of = ea.f.problem())
-        ));
+        ea.f.archiveCoverage(of = $cArchive);
         f.avg(of = f.each(of = ea.f.all(); mapF = f.mapValue(key = mse; of = ea.f.quality())));
         ea.f.timestamp()
       ];
@@ -270,6 +273,14 @@ ea.experiment(
     );
 
     % ========= ARCHIVE PLOTS
+    ea.l.savePlotForRun(
+      path = "../../Documenti/experiments/{name}/{startTime}/{run.solver.name}/{run.problem.name}/{run.randomGenerator.seed}-computed-archive.svg";
+      plot = ea.plot.single.gridRun(
+        values = [f.mapValue(key = mse; of = ea.f.quality())];
+        grids = [ea.f.archiveToGrid(of = $cArchive)]
+      );
+      type = svg
+    );
     ea.l.savePlotForRun(
       path = "../../Documenti/experiments/{name}/{startTime}/{run.solver.name}/{run.problem.name}/{run.randomGenerator.seed}-archive.svg";
       plot = ea.plot.single.me(
