@@ -221,6 +221,29 @@ public class Functions {
 
   @SuppressWarnings("unused")
   @Cacheable
+  public static <X, G, S, Q, I extends Individual<G, S, Q>> NamedFunction<X, Archive<MEIndividual<G, S, Q>>> computedArchive(
+      @Param(value = "of", dNPM = "f.identity()") Function<X, Collection<I>> beforeF,
+      @Param("descriptors") List<MapElites.Descriptor<G, S, Q>> descriptors,
+      @Param(value = "qComparator", dNPM = "ea.f.qualityComparator(of = ea.f.problem())") Function<X, PartialComparator<? super Q>> qPartialComparatorFunction
+  ) {
+    Function<X, Archive<MEIndividual<G, S, Q>>> f = x -> {
+      Collection<I> individuals = beforeF.apply(x);
+      List<MEIndividual<G, S, Q>> meIndividuals = individuals.stream()
+          .map(i -> MEIndividual.from(i, descriptors))
+          .toList();
+      Archive<MEIndividual<G, S, Q>> archive = new Archive<>(
+          descriptors.stream().map(MapElites.Descriptor::nOfBins).toList()
+      );
+      PartialComparator<MEIndividual<G, S, Q>> iPartialComparator = qPartialComparatorFunction.apply(x)
+          .comparing(MEIndividual::quality);
+      meIndividuals.forEach(i -> archive.put(i.bins(), i, iPartialComparator));
+      return archive;
+    };
+    return NamedFunction.from(f, "computed.archive");
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
   public static <X> FormattedNamedFunction<X, Double> crossEpistasis(
       @Param(value = "of", dNPM = "f.identity()") Function<X, IntString> beforeF,
       @Param(value = "startOffset", dI = 0) int startOffset,
@@ -722,29 +745,6 @@ public class Functions {
 
   @SuppressWarnings("unused")
   @Cacheable
-  public static <X, G, S, Q, I extends Individual<G, S, Q>> NamedFunction<X, Archive<MEIndividual<G, S, Q>>> computedArchive(
-      @Param(value = "of", dNPM = "f.identity()") Function<X, Collection<I>> beforeF,
-      @Param("descriptors") List<MapElites.Descriptor<G, S, Q>> descriptors,
-      @Param(value = "qComparator", dNPM = "ea.f.qualityComparator(of = ea.f.problem())") Function<X, PartialComparator<? super Q>> qPartialComparatorFunction
-  ) {
-    Function<X, Archive<MEIndividual<G, S, Q>>> f = x -> {
-      Collection<I> individuals = beforeF.apply(x);
-      List<MEIndividual<G, S, Q>> meIndividuals = individuals.stream()
-          .map(i -> MEIndividual.from(i, descriptors))
-          .toList();
-      Archive<MEIndividual<G, S, Q>> archive = new Archive<>(
-          descriptors.stream().map(MapElites.Descriptor::nOfBins).toList()
-      );
-      PartialComparator<MEIndividual<G, S, Q>> iPartialComparator = qPartialComparatorFunction.apply(x)
-          .comparing(MEIndividual::quality);
-      meIndividuals.forEach(i -> archive.put(i.bins(), i, iPartialComparator));
-      return archive;
-    };
-    return NamedFunction.from(f, "computed.archive");
-  }
-
-  @SuppressWarnings("unused")
-  @Cacheable
   public static <X, P extends Problem<S>, S> NamedFunction<X, P> problem(
       @Param(value = "of", dNPM = "f.identity()") Function<X, State<P, S>> beforeF
   ) {
@@ -779,6 +779,15 @@ public class Functions {
   ) {
     Function<QualityBasedProblem<?, Q>, PartialComparator<Q>> f = QualityBasedProblem::qualityComparator;
     return FormattedNamedFunction.from(f, format, "quality.comparator").compose(beforeF);
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static <X, S, Q, P extends QualityBasedProblem<S, Q>> NamedFunction<X, Function<S, Q>> qualityFunction(
+      @Param(value = "of", dNPM = "f.identity()") Function<X, P> beforeF
+  ) {
+    Function<P, Function<S, Q>> f = QualityBasedProblem::qualityFunction;
+    return NamedFunction.from(f, "quality").compose(beforeF);
   }
 
   @SuppressWarnings("unused")
@@ -1089,6 +1098,15 @@ public class Functions {
         NamedFunction.composeNames(NamedFunction.name(individualF), "validation.quality")
     )
         .compose(beforeF);
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static <X, S, Q, P extends QualityBasedProblem<S, Q>> NamedFunction<X, Function<S, Q>> validationQualityFunction(
+      @Param(value = "of", dNPM = "f.identity()") Function<X, P> beforeF
+  ) {
+    Function<P, Function<S, Q>> f = QualityBasedProblem::validationQualityFunction;
+    return NamedFunction.from(f, "validation.quality").compose(beforeF);
   }
 
   @SuppressWarnings("unused")

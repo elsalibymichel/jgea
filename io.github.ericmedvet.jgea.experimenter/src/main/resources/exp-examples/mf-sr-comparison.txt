@@ -48,15 +48,30 @@ $annAltDesc2 = ea.s.me.d.descriptor(
 
 $cArchive = ea.f.computedArchive(
   of = ea.f.all();
-  descriptors = [$desc1; $desc2]
+  descriptors = [$treeDesc1; $treeDesc2]
 )
 $qdScoreT = 0.2
-$qdScore = f.as(name = "qd.score"; of = f.sum(format = "%4.2f"; of = f.each(
+$qdScore = f.as(name = "qd.score"; of = f.sum(format = "%4.2f"; of = f.iEach(
   of = ea.f.archiveContents(of = $cArchive);
-  mapF = f.clip(range = m.range(min = 0; max = $qdScoreT); of = f.mathOp(op = subtract; args = [
-    f.mathConst(v = $qdScoreT);
-    f.mapValue(key = mse; of = ea.f.quality())
-  ]))
+  iMapF = f.iComposition(
+    of = ea.f.qualityFunction(of = ea.f.problem());
+    before = ea.f.solution();
+    then = f.clip(range = m.range(min = 0; max = $qdScoreT); of = f.mathOp(op = subtract; args = [
+      f.mathConst(v = $qdScoreT);
+      f.mapValue(key = mse)
+    ]))
+  )
+)))
+$valQdScore = f.as(name = "val.qd.score"; of = f.sum(format = "%4.2f"; of = f.iEach(
+  of = ea.f.archiveContents(of = $cArchive);
+  iMapF = f.iComposition(
+    of = ea.f.validationQualityFunction(of = ea.f.problem());
+    before = ea.f.solution();
+    then = f.clip(range = m.range(min = 0; max = $qdScoreT); of = f.mathOp(op = subtract; args = [
+      f.mathConst(v = $qdScoreT);
+      f.mapValue(key = mse)
+    ]))
+  )
 )))
 
 ea.experiment(
@@ -159,7 +174,8 @@ ea.experiment(
         ea.f.cumulativeFidelity();
         ea.f.archiveCoverage(of = ea.f.meArchive());
         ea.f.archiveCoverage(of = $cArchive);
-        f.avg(of = f.each(of = ea.f.all(); mapF = f.mapValue(key = mse; of = ea.f.quality())));
+        $qdScore;
+        $valQdScore;
         ea.f.timestamp()
       ];
       onlyLast = true
