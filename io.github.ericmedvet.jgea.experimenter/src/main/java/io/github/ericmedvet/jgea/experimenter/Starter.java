@@ -28,6 +28,7 @@ import io.github.ericmedvet.jnb.core.NamedBuilder;
 import io.github.ericmedvet.jnb.core.NamedParamMap;
 import io.github.ericmedvet.jnb.core.ParamMap;
 import io.github.ericmedvet.jnb.core.parsing.StringParser;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -119,6 +120,7 @@ public class Starter {
     }
     // read experiment description
     String expDescription = null;
+    boolean descFromFile = false;
     if (configuration.experimentDescriptionFilePath.isEmpty() && !configuration.exampleExperimentDescriptionResourceName
         .isEmpty()) {
       L.config(
@@ -149,6 +151,7 @@ public class Starter {
       );
       try {
         expDescription = Files.readString(Path.of(configuration.experimentDescriptionFilePath));
+        descFromFile = true;
       } catch (IOException e) {
         L.severe(
             "Cannot read provided experiment description at %s: %s"
@@ -164,13 +167,17 @@ public class Starter {
       expDescription = String.join("\n", configuration.expHeadLines) + "\n" + expDescription;
     }
     // parse and add name
-    Experiment experiment = (Experiment) nb.build(expDescription);
+    NamedParamMap expNPM = (descFromFile ? StringParser.parse(
+        expDescription,
+        Path.of(configuration.experimentDescriptionFilePath)
+    ) : StringParser.parse(expDescription));
+    Experiment experiment = (Experiment) nb.build(expNPM);
     if (experiment.name().isEmpty()) {
       Path path = Path.of(
           configuration.experimentDescriptionFilePath
               .isEmpty() ? configuration.exampleExperimentDescriptionResourceName : configuration.experimentDescriptionFilePath
       );
-      NamedParamMap expNPM = StringParser.parse(expDescription)
+      expNPM = expNPM
           .with("name", ParamMap.Type.STRING, path.getFileName().toString())
           .with(
               "startTime",
