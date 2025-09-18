@@ -35,6 +35,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
@@ -170,22 +171,22 @@ public class Starter {
         expDescription,
         Path.of(configuration.experimentDescriptionFilePath)
     ) : StringParser.parse(expDescription));
-    Experiment experiment = (Experiment) nb.build(expNPM);
-    if (experiment.name().isEmpty()) {
+    if (Objects.isNull(expNPM.value("name"))) {
       Path path = Path.of(
           configuration.experimentDescriptionFilePath
               .isEmpty() ? configuration.exampleExperimentDescriptionResourceName : configuration.experimentDescriptionFilePath
       );
       expNPM = expNPM
-          .with("name", ParamMap.Type.STRING, path.getFileName().toString())
-          .with(
-              "startTime",
-              ParamMap.Type.STRING,
-              "%1$tY-%1$tm-%1$td--%1$tH-%1$tM-%1$tS"
-                  .formatted(Instant.now().toEpochMilli())
-          );
-      experiment = (Experiment) nb.build(expNPM);
+          .with("name", ParamMap.Type.STRING, path.getFileName().toString());
     }
+    expNPM = expNPM
+        .with(
+            "startTime",
+            ParamMap.Type.STRING,
+            "%1$tY-%1$tm-%1$td--%1$tH-%1$tM-%1$tS"
+                .formatted(Instant.now().toEpochMilli())
+        );
+    Experiment experiment = (Experiment) nb.build(expNPM);
     // check if just check
     if (configuration.check) {
       try {
