@@ -20,27 +20,12 @@
 package io.github.ericmedvet.jgea.core.problem;
 
 import io.github.ericmedvet.jgea.core.order.PartialComparator;
-import io.github.ericmedvet.jgea.core.problem.MultifidelityQualityBasedProblem.MultifidelityFunction;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.Function;
 
 public interface TotalOrderQualityBasedProblem<S, Q> extends QualityBasedProblem<S, Q> {
   Comparator<Q> totalOrderComparator();
-
-  @Override
-  default PartialComparator<Q> qualityComparator() {
-    return (q1, q2) -> {
-      int outcome = totalOrderComparator().compare(q1, q2);
-      if (outcome == 0) {
-        return PartialComparator.PartialComparatorOutcome.SAME;
-      }
-      if (outcome < 0) {
-        return PartialComparator.PartialComparatorOutcome.BEFORE;
-      }
-      return PartialComparator.PartialComparatorOutcome.AFTER;
-    };
-  }
 
   static <S, Q> TotalOrderQualityBasedProblem<S, Q> from(
       QualityBasedProblem<S, Q> qbProblem,
@@ -76,5 +61,10 @@ public interface TotalOrderQualityBasedProblem<S, Q> extends QualityBasedProblem
         Optional<S> example
     ) implements TotalOrderQualityBasedProblem<S, Q> {}
     return new HardTOQProblem<>(qualityFunction, validationQualityFunction, totalOrderComparator, example);
+  }
+
+  @Override
+  default PartialComparator<Q> qualityComparator() {
+    return PartialComparator.from(totalOrderComparator());
   }
 }

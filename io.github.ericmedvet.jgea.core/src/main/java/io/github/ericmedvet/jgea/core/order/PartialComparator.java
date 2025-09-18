@@ -33,12 +33,8 @@ public interface PartialComparator<K> {
 
   PartialComparatorOutcome compare(K k1, K k2);
 
-  default boolean isTotal() {
-    return false;
-  }
-
   static <C> PartialComparator<C> from(Comparator<? super C> comparator) {
-    return new PartialComparator<C>() {
+    return new PartialComparator<>() {
       @Override
       public PartialComparatorOutcome compare(C c1, C c2) {
         int o = comparator.compare(c1, c2);
@@ -132,6 +128,10 @@ public interface PartialComparator<K> {
         return thisPartialComparator.isTotal();
       }
     };
+  }
+
+  default boolean isTotal() {
+    return false;
   }
 
   default PartialComparator<K> reversed() {
