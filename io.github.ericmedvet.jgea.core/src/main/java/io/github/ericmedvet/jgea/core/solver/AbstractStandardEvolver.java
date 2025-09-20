@@ -26,9 +26,7 @@ import io.github.ericmedvet.jgea.core.order.FastDAGPOC;
 import io.github.ericmedvet.jgea.core.order.PartialComparator;
 import io.github.ericmedvet.jgea.core.order.PartiallyOrderedCollection;
 import io.github.ericmedvet.jgea.core.order.TotalOrderPOC;
-import io.github.ericmedvet.jgea.core.problem.MultiObjectiveProblem;
 import io.github.ericmedvet.jgea.core.problem.QualityBasedProblem;
-import io.github.ericmedvet.jgea.core.problem.TotalOrderQualityBasedProblem;
 import io.github.ericmedvet.jgea.core.selector.Last;
 import io.github.ericmedvet.jgea.core.selector.Selector;
 import io.github.ericmedvet.jgea.core.util.Misc;
@@ -206,23 +204,15 @@ public abstract class AbstractStandardEvolver<T extends POCPopulationState<I, G,
       RandomGenerator random
   ) {
     PartialComparator<? super I> partialComparator = partialComparator(state.problem());
+    if (partialComparator.isTotal() && unsurvivalSelector instanceof Last) {
+      List<I> sortedPopulation = new ArrayList<>(population);
+      sortedPopulation.sort(partialComparator.comparator());
+      return sortedPopulation.subList(0, Math.min(populationSize, sortedPopulation.size()));
+    }
     PartiallyOrderedCollection<I> orderedPopulation = partialComparator.isTotal() ? new TotalOrderPOC<>(
         partialComparator.comparator()
     ) : new FastDAGPOC<>(partialComparator);
     population.forEach(orderedPopulation::add);
-    // check if trivial case: total order or one objective and worst selector
-    if (state.problem() instanceof TotalOrderQualityBasedProblem<?, ?> || (state
-        .problem() instanceof MultiObjectiveProblem<?, ?, ?> && (((MultiObjectiveProblem<?, ?, ?>) state.problem())
-            .objectives()
-            .size() == 1))) {
-      if (unsurvivalSelector instanceof Last) {
-        return orderedPopulation.fronts()
-            .stream()
-            .flatMap(Collection::stream)
-            .limit(populationSize)
-            .toList();
-      }
-    }
     while (orderedPopulation.size() > populationSize) {
       I toRemoveIndividual = unsurvivalSelector.select(orderedPopulation, random);
       orderedPopulation.remove(toRemoveIndividual);
