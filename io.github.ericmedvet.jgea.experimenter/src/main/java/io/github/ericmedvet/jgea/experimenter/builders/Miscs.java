@@ -42,6 +42,9 @@ import io.github.ericmedvet.jviz.core.drawer.ImageBuilder;
 import io.github.ericmedvet.jviz.core.drawer.VideoBuilder;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -186,6 +189,20 @@ public class Miscs {
           .limit(nOfOpponents)
           .collect(Collectors.toList());
     };
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static <X> X fromTextFile(
+      @Param("path") String filePath,
+      @Param(value = "f", dNPM = "f.identity()") Function<String, X> f
+  ) {
+    try {
+      String s = Files.readString(Path.of(filePath));
+      return f.apply(s);
+    } catch (IOException e) {
+      throw new RuntimeException("Cannot read file", e);
+    }
   }
 
   @SuppressWarnings("unused")

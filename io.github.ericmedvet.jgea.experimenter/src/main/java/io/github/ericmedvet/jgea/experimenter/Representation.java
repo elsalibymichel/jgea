@@ -26,7 +26,6 @@ import io.github.ericmedvet.jgea.core.operator.Mutation;
 import io.github.ericmedvet.jgea.core.util.Misc;
 import io.github.ericmedvet.jnb.datastructure.DoubleRange;
 import io.github.ericmedvet.jnb.datastructure.Pair;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -65,7 +64,9 @@ public record Representation<G>(Factory<G> factory, List<Mutation<G>> mutations,
       throw new IllegalArgumentException("Wrong rate of mutated individual: %.2f not in [0,1]".formatted(mutatedRate));
     }
     if (!DoubleRange.UNIT.contains(seededRate + mutatedRate)) {
-      throw new IllegalArgumentException("Wrong (inferred) rate of new individual: %.2f not in [0,1]".formatted(1d - seededRate - mutatedRate));
+      throw new IllegalArgumentException(
+          "Wrong (inferred) rate of new individual: %.2f not in [0,1]".formatted(1d - seededRate - mutatedRate)
+      );
     }
     Factory<G> factory = (n, rg) -> {
       int nOfSeeded = (int) Math.round(n * seededRate);
@@ -77,10 +78,14 @@ public record Representation<G>(Factory<G> factory, List<Mutation<G>> mutations,
       if (seededGs.size() > nOfSeeded) {
         seededGs = seededGs.subList(0, nOfSeeded);
       }
-      List<G> mutatedGs = IntStream.range(0, nOfMutated).mapToObj(i -> Misc.pickRandomly(
-          baseRepresentation.mutations,
-          rg
-      ).mutate(Misc.pickRandomly(seeds, rg), rg)).toList();
+      List<G> mutatedGs = IntStream.range(0, nOfMutated)
+          .mapToObj(
+              i -> Misc.pickRandomly(
+                  baseRepresentation.mutations,
+                  rg
+              ).mutate(Misc.pickRandomly(seeds, rg), rg)
+          )
+          .toList();
       List<G> gs = new ArrayList<>();
       gs.addAll(seededGs);
       gs.addAll(mutatedGs);
@@ -97,9 +102,9 @@ public record Representation<G>(Factory<G> factory, List<Mutation<G>> mutations,
 
   public Map<GeneticOperator<G>, Double> geneticOperators(double crossoverP) {
     return Stream.concat(
-            mutations.stream().map(m -> Map.entry(m, (1d - crossoverP) / (double) mutations.size())),
-            crossovers.stream().map(c -> Map.entry(c, crossoverP / (double) crossovers.size()))
-        )
+        mutations.stream().map(m -> Map.entry(m, (1d - crossoverP) / (double) mutations.size())),
+        crossovers.stream().map(c -> Map.entry(c, crossoverP / (double) crossovers.size()))
+    )
         .collect(Misc.toSequencedMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 }
