@@ -54,7 +54,6 @@ import io.github.ericmedvet.jviz.core.plot.image.*;
 import io.github.ericmedvet.jviz.core.plot.image.Configuration;
 import io.github.ericmedvet.jviz.core.plot.video.*;
 import io.github.ericmedvet.jviz.core.util.VideoUtils;
-import java.awt.image.BufferedImage;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.BiFunction;
@@ -937,20 +936,24 @@ public class Functions {
 
   @SuppressWarnings("unused")
   @Cacheable
-  public static <X, D> NamedFunction<X, BufferedImage> toImage(
+  public static <X, D> NamedFunction<X, Object> toImage(
       @Param(value = "of", dNPM = "f.identity()") Function<X, D> beforeF,
       @Param("image") ImageBuilder<D> imageBuilder,
       @Param(value = "w", dI = -1) int w,
-      @Param(value = "h", dI = -1) int h
+      @Param(value = "h", dI = -1) int h,
+      @Param(value = "type", dS = "png") String type
   ) {
     UnaryOperator<ImageBuilder.ImageInfo> iiAdapter = ii -> new ImageBuilder.ImageInfo(
         w == -1 ? ii.w() : w,
         h == -1 ? ii.h() : h
     );
-    Function<D, BufferedImage> f = d -> imageBuilder.buildRaster(
-        iiAdapter.apply(imageBuilder.imageInfo(d)),
-        d
-    );
+    Function<D, Object> f = d -> switch (type.toLowerCase()) {
+      case "png" -> imageBuilder.buildRaster(iiAdapter.apply(imageBuilder.imageInfo(d)), d);
+      case "svg" -> imageBuilder.buildVectorial(iiAdapter.apply(imageBuilder.imageInfo(d)), d);
+      default -> throw new IllegalArgumentException(
+          "Invalid type '%s', which is not 'png' nor 'svg'".formatted(type)
+      );
+    };
     return NamedFunction.from(f, "to.image[%s]".formatted(imageBuilder)).compose(beforeF);
   }
 
