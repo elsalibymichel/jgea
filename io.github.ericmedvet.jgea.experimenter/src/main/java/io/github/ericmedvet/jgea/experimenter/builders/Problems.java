@@ -264,17 +264,18 @@ public class Problems {
   @SuppressWarnings("unused")
   @Cacheable
   public static <S, Q, C extends Comparable<C>> TotalOrderQualityBasedProblem<S, Q> totalOrder(
-      @Param(value = "name", dS = "{qFunction}") String name,
+      @Param(value = "name", iS = "{qFunction.name}") String name,
       @Param("qFunction") Function<S, Q> qualityFunction,
       @Param(value = "cFunction", dNPM = "f.identity()") Function<Q, C> comparableFunction,
-      @Param(value = "type", dS = "minimize") OptimizationType type
+      @Param(value = "type", dS = "minimize") OptimizationType type,
+      @Param(value = "example", dNPM = "ea.misc.nullValue()") S example
   ) {
     return TotalOrderQualityBasedProblem.from(
         qualityFunction,
         null,
         type.equals(OptimizationType.MAXIMIZE) ? Comparator.comparing(comparableFunction)
             .reversed() : Comparator.comparing(comparableFunction),
-        Optional.empty()
+        Optional.ofNullable(example)
     );
   }
 

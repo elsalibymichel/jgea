@@ -227,25 +227,6 @@ public class Mappers {
 
   @SuppressWarnings("unused")
   @Cacheable
-  public static <X, P extends NumericalDynamicalSystem<S> & NumericalParametrized<P>, S> InvertibleMapper<X, P> dsToNpnds(
-      @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Double>> beforeM,
-      @Param("npnds") NumericalDynamicalSystems.Builder<P, S> builder
-  ) {
-    return beforeM.andThen(
-        InvertibleMapper.from(
-            (p, params) -> builder.apply(p.nOfInputs(), p.nOfOutputs())
-                .withParams(params.stream().mapToDouble(v -> v).toArray()),
-            p -> Collections.nCopies(
-                builder.apply(p.nOfInputs(), p.nOfOutputs()).getParams().length,
-                0d
-            ),
-            "dsToNpnds[npnds=%s]".formatted(builder)
-        )
-    );
-  }
-
-  @SuppressWarnings("unused")
-  @Cacheable
   public static <X, P extends MultivariateRealFunction & NumericalParametrized<P>> InvertibleMapper<X, NamedMultivariateRealFunction> dsToNmrf(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Double>> beforeM,
       @Param("npmrf") NumericalDynamicalSystems.Builder<P, StatelessSystem.State> builder
@@ -263,6 +244,25 @@ public class Mappers {
                 0d
             ),
             "dsToNmrf[npmrf=%s]".formatted(builder)
+        )
+    );
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static <X, P extends NumericalDynamicalSystem<S> & NumericalParametrized<P>, S> InvertibleMapper<X, P> dsToNpnds(
+      @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Double>> beforeM,
+      @Param("npnds") NumericalDynamicalSystems.Builder<P, S> builder
+  ) {
+    return beforeM.andThen(
+        InvertibleMapper.from(
+            (p, params) -> builder.apply(p.nOfInputs(), p.nOfOutputs())
+                .withParams(params.stream().mapToDouble(v -> v).toArray()),
+            p -> Collections.nCopies(
+                builder.apply(p.nOfInputs(), p.nOfOutputs()).getParams().length,
+                0d
+            ),
+            "dsToNpnds[npnds=%s]".formatted(builder)
         )
     );
   }
@@ -630,15 +630,17 @@ public class Mappers {
     return beforeM.andThen(
         InvertibleMapper.from(
             (nds, nmrf) -> nmrf,
-            nds -> NamedMultivariateRealFunction.from(
-                MultivariateRealFunction.from(
-                    in -> new double[nds.nOfOutputs()],
-                    nds.nOfInputs(),
-                    nds.nOfOutputs()
-                ),
-                MultivariateRealFunction.varNames("i", nds.nOfInputs()),
-                MultivariateRealFunction.varNames("o", nds.nOfOutputs())
-            ),
+            nds -> {
+              return NamedMultivariateRealFunction.from(
+                  MultivariateRealFunction.from(
+                      in -> new double[nds.nOfOutputs()],
+                      nds.nOfInputs(),
+                      nds.nOfOutputs()
+                  ),
+                  MultivariateRealFunction.varNames("i", nds.nOfInputs()),
+                  MultivariateRealFunction.varNames("o", nds.nOfOutputs())
+              );
+            },
             "nmrfToNds"
         )
     );
