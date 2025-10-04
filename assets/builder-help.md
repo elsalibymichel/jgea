@@ -58,13 +58,22 @@ Aliases: `ds.d`, `ds.drawer`, `dynSys.d`, `dynSys.drawer`, `dynamicalSystem.d`, 
 
 ### Builder `dynamicalSystem.drawer.navigation()`
 
-`ds.d.navigation()`
+`ds.d.navigation(ioType; showSensors)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `ioType` | e | `GRAPHIC` | <code><abbr title="io.github.ericmedvet.jsdynsym.control.navigation.NavigationDrawer$Configuration$IOType">NavigationDrawer$Configuration$IOType</abbr></code> |
+| `showSensors` | b | `true` | <code>boolean</code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jsdynsym.control.navigation.NavigationDrawer">NavigationDrawer</abbr></code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.Drawers.navigation()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `dynamicalSystem.drawer.pointNavigation()`
 
-`ds.d.pointNavigation()`
+`ds.d.pointNavigation(ioType)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `ioType` | e | `GRAPHIC` | <code><abbr title="io.github.ericmedvet.jsdynsym.control.navigation.NavigationDrawer$Configuration$IOType">NavigationDrawer$Configuration$IOType</abbr></code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jsdynsym.control.navigation.PointNavigationDrawer">PointNavigationDrawer</abbr></code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.Drawers.pointNavigation()` by jgea-experimenter:2.7.1-SNAPSHOT
 
