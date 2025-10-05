@@ -307,7 +307,11 @@ public class Mappers {
     return beforeM.andThen(
         InvertibleMapper.from(
             (eNds, nds) -> new EnhancedInput<>(nds, windowT, types),
-            eNds -> eNds,
+            eNds -> MultivariateRealFunction.from(
+                in -> new double[eNds.nOfOutputs()],
+                eNds.nOfInputs() * types.size(),
+                eNds.nOfOutputs()
+            ),
             "enhanced[wT=%.2f;%s]"
                 .formatted(windowT, types.stream().map(Enum::toString).collect(Collectors.joining(";")))
         )
@@ -630,17 +634,15 @@ public class Mappers {
     return beforeM.andThen(
         InvertibleMapper.from(
             (nds, nmrf) -> nmrf,
-            nds -> {
-              return NamedMultivariateRealFunction.from(
-                  MultivariateRealFunction.from(
-                      in -> new double[nds.nOfOutputs()],
-                      nds.nOfInputs(),
-                      nds.nOfOutputs()
-                  ),
-                  MultivariateRealFunction.varNames("i", nds.nOfInputs()),
-                  MultivariateRealFunction.varNames("o", nds.nOfOutputs())
-              );
-            },
+            nds -> NamedMultivariateRealFunction.from(
+                MultivariateRealFunction.from(
+                    in -> new double[nds.nOfOutputs()],
+                    nds.nOfInputs(),
+                    nds.nOfOutputs()
+                ),
+                MultivariateRealFunction.varNames("i", nds.nOfInputs()),
+                MultivariateRealFunction.varNames("o", nds.nOfOutputs())
+            ),
             "nmrfToNds"
         )
     );
