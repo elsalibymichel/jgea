@@ -20,7 +20,7 @@
 
 package io.github.ericmedvet.jgea.problem.regression.multivariate;
 
-import io.github.ericmedvet.jgea.core.problem.*;
+import io.github.ericmedvet.jgea.core.problem.SimpleEBMOProblem;
 import io.github.ericmedvet.jgea.core.util.IndexedProvider;
 import io.github.ericmedvet.jgea.core.util.Misc;
 import io.github.ericmedvet.jgea.problem.regression.univariate.UnivariateRegressionProblem;
@@ -52,14 +52,18 @@ public interface MultivariateRegressionProblem extends SimpleEBMOProblem<NamedMu
 
   List<UnivariateRegressionProblem.Metric> metrics();
 
-  @Override
-  default TriFunction<Map<String, Double>, Map<String, Double>, Map<String, Double>, Outcome> errorFunction() {
-    return (input, actual, predicted) -> new Outcome(actual, predicted);
-  }
-
-  @Override
-  default BiFunction<NamedMultivariateRealFunction, Map<String, Double>, Map<String, Double>> predictFunction() {
-    return NamedMultivariateRealFunction::compute;
+  static MultivariateRegressionProblem from(
+      List<UnivariateRegressionProblem.Metric> metrics,
+      IndexedProvider<Example<Map<String, Double>, Map<String, Double>>> caseProvider,
+      IndexedProvider<Example<Map<String, Double>, Map<String, Double>>> validationCaseProvider
+  ) {
+    record HardMultivariateRegressionProblem(
+        List<UnivariateRegressionProblem.Metric> metrics,
+        IndexedProvider<Example<Map<String, Double>, Map<String, Double>>> caseProvider,
+        IndexedProvider<Example<Map<String, Double>, Map<String, Double>>> validationCaseProvider
+    ) implements MultivariateRegressionProblem {
+    }
+    return new HardMultivariateRegressionProblem(metrics, caseProvider, validationCaseProvider);
   }
 
   @Override
@@ -88,10 +92,20 @@ public interface MultivariateRegressionProblem extends SimpleEBMOProblem<NamedMu
                           );
                       return urOutcomes.values().stream().mapToDouble(m::apply).average().orElseThrow();
                     },
-                    Double::compareTo
+                    m.comparator()
                 )
             )
         );
+  }
+
+  @Override
+  default TriFunction<Map<String, Double>, Map<String, Double>, Map<String, Double>, Outcome> errorFunction() {
+    return (input, actual, predicted) -> new Outcome(actual, predicted);
+  }
+
+  @Override
+  default BiFunction<NamedMultivariateRealFunction, Map<String, Double>, Map<String, Double>> predictFunction() {
+    return NamedMultivariateRealFunction::compute;
   }
 
   @Override
@@ -108,19 +122,5 @@ public interface MultivariateRegressionProblem extends SimpleEBMOProblem<NamedMu
             example.output().keySet().stream().sorted().toList()
         )
     );
-  }
-
-  static MultivariateRegressionProblem from(
-      List<UnivariateRegressionProblem.Metric> metrics,
-      IndexedProvider<Example<Map<String, Double>, Map<String, Double>>> caseProvider,
-      IndexedProvider<Example<Map<String, Double>, Map<String, Double>>> validationCaseProvider
-  ) {
-    record HardMultivariateRegressionProblem(
-        List<UnivariateRegressionProblem.Metric> metrics,
-        IndexedProvider<Example<Map<String, Double>, Map<String, Double>>> caseProvider,
-        IndexedProvider<Example<Map<String, Double>, Map<String, Double>>> validationCaseProvider
-    ) implements MultivariateRegressionProblem {
-    }
-    return new HardMultivariateRegressionProblem(metrics, caseProvider, validationCaseProvider);
   }
 }

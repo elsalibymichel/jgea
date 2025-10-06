@@ -27,6 +27,7 @@ import io.github.ericmedvet.jgea.core.problem.MultifidelityQualityBasedProblem.M
 import io.github.ericmedvet.jnb.datastructure.NamedFunction;
 import io.github.ericmedvet.jnb.datastructure.TriConsumer;
 import io.github.ericmedvet.jnb.datastructure.TriFunction;
+import java.util.Comparator;
 import java.util.function.*;
 
 public class Naming {
@@ -240,6 +241,20 @@ public class Naming {
       @Override
       public boolean test(T t) {
         return predicate.test(t);
+      }
+
+      @Override
+      public String toString() {
+        return name;
+      }
+    };
+  }
+
+  public static <C> Comparator<C> named(String name, Comparator<C> comparator) {
+    return new Comparator<>() {
+      @Override
+      public int compare(C c1, C c2) {
+        return comparator.compare(c1, c2);
       }
 
       @Override
