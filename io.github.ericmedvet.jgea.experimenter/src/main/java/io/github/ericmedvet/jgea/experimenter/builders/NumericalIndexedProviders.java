@@ -69,6 +69,7 @@ public class NumericalIndexedProviders {
   @SuppressWarnings("unused")
   @Cacheable
   public static NumericalDataset fromFile(
+      @Param(value = "name", iS = "{filePath}") String name,
       @Param("filePath") String filePath,
       @Param(value = "xVarNamePattern", dS = "x.*") String xVarNamePattern,
       @Param(value = "yVarNamePattern", dS = "y.*") String yVarNamePattern,

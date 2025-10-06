@@ -3328,10 +3328,11 @@ Aliases: `ea.p.mr`, `ea.p.multivariateRegression`, `ea.problem.mr`, `ea.problem.
 
 ### Builder `ea.problem.multivariateRegression.fromData()`
 
-`ea.p.mr.fromData(provider; metrics; nFolds; testFold)`
+`ea.p.mr.fromData(name; provider; metrics; nFolds; testFold)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
+| `name` | s | interpolate `{provider.name}` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `provider` | npm |  | <code><abbr title="io.github.ericmedvet.jgea.core.util.IndexedProvider">IndexedProvider</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.problem.ExampleBasedProblem$Example">ExampleBasedProblem$Example</abbr>&lt;<abbr title="java.util.Map">Map</abbr>&lt;<abbr title="java.lang.String">String</abbr>, <abbr title="java.lang.Double">Double</abbr>&gt;, <abbr title="java.util.Map">Map</abbr>&lt;<abbr title="java.lang.String">String</abbr>, <abbr title="java.lang.Double">Double</abbr>&gt;&gt;&gt;</code> |
 | `metrics` | e[] | `[mse]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.problem.regression.univariate.UnivariateRegressionProblem$Metric">UnivariateRegressionProblem$Metric</abbr>&gt;</code> |
 | `nFolds` | i | `10` | <code>int</code> |
@@ -3727,10 +3728,11 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.problem.regression.Numeric
 
 ### Builder `ea.provider.numerical.fromFile()`
 
-`ea.provider.num.fromFile(filePath; xVarNamePattern; yVarNamePattern; limit)`
+`ea.provider.num.fromFile(name; filePath; xVarNamePattern; yVarNamePattern; limit)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
+| `name` | s | interpolate `{filePath}` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `filePath` | s |  | <code><abbr title="java.lang.String">String</abbr></code> |
 | `xVarNamePattern` | s | `x.*` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `yVarNamePattern` | s | `y.*` | <code><abbr title="java.lang.String">String</abbr></code> |

@@ -38,6 +38,7 @@ public class MultivariateRegressionProblems {
   @SuppressWarnings("unused")
   @Cacheable
   public static MultivariateRegressionProblem fromData(
+      @Param(value = "name", iS = "{provider.name}") String name,
       @Param("provider") IndexedProvider<ExampleBasedProblem.Example<Map<String, Double>, Map<String, Double>>> provider,
       @Param(value = "metrics", dSs = {"mse"}) List<UnivariateRegressionProblem.Metric> metrics,
       @Param(value = "nFolds", dI = 10) int nFolds,
