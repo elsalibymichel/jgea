@@ -163,9 +163,7 @@ public class PongFightsMatrix {
       HomogeneousBiAgentTask<NumericalDynamicalSystem<?>, double[], double[], PongEnvironment.State> task = HomogeneousBiAgentTask
           .fromHomogenousBiEnvironment(
               () -> environment,
-              s -> false,
-              new DoubleRange(0, 60),
-              0.05
+              s -> false
           );
 
       for (Pair<String, NumericalDynamicalSystem<?>> opponent1 : opponents) {
@@ -174,7 +172,7 @@ public class PongFightsMatrix {
           int index2 = opponentIndices.get(opponent2.first());
 
           BiSimulation.Outcome<HomogeneousBiAgentTask.Step<double[], double[], PongEnvironment.State>> matchOutcome = task
-              .simulate(new Pair<>(opponent1.second(), opponent2.second()));
+              .simulate(opponent1.second(), opponent2.second(), 0.05, new DoubleRange(0, 60));
 
           double fitness1 = ((FormattedNamedFunction<BiSimulation.Outcome<HomogeneousBiAgentTask.Step<double[], double[], PongEnvironment.State>>, Double>) BUILDER
               .build(score1)).apply(matchOutcome);

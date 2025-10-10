@@ -21,5 +21,5 @@ package io.github.ericmedvet.jgea.core.problem;
 
 import java.util.SequencedMap;
 
-public interface SimpleMFBBMOProblem<S, B, O> extends MFBBMOProblem<S, B, SequencedMap<String, O>, O> {
+public interface SimpleMFBBMOProblem<S, B, O> extends MFBBMOProblem<S, B, SequencedMap<String, O>, O>, SimpleBBMOProblem<S, B, O> {
 }

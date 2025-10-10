@@ -42,4 +42,5 @@ module io.github.ericmedvet.jgea.experimenter {
   requires org.apache.commons.csv;
   requires commons.math3;
   requires java.sql;
+  requires annotations;
 }

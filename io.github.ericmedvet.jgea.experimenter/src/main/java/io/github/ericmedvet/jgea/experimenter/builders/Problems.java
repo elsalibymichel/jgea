@@ -21,30 +21,30 @@
 package io.github.ericmedvet.jgea.experimenter.builders;
 
 import io.github.ericmedvet.jgea.core.problem.*;
+import io.github.ericmedvet.jgea.core.problem.MultiObjectiveProblem.Objective;
 import io.github.ericmedvet.jgea.core.util.Misc;
 import io.github.ericmedvet.jnb.core.Cacheable;
 import io.github.ericmedvet.jnb.core.Discoverable;
 import io.github.ericmedvet.jnb.core.Param;
+import io.github.ericmedvet.jnb.datastructure.DoubleRange;
 import io.github.ericmedvet.jnb.datastructure.NamedFunction;
 import io.github.ericmedvet.jnb.datastructure.Pair;
 import io.github.ericmedvet.jsdynsym.control.BiSimulation;
 import io.github.ericmedvet.jsdynsym.control.HomogeneousBiSimulation;
 import io.github.ericmedvet.jsdynsym.control.Simulation;
+import io.github.ericmedvet.jsdynsym.control.Simulation.Outcome;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
+import org.jetbrains.annotations.NotNull;
 
 @Discoverable(prefixTemplate = "ea.problem|p")
 public class Problems {
 
   private Problems() {
-  }
-
-  public enum OptimizationType {
-    @SuppressWarnings("unused") MINIMIZE, MAXIMIZE
   }
 
   @SuppressWarnings("unused")
@@ -56,7 +56,9 @@ public class Problems {
       @Param(value = "cFunction", dNPM = "f.identity()") Function<Q, C> comparableFunction,
       @Param(value = "type", dS = "minimize") OptimizationType type,
       @Param(value = "qFunction1") Function<B, Q> qFunction1,
-      @Param(value = "qFunction2") Function<B, Q> qFunction2
+      @Param(value = "qFunction2") Function<B, Q> qFunction2,
+      @Param("dT") double dT,
+      @Param("tRange") DoubleRange tRange
   ) {
     return new TotalOrderQualityBasedBiProblem<>() {
       @Override
@@ -65,13 +67,13 @@ public class Problems {
       }
 
       @Override
-      public BiFunction<S, S, B> outcomeFunction() {
-        return simulation::simulate;
+      public Function<B, Q> firstQualityFunction() {
+        return qFunction1;
       }
 
       @Override
-      public Function<B, Q> firstQualityFunction() {
-        return qFunction1;
+      public BiFunction<S, S, B> outcomeFunction() {
+        return (s1, s2) -> simulation.simulate(s1, s2, dT, tRange);
       }
 
       @Override
@@ -103,7 +105,9 @@ public class Problems {
       @Param(value = "cFunction", dNPM = "f.identity()") Function<Q, C> comparableFunction,
       @Param(value = "type", dS = "minimize") OptimizationType type,
       @Param(value = "qFunction") Function<B, Q> qFunction,
-      @Param(value = "trainingOpponent") Supplier<S> trainingOpponent
+      @Param(value = "trainingOpponent") Supplier<S> trainingOpponent,
+      @Param("dT") double dT,
+      @Param("tRange") DoubleRange tRange
   ) {
     return new TotalOrderQualityBasedProblem<>() {
       @Override
@@ -113,7 +117,7 @@ public class Problems {
 
       @Override
       public Function<S, Q> qualityFunction() {
-        return (s -> qFunction.apply(simulation.simulate(s, trainingOpponent.get())));
+        return (s -> qFunction.apply(simulation.simulate(s, trainingOpponent.get(), dT, tRange)));
       }
 
       @Override
@@ -127,6 +131,39 @@ public class Problems {
             .reversed() : Comparator.comparing(comparableFunction);
       }
     };
+  }
+
+  private static <B extends Outcome<BS>, BS, O extends Comparable<O>> @NotNull SequencedMap<String, Objective<B, O>> buildObjectives(
+      List<Function<B, O>> toMinObjectives,
+      List<Function<B, O>> toMaxObjectives
+  ) {
+    SequencedMap<String, Objective<B, O>> behaviorObjectives = Stream.concat(
+        toMinObjectives.stream()
+            .map(f -> new Objective<>(f, Comparable::compareTo)),
+        toMaxObjectives.stream()
+            .map(
+                f -> new Objective<>(
+                    f,
+                    ((Comparator<O>) Comparable::compareTo).reversed()
+                )
+            )
+    )
+        .collect(
+            Misc.toSequencedMap(
+                o -> NamedFunction.name(o.function()),
+                o -> o
+            )
+        );
+    if (behaviorObjectives.size() != (toMinObjectives.size() + toMaxObjectives.size())) {
+      Logger.getLogger(Problems.class.getName())
+          .warning(
+              "Objectives have conflicting names: to minimize is %s, to maximize is %s".formatted(
+                  toMinObjectives.stream().map(NamedFunction::name).toList(),
+                  toMaxObjectives.stream().map(NamedFunction::name).toList()
+              )
+          );
+    }
+    return behaviorObjectives;
   }
 
   @SuppressWarnings("unused")
@@ -150,36 +187,97 @@ public class Problems {
 
   @SuppressWarnings("unused")
   @Cacheable
-  public static <S, B extends Simulation.Outcome<BS>, BS, O extends Comparable<O>> SimpleBBMOProblem<S, B, O> simToSbbmo(
-      @Param(value = "name", iS = "{simulation.name}") String name,
+  public static <S, B extends Simulation.Outcome<BS>, BS, O extends Comparable<O>> SimpleMFBBMOProblem<S, B, O> simToDurationSmfbbmo(
+      @Param(value = "name", iS = "{simulation.name}[finalT={finalTRange.min}--{finalTRange.min}]") String name,
       @Param("simulation") Simulation<S, BS, B> simulation,
+      @Param("dT") double dT,
+      @Param("initT") double initT,
+      @Param("finalTRange") DoubleRange finalTRange,
       @Param("toMinObjectives") List<Function<B, O>> toMinObjectives,
       @Param("toMaxObjectives") List<Function<B, O>> toMaxObjectives
   ) {
-    SequencedMap<String, MultiObjectiveProblem.Objective<B, O>> behaviorObjectives = Stream.concat(
-        toMinObjectives.stream().map(f -> new MultiObjectiveProblem.Objective<>(f, Comparable::compareTo)),
-        toMaxObjectives.stream()
-            .map(f -> new MultiObjectiveProblem.Objective<>(f, ((Comparator<O>) Comparable::compareTo).reversed()))
-    )
-        .collect(
-            Misc.toSequencedMap(
-                o -> NamedFunction.name(o.function()),
-                o -> o
-            )
-        );
-    if (behaviorObjectives.size() != (toMinObjectives.size() + toMaxObjectives.size())) {
-      Logger.getLogger(Problems.class.getName())
-          .warning(
-              "Objectives have conflicting names: to minimize is %s, to maximize is %s".formatted(
-                  toMinObjectives.stream().map(NamedFunction::name).toList(),
-                  toMaxObjectives.stream().map(NamedFunction::name).toList()
-              )
-          );
-    }
+    SequencedMap<String, Objective<B, O>> behaviorObjectives = buildObjectives(
+        toMinObjectives,
+        toMaxObjectives
+    );
+    return new SimpleMFBBMOProblem<>() {
+      @Override
+      public MultifidelityFunction<? super S, ? extends B> behaviorFunction() {
+        return (s, fidelity) -> simulation.simulate(s, dT, new DoubleRange(initT, finalTRange.denormalize(fidelity)));
+      }
+
+      @Override
+      public SequencedMap<String, Objective<B, O>> behaviorObjectives() {
+        return behaviorObjectives;
+      }
+
+      @Override
+      public Optional<S> example() {
+        return simulation.example();
+      }
+
+      @Override
+      public String toString() {
+        return "%s[fT=%s;%s]".formatted(name, finalTRange, String.join(";", behaviorObjectives.keySet()));
+      }
+    };
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static <S, B extends Simulation.Outcome<BS>, BS, O extends Comparable<O>> SimpleMFBBMOProblem<S, B, O> simToResolutionSmfbbmo(
+      @Param(value = "name", iS = "{simulation.name}[dT={dTRange.min}--{dTRange.min}]") String name,
+      @Param("simulation") Simulation<S, BS, B> simulation,
+      @Param("dTRange") DoubleRange dTRange,
+      @Param("tRange") DoubleRange tRange,
+      @Param("toMinObjectives") List<Function<B, O>> toMinObjectives,
+      @Param("toMaxObjectives") List<Function<B, O>> toMaxObjectives
+  ) {
+    SequencedMap<String, Objective<B, O>> behaviorObjectives = buildObjectives(
+        toMinObjectives,
+        toMaxObjectives
+    );
+    return new SimpleMFBBMOProblem<>() {
+      @Override
+      public MultifidelityFunction<? super S, ? extends B> behaviorFunction() {
+        return (s, fidelity) -> simulation.simulate(s, dTRange.denormalize(fidelity), tRange);
+      }
+
+      @Override
+      public SequencedMap<String, Objective<B, O>> behaviorObjectives() {
+        return behaviorObjectives;
+      }
+
+      @Override
+      public Optional<S> example() {
+        return simulation.example();
+      }
+
+      @Override
+      public String toString() {
+        return "%s[dT=%s;%s]".formatted(name, dTRange, String.join(";", behaviorObjectives.keySet()));
+      }
+    };
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static <S, B extends Simulation.Outcome<BS>, BS, O extends Comparable<O>> SimpleBBMOProblem<S, B, O> simToSbbmo(
+      @Param(value = "name", iS = "{simulation.name}") String name,
+      @Param("simulation") Simulation<S, BS, B> simulation,
+      @Param("dT") double dT,
+      @Param("tRange") DoubleRange tRange,
+      @Param("toMinObjectives") List<Function<B, O>> toMinObjectives,
+      @Param("toMaxObjectives") List<Function<B, O>> toMaxObjectives
+  ) {
+    SequencedMap<String, Objective<B, O>> behaviorObjectives = buildObjectives(
+        toMinObjectives,
+        toMaxObjectives
+    );
     return new SimpleBBMOProblem<>() {
       @Override
       public Function<? super S, ? extends B> behaviorFunction() {
-        return simulation::simulate;
+        return s -> simulation.simulate(s, dT, tRange);
       }
 
       @Override
@@ -204,10 +302,12 @@ public class Problems {
   public static <S, B extends Simulation.Outcome<BS>, BS, O extends Comparable<O>> SimpleMOProblem<S, O> simToSmo(
       @Param(value = "name", iS = "{simulation.name}") String name,
       @Param("simulation") Simulation<S, BS, B> simulation,
+      @Param("dT") double dT,
+      @Param("tRange") DoubleRange tRange,
       @Param("toMinObjectives") List<Function<B, O>> toMinObjectives,
       @Param("toMaxObjectives") List<Function<B, O>> toMaxObjectives
   ) {
-    Function<S, B> simulationFunction = simulation::simulate;
+    Function<S, B> simulationFunction = s -> simulation.simulate(s, dT, tRange);
     Function<B, SequencedMap<String, O>> objectivesFunction = b -> Stream.concat(
         toMinObjectives.stream(),
         toMaxObjectives.stream()
@@ -220,7 +320,8 @@ public class Problems {
         );
     SequencedMap<String, Comparator<O>> comparators = Stream.concat(
         toMinObjectives.stream().map(f -> new Pair<>(f, ((Comparator<O>) Comparable::compareTo))),
-        toMaxObjectives.stream().map(f -> new Pair<>(f, ((Comparator<O>) Comparable::compareTo).reversed()))
+        toMaxObjectives.stream()
+            .map(f -> new Pair<>(f, ((Comparator<O>) Comparable::compareTo).reversed()))
     )
         .collect(
             Misc.toSequencedMap(
@@ -277,6 +378,10 @@ public class Problems {
             .reversed() : Comparator.comparing(comparableFunction),
         Optional.ofNullable(example)
     );
+  }
+
+  public enum OptimizationType {
+    @SuppressWarnings("unused") MINIMIZE, MAXIMIZE
   }
 
 }
