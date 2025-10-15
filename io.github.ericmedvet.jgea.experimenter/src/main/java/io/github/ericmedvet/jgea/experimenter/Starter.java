@@ -23,6 +23,7 @@ package io.github.ericmedvet.jgea.experimenter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
+import io.github.ericmedvet.jgea.core.util.Misc;
 import io.github.ericmedvet.jnb.core.BuilderException;
 import io.github.ericmedvet.jnb.core.NamedBuilder;
 import io.github.ericmedvet.jnb.core.NamedParamMap;
@@ -89,6 +90,14 @@ public class Starter {
     @Parameter(
         names = {"--expHeadLines"}, description = "Additional experiment description lines that will be put at the head of the experiment " + "description.", variableArity = true)
     public List<String> expHeadLines = List.of();
+
+    @Parameter(
+        names = {"--nOfFolds", "-nf"}, description = "Number of equal parts to split the list of runs into.")
+    public int nOfFolds = 1;
+
+    @Parameter(
+        names = {"--foldIndex", "-fi"}, description = "Index (0-based) of the split part to execute. Must be between 1 and splitInto.")
+    public int foldIndex = 0;
   }
 
   public static void main(String[] args) {
@@ -98,6 +107,16 @@ public class Starter {
     jc.setProgramName(Starter.class.getName());
     try {
       jc.parse(args);
+      if (configuration.foldIndex < 0 || configuration.foldIndex >= configuration.nOfFolds) {
+        L.severe(
+            String.format("Fold index %d out of bounds [0, %d]", configuration.foldIndex, configuration.nOfFolds - 1)
+        );
+        System.exit(-1);
+      }
+      if (configuration.nOfFolds <= 0) {
+        L.severe(String.format("Number of folds %d is negative", configuration.nOfFolds));
+        System.exit(-1);
+      }
     } catch (ParameterException e) {
       e.usage();
       L.severe(String.format("Cannot read command line options: %s", e));
@@ -186,7 +205,14 @@ public class Starter {
             "%1$tY-%1$tm-%1$td--%1$tH-%1$tM-%1$tS"
                 .formatted(Instant.now().toEpochMilli())
         );
-    Experiment experiment = (Experiment) nb.build(expNPM);
+    Experiment allExperiment = (Experiment) nb.build(expNPM);
+    Experiment experiment = new Experiment(
+        allExperiment.name(),
+        allExperiment.startTime(),
+        Misc.fold(allExperiment.runs(), configuration.foldIndex, configuration.nOfFolds),
+        allExperiment.map(),
+        allExperiment.listeners()
+    );
     // check if just check
     if (configuration.check) {
       try {

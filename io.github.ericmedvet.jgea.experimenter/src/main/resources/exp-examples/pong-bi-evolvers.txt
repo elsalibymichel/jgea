@@ -38,13 +38,13 @@ ea.experiment(
         fitnessAggregator = f.avg()
       );
       ea.s.biMapElites(
-        name = "bi-me-tree-nearest2";
+        name = "bi-me-tree-best2";
         fitnessReducer = ea.misc.lossyAverage();
         representation = ea.r.srTree();
         mapper = ea.m.nurfToNds(of = ea.m.srTreeToNurf());
         emptyArchive = false;
         descriptors = $TREE_DESCRIPTOR;
-        opponentsSelector = ea.misc.nearestMESelector(nOfOpponents = 2);
+        opponentsSelector = ea.misc.bestMESelector(nOfOpponents = 2);
         fitnessAggregator = f.avg()
       );
       ea.s.biMapElites(
@@ -58,13 +58,13 @@ ea.experiment(
         fitnessAggregator = f.avg()
       );
       ea.s.biMapElites(
-        name = "bi-me-ann-nearest2";
+        name = "bi-me-ann-best2";
         fitnessReducer = ea.misc.lossyAverage();
         representation = ea.r.doubleString();
         mapper = ea.m.dsToNpnds(npnds = $MLP);
         emptyArchive = false;
         descriptors = $ANN_DESCRIPTORS;
-        opponentsSelector = ea.misc.nearestMESelector(nOfOpponents = 2);
+        opponentsSelector = ea.misc.bestMESelector(nOfOpponents = 2);
         fitnessAggregator = f.avg()
       );
 
