@@ -23,7 +23,7 @@ $GENERAL_LISTENERS = [
   );
 
   ea.l.bestCsv(
-    path = "../results/{name}/{startTime}/last-generation-bests.csv";
+    path = "../results/{name}/{startTime}/last-generations-bests.csv";
     runFunctions = [
       ea.f.runKey(key = "run.problem.simulation.environment");
       ea.f.runKey(key = "run.solver.mapper")

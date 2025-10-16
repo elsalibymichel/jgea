@@ -108,7 +108,9 @@ public class Starter {
     try {
       jc.parse(args);
       if (configuration.runFoldIndex < 0 || configuration.runFoldIndex >= configuration.nOfRunFolds) {
-        L.severe("Fold index %d out of bounds [0, %d]".formatted(configuration.runFoldIndex, configuration.nOfRunFolds - 1));
+        L.severe(
+            "Fold index %d out of bounds [0, %d]".formatted(configuration.runFoldIndex, configuration.nOfRunFolds - 1)
+        );
         System.exit(-1);
       }
       if (configuration.nOfRunFolds <= 0) {
