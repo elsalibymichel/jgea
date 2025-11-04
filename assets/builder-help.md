@@ -520,6 +520,17 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.NamedFunction
 
 Produces <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, O&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.Functions.simulate()` by jgea-experimenter:2.7.1-SNAPSHOT
 
+### Builder `dynamicalSystem.function.unwrappedRl()`
+
+`ds.f.unwrappedRl(of; name)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jsdynsym.control.Simulation$Outcome">Simulation$Outcome</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.control.SingleAgentTask$Step">SingleAgentTask$Step</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.core.rl.ReinforcementLearningAgent$RewardedInput">ReinforcementLearningAgent$RewardedInput</abbr>&lt;O&gt;, A, S&gt;&gt;&gt;</code> |
+| `name` | s | `unwrapped.rl` | <code><abbr title="java.lang.String">String</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.NamedFunction">NamedFunction</abbr>&lt;X, <abbr title="io.github.ericmedvet.jsdynsym.control.Simulation$Outcome">Simulation$Outcome</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.control.SingleAgentTask$Step">SingleAgentTask$Step</abbr>&lt;O, A, S&gt;&gt;&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.Functions.unwrappedRl()` by jgea-experimenter:2.7.1-SNAPSHOT
+
 ### Builder `dynamicalSystem.function.weights()`
 
 `ds.f.weights(of; format)`
@@ -3474,6 +3485,19 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.SimpleMOProbl
 | `smoProblem` | npm |  | <code><abbr title="io.github.ericmedvet.jgea.core.problem.SimpleMOProblem">SimpleMOProblem</abbr>&lt;S, O&gt;</code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.SimpleMOProblem">SimpleMOProblem</abbr>&lt;S, O&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Problems.smoToSubsettedSmo()` by jgea-experimenter:2.7.1-SNAPSHOT
+
+### Builder `ea.problem.srlatToBbto()`
+
+`ea.p.srlatToBbto(name; task; dT; tRange)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `name` | s | interpolate `{task.name}` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `task` | npm |  | <code><abbr title="io.github.ericmedvet.jsdynsym.control.SingleRLAgentTask">SingleRLAgentTask</abbr>&lt;C, O, A, TS&gt;</code> |
+| `dT` | d |  | <code>double</code> |
+| `tRange` | npm |  | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.BBTOProblem">BBTOProblem</abbr>&lt;C, <abbr title="io.github.ericmedvet.jsdynsym.control.Simulation$Outcome">Simulation$Outcome</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.control.SingleAgentTask$Step">SingleAgentTask$Step</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.core.rl.ReinforcementLearningAgent$RewardedInput">ReinforcementLearningAgent$RewardedInput</abbr>&lt;O&gt;, A, TS&gt;&gt;, <abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Problems.srlatToBbto()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.problem.srlatToTo()`
 

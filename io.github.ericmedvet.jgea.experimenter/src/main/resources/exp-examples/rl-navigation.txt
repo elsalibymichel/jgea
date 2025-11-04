@@ -19,7 +19,7 @@ $postSimulateF = ds.f.simulate(
 )
 
 ea.experiment(
-  runs = (randomGenerator = (seed = [1:1:1]) * [m.defaultRG()])
+  runs = (randomGenerator = (seed = [1:1:7]) * [m.defaultRG()])
   * (solver = (stop = ea.sc.nOfQualityEvaluations(n = 2500))
   * (representation = [ea.representation.doubleString()]) * [
     ea.s.ga(
@@ -36,7 +36,7 @@ ea.experiment(
     )
   ])
   * [ea.run(
-    problem = ea.p.srlatToTo(
+    problem = ea.p.srlatToBbto(
       task = ds.srlat.fromNumericalEnvironment(
         environment = $environment;
         reward = ds.e.nav.reward.reaching()
@@ -48,31 +48,25 @@ ea.experiment(
   listeners = [
     ea.l.console(
       functions = [
-        ea.f.quality(of = ea.f.best(); format = "%6.2f");
-        ds.e.n.finalD(format = "%5.3f"; of = f.composition(
-          of = ea.f.best();
-          then = $postSimulateF
-        ));
-        ds.e.n.avgD(format = "%5.3f"; of = f.composition(
-          of = ea.f.best();
-          then = $postSimulateF
-        ))
+        ea.f.behaviorQuality(of = ea.f.quality(of = ea.f.best(); format = "%6.2f"));
+        ds.e.n.finalD(format = "%5.3f"; of = ds.f.unwrappedRl(of = ea.f.behavior(of = ea.f.quality(of = ea.f.best()))));
+        ds.e.n.avgD(format = "%5.3f"; of = ds.f.unwrappedRl(of = ea.f.behavior(of = ea.f.quality(of = ea.f.best()))))
       ];
       onlyLast = false
     );
     ea.l.savePlotForExp(
       path = "../../Documenti/experiments/{name}/{startTime}/best-fitness.svg";
-      plot = ea.plot.multi.quality();
+      plot = ea.plot.multi.quality(q = ea.f.behaviorQuality());
       type = svg
     );
     ea.l.savePlotForExp(
       path = "../../Documenti/experiments/{name}/{startTime}/best-final-dist.svg";
-      plot = ea.plot.multi.xyExp(y = ds.e.n.finalD(of = f.composition(of = ea.f.best(); then = $postSimulateF)));
+      plot = ea.plot.multi.quality(q = ds.e.n.finalD(of = ds.f.unwrappedRl(of = ea.f.behavior())));
       type = svg
     );
     ea.l.savePlotForExp(
       path = "../../Documenti/experiments/{name}/{startTime}/best-avg-dist.svg";
-      plot = ea.plot.multi.xyExp(y = ds.e.n.avgD(of = f.composition(of = ea.f.best(); then = $postSimulateF)));
+      plot = ea.plot.multi.quality(q = ds.e.n.avgD(of = ds.f.unwrappedRl(of = ea.f.behavior())));
       type = svg
     )
   ]

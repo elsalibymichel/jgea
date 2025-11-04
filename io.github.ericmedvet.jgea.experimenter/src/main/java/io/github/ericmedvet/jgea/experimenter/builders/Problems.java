@@ -29,11 +29,8 @@ import io.github.ericmedvet.jnb.core.Param;
 import io.github.ericmedvet.jnb.datastructure.DoubleRange;
 import io.github.ericmedvet.jnb.datastructure.NamedFunction;
 import io.github.ericmedvet.jnb.datastructure.Pair;
-import io.github.ericmedvet.jsdynsym.control.BiSimulation;
-import io.github.ericmedvet.jsdynsym.control.HomogeneousBiSimulation;
-import io.github.ericmedvet.jsdynsym.control.Simulation;
+import io.github.ericmedvet.jsdynsym.control.*;
 import io.github.ericmedvet.jsdynsym.control.Simulation.Outcome;
-import io.github.ericmedvet.jsdynsym.control.SingleRLAgentTask;
 import io.github.ericmedvet.jsdynsym.core.rl.ReinforcementLearningAgent;
 import java.util.*;
 import java.util.function.BiFunction;
@@ -388,6 +385,37 @@ public class Problems {
 
   @SuppressWarnings("unused")
   @Cacheable
+  public static <C extends ReinforcementLearningAgent<O, A, TS>, TS, O, A> BBTOProblem<C, Simulation.Outcome<SingleAgentTask.Step<ReinforcementLearningAgent.RewardedInput<O>, A, TS>>, Double> srlatToBbto(
+      @Param(value = "name", iS = "{task.name}") String name,
+      @Param("task") SingleRLAgentTask<C, O, A, TS> task,
+      @Param("dT") double dT,
+      @Param("tRange") DoubleRange tRange
+  ) {
+    return new BBTOProblem<>() {
+      @Override
+      public Function<? super C, ? extends Simulation.Outcome<SingleAgentTask.Step<ReinforcementLearningAgent.RewardedInput<O>, A, TS>>> behaviorFunction() {
+        return c -> task.simulate(c, dT, tRange);
+      }
+
+      @Override
+      public Function<? super Simulation.Outcome<SingleAgentTask.Step<ReinforcementLearningAgent.RewardedInput<O>, A, TS>>, ? extends Double> behaviorQualityFunction() {
+        return o -> o.snapshots().values().stream().mapToDouble(s -> s.observation().reward()).sum();
+      }
+
+      @Override
+      public Optional<C> example() {
+        return task.example();
+      }
+
+      @Override
+      public Comparator<Double> totalOrderBehaviorQualityComparator() {
+        return ((Comparator<Double>) Double::compareTo).reversed();
+      }
+    };
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
   public static <C extends ReinforcementLearningAgent<O, A, ?>, O, A> TotalOrderQualityBasedProblem<C, Double> srlatToTo(
       @Param(value = "name", iS = "{task.name}") String name,
       @Param("task") SingleRLAgentTask<C, O, A, ?> task,
@@ -421,5 +449,4 @@ public class Problems {
       }
     };
   }
-
 }
