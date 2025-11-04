@@ -33,6 +33,8 @@ import io.github.ericmedvet.jsdynsym.control.BiSimulation;
 import io.github.ericmedvet.jsdynsym.control.HomogeneousBiSimulation;
 import io.github.ericmedvet.jsdynsym.control.Simulation;
 import io.github.ericmedvet.jsdynsym.control.Simulation.Outcome;
+import io.github.ericmedvet.jsdynsym.control.SingleRLAgentTask;
+import io.github.ericmedvet.jsdynsym.core.rl.ReinforcementLearningAgent;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -47,10 +49,14 @@ public class Problems {
   private Problems() {
   }
 
+  public enum OptimizationType {
+    @SuppressWarnings("unused") MINIMIZE, MAXIMIZE
+  }
+
   @SuppressWarnings("unused")
   @Cacheable
   //bi simulation to homogeneous bi quality based problem
-  public static <S, B extends BiSimulation.Outcome<BS>, BS, Q, C extends Comparable<C>> TotalOrderQualityBasedBiProblem<S, B, Q> biSimToBiQb(
+  public static <S, B extends BiSimulation.Outcome<BS>, BS, Q, C extends Comparable<C>> TotalOrderQualityBasedBiProblem<S, B, Q> biSimToBiTo(
       @Param(value = "name", iS = "{simulation.name}") String name,
       @Param("simulation") HomogeneousBiSimulation<S, BS, B> simulation,
       @Param(value = "cFunction", dNPM = "f.identity()") Function<Q, C> comparableFunction,
@@ -67,13 +73,13 @@ public class Problems {
       }
 
       @Override
-      public Function<B, Q> firstQualityFunction() {
-        return qFunction1;
+      public BiFunction<S, S, B> outcomeFunction() {
+        return (s1, s2) -> simulation.simulate(s1, s2, dT, tRange);
       }
 
       @Override
-      public BiFunction<S, S, B> outcomeFunction() {
-        return (s1, s2) -> simulation.simulate(s1, s2, dT, tRange);
+      public Function<B, Q> firstQualityFunction() {
+        return qFunction1;
       }
 
       @Override
@@ -99,7 +105,7 @@ public class Problems {
 
   @SuppressWarnings("unused")
   @Cacheable
-  public static <S, B extends BiSimulation.Outcome<BS>, BS, Q, C extends Comparable<C>> TotalOrderQualityBasedProblem<S, Q> biSimToQb(
+  public static <S, B extends BiSimulation.Outcome<BS>, BS, Q, C extends Comparable<C>> TotalOrderQualityBasedProblem<S, Q> biSimToTo(
       @Param(value = "name", iS = "{simulation.name}") String name,
       @Param("simulation") HomogeneousBiSimulation<S, BS, B> simulation,
       @Param(value = "cFunction", dNPM = "f.identity()") Function<Q, C> comparableFunction,
@@ -380,8 +386,40 @@ public class Problems {
     );
   }
 
-  public enum OptimizationType {
-    @SuppressWarnings("unused") MINIMIZE, MAXIMIZE
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static <C extends ReinforcementLearningAgent<O, A, ?>, O, A> TotalOrderQualityBasedProblem<C, Double> srlatToTo(
+      @Param(value = "name", iS = "{task.name}") String name,
+      @Param("task") SingleRLAgentTask<C, O, A, ?> task,
+      @Param("dT") double dT,
+      @Param("tRange") DoubleRange tRange
+  ) {
+    return new TotalOrderQualityBasedProblem<>() {
+      @Override
+      public Function<C, Double> qualityFunction() {
+        return c -> task.simulate(c, dT, tRange)
+            .snapshots()
+            .values()
+            .stream()
+            .mapToDouble(s -> s.observation().reward())
+            .sum();
+      }
+
+      @Override
+      public String toString() {
+        return name;
+      }
+
+      @Override
+      public Comparator<Double> totalOrderComparator() {
+        return ((Comparator<Double>) Double::compareTo).reversed();
+      }
+
+      @Override
+      public Optional<C> example() {
+        return task.example();
+      }
+    };
   }
 
 }

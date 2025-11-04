@@ -287,7 +287,7 @@ Aliases: `ds.e.n.reward`, `ds.e.nav.reward`, `ds.e.navigation.reward`, `ds.env.n
 
 ### Builder `dynamicalSystem.environment.navigation.reward.reaching()`
 
-`ds.e.n.reward.reaching(of; targetProximityRadius; targetProximityReward; collisionPenalty; format)`
+`ds.e.n.reward.reaching(of; targetProximityRadius; targetProximityReward; collisionPenalty; distanceWeight; format)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -295,6 +295,7 @@ Aliases: `ds.e.n.reward`, `ds.e.nav.reward`, `ds.e.navigation.reward`, `ds.env.n
 | `targetProximityRadius` | d | `0.1` | <code>double</code> |
 | `targetProximityReward` | d | `1.0` | <code>double</code> |
 | `collisionPenalty` | d | `0.01` | <code>double</code> |
+| `distanceWeight` | d | `0.1` | <code>double</code> |
 | `format` | s | `%5.3f` | <code><abbr title="java.lang.String">String</abbr></code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.NavigationRewards.reaching()` by jgea-experimenter:2.7.1-SNAPSHOT
@@ -452,7 +453,7 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedName
 | `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jsdynsym.core.rl.FrozenableRLAgent">FrozenableRLAgent</abbr>&lt;I, O, ?&gt;&gt;</code> |
 | `format` | s | `%s` | <code><abbr title="java.lang.String">String</abbr></code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="io.github.ericmedvet.jsdynsym.core.StatelessSystem">StatelessSystem</abbr>&lt;I, O&gt;&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.Functions.frozen()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="io.github.ericmedvet.jsdynsym.core.DynamicalSystem">DynamicalSystem</abbr>&lt;I, O, ?&gt;&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.Functions.frozen()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `dynamicalSystem.function.inner()`
 
@@ -687,7 +688,7 @@ Aliases: `ds.rl`, `dynSys.rl`, `dynamicalSystem.rl`
 | `actorWeightDecay` | d | `1.0E-5` | <code>double</code> |
 | `criticWeightDecay` | d | `1.0E-4` | <code>double</code> |
 | `discountFactor` | d | `0.99` | <code>double</code> |
-| `explorationNoise` | d | `0.1` | <code>double</code> |
+| `explorationNoise` | d | `1.0` | <code>double</code> |
 | `maxGradLogProb` | d | `10.0` | <code>double</code> |
 | `initialWeightRange` | npm | `m.range(min = -0.2; max = 0.2)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
 | `randomGenerator` | npm | `m.defaultRG()` | <code><abbr title="java.util.random.RandomGenerator">RandomGenerator</abbr></code> |
@@ -2386,6 +2387,16 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.core.InvertibleMapper">Inv
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.core.InvertibleMapper">InvertibleMapper</abbr>&lt;X, <abbr title="io.github.ericmedvet.jsdynsym.core.numerical.named.NamedMultivariateRealFunction">NamedMultivariateRealFunction</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Mappers.multiSrTreeToNmrf()` by jgea-experimenter:2.7.1-SNAPSHOT
 
+### Builder `ea.mapper.ndsToNrla()`
+
+`ea.m.ndsToNrla(of)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `of` | npm | `ea.m.identity()` | <code><abbr title="io.github.ericmedvet.jgea.core.InvertibleMapper">InvertibleMapper</abbr>&lt;X, <abbr title="io.github.ericmedvet.jsdynsym.core.numerical.NumericalDynamicalSystem">NumericalDynamicalSystem</abbr>&lt;?&gt;&gt;</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jgea.core.InvertibleMapper">InvertibleMapper</abbr>&lt;X, <abbr title="io.github.ericmedvet.jsdynsym.core.rl.NumericalReinforcementLearningAgent">NumericalReinforcementLearningAgent</abbr>&lt;?&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Mappers.ndsToNrla()` by jgea-experimenter:2.7.1-SNAPSHOT
+
 ### Builder `ea.mapper.nmrfToGrid()`
 
 `ea.m.nmrfToGrid(of; items)`
@@ -3320,9 +3331,9 @@ Produces <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&
 
 Aliases: `ea.p`, `ea.problem`
 
-### Builder `ea.problem.biSimToBiQb()`
+### Builder `ea.problem.biSimToBiTo()`
 
-`ea.p.biSimToBiQb(name; simulation; cFunction; type; qFunction1; qFunction2; dT; tRange)`
+`ea.p.biSimToBiTo(name; simulation; cFunction; type; qFunction1; qFunction2; dT; tRange)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -3335,11 +3346,11 @@ Aliases: `ea.p`, `ea.problem`
 | `dT` | d |  | <code>double</code> |
 | `tRange` | npm |  | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.TotalOrderQualityBasedBiProblem">TotalOrderQualityBasedBiProblem</abbr>&lt;S, B, Q&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Problems.biSimToBiQb()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.TotalOrderQualityBasedBiProblem">TotalOrderQualityBasedBiProblem</abbr>&lt;S, B, Q&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Problems.biSimToBiTo()` by jgea-experimenter:2.7.1-SNAPSHOT
 
-### Builder `ea.problem.biSimToQb()`
+### Builder `ea.problem.biSimToTo()`
 
-`ea.p.biSimToQb(name; simulation; cFunction; type; qFunction; trainingOpponent; dT; tRange)`
+`ea.p.biSimToTo(name; simulation; cFunction; type; qFunction; trainingOpponent; dT; tRange)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -3352,7 +3363,7 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.TotalOrderQua
 | `dT` | d |  | <code>double</code> |
 | `tRange` | npm |  | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.TotalOrderQualityBasedProblem">TotalOrderQualityBasedProblem</abbr>&lt;S, Q&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Problems.biSimToQb()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.TotalOrderQualityBasedProblem">TotalOrderQualityBasedProblem</abbr>&lt;S, Q&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Problems.biSimToTo()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.problem.moToSo()`
 
@@ -3449,6 +3460,19 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.SimpleMOProbl
 | `smoProblem` | npm |  | <code><abbr title="io.github.ericmedvet.jgea.core.problem.SimpleMOProblem">SimpleMOProblem</abbr>&lt;S, O&gt;</code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.SimpleMOProblem">SimpleMOProblem</abbr>&lt;S, O&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Problems.smoToSubsettedSmo()` by jgea-experimenter:2.7.1-SNAPSHOT
+
+### Builder `ea.problem.srlatToTo()`
+
+`ea.p.srlatToTo(name; task; dT; tRange)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `name` | s | interpolate `{task.name}` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `task` | npm |  | <code><abbr title="io.github.ericmedvet.jsdynsym.control.SingleRLAgentTask">SingleRLAgentTask</abbr>&lt;C, O, A, ?&gt;</code> |
+| `dT` | d |  | <code>double</code> |
+| `tRange` | npm |  | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.TotalOrderQualityBasedProblem">TotalOrderQualityBasedProblem</abbr>&lt;C, <abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Problems.srlatToTo()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.problem.totalOrder()`
 
