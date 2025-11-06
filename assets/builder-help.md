@@ -587,6 +587,20 @@ Produces <code><abbr title="io.github.ericmedvet.jsdynsym.buildable.builders.Num
 
 Produces <code><abbr title="io.github.ericmedvet.jsdynsym.buildable.builders.NumericalDynamicalSystems$Builder">NumericalDynamicalSystems$Builder</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.core.numerical.EnhancedInput">EnhancedInput</abbr>&lt;S&gt;, S&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.NumericalDynamicalSystems.enhanced()` by jgea-experimenter:2.7.1-SNAPSHOT
 
+### Builder `dynamicalSystem.num.hebbianMlp()`
+
+`ds.num.hebbianMlp(innerLayerRatio; nOfInnerLayers; innerLayers; learningRate; activationFunction)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `innerLayerRatio` | d | `0.65` | <code>double</code> |
+| `nOfInnerLayers` | i | `1` | <code>int</code> |
+| `innerLayers` | i[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Integer">Integer</abbr>&gt;</code> |
+| `learningRate` | d |  | <code>double</code> |
+| `activationFunction` | e | `TANH` | <code><abbr title="io.github.ericmedvet.jsdynsym.core.numerical.ann.MultiLayerPerceptron$ActivationFunction">MultiLayerPerceptron$ActivationFunction</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jsdynsym.buildable.builders.NumericalDynamicalSystems$Builder">NumericalDynamicalSystems$Builder</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.core.numerical.ann.HebbianMultilayerPerceptron">HebbianMultilayerPerceptron</abbr>, <abbr title="io.github.ericmedvet.jsdynsym.core.numerical.ann.HebbianMultilayerPerceptron$State">HebbianMultilayerPerceptron$State</abbr>&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.NumericalDynamicalSystems.hebbianMlp()` by jgea-experimenter:2.7.1-SNAPSHOT
+
 ### Builder `dynamicalSystem.num.inStepped()`
 
 `ds.num.inStepped(stepT; inner)`
