@@ -2876,7 +2876,7 @@ Aliases: `ea.plot.m`, `ea.plot.multi`
 
 ### Builder `ea.plot.multi.quality()`
 
-`ea.plot.m.quality(xSubplot; ySubplot; line; x; y; valueAggregator; minAggregator; maxAggregator; xRange; yRange; limitOneYForRun; useRunForX; xQuantization; q)`
+`ea.plot.m.quality(xSubplot; ySubplot; line; x; y; valueAggregator; minAggregator; maxAggregator; xRange; yRange; limitOneYForK; useKForX; xQuantization; q)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -2890,16 +2890,16 @@ Aliases: `ea.plot.m`, `ea.plot.multi`
 | `maxAggregator` | npm | `f.percentile(p = 75)` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Number">Number</abbr>&gt;, <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
 | `xRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
 | `yRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
-| `limitOneYForRun` | b | `true` | <code>boolean</code> |
-| `useRunForX` | b | `false` | <code>boolean</code> |
+| `limitOneYForK` | b | `true` | <code>boolean</code> |
+| `useKForX` | b | `false` | <code>boolean</code> |
 | `xQuantization` | i | `1` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `q` | npm | `f.identity()` | <code><abbr title="java.lang.String">String</abbr></code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.AggregatedXYDataSeriesMRPAF">AggregatedXYDataSeriesMRPAF</abbr>&lt;E, R, <abbr title="java.lang.String">String</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.MultiPlots.xy()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.AggregatedXYDataSeriesMKPAF">AggregatedXYDataSeriesMKPAF</abbr>&lt;E, R, <abbr title="java.lang.String">String</abbr>&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.MultiPlots.xy()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.plot.multi.qualityBoxplot()`
 
-`ea.plot.m.qualityBoxplot(xSubplot; ySubplot; box; y; predicateValue; condition; yRange; limitOneYForRun; q)`
+`ea.plot.m.qualityBoxplot(xSubplot; ySubplot; box; y; predicateValue; condition; yRange; limitOneYForK; q)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -2910,52 +2910,33 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 | `predicateValue` | npm | `ea.f.rate(of = ea.f.progress())` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;E, X&gt;</code> |
 | `condition` | npm | `predicate.gtEq(t = 1)` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&gt;</code> |
 | `yRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
-| `limitOneYForRun` | b | `true` | <code>boolean</code> |
+| `limitOneYForK` | b | `true` | <code>boolean</code> |
 | `q` | npm | `f.identity()` | <code><abbr title="java.lang.String">String</abbr></code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.DistributionMRPAF">DistributionMRPAF</abbr>&lt;E, R, <abbr title="java.lang.String">String</abbr>, X&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.MultiPlots.yBoxplot()` by jgea-experimenter:2.7.1-SNAPSHOT
-
-### Builder `ea.plot.multi.scatter()`
-
-`ea.plot.m.scatter(xSubplot; ySubplot; group; x; y; predicateValue; condition; xRange; yRange; limitOneYForRun)`
-
-| Param | Type | Default | Java type |
-| --- | --- | --- | --- |
-| `xSubplot` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
-| `ySubplot` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
-| `group` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
-| `x` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super E, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
-| `y` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super E, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
-| `predicateValue` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;E, X&gt;</code> |
-| `condition` | npm | `predicate.gtEq(t = 1)` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&gt;</code> |
-| `xRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
-| `yRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
-| `limitOneYForRun` | b | `true` | <code>boolean</code> |
-
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.ScatterMRPAF">ScatterMRPAF</abbr>&lt;E, R, <abbr title="java.lang.String">String</abbr>, X&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.MultiPlots.scatter()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.DistributionMRPAF">DistributionMRPAF</abbr>&lt;E, R, <abbr title="java.lang.String">String</abbr>, X&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.MultiPlots.yBoxplot()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.plot.multi.scatterExp()`
 
-`ea.plot.m.scatterExp(xSubplot; ySubplot; group; x; y; predicateValue; condition; xRange; yRange; limitOneYForRun)`
+`ea.plot.m.scatterExp(xSubplot; ySubplot; group; x; y; predicateValue; condition; xRange; yRange; limitOneYForK)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
-| `xSubplot` | npm | `ea.f.runString(name = problem; s = "{run.problem.name}")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
-| `ySubplot` | npm | `ea.f.runString(name = none; s = "_")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
-| `group` | npm | `ea.f.runString(name = solver; s = "{run.solver.name}")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `xSubplot` | npm | `ea.f.runString(name = problem; s = "{run.problem.name}")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super K, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `ySubplot` | npm | `ea.f.runString(name = none; s = "_")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super K, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `group` | npm | `ea.f.runString(name = solver; s = "{run.solver.name}")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super K, <abbr title="java.lang.String">String</abbr>&gt;</code> |
 | `x` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super E, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
 | `y` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super E, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
 | `predicateValue` | npm | `ea.f.rate(of = ea.f.progress())` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;E, X&gt;</code> |
 | `condition` | npm | `predicate.gtEq(t = 1)` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&gt;</code> |
 | `xRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
 | `yRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
-| `limitOneYForRun` | b | `true` | <code>boolean</code> |
+| `limitOneYForK` | b | `true` | <code>boolean</code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.ScatterMRPAF">ScatterMRPAF</abbr>&lt;E, R, <abbr title="java.lang.String">String</abbr>, X&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.MultiPlots.scatter()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.ScatterMRPAF">ScatterMRPAF</abbr>&lt;E, K, <abbr title="java.lang.String">String</abbr>, X&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.MultiPlots.scatter()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.plot.multi.uniqueness()`
 
-`ea.plot.m.uniqueness(xSubplot; ySubplot; line; x; y; valueAggregator; minAggregator; maxAggregator; xRange; yRange; limitOneYForRun; useRunForX; xQuantization)`
+`ea.plot.m.uniqueness(xSubplot; ySubplot; line; x; y; valueAggregator; minAggregator; maxAggregator; xRange; yRange; limitOneYForK; useKForX; xQuantization)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -2969,15 +2950,15 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 | `maxAggregator` | npm | `f.percentile(p = 75)` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Number">Number</abbr>&gt;, <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
 | `xRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
 | `yRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
-| `limitOneYForRun` | b | `true` | <code>boolean</code> |
-| `useRunForX` | b | `false` | <code>boolean</code> |
+| `limitOneYForK` | b | `true` | <code>boolean</code> |
+| `useKForX` | b | `false` | <code>boolean</code> |
 | `xQuantization` | i | `1` | <code><abbr title="java.lang.String">String</abbr></code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.AggregatedXYDataSeriesMRPAF">AggregatedXYDataSeriesMRPAF</abbr>&lt;E, R, <abbr title="java.lang.String">String</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.MultiPlots.xy()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.AggregatedXYDataSeriesMKPAF">AggregatedXYDataSeriesMKPAF</abbr>&lt;E, R, <abbr title="java.lang.String">String</abbr>&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.MultiPlots.xy()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.plot.multi.uniquenessBoxplot()`
 
-`ea.plot.m.uniquenessBoxplot(xSubplot; ySubplot; box; y; predicateValue; condition; yRange; limitOneYForRun)`
+`ea.plot.m.uniquenessBoxplot(xSubplot; ySubplot; box; y; predicateValue; condition; yRange; limitOneYForK)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -2988,34 +2969,13 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 | `predicateValue` | npm | `ea.f.rate(of = ea.f.progress())` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;E, X&gt;</code> |
 | `condition` | npm | `predicate.gtEq(t = 1)` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&gt;</code> |
 | `yRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
-| `limitOneYForRun` | b | `true` | <code>boolean</code> |
+| `limitOneYForK` | b | `true` | <code>boolean</code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.DistributionMRPAF">DistributionMRPAF</abbr>&lt;E, R, <abbr title="java.lang.String">String</abbr>, X&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.MultiPlots.yBoxplot()` by jgea-experimenter:2.7.1-SNAPSHOT
-
-### Builder `ea.plot.multi.xy()`
-
-`ea.plot.m.xy(xSubplot; ySubplot; line; x; y; valueAggregator; minAggregator; maxAggregator; xRange; yRange; limitOneYForRun; useRunForX)`
-
-| Param | Type | Default | Java type |
-| --- | --- | --- | --- |
-| `xSubplot` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
-| `ySubplot` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
-| `line` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
-| `x` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;?, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
-| `y` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super E, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
-| `valueAggregator` | npm | `f.median()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Number">Number</abbr>&gt;, <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
-| `minAggregator` | npm | `f.percentile(p = 25)` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Number">Number</abbr>&gt;, <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
-| `maxAggregator` | npm | `f.percentile(p = 75)` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Number">Number</abbr>&gt;, <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
-| `xRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
-| `yRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
-| `limitOneYForRun` | b | `true` | <code>boolean</code> |
-| `useRunForX` | b | `false` | <code>boolean</code> |
-
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.AggregatedXYDataSeriesMRPAF">AggregatedXYDataSeriesMRPAF</abbr>&lt;E, R, <abbr title="java.lang.String">String</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.MultiPlots.xy()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.DistributionMRPAF">DistributionMRPAF</abbr>&lt;E, R, <abbr title="java.lang.String">String</abbr>, X&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.MultiPlots.yBoxplot()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.plot.multi.xyExp()`
 
-`ea.plot.m.xyExp(xSubplot; ySubplot; line; x; y; valueAggregator; minAggregator; maxAggregator; xRange; yRange; limitOneYForRun; useRunForX; xQuantization)`
+`ea.plot.m.xyExp(xSubplot; ySubplot; line; x; y; valueAggregator; minAggregator; maxAggregator; xRange; yRange; limitOneYForK; useKForX; xQuantization)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -3029,32 +2989,15 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 | `maxAggregator` | npm | `f.percentile(p = 75)` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Number">Number</abbr>&gt;, <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
 | `xRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
 | `yRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
-| `limitOneYForRun` | b | `true` | <code>boolean</code> |
-| `useRunForX` | b | `false` | <code>boolean</code> |
+| `limitOneYForK` | b | `true` | <code>boolean</code> |
+| `useKForX` | b | `false` | <code>boolean</code> |
 | `xQuantization` | i | `1` | <code><abbr title="java.lang.String">String</abbr></code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.AggregatedXYDataSeriesMRPAF">AggregatedXYDataSeriesMRPAF</abbr>&lt;E, R, <abbr title="java.lang.String">String</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.MultiPlots.xy()` by jgea-experimenter:2.7.1-SNAPSHOT
-
-### Builder `ea.plot.multi.yBoxplot()`
-
-`ea.plot.m.yBoxplot(xSubplot; ySubplot; box; y; predicateValue; condition; yRange; limitOneYForRun)`
-
-| Param | Type | Default | Java type |
-| --- | --- | --- | --- |
-| `xSubplot` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
-| `ySubplot` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
-| `box` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
-| `y` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super E, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
-| `predicateValue` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;E, X&gt;</code> |
-| `condition` | npm | `predicate.gtEq(t = 1)` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&gt;</code> |
-| `yRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
-| `limitOneYForRun` | b | `true` | <code>boolean</code> |
-
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.DistributionMRPAF">DistributionMRPAF</abbr>&lt;E, R, <abbr title="java.lang.String">String</abbr>, X&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.MultiPlots.yBoxplot()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.AggregatedXYDataSeriesMKPAF">AggregatedXYDataSeriesMKPAF</abbr>&lt;E, R, <abbr title="java.lang.String">String</abbr>&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.MultiPlots.xy()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.plot.multi.yBoxplotExp()`
 
-`ea.plot.m.yBoxplotExp(xSubplot; ySubplot; box; y; predicateValue; condition; yRange; limitOneYForRun)`
+`ea.plot.m.yBoxplotExp(xSubplot; ySubplot; box; y; predicateValue; condition; yRange; limitOneYForK)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -3065,9 +3008,9 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 | `predicateValue` | npm | `ea.f.rate(of = ea.f.progress())` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;E, X&gt;</code> |
 | `condition` | npm | `predicate.gtEq(t = 1)` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&gt;</code> |
 | `yRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
-| `limitOneYForRun` | b | `true` | <code>boolean</code> |
+| `limitOneYForK` | b | `true` | <code>boolean</code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.DistributionMRPAF">DistributionMRPAF</abbr>&lt;E, R, <abbr title="java.lang.String">String</abbr>, X&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.MultiPlots.yBoxplot()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.DistributionMRPAF">DistributionMRPAF</abbr>&lt;E, R, <abbr title="java.lang.String">String</abbr>, X&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.MultiPlots.yBoxplot()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ## Package `ea.plot.single`
 
@@ -3079,7 +3022,7 @@ Aliases: `ea.plot.s`, `ea.plot.single`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
-| `title` | npm | `ea.f.runString(name = title; s = "Fronts with {run.solver.name} on {run.problem.name} (seed={run.randomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `title` | npm | `ea.f.runString(name = title; s = "Fronts with {run.solver.name} on {run.problem.name} (seed={run.randomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super K, <abbr title="java.lang.String">String</abbr>&gt;</code> |
 | `points` | npm[] | `[ea.f.firsts(), ea.f.mids(), ea.f.lasts()]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super E, <abbr title="java.util.Collection">Collection</abbr>&lt;P&gt;&gt;&gt;</code> |
 | `x` | npm | `f.nThMapValue(n = 0; of = ea.f.quality())` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super P, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
 | `y` | npm | `f.nThMapValue(n = 1; of = ea.f.quality())` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super P, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
@@ -3089,7 +3032,7 @@ Aliases: `ea.plot.s`, `ea.plot.single`
 | `xRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
 | `yRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.XYDataSeriesSEPAF">XYDataSeriesSEPAF</abbr>&lt;E, R, X, P&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.SinglePlots.xyes()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.XYDataSeriesSEPAF">XYDataSeriesSEPAF</abbr>&lt;E, K, X, P&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.SinglePlots.xyes()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.plot.single.coMe()`
 
@@ -3097,7 +3040,7 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
-| `title` | npm | `ea.f.runString(name = title; s = "Archives of {run.solver.name} on {run.problem.name} (seed={run.randomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `title` | npm | `ea.f.runString(name = title; s = "Archives of {run.solver.name} on {run.problem.name} (seed={run.randomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super K, <abbr title="java.lang.String">String</abbr>&gt;</code> |
 | `values` | npm[] | `[f.composition(of = ea.f.quality(); then = f.identity())]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super G, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;&gt;</code> |
 | `grids` | npm[] | `[ea.f.archiveToGrid(of = ea.f.coMeArchive1()), ea.f.archiveToGrid(of = ea.f.coMeArchive2())]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super E, <abbr title="io.github.ericmedvet.jnb.datastructure.Grid">Grid</abbr>&lt;G&gt;&gt;&gt;</code> |
 | `predicateValue` | npm | `f.quantized(format = "%.2f"; of = ea.f.rate(of = ea.f.progress()); q = 0.05)` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;E, X&gt;</code> |
@@ -3106,7 +3049,7 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 | `unique` | b | `true` | <code>boolean</code> |
 | `q` | npm | `f.identity()` | <code><abbr title="java.lang.String">String</abbr></code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.UnivariateGridSEPAF">UnivariateGridSEPAF</abbr>&lt;E, R, X, G&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.SinglePlots.grid()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.UnivariateGridSEPAF">UnivariateGridSEPAF</abbr>&lt;E, K, X, G&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.SinglePlots.grid()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.plot.single.coMeStrategies()`
 
@@ -3114,29 +3057,14 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
-| `title` | npm | `ea.f.runString(name = title; s = "Strategies (2D fields) of {run.solver.name} on {run.problem.name} (seed={runrandomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `title` | npm | `ea.f.runString(name = title; s = "Strategies (2D fields) of {run.solver.name} on {run.problem.name} (seed={runrandomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super K, <abbr title="java.lang.String">String</abbr>&gt;</code> |
 | `fields` | npm[] | `[ea.f.coMeStrategy1Field(), ea.f.coMeStrategy2Field()]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super E, F&gt;&gt;</code> |
 | `pointPairs` | npm[] | `[f.identity()]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super F, ? extends <abbr title="java.util.Map">Map</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Double">Double</abbr>&gt;, <abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Double">Double</abbr>&gt;&gt;&gt;&gt;</code> |
 | `predicateValue` | npm | `f.quantized(format = "%.2f"; of = ea.f.rate(of = ea.f.progress()); q = 0.05)` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;E, X&gt;</code> |
 | `condition` | npm | `predicate.inD(values = [0.0; 0.1; 0.25; 0.5; 1.0])` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&gt;</code> |
 | `unique` | b | `true` | <code>boolean</code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.VectorialFieldSEPAF">VectorialFieldSEPAF</abbr>&lt;E, R, X, F&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.SinglePlots.field()` by jgea-experimenter:2.7.1-SNAPSHOT
-
-### Builder `ea.plot.single.field()`
-
-`ea.plot.s.field(title; fields; pointPairs; predicateValue; condition; unique)`
-
-| Param | Type | Default | Java type |
-| --- | --- | --- | --- |
-| `title` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
-| `fields` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super E, F&gt;&gt;</code> |
-| `pointPairs` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super F, ? extends <abbr title="java.util.Map">Map</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Double">Double</abbr>&gt;, <abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Double">Double</abbr>&gt;&gt;&gt;&gt;</code> |
-| `predicateValue` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;E, X&gt;</code> |
-| `condition` | npm | `predicate.ltEq(t = 1)` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&gt;</code> |
-| `unique` | b | `true` | <code>boolean</code> |
-
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.VectorialFieldSEPAF">VectorialFieldSEPAF</abbr>&lt;E, R, X, F&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.SinglePlots.field()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.VectorialFieldSEPAF">VectorialFieldSEPAF</abbr>&lt;E, K, X, F&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.SinglePlots.field()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.plot.single.fieldRun()`
 
@@ -3144,30 +3072,14 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
-| `title` | npm | `ea.f.runString(name = title; s = "{run.solver.name} on {run.problem.name} (seed={run.randomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `title` | npm | `ea.f.runString(name = title; s = "{run.solver.name} on {run.problem.name} (seed={run.randomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super K, <abbr title="java.lang.String">String</abbr>&gt;</code> |
 | `fields` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super E, F&gt;&gt;</code> |
 | `pointPairs` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super F, ? extends <abbr title="java.util.Map">Map</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Double">Double</abbr>&gt;, <abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Double">Double</abbr>&gt;&gt;&gt;&gt;</code> |
 | `predicateValue` | npm | `f.quantized(format = "%.2f"; of = ea.f.rate(of = ea.f.progress()); q = 0.05)` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;E, X&gt;</code> |
 | `condition` | npm | `predicate.inD(values = [0.0; 0.1; 0.25; 0.5; 1.0])` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&gt;</code> |
 | `unique` | b | `true` | <code>boolean</code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.VectorialFieldSEPAF">VectorialFieldSEPAF</abbr>&lt;E, R, X, F&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.SinglePlots.field()` by jgea-experimenter:2.7.1-SNAPSHOT
-
-### Builder `ea.plot.single.grid()`
-
-`ea.plot.s.grid(title; values; grids; predicateValue; condition; valueRange; unique)`
-
-| Param | Type | Default | Java type |
-| --- | --- | --- | --- |
-| `title` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
-| `values` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super G, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;&gt;</code> |
-| `grids` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super E, <abbr title="io.github.ericmedvet.jnb.datastructure.Grid">Grid</abbr>&lt;G&gt;&gt;&gt;</code> |
-| `predicateValue` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;E, X&gt;</code> |
-| `condition` | npm | `predicate.ltEq(t = 1)` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&gt;</code> |
-| `valueRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
-| `unique` | b | `true` | <code>boolean</code> |
-
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.UnivariateGridSEPAF">UnivariateGridSEPAF</abbr>&lt;E, R, X, G&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.SinglePlots.grid()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.VectorialFieldSEPAF">VectorialFieldSEPAF</abbr>&lt;E, K, X, F&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.SinglePlots.field()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.plot.single.gridRun()`
 
@@ -3175,7 +3087,7 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
-| `title` | npm | `ea.f.runString(name = title; s = "{run.solver.name} on {run.problem.name} (seed={run.randomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `title` | npm | `ea.f.runString(name = title; s = "{run.solver.name} on {run.problem.name} (seed={run.randomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super K, <abbr title="java.lang.String">String</abbr>&gt;</code> |
 | `values` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super G, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;&gt;</code> |
 | `grids` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super E, <abbr title="io.github.ericmedvet.jnb.datastructure.Grid">Grid</abbr>&lt;G&gt;&gt;&gt;</code> |
 | `predicateValue` | npm | `f.quantized(format = "%.2f"; of = ea.f.rate(of = ea.f.progress()); q = 0.05)` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;E, X&gt;</code> |
@@ -3183,7 +3095,7 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 | `valueRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
 | `unique` | b | `true` | <code>boolean</code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.UnivariateGridSEPAF">UnivariateGridSEPAF</abbr>&lt;E, R, X, G&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.SinglePlots.grid()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.UnivariateGridSEPAF">UnivariateGridSEPAF</abbr>&lt;E, K, X, G&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.SinglePlots.grid()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.plot.single.gridState()`
 
@@ -3191,7 +3103,7 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
-| `title` | npm | `ea.f.runString(name = title; s = "Grid population of {run.solver.name} on {run.problem.name} (seed={run.randomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `title` | npm | `ea.f.runString(name = title; s = "Grid population of {run.solver.name} on {run.problem.name} (seed={run.randomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super K, <abbr title="java.lang.String">String</abbr>&gt;</code> |
 | `values` | npm[] | `[f.composition(of = ea.f.quality(); then = f.identity())]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super G, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;&gt;</code> |
 | `grids` | npm[] | `[ea.f.stateGrid()]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super E, <abbr title="io.github.ericmedvet.jnb.datastructure.Grid">Grid</abbr>&lt;G&gt;&gt;&gt;</code> |
 | `predicateValue` | npm | `f.quantized(format = "%.2f"; of = ea.f.rate(of = ea.f.progress()); q = 0.05)` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;E, X&gt;</code> |
@@ -3200,7 +3112,7 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 | `unique` | b | `true` | <code>boolean</code> |
 | `q` | npm | `f.identity()` | <code><abbr title="java.lang.String">String</abbr></code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.UnivariateGridSEPAF">UnivariateGridSEPAF</abbr>&lt;E, R, X, G&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.SinglePlots.grid()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.UnivariateGridSEPAF">UnivariateGridSEPAF</abbr>&lt;E, K, X, G&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.SinglePlots.grid()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.plot.single.landscape()`
 
@@ -3220,7 +3132,7 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 | `valueRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
 | `unique` | b | `true` | <code>boolean</code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.LandscapeSEPAF">LandscapeSEPAF</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.POCPopulationState">POCPopulationState</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.Individual">Individual</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Double">Double</abbr>&gt;, S, Q&gt;, <abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Double">Double</abbr>&gt;, S, Q, P&gt;, <abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, <abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Double">Double</abbr>&gt;, S, Q&gt;, X, <abbr title="io.github.ericmedvet.jgea.core.solver.Individual">Individual</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Double">Double</abbr>&gt;, S, Q&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.SinglePlots.landscape()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.LandscapeSEPAF">LandscapeSEPAF</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.POCPopulationState">POCPopulationState</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.Individual">Individual</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Double">Double</abbr>&gt;, S, Q&gt;, <abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Double">Double</abbr>&gt;, S, Q, P&gt;, <abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, <abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Double">Double</abbr>&gt;, S, Q&gt;, X, <abbr title="io.github.ericmedvet.jgea.core.solver.Individual">Individual</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Double">Double</abbr>&gt;, S, Q&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.SinglePlots.landscape()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.plot.single.maMe2()`
 
@@ -3228,7 +3140,7 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
-| `title` | npm | `ea.f.runString(name = title; s = "Archives of {run.solver.name} on {run.problem.name} (seed={run.randomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `title` | npm | `ea.f.runString(name = title; s = "Archives of {run.solver.name} on {run.problem.name} (seed={run.randomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super K, <abbr title="java.lang.String">String</abbr>&gt;</code> |
 | `values` | npm[] | `[f.composition(of = ea.f.quality(); then = f.identity())]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super G, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;&gt;</code> |
 | `grids` | npm[] | `[ea.f.archiveToGrid(of = ea.f.maMeArchive(n = 0)), ea.f.archiveToGrid(of = ea.f.maMeArchive(n = 1))]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super E, <abbr title="io.github.ericmedvet.jnb.datastructure.Grid">Grid</abbr>&lt;G&gt;&gt;&gt;</code> |
 | `predicateValue` | npm | `f.quantized(format = "%.2f"; of = ea.f.rate(of = ea.f.progress()); q = 0.05)` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;E, X&gt;</code> |
@@ -3237,7 +3149,7 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 | `unique` | b | `true` | <code>boolean</code> |
 | `q` | npm | `f.identity()` | <code><abbr title="java.lang.String">String</abbr></code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.UnivariateGridSEPAF">UnivariateGridSEPAF</abbr>&lt;E, R, X, G&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.SinglePlots.grid()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.UnivariateGridSEPAF">UnivariateGridSEPAF</abbr>&lt;E, K, X, G&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.SinglePlots.grid()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.plot.single.me()`
 
@@ -3245,7 +3157,7 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
-| `title` | npm | `ea.f.runString(name = title; s = "Archive of {run.solver.name} on {run.problem.name} (seed={run.randomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `title` | npm | `ea.f.runString(name = title; s = "Archive of {run.solver.name} on {run.problem.name} (seed={run.randomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super K, <abbr title="java.lang.String">String</abbr>&gt;</code> |
 | `values` | npm[] | `[f.composition(of = ea.f.quality(); then = f.identity())]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super G, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;&gt;</code> |
 | `grids` | npm[] | `[ea.f.archiveToGrid(of = ea.f.meArchive())]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super E, <abbr title="io.github.ericmedvet.jnb.datastructure.Grid">Grid</abbr>&lt;G&gt;&gt;&gt;</code> |
 | `predicateValue` | npm | `f.quantized(format = "%.2f"; of = ea.f.rate(of = ea.f.progress()); q = 0.05)` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;E, X&gt;</code> |
@@ -3254,7 +3166,7 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 | `unique` | b | `true` | <code>boolean</code> |
 | `q` | npm | `f.identity()` | <code><abbr title="java.lang.String">String</abbr></code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.UnivariateGridSEPAF">UnivariateGridSEPAF</abbr>&lt;E, R, X, G&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.SinglePlots.grid()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.UnivariateGridSEPAF">UnivariateGridSEPAF</abbr>&lt;E, K, X, G&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.SinglePlots.grid()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.plot.single.populationValidation()`
 
@@ -3262,7 +3174,7 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
-| `title` | npm | `ea.f.runString(name = title; s = "Population validation of {run.solver.name} on {run.problem.name} (seed={run.randomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `title` | npm | `ea.f.runString(name = title; s = "Population validation of {run.solver.name} on {run.problem.name} (seed={run.randomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super K, <abbr title="java.lang.String">String</abbr>&gt;</code> |
 | `points` | npm[] | `[ea.f.all()]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super E, <abbr title="java.util.Collection">Collection</abbr>&lt;P&gt;&gt;&gt;</code> |
 | `x` | npm | `f.composition(of = ea.f.quality(); then = f.identity())` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super P, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
 | `y` | npm | `f.composition(of = f.composition(of = ea.f.solution(); then = null); then = f.identity())` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super P, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
@@ -3274,7 +3186,7 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 | `q` | npm | `f.identity()` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `v` | npm | `` | <code><abbr title="java.lang.String">String</abbr></code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.XYDataSeriesSEPAF">XYDataSeriesSEPAF</abbr>&lt;E, R, X, P&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.SinglePlots.xyes()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.XYDataSeriesSEPAF">XYDataSeriesSEPAF</abbr>&lt;E, K, X, P&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.SinglePlots.xyes()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.plot.single.quality()`
 
@@ -3282,14 +3194,14 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
-| `title` | npm | `ea.f.runString(name = title; s = "{run.solver.name} on {run.problem.name} (seed={run.randomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `title` | npm | `ea.f.runString(name = title; s = "{run.solver.name} on {run.problem.name} (seed={run.randomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super K, <abbr title="java.lang.String">String</abbr>&gt;</code> |
 | `x` | npm | `ea.f.nOfEvals()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super E, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
 | `ys` | npm[] | `[f.composition(of = ea.f.quality(of = ea.f.best()); then = f.identity())]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super E, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;&gt;</code> |
 | `xRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
 | `yRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
 | `q` | npm | `f.identity()` | <code><abbr title="java.lang.String">String</abbr></code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.XYDataSeriesSRPAF">XYDataSeriesSRPAF</abbr>&lt;E, R&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.SinglePlots.xyrs()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.XYDataSeriesSRPAF">XYDataSeriesSRPAF</abbr>&lt;E, K&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.SinglePlots.xyrs()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.plot.single.uniqueness()`
 
@@ -3297,45 +3209,13 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
-| `title` | npm | `ea.f.runString(name = title; s = "{run.solver.name} on {run.problem.name} (seed={run.randomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `title` | npm | `ea.f.runString(name = title; s = "{run.solver.name} on {run.problem.name} (seed={run.randomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super K, <abbr title="java.lang.String">String</abbr>&gt;</code> |
 | `x` | npm | `ea.f.nOfEvals()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super E, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
 | `ys` | npm[] | `[f.uniqueness(of = f.each(mapF = ea.f.genotype(); of = ea.f.all())), f.uniqueness(of = f.each(mapF = ea.f.solution(); of = ea.f.all())), f.uniqueness(of = f.each(mapF = ea.f.quality(); of = ea.f.all()))]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super E, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;&gt;</code> |
 | `xRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
 | `yRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.XYDataSeriesSRPAF">XYDataSeriesSRPAF</abbr>&lt;E, R&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.SinglePlots.xyrs()` by jgea-experimenter:2.7.1-SNAPSHOT
-
-### Builder `ea.plot.single.xyes()`
-
-`ea.plot.s.xyes(title; points; x; y; predicateValue; unique; condition; xRange; yRange)`
-
-| Param | Type | Default | Java type |
-| --- | --- | --- | --- |
-| `title` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
-| `points` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super E, <abbr title="java.util.Collection">Collection</abbr>&lt;P&gt;&gt;&gt;</code> |
-| `x` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super P, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
-| `y` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super P, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
-| `predicateValue` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;E, X&gt;</code> |
-| `unique` | b | `true` | <code>boolean</code> |
-| `condition` | npm | `predicate.ltEq(t = 1)` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&gt;</code> |
-| `xRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
-| `yRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
-
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.XYDataSeriesSEPAF">XYDataSeriesSEPAF</abbr>&lt;E, R, X, P&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.SinglePlots.xyes()` by jgea-experimenter:2.7.1-SNAPSHOT
-
-### Builder `ea.plot.single.xyrs()`
-
-`ea.plot.s.xyrs(title; x; ys; xRange; yRange)`
-
-| Param | Type | Default | Java type |
-| --- | --- | --- | --- |
-| `title` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
-| `x` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super E, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
-| `ys` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super E, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;&gt;</code> |
-| `xRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
-| `yRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
-
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.XYDataSeriesSRPAF">XYDataSeriesSRPAF</abbr>&lt;E, R&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.SinglePlots.xyrs()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.XYDataSeriesSRPAF">XYDataSeriesSRPAF</abbr>&lt;E, K&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.SinglePlots.xyrs()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ### Builder `ea.plot.single.xyrsRun()`
 
@@ -3343,13 +3223,13 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
-| `title` | npm | `ea.f.runString(name = title; s = "{run.solver.name} on {run.problem.name} (seed={run.randomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `title` | npm | `ea.f.runString(name = title; s = "{run.solver.name} on {run.problem.name} (seed={run.randomGenerator.seed})")` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super K, <abbr title="java.lang.String">String</abbr>&gt;</code> |
 | `x` | npm | `ea.f.nOfEvals()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super E, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
 | `ys` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super E, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;&gt;</code> |
 | `xRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
 | `yRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.listener.plot.XYDataSeriesSRPAF">XYDataSeriesSRPAF</abbr>&lt;E, R&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.SinglePlots.xyrs()` by jgea-experimenter:2.7.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.XYDataSeriesSRPAF">XYDataSeriesSRPAF</abbr>&lt;E, K&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.SinglePlots.xyrs()` by jgea-experimenter:2.7.1-SNAPSHOT
 
 ## Package `ea.predicate`
 
@@ -5946,4 +5826,132 @@ Produces <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&
 | `condition` | npm |  | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&gt;</code> |
 
 Produces <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Predicates.not()` by jgea-experimenter:2.7.1-SNAPSHOT
+
+## Package `viz.plot.multi`
+
+Aliases: `viz.plot.m`, `viz.plot.multi`
+
+### Builder `viz.plot.multi.scatter()`
+
+`viz.plot.m.scatter(xSubplot; ySubplot; group; x; y; predicateValue; condition; xRange; yRange; limitOneYForK)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `xSubplot` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super K, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `ySubplot` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super K, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `group` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super K, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `x` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super E, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
+| `y` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super E, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
+| `predicateValue` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;E, X&gt;</code> |
+| `condition` | npm | `predicate.gtEq(t = 1)` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&gt;</code> |
+| `xRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
+| `yRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
+| `limitOneYForK` | b | `true` | <code>boolean</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.ScatterMRPAF">ScatterMRPAF</abbr>&lt;E, K, <abbr title="java.lang.String">String</abbr>, X&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.MultiPlots.scatter()` by jgea-experimenter:2.7.1-SNAPSHOT
+
+### Builder `viz.plot.multi.xy()`
+
+`viz.plot.m.xy(xSubplot; ySubplot; line; x; y; valueAggregator; minAggregator; maxAggregator; xRange; yRange; limitOneYForK; useKForX)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `xSubplot` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `ySubplot` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `line` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `x` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;?, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
+| `y` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super E, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
+| `valueAggregator` | npm | `f.median()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Number">Number</abbr>&gt;, <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
+| `minAggregator` | npm | `f.percentile(p = 25)` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Number">Number</abbr>&gt;, <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
+| `maxAggregator` | npm | `f.percentile(p = 75)` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Number">Number</abbr>&gt;, <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
+| `xRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
+| `yRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
+| `limitOneYForK` | b | `true` | <code>boolean</code> |
+| `useKForX` | b | `false` | <code>boolean</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.AggregatedXYDataSeriesMKPAF">AggregatedXYDataSeriesMKPAF</abbr>&lt;E, R, <abbr title="java.lang.String">String</abbr>&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.MultiPlots.xy()` by jgea-experimenter:2.7.1-SNAPSHOT
+
+### Builder `viz.plot.multi.yBoxplot()`
+
+`viz.plot.m.yBoxplot(xSubplot; ySubplot; box; y; predicateValue; condition; yRange; limitOneYForK)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `xSubplot` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `ySubplot` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `box` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super R, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `y` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super E, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
+| `predicateValue` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;E, X&gt;</code> |
+| `condition` | npm | `predicate.gtEq(t = 1)` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&gt;</code> |
+| `yRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
+| `limitOneYForK` | b | `true` | <code>boolean</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.DistributionMRPAF">DistributionMRPAF</abbr>&lt;E, R, <abbr title="java.lang.String">String</abbr>, X&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.MultiPlots.yBoxplot()` by jgea-experimenter:2.7.1-SNAPSHOT
+
+## Package `viz.plot.single`
+
+Aliases: `viz.plot.s`, `viz.plot.single`
+
+### Builder `viz.plot.single.field()`
+
+`viz.plot.s.field(title; fields; pointPairs; predicateValue; condition; unique)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `title` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super K, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `fields` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super E, F&gt;&gt;</code> |
+| `pointPairs` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super F, ? extends <abbr title="java.util.Map">Map</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Double">Double</abbr>&gt;, <abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Double">Double</abbr>&gt;&gt;&gt;&gt;</code> |
+| `predicateValue` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;E, X&gt;</code> |
+| `condition` | npm | `predicate.ltEq(t = 1)` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&gt;</code> |
+| `unique` | b | `true` | <code>boolean</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.VectorialFieldSEPAF">VectorialFieldSEPAF</abbr>&lt;E, K, X, F&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.SinglePlots.field()` by jgea-experimenter:2.7.1-SNAPSHOT
+
+### Builder `viz.plot.single.grid()`
+
+`viz.plot.s.grid(title; values; grids; predicateValue; condition; valueRange; unique)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `title` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super K, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `values` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super G, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;&gt;</code> |
+| `grids` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super E, <abbr title="io.github.ericmedvet.jnb.datastructure.Grid">Grid</abbr>&lt;G&gt;&gt;&gt;</code> |
+| `predicateValue` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;E, X&gt;</code> |
+| `condition` | npm | `predicate.ltEq(t = 1)` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&gt;</code> |
+| `valueRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
+| `unique` | b | `true` | <code>boolean</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.UnivariateGridSEPAF">UnivariateGridSEPAF</abbr>&lt;E, K, X, G&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.SinglePlots.grid()` by jgea-experimenter:2.7.1-SNAPSHOT
+
+### Builder `viz.plot.single.xyes()`
+
+`viz.plot.s.xyes(title; points; x; y; predicateValue; unique; condition; xRange; yRange)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `title` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super K, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `points` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super E, <abbr title="java.util.Collection">Collection</abbr>&lt;P&gt;&gt;&gt;</code> |
+| `x` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super P, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
+| `y` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super P, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
+| `predicateValue` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;E, X&gt;</code> |
+| `unique` | b | `true` | <code>boolean</code> |
+| `condition` | npm | `predicate.ltEq(t = 1)` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&gt;</code> |
+| `xRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
+| `yRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.XYDataSeriesSEPAF">XYDataSeriesSEPAF</abbr>&lt;E, K, X, P&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.SinglePlots.xyes()` by jgea-experimenter:2.7.1-SNAPSHOT
+
+### Builder `viz.plot.single.xyrs()`
+
+`viz.plot.s.xyrs(title; x; ys; xRange; yRange)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `title` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super K, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `x` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super E, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;</code> |
+| `ys` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;? super E, ? extends <abbr title="java.lang.Number">Number</abbr>&gt;&gt;</code> |
+| `xRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
+| `yRange` | npm | `m.range(max = Infinity; min = -Infinity)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.plot.accumulator.XYDataSeriesSRPAF">XYDataSeriesSRPAF</abbr>&lt;E, K&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.SinglePlots.xyrs()` by jgea-experimenter:2.7.1-SNAPSHOT
 

@@ -40,7 +40,7 @@
     </dependency>
     <dependency>
       <groupId>io.github.ericmedvet</groupId>
-      <artifactId>jviz.core</artifactId>
+      <artifactId>jviz.buildable</artifactId>
       <version>${jviz.version}</version>
     </dependency>
   </dependencies>
