@@ -19,9 +19,9 @@
  */
 package io.github.ericmedvet.jgea.experimenter.listener.plot;
 
-import io.github.ericmedvet.jgea.core.util.Sized;
 import io.github.ericmedvet.jnb.datastructure.Accumulator;
 import io.github.ericmedvet.jnb.datastructure.HashMapTable;
+import io.github.ericmedvet.jnb.datastructure.Sized;
 import io.github.ericmedvet.jnb.datastructure.Table;
 import io.github.ericmedvet.jviz.core.plot.XYPlot;
 import java.util.function.Function;

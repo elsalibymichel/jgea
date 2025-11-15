@@ -63,32 +63,32 @@ public class GraphUtils {
     for (Graph.Arc<N1> fromArc : fromGraph.arcs()) {
       N1 fromSourceNode = fromGraph.nodes()
           .stream()
-          .filter(n -> n.equals(fromArc.getSource()))
+          .filter(n -> n.equals(fromArc.source()))
           .findFirst()
           .orElse(null);
       N1 fromTargetNode = fromGraph.nodes()
           .stream()
-          .filter(n -> n.equals(fromArc.getTarget()))
+          .filter(n -> n.equals(fromArc.target()))
           .findFirst()
           .orElse(null);
       if (fromSourceNode == null || fromTargetNode == null) {
         throw new IllegalStateException("Cannot find source or target nodes");
       }
-      Graph.Arc<N2> toArc = Graph.Arc.of(nodeF.apply(fromSourceNode), nodeF.apply(fromTargetNode));
-      if (!toGraph.nodes().contains(toArc.getSource()) || !toGraph.nodes().contains(toArc.getTarget())) {
+      Graph.Arc<N2> toArc = new Graph.Arc<>(nodeF.apply(fromSourceNode), nodeF.apply(fromTargetNode));
+      if (!toGraph.nodes().contains(toArc.source()) || !toGraph.nodes().contains(toArc.target())) {
         // TODO fix this
         System.out.println(fromArc);
         System.out.println(toArc);
         System.out.println(
             fromGraph.nodes()
                 .stream()
-                .filter(n -> n.equals(fromArc.getSource()))
+                .filter(n -> n.equals(fromArc.source()))
                 .toList()
         );
         System.out.println(
             fromGraph.nodes()
                 .stream()
-                .filter(n -> n.equals(fromArc.getTarget()))
+                .filter(n -> n.equals(fromArc.target()))
                 .toList()
         );
       }

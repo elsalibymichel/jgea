@@ -20,69 +20,13 @@
 
 package io.github.ericmedvet.jgea.core.representation.graph;
 
-import io.github.ericmedvet.jgea.core.util.Sized;
+import io.github.ericmedvet.jnb.datastructure.Sized;
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public interface Graph<N, A> extends Sized {
-  class Arc<N> implements Serializable {
-    private final N source;
-    private final N target;
-
-    private Arc(N source, N target) {
-      this.source = source;
-      this.target = target;
-    }
-
-    public static <K> Arc<K> of(K source, K target) {
-      return new Arc<>(source, target);
-    }
-
-    public N getSource() {
-      return source;
-    }
-
-    public N getTarget() {
-      return target;
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(source, target);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o)
-        return true;
-      if (o == null || getClass() != o.getClass())
-        return false;
-      Arc<?> arc = (Arc<?>) o;
-      return source.equals(arc.source) && target.equals(arc.target);
-    }
-
-    @Override
-    public String toString() {
-      return source.toString() + "->" + target.toString();
-    }
-  }
-
-  void addNode(N node);
-
-  Set<Arc<N>> arcs();
-
-  A getArcValue(Arc<N> arc);
-
-  Set<N> nodes();
-
-  boolean removeArc(Arc<N> arc);
-
-  boolean removeNode(N node);
-
-  void setArcValue(Arc<N> arc, A value);
 
   private static <M> void recursivelyVisit(Graph<M, ?> graph, M node, Set<M> visited) {
     if (visited.contains(node)) {
@@ -96,8 +40,14 @@ public interface Graph<N, A> extends Sized {
     });
   }
 
+  void addNode(N node);
+
+  Set<Arc<N>> arcs();
+
+  A getArcValue(Arc<N> arc);
+
   default A getArcValue(N source, N target) {
-    return getArcValue(Arc.of(source, target));
+    return getArcValue(new Arc<>(source, target));
   }
 
   default boolean hasArc(Arc<N> arc) {
@@ -105,7 +55,7 @@ public interface Graph<N, A> extends Sized {
   }
 
   default boolean hasArc(N source, N target) {
-    return hasArc(Arc.of(source, target));
+    return hasArc(new Arc<>(source, target));
   }
 
   default boolean hasCycles() {
@@ -126,19 +76,27 @@ public interface Graph<N, A> extends Sized {
     }
   }
 
+  Set<N> nodes();
+
   default Set<N> predecessors(N node) {
     return arcs().stream()
-        .filter(a -> a.getTarget().equals(node))
-        .map(Arc::getSource)
+        .filter(a -> a.target().equals(node))
+        .map(Arc::source)
         .collect(Collectors.toSet());
   }
 
+  boolean removeArc(Arc<N> arc);
+
   default boolean removeArc(N source, N target) {
-    return removeArc(Arc.of(source, target));
+    return removeArc(new Arc<>(source, target));
   }
 
+  boolean removeNode(N node);
+
+  void setArcValue(Arc<N> arc, A value);
+
   default void setArcValue(N source, N target, A value) {
-    setArcValue(Arc.of(source, target), value);
+    setArcValue(new Arc<>(source, target), value);
   }
 
   @Override
@@ -148,8 +106,16 @@ public interface Graph<N, A> extends Sized {
 
   default Set<N> successors(N node) {
     return arcs().stream()
-        .filter(a -> a.getSource().equals(node))
-        .map(Arc::getTarget)
+        .filter(a -> a.source().equals(node))
+        .map(Arc::target)
         .collect(Collectors.toSet());
+  }
+
+  record Arc<N>(N source, N target) implements Serializable {
+
+    @Override
+    public String toString() {
+      return source.toString() + "->" + target.toString();
+    }
   }
 }

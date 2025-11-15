@@ -21,8 +21,8 @@
 package io.github.ericmedvet.jgea.problem.regression;
 
 import io.github.ericmedvet.jgea.core.problem.ExampleBasedProblem;
-import io.github.ericmedvet.jgea.core.util.Sized;
 import io.github.ericmedvet.jgea.problem.regression.univariate.UnivariateRegressionProblem;
+import io.github.ericmedvet.jnb.datastructure.Sized;
 import io.github.ericmedvet.jsdynsym.core.composed.AbstractComposed;
 import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedUnivariateRealFunction;
 import java.util.*;
@@ -107,11 +107,10 @@ public class MathUtils {
         UnivariateRegressionProblem urProblem
     ) {
       super(innerF, urProblem);
-      if (innerF instanceof Sized) {
-        size = ((Sized) innerF).size();
-      } else {
-        size = 0;
-      }
+      size = switch (innerF) {
+        case Sized sized -> sized.size();
+        default -> 0;
+      };
     }
 
     @Override

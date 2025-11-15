@@ -22,7 +22,7 @@ package io.github.ericmedvet.jgea.problem.extraction.string;
 
 import io.github.ericmedvet.jgea.core.representation.graph.finiteautomata.Extractor;
 import io.github.ericmedvet.jgea.core.util.IntRange;
-import io.github.ericmedvet.jgea.core.util.Sized;
+import io.github.ericmedvet.jnb.datastructure.Sized;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;

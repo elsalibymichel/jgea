@@ -24,7 +24,7 @@ import io.github.ericmedvet.jgea.core.representation.programsynthesis.type.Gener
 import io.github.ericmedvet.jgea.core.representation.programsynthesis.type.Type;
 import io.github.ericmedvet.jgea.core.representation.programsynthesis.type.TypeException;
 import io.github.ericmedvet.jgea.core.util.Misc;
-import io.github.ericmedvet.jgea.core.util.Sized;
+import io.github.ericmedvet.jnb.datastructure.Sized;
 import java.util.*;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;

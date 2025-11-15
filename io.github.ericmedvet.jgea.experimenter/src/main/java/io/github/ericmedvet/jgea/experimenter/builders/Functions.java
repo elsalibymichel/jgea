@@ -44,6 +44,7 @@ import io.github.ericmedvet.jnb.core.Param;
 import io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction;
 import io.github.ericmedvet.jnb.datastructure.Grid;
 import io.github.ericmedvet.jnb.datastructure.NamedFunction;
+import io.github.ericmedvet.jnb.datastructure.Sized;
 import io.github.ericmedvet.jviz.core.drawer.Drawer;
 import io.github.ericmedvet.jviz.core.drawer.Video;
 import io.github.ericmedvet.jviz.core.drawer.VideoBuilder;
@@ -831,20 +832,11 @@ public class Functions {
       @Param(value = "of", dNPM = "f.identity()") Function<X, Object> beforeF,
       @Param(value = "format", dS = "%d") String format
   ) {
-    Function<Object, Integer> f = o -> {
-      if (o instanceof Sized s) {
-        return s.size();
-      }
-      if (o instanceof Collection<?> c) {
-        if (Misc.first(c) instanceof Sized s) {
-          return c.stream().mapToInt(i -> s.size()).sum();
-        }
-        return c.size();
-      }
-      if (o instanceof String s) {
-        return s.length();
-      }
-      throw new IllegalArgumentException(
+    Function<Object, Integer> f = o -> switch (o) {
+      case Sized sized -> sized.size();
+      case String string -> string.length();
+      case Collection<?> collection -> collection.size();
+      default -> throw new IllegalArgumentException(
           "Cannot compute size of %s".formatted(o.getClass().getSimpleName())
       );
     };

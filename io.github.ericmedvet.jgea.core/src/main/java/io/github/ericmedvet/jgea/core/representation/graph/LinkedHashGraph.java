@@ -67,18 +67,18 @@ public class LinkedHashGraph<N, A> implements Graph<N, A>, Serializable {
   @Override
   public boolean removeNode(N node) {
     boolean removed = nodes.remove(node);
-    arcs.keySet().removeIf(a -> a.getSource().equals(node) || a.getTarget().equals(node));
+    arcs.keySet().removeIf(a -> a.source().equals(node) || a.target().equals(node));
     return removed;
   }
 
   @Override
   public void setArcValue(Arc<N> arc, A value) {
-    if (!nodes.contains(arc.getSource()) || !nodes.contains(arc.getTarget())) {
+    if (!nodes.contains(arc.source()) || !nodes.contains(arc.target())) {
       throw new IllegalArgumentException(
           String.format(
               "Cannot set arc value between %s and %s because at least one endpoint node is not present",
-              arc.getSource(),
-              arc.getTarget()
+              arc.source(),
+              arc.target()
           )
       );
     }

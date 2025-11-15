@@ -89,13 +89,13 @@ public class IndexedNodeAddition<M extends N, N, A> implements Mutation<Graph<In
       int nSiblings = (int) child.nodes()
           .stream()
           .filter(
-              n -> child.predecessors(n).contains(arc.getSource()) && child.successors(n)
-                  .contains(arc.getTarget()) && (newNode.getClass().isAssignableFrom(n.getClass())) && nodeTyper
+              n -> child.predecessors(n).contains(arc.source()) && child.successors(n)
+                  .contains(arc.target()) && (newNode.getClass().isAssignableFrom(n.getClass())) && nodeTyper
                       .applyAsInt(n.content()) == newNodeType
           )
           .count();
       // compute index
-      IndexKey key = new IndexKey(arc.getSource().index(), arc.getTarget().index(), newNodeType, nSiblings);
+      IndexKey key = new IndexKey(arc.source().index(), arc.target().index(), newNodeType, nSiblings);
       Integer index = counterMap.get(key);
       if (index == null) {
         index = counter;
@@ -106,8 +106,8 @@ public class IndexedNodeAddition<M extends N, N, A> implements Mutation<Graph<In
       IndexedNode<N> indexedNode = new IndexedNode<>(index, newNode);
       child.addNode(indexedNode);
       // connect edges
-      child.setArcValue(arc.getSource(), indexedNode, newArcValueTo);
-      child.setArcValue(indexedNode, arc.getTarget(), newArcValueFrom);
+      child.setArcValue(arc.source(), indexedNode, newArcValueTo);
+      child.setArcValue(indexedNode, arc.target(), newArcValueFrom);
     }
     return child;
   }

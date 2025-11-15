@@ -19,7 +19,7 @@
  */
 package io.github.ericmedvet.jgea.core.representation.tree;
 
-import io.github.ericmedvet.jgea.core.util.Sized;
+import io.github.ericmedvet.jnb.datastructure.Sized;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.*;

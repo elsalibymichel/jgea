@@ -20,7 +20,7 @@
 
 package io.github.ericmedvet.jgea.core.order;
 
-import io.github.ericmedvet.jgea.core.util.Sized;
+import io.github.ericmedvet.jnb.datastructure.Sized;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;

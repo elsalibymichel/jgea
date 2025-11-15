@@ -21,8 +21,8 @@
 package io.github.ericmedvet.jgea.core.representation.tree.numeric;
 
 import io.github.ericmedvet.jgea.core.representation.tree.Tree;
-import io.github.ericmedvet.jgea.core.util.Sized;
 import io.github.ericmedvet.jnb.datastructure.Parametrized;
+import io.github.ericmedvet.jnb.datastructure.Sized;
 import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedMultivariateRealFunction;
 import java.util.Collections;
 import java.util.List;

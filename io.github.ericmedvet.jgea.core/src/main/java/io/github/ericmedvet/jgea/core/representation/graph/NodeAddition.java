@@ -73,8 +73,8 @@ public class NodeAddition<N, A> implements Mutation<Graph<N, A>> {
       // add node
       child.addNode(newNode);
       // connect edges
-      child.setArcValue(arc.getSource(), newNode, newArcValueTo);
-      child.setArcValue(newNode, arc.getTarget(), newArcValueFrom);
+      child.setArcValue(arc.source(), newNode, newArcValueTo);
+      child.setArcValue(newNode, arc.target(), newArcValueFrom);
     }
     return child;
   }

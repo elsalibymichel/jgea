@@ -26,8 +26,8 @@ import io.github.ericmedvet.jgea.core.representation.graph.Node;
 import io.github.ericmedvet.jgea.core.representation.graph.numeric.Constant;
 import io.github.ericmedvet.jgea.core.representation.graph.numeric.Input;
 import io.github.ericmedvet.jgea.core.representation.graph.numeric.Output;
-import io.github.ericmedvet.jgea.core.util.Sized;
 import io.github.ericmedvet.jnb.datastructure.Parametrized;
+import io.github.ericmedvet.jnb.datastructure.Sized;
 import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedMultivariateRealFunction;
 import java.io.Serializable;
 import java.util.List;
@@ -169,7 +169,7 @@ public class FunctionGraph implements NamedMultivariateRealFunction, Sized, Seri
   public String toString() {
     return graph.arcs()
         .stream()
-        .map(e -> String.format("%s-[%.3f]->%s", e.getSource(), graph.getArcValue(e), e.getTarget()))
+        .map(e -> String.format("%s-[%.3f]->%s", e.source(), graph.getArcValue(e), e.target()))
         .collect(Collectors.joining(","));
   }
 

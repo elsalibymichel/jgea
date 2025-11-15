@@ -61,8 +61,7 @@ public class Listeners {
   private Listeners() {
   }
 
-  public static class ListenerFactoryAndMonitor<E, K> implements ListenerFactory<E, K>,
-      ProgressMonitor {
+  public static class ListenerFactoryAndMonitor<E, K> implements ListenerFactory<E, K>, ProgressMonitor {
 
     private final ListenerFactory<E, K> innerListenerFactory;
 

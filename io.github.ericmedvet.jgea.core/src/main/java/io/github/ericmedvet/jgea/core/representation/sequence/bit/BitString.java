@@ -22,7 +22,7 @@ package io.github.ericmedvet.jgea.core.representation.sequence.bit;
 
 import io.github.ericmedvet.jgea.core.util.IntRange;
 import io.github.ericmedvet.jgea.core.util.Misc;
-import io.github.ericmedvet.jgea.core.util.Sized;
+import io.github.ericmedvet.jnb.datastructure.Sized;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;

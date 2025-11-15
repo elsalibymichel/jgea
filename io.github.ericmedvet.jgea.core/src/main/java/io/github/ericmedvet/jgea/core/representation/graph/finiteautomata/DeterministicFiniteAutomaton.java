@@ -25,7 +25,7 @@ import io.github.ericmedvet.jgea.core.representation.graph.Graph;
 import io.github.ericmedvet.jgea.core.representation.graph.Node;
 import io.github.ericmedvet.jgea.core.util.IntRange;
 import io.github.ericmedvet.jgea.core.util.Misc;
-import io.github.ericmedvet.jgea.core.util.Sized;
+import io.github.ericmedvet.jnb.datastructure.Sized;
 import java.io.Serializable;
 import java.util.*;
 import java.util.function.Function;
@@ -82,7 +82,7 @@ public class DeterministicFiniteAutomaton<S> implements Extractor<S>, Sized, Ser
     for (State state : graph.nodes()) {
       Set<Set<K>> outgoingArcValues = graph.arcs()
           .stream()
-          .filter(a -> a.getSource().equals(state))
+          .filter(a -> a.source().equals(state))
           .map(graph::getArcValue)
           .collect(Collectors.toSet());
       if (outgoingArcValues.size() > 1) {
@@ -178,13 +178,13 @@ public class DeterministicFiniteAutomaton<S> implements Extractor<S>, Sized, Ser
         .map(
             a -> String.format(
                 "%s-[%s]->%s",
-                a.getSource(),
+                a.source(),
                 graph.getArcValue(a)
                     .stream()
                     .sorted()
                     .map(Objects::toString)
                     .collect(Collectors.joining()),
-                a.getTarget()
+                a.target()
             )
         )
         .collect(Collectors.joining(","));
