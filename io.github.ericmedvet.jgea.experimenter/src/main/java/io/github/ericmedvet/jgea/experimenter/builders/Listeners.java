@@ -23,7 +23,6 @@ package io.github.ericmedvet.jgea.experimenter.builders;
 import io.github.ericmedvet.jgea.core.listener.*;
 import io.github.ericmedvet.jgea.core.solver.Individual;
 import io.github.ericmedvet.jgea.core.solver.POCPopulationState;
-import io.github.ericmedvet.jgea.core.util.Misc;
 import io.github.ericmedvet.jgea.core.util.Progress;
 import io.github.ericmedvet.jgea.experimenter.Experiment;
 import io.github.ericmedvet.jgea.experimenter.Run;
@@ -40,6 +39,7 @@ import io.github.ericmedvet.jnb.datastructure.Listener;
 import io.github.ericmedvet.jnb.datastructure.ListenerFactory;
 import io.github.ericmedvet.jnb.datastructure.NamedFunction;
 import io.github.ericmedvet.jnb.datastructure.Naming;
+import io.github.ericmedvet.jnb.datastructure.TabularPrinter;
 import io.github.ericmedvet.jnb.datastructure.TriConsumer;
 import java.io.File;
 import java.util.ArrayList;
@@ -293,7 +293,7 @@ public class Listeners {
     );
     return (experiment, executor) -> new ListenerFactoryAndMonitor<>(
         new SinkListenerFactory<>(
-            Misc.concat(List.of(defaultStateFunctions, stateFunctions)),
+            io.github.ericmedvet.jnb.datastructure.Utils.concat(List.of(defaultStateFunctions, stateFunctions)),
             Stream.concat(defaultRunFunctions.stream(), runFunctions.stream())
                 .map(f -> reformatToFit(f, experiment.runs()))
                 .toList(),
@@ -481,7 +481,7 @@ public class Listeners {
         .run();
     return (experiment, executor) -> new ListenerFactoryAndMonitor<>(
         new SinkListenerFactory<>(
-            Misc.concat(List.of(defaultStateFunctions, stateFunctions)),
+            io.github.ericmedvet.jnb.datastructure.Utils.concat(List.of(defaultStateFunctions, stateFunctions)),
             Stream.concat(defaultRunFunctions.stream(), runFunctions.stream())
                 .map(f -> reformatToFit(f, experiment.runs()))
                 .toList(),

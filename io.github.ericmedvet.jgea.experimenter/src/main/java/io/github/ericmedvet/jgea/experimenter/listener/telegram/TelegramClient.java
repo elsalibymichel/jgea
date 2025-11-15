@@ -26,7 +26,6 @@ import com.pengrad.telegrambot.request.*;
 import com.pengrad.telegrambot.response.GetChatMemberCountResponse;
 import com.pengrad.telegrambot.response.GetChatResponse;
 import com.pengrad.telegrambot.response.SendResponse;
-import io.github.ericmedvet.jgea.core.util.StringUtils;
 import io.github.ericmedvet.jgea.experimenter.Utils;
 import io.github.ericmedvet.jnb.core.MapNamedParamMap;
 import io.github.ericmedvet.jnb.core.NamedParamMap;
@@ -72,26 +71,44 @@ public class TelegramClient {
       switch (o) {
         case BufferedImage image -> {
           if (!title.isEmpty()) {
-            sendMarkdownText("Image from: %s\n`%s`".formatted(StringUtils.getUserMachineName(), title));
+            sendMarkdownText(
+                "Image from: %s\n`%s`".formatted(
+                    io.github.ericmedvet.jnb.datastructure.Utils.getUserMachineName(),
+                    title
+                )
+            );
           }
           sendImage(image);
         }
         case String s -> {
           if (!title.isEmpty()) {
-            sendMarkdownText("Text from: %s\n`%s`".formatted(StringUtils.getUserMachineName(), title));
+            sendMarkdownText(
+                "Text from: %s\n`%s`".formatted(
+                    io.github.ericmedvet.jnb.datastructure.Utils.getUserMachineName(),
+                    title
+                )
+            );
           }
           sendText(s);
         }
         case Video video -> {
           if (!title.isEmpty()) {
-            sendMarkdownText("Video from: %s\n`%s`".formatted(StringUtils.getUserMachineName(), title));
+            sendMarkdownText(
+                "Video from: %s\n`%s`".formatted(
+                    io.github.ericmedvet.jnb.datastructure.Utils.getUserMachineName(),
+                    title
+                )
+            );
           }
           sendVideo(video);
         }
         case NamedParamMap npm -> {
           if (!title.isEmpty()) {
             sendMarkdownText(
-                "NamedParamMap from: %s\n`%s`".formatted(StringUtils.getUserMachineName(), title)
+                "NamedParamMap from: %s\n`%s`".formatted(
+                    io.github.ericmedvet.jnb.datastructure.Utils.getUserMachineName(),
+                    title
+                )
             );
           }
           sendText(MapNamedParamMap.prettyToString(npm));

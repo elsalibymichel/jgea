@@ -25,6 +25,7 @@ import io.github.ericmedvet.jnb.datastructure.Listener;
 import io.github.ericmedvet.jnb.datastructure.ListenerFactory;
 import io.github.ericmedvet.jnb.datastructure.NamedFunction;
 import io.github.ericmedvet.jnb.datastructure.Naming;
+import io.github.ericmedvet.jnb.datastructure.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -70,7 +71,7 @@ public class CSVPrinter<E, K> implements ListenerFactory<E, K> {
   @Override
   public Listener<E> build(K k) {
     List<?> kValues = kFunctions.stream().map(f -> f.apply(k)).toList();
-    List<String> headers = Misc.concat(List.of(kFunctions, eFunctions))
+    List<String> headers = Utils.concat(List.of(kFunctions, eFunctions))
         .stream()
         .map(f -> f.name())
         .toList();
@@ -128,7 +129,7 @@ public class CSVPrinter<E, K> implements ListenerFactory<E, K> {
               }
             }
             try {
-              printer.printRecord(Misc.concat(List.of(kValues, eValues)));
+              printer.printRecord(Utils.concat(List.of(kValues, eValues)));
             } catch (IOException ex) {
               L.warning(String.format("Cannot print values: %s", ex));
               return;

@@ -68,10 +68,6 @@ public class Misc {
     return cartesian(tss.subList(1, tss.size()), cartesian(tss.subList(0, 1), lists));
   }
 
-  public static <K> List<K> concat(List<List<? extends K>> lists) {
-    return lists.stream().flatMap(List::stream).collect(Collectors.toList());
-  }
-
   public static <T> T first(Collection<T> ts) {
     if (ts.isEmpty()) {
       return null;
