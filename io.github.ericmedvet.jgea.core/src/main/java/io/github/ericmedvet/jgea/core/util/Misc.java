@@ -72,19 +72,6 @@ public class Misc {
     return lists.stream().flatMap(List::stream).collect(Collectors.toList());
   }
 
-  public static void doOrLog(
-      Runnable runnable,
-      Logger logger,
-      Level level,
-      Function<Throwable, String> messageFunction
-  ) {
-    try {
-      runnable.run();
-    } catch (Throwable t) {
-      logger.log(level, messageFunction.apply(t));
-    }
-  }
-
   public static <T> T first(Collection<T> ts) {
     if (ts.isEmpty()) {
       return null;

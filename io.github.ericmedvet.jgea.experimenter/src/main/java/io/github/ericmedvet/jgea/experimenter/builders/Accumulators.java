@@ -20,10 +20,10 @@
 
 package io.github.ericmedvet.jgea.experimenter.builders;
 
-import io.github.ericmedvet.jgea.core.listener.AccumulatorFactory;
 import io.github.ericmedvet.jgea.core.solver.POCPopulationState;
 import io.github.ericmedvet.jgea.experimenter.Run;
 import io.github.ericmedvet.jnb.core.*;
+import io.github.ericmedvet.jnb.datastructure.AccumulatorFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;

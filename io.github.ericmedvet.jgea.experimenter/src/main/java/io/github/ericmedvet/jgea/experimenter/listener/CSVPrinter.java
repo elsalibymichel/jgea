@@ -20,11 +20,11 @@
 
 package io.github.ericmedvet.jgea.experimenter.listener;
 
-import io.github.ericmedvet.jgea.core.listener.Listener;
-import io.github.ericmedvet.jgea.core.listener.ListenerFactory;
 import io.github.ericmedvet.jgea.core.util.Misc;
-import io.github.ericmedvet.jgea.core.util.Naming;
+import io.github.ericmedvet.jnb.datastructure.Listener;
+import io.github.ericmedvet.jnb.datastructure.ListenerFactory;
 import io.github.ericmedvet.jnb.datastructure.NamedFunction;
+import io.github.ericmedvet.jnb.datastructure.Naming;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;

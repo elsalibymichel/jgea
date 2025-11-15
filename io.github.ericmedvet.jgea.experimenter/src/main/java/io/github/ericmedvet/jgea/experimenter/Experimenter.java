@@ -20,12 +20,12 @@
 
 package io.github.ericmedvet.jgea.experimenter;
 
-import io.github.ericmedvet.jgea.core.listener.ListenerFactory;
 import io.github.ericmedvet.jgea.core.listener.ProgressMonitor;
 import io.github.ericmedvet.jgea.core.solver.POCPopulationState;
 import io.github.ericmedvet.jgea.experimenter.listener.ScreenProgressMonitor;
 import io.github.ericmedvet.jnb.core.MapNamedParamMap;
 import io.github.ericmedvet.jnb.core.ProjectInfoProvider;
+import io.github.ericmedvet.jnb.datastructure.ListenerFactory;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;

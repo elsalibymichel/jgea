@@ -23,6 +23,8 @@ package io.github.ericmedvet.jgea.core.listener;
 import io.github.ericmedvet.jgea.core.util.Misc;
 import io.github.ericmedvet.jgea.core.util.StringUtils;
 import io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction;
+import io.github.ericmedvet.jnb.datastructure.Listener;
+import io.github.ericmedvet.jnb.datastructure.ListenerFactory;
 import io.github.ericmedvet.jnb.datastructure.NamedFunction;
 import io.github.ericmedvet.jnb.datastructure.Pair;
 import java.io.PrintStream;

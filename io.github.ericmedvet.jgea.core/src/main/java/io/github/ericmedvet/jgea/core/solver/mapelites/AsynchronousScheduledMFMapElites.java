@@ -20,7 +20,6 @@
 package io.github.ericmedvet.jgea.core.solver.mapelites;
 
 import io.github.ericmedvet.jgea.core.Factory;
-import io.github.ericmedvet.jgea.core.listener.Listener;
 import io.github.ericmedvet.jgea.core.operator.Mutation;
 import io.github.ericmedvet.jgea.core.order.PartialComparator;
 import io.github.ericmedvet.jgea.core.problem.MultifidelityQualityBasedProblem;
@@ -32,6 +31,7 @@ import io.github.ericmedvet.jgea.core.solver.mapelites.MapElites.Descriptor;
 import io.github.ericmedvet.jgea.core.solver.mapelites.MapElites.Descriptor.Coordinate;
 import io.github.ericmedvet.jgea.core.util.Misc;
 import io.github.ericmedvet.jnb.datastructure.DoubleRange;
+import io.github.ericmedvet.jnb.datastructure.Listener;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;

@@ -19,8 +19,8 @@
  */
 package io.github.ericmedvet.jgea.core.problem;
 
-import io.github.ericmedvet.jgea.core.util.Naming;
 import io.github.ericmedvet.jnb.datastructure.NamedFunction;
+import io.github.ericmedvet.jnb.datastructure.Naming;
 import io.github.ericmedvet.jnb.datastructure.TriFunction;
 import java.util.function.BiFunction;
 

@@ -20,10 +20,10 @@
 package io.github.ericmedvet.jgea.experimenter.builders;
 
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element;
-import io.github.ericmedvet.jgea.core.util.Naming;
 import io.github.ericmedvet.jnb.core.Cacheable;
 import io.github.ericmedvet.jnb.core.Discoverable;
 import io.github.ericmedvet.jnb.core.Param;
+import io.github.ericmedvet.jnb.datastructure.Naming;
 import java.util.function.Function;
 import java.util.function.Predicate;
 

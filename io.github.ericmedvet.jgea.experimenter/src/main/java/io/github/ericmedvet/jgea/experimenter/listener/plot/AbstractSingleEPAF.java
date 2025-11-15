@@ -19,7 +19,7 @@
  */
 package io.github.ericmedvet.jgea.experimenter.listener.plot;
 
-import io.github.ericmedvet.jgea.core.listener.Accumulator;
+import io.github.ericmedvet.jnb.datastructure.Accumulator;
 import io.github.ericmedvet.jnb.datastructure.FormattedFunction;
 import io.github.ericmedvet.jnb.datastructure.HashMapTable;
 import io.github.ericmedvet.jnb.datastructure.NamedFunction;

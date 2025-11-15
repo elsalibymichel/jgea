@@ -19,8 +19,8 @@
  */
 package io.github.ericmedvet.jgea.experimenter.listener;
 
-import io.github.ericmedvet.jgea.core.listener.Accumulator;
-import io.github.ericmedvet.jgea.core.listener.AccumulatorFactory;
+import io.github.ericmedvet.jnb.datastructure.Accumulator;
+import io.github.ericmedvet.jnb.datastructure.AccumulatorFactory;
 import io.github.ericmedvet.jnb.datastructure.HashMapTable;
 import io.github.ericmedvet.jnb.datastructure.NamedFunction;
 import io.github.ericmedvet.jnb.datastructure.Table;

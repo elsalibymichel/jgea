@@ -19,7 +19,7 @@
  */
 package io.github.ericmedvet.jgea.experimenter.listener.plot;
 
-import io.github.ericmedvet.jgea.core.listener.Accumulator;
+import io.github.ericmedvet.jnb.datastructure.Accumulator;
 import io.github.ericmedvet.jviz.core.plot.XYPlot;
 import java.util.ArrayList;
 import java.util.List;
