@@ -37,7 +37,7 @@ ea.experiment(
     ea.mapper.ndsToNrla(name = "linear"; of = ea.mapper.dsToNpnds(npnds = ds.num.linear(zeroQ = false)));
     ea.mapper.ndsToNrla(name = "mlp"; of = ea.mapper.dsToNpnds(npnds = ds.num.mlp(innerLayers = [8])))
   ])
-  * [ea.s.ga(name = ""ga+{mapper.name}"")
+  * [ea.s.ga(name = ''ga+{mapper.name}'')
   ])
   * (problem = [
     ea.p.functionsToScbmo(
