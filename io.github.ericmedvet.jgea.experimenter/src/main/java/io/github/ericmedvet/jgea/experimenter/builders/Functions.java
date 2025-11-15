@@ -36,6 +36,7 @@ import io.github.ericmedvet.jgea.core.solver.State;
 import io.github.ericmedvet.jgea.core.solver.cabea.GridPopulationState;
 import io.github.ericmedvet.jgea.core.solver.mapelites.*;
 import io.github.ericmedvet.jgea.core.util.*;
+import io.github.ericmedvet.jgea.experimenter.Experiment;
 import io.github.ericmedvet.jgea.experimenter.Run;
 import io.github.ericmedvet.jgea.experimenter.Utils;
 import io.github.ericmedvet.jnb.core.Cacheable;
@@ -828,6 +829,17 @@ public class Functions {
 
   @SuppressWarnings("unused")
   @Cacheable
+  public static <X> NamedFunction<X, List<Run<?, ?, ?, ?>>> runs(
+      @Param(value = "of", dNPM = "f.identity()") Function<X, Experiment> beforeF,
+      @Param(value = "name", dS = "runs") String name,
+      @Param(value = "format", dS = "%s") String format
+  ) {
+    Function<Experiment, List<Run<?, ?, ?, ?>>> f = Experiment::runs;
+    return NamedFunction.from(f, "runs").compose(beforeF);
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
   public static <X> FormattedNamedFunction<X, Integer> size(
       @Param(value = "of", dNPM = "f.identity()") Function<X, Object> beforeF,
       @Param(value = "format", dS = "%d") String format
@@ -948,29 +960,6 @@ public class Functions {
     return NamedFunction.from(f, "to.image[%s]".formatted(drawer)).compose(beforeF);
   }
 
-  public static <X, D> NamedFunction<X, Object> toMultiImage(
-      @Param(value = "of", dNPM = "f.identity()") Function<X, List<D>> beforeF,
-      @Param("drawer") Drawer<D> drawer,
-      @Param(value = "w", dI = -1) int w,
-      @Param(value = "h", dI = -1) int h,
-      @Param(value = "type", dS = "png") String type,
-      @Param(value = "arrangement", dS = "horizontal") Drawer.Arrangement arrangement
-  ) {
-    UnaryOperator<Drawer.ImageInfo> iiAdapter = ii -> new Drawer.ImageInfo(
-        w == -1 ? ii.w() : w,
-        h == -1 ? ii.h() : h
-    );
-    Drawer<List<D>> multiDrawer = drawer.multi(arrangement);
-    Function<List<D>, Object> f = ds -> switch (type.toLowerCase()) {
-      case "png" -> multiDrawer.buildRaster(iiAdapter.apply(multiDrawer.imageInfo(ds)), ds);
-      case "svg" -> multiDrawer.buildVectorial(iiAdapter.apply(multiDrawer.imageInfo(ds)), ds);
-      default -> throw new IllegalArgumentException(
-          "Invalid type '%s', which is not 'png' nor 'svg'".formatted(type)
-      );
-    };
-    return NamedFunction.from(f, "to.image[%s]".formatted(drawer)).compose(beforeF);
-  }
-
   @SuppressWarnings("unused")
   @Cacheable
   public static <X, D> NamedFunction<X, Video> toImagesVideo(
@@ -999,6 +988,29 @@ public class Functions {
     };
     return NamedFunction.from(f, "to.images.video[%s]".formatted(drawer))
         .compose(beforeF);
+  }
+
+  public static <X, D> NamedFunction<X, Object> toMultiImage(
+      @Param(value = "of", dNPM = "f.identity()") Function<X, List<D>> beforeF,
+      @Param("drawer") Drawer<D> drawer,
+      @Param(value = "w", dI = -1) int w,
+      @Param(value = "h", dI = -1) int h,
+      @Param(value = "type", dS = "png") String type,
+      @Param(value = "arrangement", dS = "horizontal") Drawer.Arrangement arrangement
+  ) {
+    UnaryOperator<Drawer.ImageInfo> iiAdapter = ii -> new Drawer.ImageInfo(
+        w == -1 ? ii.w() : w,
+        h == -1 ? ii.h() : h
+    );
+    Drawer<List<D>> multiDrawer = drawer.multi(arrangement);
+    Function<List<D>, Object> f = ds -> switch (type.toLowerCase()) {
+      case "png" -> multiDrawer.buildRaster(iiAdapter.apply(multiDrawer.imageInfo(ds)), ds);
+      case "svg" -> multiDrawer.buildVectorial(iiAdapter.apply(multiDrawer.imageInfo(ds)), ds);
+      default -> throw new IllegalArgumentException(
+          "Invalid type '%s', which is not 'png' nor 'svg'".formatted(type)
+      );
+    };
+    return NamedFunction.from(f, "to.image[%s]".formatted(drawer)).compose(beforeF);
   }
 
   @SuppressWarnings("unused")

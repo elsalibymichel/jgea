@@ -31,32 +31,124 @@ import io.github.ericmedvet.jgea.experimenter.listener.decoupled.*;
 import io.github.ericmedvet.jgea.experimenter.listener.net.NetMultiSink;
 import io.github.ericmedvet.jnb.core.*;
 import io.github.ericmedvet.jnb.core.ParamMap.Type;
-import io.github.ericmedvet.jnb.datastructure.AccumulatorFactory;
 import io.github.ericmedvet.jnb.datastructure.CSVPrinter;
 import io.github.ericmedvet.jnb.datastructure.FormattedFunction;
 import io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction;
 import io.github.ericmedvet.jnb.datastructure.Listener;
 import io.github.ericmedvet.jnb.datastructure.ListenerFactory;
 import io.github.ericmedvet.jnb.datastructure.NamedFunction;
-import io.github.ericmedvet.jnb.datastructure.Naming;
-import io.github.ericmedvet.jnb.datastructure.TabularPrinter;
-import io.github.ericmedvet.jnb.datastructure.TriConsumer;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 @Discoverable(prefixTemplate = "ea.listener|l")
+@Alias(
+    name = "saveForExp", passThroughParams = {@PassThroughParam(name = "path", type = ParamMap.Type.STRING, value = "{experiment.name}"), @PassThroughParam(name = "processor", type = ParamMap.Type.NAMED_PARAM_MAP), @PassThroughParam(name = "overwrite", type = ParamMap.Type.BOOLEAN, value = "false")
+    }, value = // spotless:off
+    """
+        listener.onDone(
+          preprocessor = $processor;
+          consumers = [ea.c.saver(path = $path; overwrite = $overwrite)]
+        )
+        """ // spotless:on
+)
+@Alias(
+    name = "savePlotForExp", passThroughParams = {@PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP), @PassThroughParam(name = "secondary", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "type", type = ParamMap.Type.STRING, value = "png"), @PassThroughParam(name = "configuration", type = Type.NAMED_PARAM_MAP, value = "ea.plot.configuration.image()")
+    }, value = // spotless:off
+    """
+        ea.listener.saveForExp(
+          of = $plot;
+          processor = ea.f.imagePlotter(secondary = $secondary; type = $type; configuration = $configuration)
+        )
+        """ // spotless:on
+)
+@Alias(
+    name = "ea.listener.savePlotAndCsvForExp", passThroughParams = {@PassThroughParam(name = "secondary", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "overwrite", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "path", type = ParamMap.Type.STRING, value = "{experiment.name}"), @PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP), @PassThroughParam(name = "type", type = ParamMap.Type.STRING, value = "png"), @PassThroughParam(name = "configuration", type = Type.NAMED_PARAM_MAP, value = "ea.plot.configuration.image()")
+    }, value = // spotless:off
+    """
+        listener.onDone(
+          of = $plot;
+          consumers = [
+            ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.imagePlotter(secondary = $secondary; type = $type; configuration = $configuration));
+            ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.csvPlotter(); suffix = ".tsv")
+          ]
+        )
+        """ // spotless:on
+)
+@Alias(
+    name = "saveForRun", passThroughParams = {@PassThroughParam(name = "path", type = ParamMap.Type.STRING, value = "run-{run.index:%04d}"), @PassThroughParam(name = "overwrite", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "processor", type = ParamMap.Type.NAMED_PARAM_MAP)
+    }, value = // spotless:off
+    """
+        listener.onKDone(
+          preprocessor = $processor;
+          consumers = [ea.c.saver(path = $path; overwrite = $overwrite)]
+        )
+        """ // spotless:on
+)
+@Alias(
+    name = "savePlotForRun", passThroughParams = {@PassThroughParam(name = "secondary", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP), @PassThroughParam(name = "type", type = ParamMap.Type.STRING, value = "png"), @PassThroughParam(name = "configuration", type = Type.NAMED_PARAM_MAP, value = "ea.plot.configuration.image()")
+    }, value = // spotless:off
+    """
+        ea.listener.saveForRun(
+          of = $plot;
+          processor = ea.f.imagePlotter(secondary = $secondary; type = $type; configuration = $configuration)
+        )
+        """ // spotless:on
+)
+@Alias(
+    name = "saveLastPopulationForRun", value = // spotless:off
+    """
+        ea.listener.saveForRun(
+          of = ea.acc.lastPopulationMap();
+          path = "run-{run.index:%04d}-last-pop";
+          processor = f.identity()
+        )
+        """) // spotless:on
+@Alias(
+    name = "savePlotAndCsvForRun", passThroughParams = {@PassThroughParam(name = "secondary", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "overwrite", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "path", type = ParamMap.Type.STRING, value = "{experiment.name}"), @PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP), @PassThroughParam(name = "type", type = ParamMap.Type.STRING, value = "png"), @PassThroughParam(name = "configuration", type = Type.NAMED_PARAM_MAP, value = "ea.plot.configuration.image()")
+    }, value = // spotless:off
+    """
+        listener.onKDone(
+          of = $plot;
+          consumers = [
+            ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.imagePlotter(secondary = $secondary; type = $type; configuration = $configuration));
+            ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.csvPlotter(); suffix = ".tsv")
+          ]
+        )
+        """ // spotless:on
+)
+@Alias(
+    name = "console", value = // spotless:off
+    """
+       listener.console(
+         defaultEFunctions = [
+           ea.f.nOfIterations();
+           ea.f.nOfEvals();
+           ea.f.nOfBirths();
+           ea.f.elapsedSecs();
+           f.size(of = ea.f.all());
+           f.size(of = ea.f.firsts());
+           f.size(of = ea.f.lasts());
+           f.uniqueness(of = f.each(mapF = ea.f.genotype(); of = ea.f.all()));
+           f.uniqueness(of = f.each(mapF = ea.f.solution(); of = ea.f.all()));
+           f.uniqueness(of = f.each(mapF = ea.f.quality(); of = ea.f.all()))
+         ];
+         defaultKFunctions = [
+           ea.f.runKey(key = "run.problem.name");
+           ea.f.runKey(key = "run.solver.name");
+           ea.f.runKey(key = "run.randomGenerator.seed")
+         ];
+         eToKsFunction = ea.f.runs()
+       )
+       """ // spotless:on
+)
 public class Listeners {
-
-  private static final Logger L = Logger.getLogger(Listeners.class.getName());
 
   private Listeners() {
   }
@@ -151,7 +243,6 @@ public class Listeners {
       ListenerFactory<PopIndividualPair<G, S, Q>, Run<?, G, S, Q>> innerListenerFactory = new CSVPrinter<>(
           pairFunctions,
           Stream.concat(defaultRunFunctions.stream(), runFunctions.stream())
-              .map(f -> reformatToFit(f, experiment.runs()))
               .toList(),
           Utils.interpolate(path, experiment, null),
           errorString,
@@ -222,45 +313,11 @@ public class Listeners {
                 .flatMap(List::stream)
                 .toList(),
             Stream.concat(defaultRunFunctions.stream(), runFunctions.stream())
-                .map(f -> reformatToFit(f, experiment.runs()))
                 .toList(),
             Utils.interpolate(path, experiment, null),
             errorString,
             intFormat,
             doubleFormat
-        ),
-        runPredicate,
-        statePredicate,
-        deferred ? executor : null,
-        onlyLast
-    );
-  }
-
-  @SuppressWarnings("unused")
-  public static <G, S, Q> BiFunction<Experiment, Executor, ListenerFactory<POCPopulationState<?, G, S, Q, ?>, Run<?, G, S, Q>>> console(
-      @Param(
-          value = "defaultFunctions", dNPMs = {"ea.f.nOfIterations()", "ea.f.nOfEvals()", "ea.f.nOfBirths()", "ea.f" + ".elapsedSecs()", "f.size(of=ea.f.all())", "f.size(of=ea.f.firsts())", "f.size(of=ea.f.lasts())", "f" + ".uniqueness(of=f.each(mapF=ea.f.genotype();of=ea.f.all()))", "f.uniqueness(of=f.each(mapF=ea.f.solution();" + "of=ea.f.all()))", "f.uniqueness(of=f.each(mapF=ea.f.quality();of=ea.f.all()))"
-          }) List<Function<? super POCPopulationState<?, G, S, Q, ?>, ?>> defaultStateFunctions,
-      @Param(value = "functions") List<Function<? super POCPopulationState<?, G, S, Q, ?>, ?>> stateFunctions,
-      @Param(
-          value = "defaultRunFunctions", dNPMs = {"ea.f.runKey(key = \"run.problem.name\")", "ea.f.runKey(key = \"run" + ".solver.name\")", "ea.f.runKey(key = " + "\"run.randomGenerator.seed\")"
-          }) List<Function<? super Run<?, G, S, Q>, ?>> defaultRunFunctions,
-      @Param("runFunctions") List<Function<? super Run<?, G, S, Q>, ?>> runFunctions,
-      @Param(value = "deferred") boolean deferred,
-      @Param(value = "onlyLast") boolean onlyLast,
-      @Param(value = "runCondition", dNPM = "predicate.always()") Predicate<Run<?, G, S, Q>> runPredicate,
-      @Param(value = "stateCondition", dNPM = "predicate.always()") Predicate<POCPopulationState<?, G, S, Q, ?>> statePredicate,
-      @Param("logExceptions") boolean logExceptions
-  ) {
-    return (experiment, executor) -> new ListenerFactoryAndMonitor<>(
-        new TabularPrinter<>(
-            Stream.of(defaultStateFunctions, stateFunctions)
-                .flatMap(List::stream)
-                .toList(),
-            Stream.concat(defaultRunFunctions.stream(), runFunctions.stream())
-                .map(f -> reformatToFit(f, experiment.runs()))
-                .toList(),
-            logExceptions
         ),
         runPredicate,
         statePredicate,
@@ -308,138 +365,6 @@ public class Listeners {
         runPredicate,
         statePredicate,
         executor,
-        false
-    );
-  }
-
-  @Alias(
-      name = "saveForExp", passThroughParams = {@PassThroughParam(name = "path", type = ParamMap.Type.STRING, value = "{experiment.name}"), @PassThroughParam(name = "processor", type = ParamMap.Type.NAMED_PARAM_MAP), @PassThroughParam(name = "overwrite", type = ParamMap.Type.BOOLEAN, value = "false")
-      }, value = // spotless:off
-      """
-          onExpDone(
-            preprocessor = $processor;
-            consumers = [ea.c.saver(path = $path; overwrite = $overwrite)]
-          )
-          """ // spotless:on
-  )
-  @Alias(
-      name = "savePlotForExp", passThroughParams = {@PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP), @PassThroughParam(name = "secondary", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "type", type = ParamMap.Type.STRING, value = "png"), @PassThroughParam(name = "configuration", type = Type.NAMED_PARAM_MAP, value = "ea.plot.configuration.image()")
-      }, value = // spotless:off
-      """
-          saveForExp(
-            of = $plot;
-            processor = ea.f.imagePlotter(secondary = $secondary; type = $type; configuration = $configuration)
-          )
-          """ // spotless:on
-  )
-  @Alias(
-      name = "savePlotAndCsvForExp", passThroughParams = {@PassThroughParam(name = "secondary", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "overwrite", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "path", type = ParamMap.Type.STRING, value = "{experiment.name}"), @PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP), @PassThroughParam(name = "type", type = ParamMap.Type.STRING, value = "png"), @PassThroughParam(name = "configuration", type = Type.NAMED_PARAM_MAP, value = "ea.plot.configuration.image()")
-      }, value = // spotless:off
-      """
-          onExpDone(
-            of = $plot;
-            consumers = [
-              ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.imagePlotter(secondary = $secondary; type = $type; configuration = $configuration));
-              ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.csvPlotter(); suffix = ".tsv")
-            ]
-          )
-          """ // spotless:on
-  )
-  @SuppressWarnings("unused")
-  public static <E, O, P, R, EX> BiFunction<EX, Executor, ListenerFactory<E, R>> onExpDone(
-      @Param("of") AccumulatorFactory<E, O, R> accumulatorFactory,
-      @Param(value = "preprocessor", dNPM = "f.identity()") Function<? super O, ? extends P> preprocessor,
-      @Param(
-          value = "consumers", dNPMs = {"ea.consumer.deaf()"}) List<TriConsumer<? super P, R, EX>> consumers,
-      @Param(value = "deferred") boolean deferred,
-      @Param(value = "eCondition", dNPM = "predicate.always()") Predicate<E> ePredicate,
-      @Param(value = "rCondition", dNPM = "predicate.always()") Predicate<R> rPredicate
-
-  ) {
-    return (experiment, executor) -> new ListenerFactoryAndMonitor<>(
-        accumulatorFactory.thenOnShutdown(
-            Naming.named(
-                consumers.toString(),
-                (Consumer<O>) (o -> {
-                  if (o != null) {
-                    P p = preprocessor.apply(o);
-                    consumers.forEach(c -> c.accept(p, null, experiment));
-                  }
-                })
-            )
-        ),
-        rPredicate,
-        ePredicate,
-        deferred ? executor : null,
-        false
-    );
-  }
-
-  @Alias(
-      name = "saveForRun", passThroughParams = {@PassThroughParam(name = "path", type = ParamMap.Type.STRING, value = "run-{run.index:%04d}"), @PassThroughParam(name = "overwrite", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "processor", type = ParamMap.Type.NAMED_PARAM_MAP)
-      }, value = // spotless:off
-      """
-          onRunDone(
-            preprocessor = $processor;
-            consumers = [ea.c.saver(path = $path; overwrite = $overwrite)]
-          )
-          """ // spotless:on
-  )
-  @Alias(
-      name = "savePlotForRun", passThroughParams = {@PassThroughParam(name = "secondary", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP), @PassThroughParam(name = "type", type = ParamMap.Type.STRING, value = "png"), @PassThroughParam(name = "configuration", type = Type.NAMED_PARAM_MAP, value = "ea.plot.configuration.image()")
-      }, value = // spotless:off
-      """
-          saveForRun(
-            of = $plot;
-            processor = ea.f.imagePlotter(secondary = $secondary; type = $type; configuration = $configuration)
-          )
-          """ // spotless:on
-  )
-  @Alias(
-      name = "saveLastPopulationForRun", value = // spotless:off
-      """
-          saveForRun(
-            of = ea.acc.lastPopulationMap();
-            path = "run-{run.index:%04d}-last-pop";
-            processor = f.identity()
-          )
-          """) // spotless:on
-  @Alias(
-      name = "savePlotAndCsvForRun", passThroughParams = {@PassThroughParam(name = "secondary", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "overwrite", type = ParamMap.Type.BOOLEAN, value = "false"), @PassThroughParam(name = "path", type = ParamMap.Type.STRING, value = "{experiment.name}"), @PassThroughParam(name = "plot", type = ParamMap.Type.NAMED_PARAM_MAP), @PassThroughParam(name = "type", type = ParamMap.Type.STRING, value = "png"), @PassThroughParam(name = "configuration", type = Type.NAMED_PARAM_MAP, value = "ea.plot.configuration.image()")
-      }, value = // spotless:off
-      """
-          onRunDone(
-            of = $plot;
-            consumers = [
-              ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.imagePlotter(secondary = $secondary; type = $type; configuration = $configuration));
-              ea.c.saver(path = $path; overwrite = $overwrite; of = ea.f.csvPlotter(); suffix = ".tsv")
-            ]
-          )
-          """ // spotless:on
-  )
-  @SuppressWarnings("unused")
-  public static <E, O, P, R, EX> BiFunction<EX, Executor, ListenerFactory<E, R>> onRunDone(
-      @Param("of") AccumulatorFactory<E, O, R> accumulatorFactory,
-      @Param(value = "preprocessor", dNPM = "f.identity()") Function<? super O, ? extends P> preprocessor,
-      @Param(
-          value = "consumers", dNPMs = {"ea.consumer.deaf()"}) List<TriConsumer<? super P, R, EX>> consumers,
-      @Param(value = "deferred") boolean deferred,
-      @Param(value = "eCondition", dNPM = "predicate.always()") Predicate<E> ePredicate,
-      @Param(value = "rCondition", dNPM = "predicate.always()") Predicate<R> rPredicate
-  ) {
-    return (experiment, executor) -> new ListenerFactoryAndMonitor<>(
-        accumulatorFactory.thenOnDone(
-            Naming.named(
-                consumers.toString(),
-                (run, a) -> {
-                  P p = preprocessor.apply(a.get());
-                  consumers.forEach(c -> c.accept(p, run, experiment));
-                }
-            )
-        ),
-        rPredicate,
-        ePredicate,
-        deferred ? executor : null,
         false
     );
   }

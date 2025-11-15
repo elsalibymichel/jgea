@@ -24,32 +24,15 @@ import io.github.ericmedvet.jgea.core.solver.POCPopulationState;
 import io.github.ericmedvet.jgea.experimenter.Run;
 import io.github.ericmedvet.jnb.core.*;
 import io.github.ericmedvet.jnb.datastructure.AccumulatorFactory;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 @Discoverable(prefixTemplate = "ea.accumulator|acc|a")
+@Alias(name = "bests", value = "accumulator.all(eFunction = ea.f.best())")
+@Alias(name = "lastBest", value = "accumulator.last(function = ea.f.best())")
 public class Accumulators {
 
   private Accumulators() {
-  }
-
-  @Alias(name = "bests", value = "all(eFunction = ea.f.best())")
-  @Alias(name = "first", value = "all(listFunction = f.nTh(n = 1))")
-  @SuppressWarnings("unused")
-  public static <E, F, O, R> AccumulatorFactory<E, O, R> all(
-      @Param(value = "eFunction", dNPM = "f.identity()") Function<E, F> eFunction,
-      @Param(value = "listFunction", dNPM = "f.identity()") Function<List<F>, O> listFunction
-  ) {
-    return AccumulatorFactory.<E, F, R>collector(eFunction).then(listFunction);
-  }
-
-  @Alias(name = "lastBest", value = "last(function = ea.f.best())")
-  @SuppressWarnings("unused")
-  public static <E, O, R> AccumulatorFactory<E, O, R> last(
-      @Param(value = "function", dNPM = "f.identity()") Function<E, O> function
-  ) {
-    return AccumulatorFactory.last((e, r) -> function.apply(e));
   }
 
   @SuppressWarnings("unused")

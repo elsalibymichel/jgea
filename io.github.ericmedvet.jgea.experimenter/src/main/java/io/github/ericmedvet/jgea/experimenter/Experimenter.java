@@ -23,7 +23,6 @@ package io.github.ericmedvet.jgea.experimenter;
 import io.github.ericmedvet.jgea.core.ProgressMonitor;
 import io.github.ericmedvet.jgea.core.solver.POCPopulationState;
 import io.github.ericmedvet.jgea.experimenter.listener.ScreenProgressMonitor;
-import io.github.ericmedvet.jnb.core.MapNamedParamMap;
 import io.github.ericmedvet.jnb.core.ProjectInfoProvider;
 import io.github.ericmedvet.jnb.datastructure.ListenerFactory;
 import java.time.Duration;
@@ -96,16 +95,20 @@ public class Experimenter {
     List<RunOutcome> runOutcomes = experiment.runs()
         .stream()
         .map(run -> new RunOutcome(run, experimentExecutorService.submit(() -> {
-          L.fine("Starting run %d of %d ".formatted(run.index() + 1, experiment.runs().size()));
+          String msg = "Starting run %d of %d ".formatted(
+              run.index() + 1,
+              experiment.runs().size()
+          );
+          L.fine(msg);
           progressMonitor.notify(
               run.index(),
               experiment.runs().size(),
-              "Starting:%n%s".formatted(MapNamedParamMap.prettyToString(run.map(), 40))
+              msg
           );
           Instant startingT = Instant.now();
           Collection<?> solutions = run.run(runExecutorService, factory.build(run));
           double elapsedT = Duration.between(startingT, Instant.now()).toMillis() / 1000d;
-          String msg = String.format(
+          msg = String.format(
               "Run %d of %d done in %.2fs, found %d solutions",
               run.index() + 1,
               experiment.runs().size(),
