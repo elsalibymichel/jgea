@@ -1,0 +1,90 @@
+$basePath = ''../../Documenti/experiments/{^^.name}/{^^.startTime}/''
+
+ea.experiment(
+  runs = (randomGenerator = (seed = [1:1:3]) * [m.defaultRG()])
+  * (problem = [
+    ea.p.ur.synthetic(name = "keijzer6");
+    ea.p.ur.synthetic(name = "nguyen7")
+  ])
+  * (solver = (stop = [ea.sc.nOfQualityEvaluations(n = 2000)]) * [
+    ea.s.ga(
+      representation = ea.r.srTree();
+      mapper = ea.m.srTreeToNurf();
+      iComparators = [ea.comparator.pAscending(of = ea.f.size(of = ea.f.genotype()))]
+    );
+    ea.s.nsga2(
+      representation = ea.r.srTree();
+      mapper = ea.m.srTreeToNurf();
+      iComparators = [ea.comparator.pAscending(of = ea.f.size(of = ea.f.genotype()))]
+    )
+  ])
+  * [ea.run()];
+  listeners = [
+    ea.l.console(eFunctions = [
+      ea.f.size(of = ea.f.genotype(of = ea.f.best()); format = "%3d");
+      f.mapValue(key = mse; of = ea.f.quality(of = ea.f.best()); format = "%5.3f")
+    ]);
+    ea.l.savePlotForExp(
+      path = $basePath + "best-mse.svg";
+      plot = ea.plot.multi.quality(q = f.mapValue(key = mse));
+      configuration = viz.plot.conf.image(axesShow = all; axesIndependences = [all]);
+      type = svg
+    );
+    ea.l.savePlotForExp(
+      path = $basePath + "final-best-mse.svg";
+      plot = ea.plot.multi.qualityBoxplot(q = f.mapValue(key = mse));
+      configuration = viz.plot.conf.image(axesShow = all; axesIndependences = [all]);
+      type = svg
+    );
+    ea.l.savePlotForExp(
+      path = $basePath + "lowest-mse.svg";
+      plot = ea.plot.multi.xyExp(y = f.min(of = f.each(of = ea.f.all(); mapF = f.mapValue(key = mse; of = ea.f.quality()))));
+      configuration = viz.plot.conf.image(axesShow = all; axesIndependences = [all]);
+      type = svg
+    );
+    ea.l.savePlotForExp(
+      path = $basePath + "p25-mse.svg";
+      plot = ea.plot.multi.xyExp(y = f.percentile(p = 25; of = f.each(of = ea.f.all(); mapF = f.mapValue(key = mse; of = ea.f.quality()))));
+      configuration = viz.plot.conf.image(axesShow = all; axesIndependences = [all]);
+      type = svg
+    );
+    ea.l.savePlotForExp(
+      path = $basePath + "p025size-mse.svg";
+      plot = ea.plot.multi.xyExp(
+        y = f.mapValue(key = "mse"; of = ea.f.quality(of = f.percentile(p = 25; of = ea.f.all(); by = ea.f.size(of = ea.f.genotype()))))
+      );
+      configuration = viz.plot.conf.image(axesShow = all; axesIndependences = [all]);
+      type = svg
+    );
+    ea.l.savePlotForExp(
+      path = $basePath + "lowest-size.svg";
+      plot = ea.plot.multi.xyExp(y = f.min(of = f.each(of = ea.f.all(); mapF = ea.f.size(of = ea.f.genotype()))));
+      configuration = viz.plot.conf.image(axesShow = all; axesIndependences = [all]);
+      type = svg
+    );
+    ea.l.savePlotForExp(
+      path = $basePath + "p25-size.svg";
+      plot = ea.plot.multi.xyExp(y = f.percentile(p = 25; of = f.each(of = ea.f.all(); mapF = ea.f.size(of = ea.f.genotype()))));
+      configuration = viz.plot.conf.image(axesShow = all; axesIndependences = [all]);
+      type = svg
+    );
+    ea.l.savePlotForExp(
+      path = $basePath + "p025mse-size.svg";
+      plot = ea.plot.multi.xyExp(
+        y = ea.f.size(of = ea.f.genotype(of = f.percentile(p = 25; of = ea.f.all(); by = f.mapValue(key = "mse"; of = ea.f.quality()))))
+      );
+      configuration = viz.plot.conf.image(axesShow = all; axesIndependences = [all]);
+      type = svg
+    );
+    ea.l.savePlotForRun(
+      path = $basePath + "objectives-train-{problem.name}-{solver.name}-{randomGenerator.seed:%03d}.svg";
+      plot = ea.plot.single.biObjectivePopulation(
+        x = f.mapValue(key = mse; of = ea.f.quality());
+        y = ea.f.size(of = ea.f.genotype())
+      );
+      configuration = viz.plot.conf.image(axesShow = all; axesIndependences = [all]);
+      secondary = true;
+      type = svg
+    )
+  ]
+)
