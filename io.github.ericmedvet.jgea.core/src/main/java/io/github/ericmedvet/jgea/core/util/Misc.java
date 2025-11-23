@@ -222,6 +222,7 @@ public class Misc {
   }
 
   public static <T, K, U> Collector<T, ?, SequencedMap<K, U>> toSequencedMap(
+      // TODO remove when upgrading to new jnb
       Function<? super T, ? extends K> keyMapper,
       Function<? super T, ? extends U> valueMapper
   ) {
@@ -234,6 +235,7 @@ public class Misc {
   }
 
   public static <T, U> Collector<T, ?, SequencedMap<T, U>> toSequencedMap(
+      // TODO remove when upgrading to new jnb
       Function<? super T, ? extends U> valueMapper
   ) {
     return toSequencedMap(Function.identity(), valueMapper);
