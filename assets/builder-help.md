@@ -1976,6 +1976,27 @@ Produces <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abb
 
 Produces <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.util.concurrent.Executor">Executor</abbr>, <abbr title="io.github.ericmedvet.jnb.datastructure.ListenerFactory">ListenerFactory</abbr>&lt;E, K&gt;&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Listeners.onKDone()` by jgea-experimenter:2.8.1-SNAPSHOT
 
+### Builder `ea.listener.savePlotAndCsvForExp()`
+
+`ea.l.savePlotAndCsvForExp(of; preprocessor; consumers; deferred; eCondition; kCondition; secondary; overwrite; path; plot; type; configuration)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `of` | npm | `null` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.AccumulatorFactory">AccumulatorFactory</abbr>&lt;E, O, K&gt;</code> |
+| `preprocessor` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super O, ? extends P&gt;</code> |
+| `consumers` | npm[] | `[consumer.saver(of = viz.f.imagePlotter(configuration = viz.plot.configuration.image(); secondary = false; type = png); overwrite = false; path = "{experiment.name}"), consumer.saver(of = viz.f.csvPlotter(); overwrite = false; path = "{experiment.name}"; suffix = ".tsv")]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.BiConsumer">BiConsumer</abbr>&lt;? super P, K&gt;&gt;</code> |
+| `deferred` | b | `false` | <code>boolean</code> |
+| `eCondition` | npm | `predicate.always()` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;E&gt;</code> |
+| `kCondition` | npm | `predicate.always()` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;K&gt;</code> |
+| `secondary` | b | `false` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `overwrite` | b | `false` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `path` | s | `{experiment.name}` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `plot` | npm | `` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `type` | s | `png` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `configuration` | npm | `viz.plot.configuration.image()` | <code><abbr title="java.lang.String">String</abbr></code> |
+
+Produces <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.util.concurrent.Executor">Executor</abbr>, <abbr title="io.github.ericmedvet.jnb.datastructure.ListenerFactory">ListenerFactory</abbr>&lt;E, K&gt;&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Listeners.onDone()` by jgea-experimenter:2.8.1-SNAPSHOT
+
 ### Builder `ea.listener.savePlotAndCsvForRun()`
 
 `ea.l.savePlotAndCsvForRun(of; preprocessor; consumers; deferred; eCondition; kCondition; secondary; overwrite; path; plot; type; configuration; verbose)`
@@ -2058,31 +2079,6 @@ Produces <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abb
 | `stateCondition` | npm | `predicate.always()` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.POCPopulationState">POCPopulationState</abbr>&lt;?, G, S, Q, ?&gt;&gt;</code> |
 
 Produces <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.util.concurrent.Executor">Executor</abbr>, <abbr title="io.github.ericmedvet.jnb.datastructure.ListenerFactory">ListenerFactory</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.POCPopulationState">POCPopulationState</abbr>&lt;?, G, S, Q, ?&gt;, <abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, G, S, Q&gt;&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Listeners.tui()` by jgea-experimenter:2.8.1-SNAPSHOT
-
-## Package `ea.listener.ea.listener`
-
-Aliases: `ea.l.ea.listener`, `ea.listener.ea.listener`
-
-### Builder `ea.listener.ea.listener.savePlotAndCsvForExp()`
-
-`ea.l.ea.listener.savePlotAndCsvForExp(of; preprocessor; consumers; deferred; eCondition; kCondition; secondary; overwrite; path; plot; type; configuration)`
-
-| Param | Type | Default | Java type |
-| --- | --- | --- | --- |
-| `of` | npm | `null` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.AccumulatorFactory">AccumulatorFactory</abbr>&lt;E, O, K&gt;</code> |
-| `preprocessor` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;? super O, ? extends P&gt;</code> |
-| `consumers` | npm[] | `[consumer.saver(of = viz.f.imagePlotter(configuration = viz.plot.configuration.image(); secondary = false; type = png); overwrite = false; path = "{experiment.name}"), consumer.saver(of = viz.f.csvPlotter(); overwrite = false; path = "{experiment.name}"; suffix = ".tsv")]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.BiConsumer">BiConsumer</abbr>&lt;? super P, K&gt;&gt;</code> |
-| `deferred` | b | `false` | <code>boolean</code> |
-| `eCondition` | npm | `predicate.always()` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;E&gt;</code> |
-| `kCondition` | npm | `predicate.always()` | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;K&gt;</code> |
-| `secondary` | b | `false` | <code><abbr title="java.lang.String">String</abbr></code> |
-| `overwrite` | b | `false` | <code><abbr title="java.lang.String">String</abbr></code> |
-| `path` | s | `{experiment.name}` | <code><abbr title="java.lang.String">String</abbr></code> |
-| `plot` | npm | `` | <code><abbr title="java.lang.String">String</abbr></code> |
-| `type` | s | `png` | <code><abbr title="java.lang.String">String</abbr></code> |
-| `configuration` | npm | `viz.plot.configuration.image()` | <code><abbr title="java.lang.String">String</abbr></code> |
-
-Produces <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.util.concurrent.Executor">Executor</abbr>, <abbr title="io.github.ericmedvet.jnb.datastructure.ListenerFactory">ListenerFactory</abbr>&lt;E, K&gt;&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Listeners.onDone()` by jgea-experimenter:2.8.1-SNAPSHOT
 
 ## Package `ea.mapper`
 
@@ -2484,15 +2480,15 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.core.InvertibleMapper">Inv
 
 ## Package `ea.misc`
 
-### Builder `ea.misc.bestMESelector()`
+### Builder `ea.misc.bestSelector()`
 
-`ea.misc.bestMESelector(nOfOpponents)`
+`ea.misc.bestSelector(nOfOpponents)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
 | `nOfOpponents` | i | `1` | <code>int</code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.core.solver.bi.AbstractBiEvolver$OpponentsSelector">AbstractBiEvolver$OpponentsSelector</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.mapelites.MEIndividual">MEIndividual</abbr>&lt;G, S, Q&gt;, S, Q, O&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.bestMESelector()` by jgea-experimenter:2.8.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jgea.core.solver.bi.AbstractBiEvolver$OpponentsSelector">AbstractBiEvolver$OpponentsSelector</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.Individual">Individual</abbr>&lt;G, S, Q&gt;, S, Q, O&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.bestSelector()` by jgea-experimenter:2.8.1-SNAPSHOT
 
 ### Builder `ea.misc.caVideo()`
 
@@ -2656,15 +2652,15 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.core.solver.bi.AbstractBiE
 
 Produces <code><abbr title="java.lang.Object">Object</abbr></code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.nullValue()` by jgea-experimenter:2.8.1-SNAPSHOT
 
-### Builder `ea.misc.oldestMESelector()`
+### Builder `ea.misc.oldestSelector()`
 
-`ea.misc.oldestMESelector(nOfOpponents)`
+`ea.misc.oldestSelector(nOfOpponents)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
 | `nOfOpponents` | i | `1` | <code>int</code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.core.solver.bi.AbstractBiEvolver$OpponentsSelector">AbstractBiEvolver$OpponentsSelector</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.mapelites.MEIndividual">MEIndividual</abbr>&lt;G, S, Q&gt;, S, Q, O&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.oldestMESelector()` by jgea-experimenter:2.8.1-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jgea.core.solver.bi.AbstractBiEvolver$OpponentsSelector">AbstractBiEvolver$OpponentsSelector</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.Individual">Individual</abbr>&lt;G, S, Q&gt;, S, Q, O&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.oldestSelector()` by jgea-experimenter:2.8.1-SNAPSHOT
 
 ### Builder `ea.misc.randomMESelector()`
 
@@ -5326,6 +5322,20 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedName
 | `format` | s | `%.1f` | <code><abbr title="java.lang.String">String</abbr></code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Functions.quantized()` by jgea-experimenter:2.8.1-SNAPSHOT
+
+### Builder `function.replaceAll()`
+
+`f.replaceAll(of; regex; replacement; format; name)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `regex` | s | `` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `replacement` | s | `` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `format` | s | `%s` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `name` | s | interpolate `replace.all` | <code><abbr title="java.lang.String">String</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.String">String</abbr>&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Functions.replaceAll()` by jgea-experimenter:2.8.1-SNAPSHOT
 
 ### Builder `function.sd()`
 
