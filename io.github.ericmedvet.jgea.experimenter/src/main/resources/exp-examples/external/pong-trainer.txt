@@ -41,5 +41,5 @@ ea.experiment(
     )]) *
     [ea.run()];
 
-  listeners = + $GENERAL_LISTENERS + $PONG_LISTENERS
+  listeners = $GENERAL_LISTENERS + $PONG_LISTENERS
 )

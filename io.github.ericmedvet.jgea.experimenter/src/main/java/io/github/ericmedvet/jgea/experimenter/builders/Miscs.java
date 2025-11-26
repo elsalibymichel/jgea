@@ -61,6 +61,7 @@ public class Miscs {
   @SuppressWarnings("unused")
   @Cacheable
   public static <G, S, Q, O> AbstractBiEvolver.OpponentsSelector<Individual<G, S, Q>, S, Q, O> bestSelector(
+      @Param(value = "name", iS = "best[{nOfOpponents}]") String name,
       @Param(value = "nOfOpponents", dI = 1) int nOfOpponents
   ) {
     return (population, individual, problem, random) -> {
@@ -163,6 +164,7 @@ public class Miscs {
   @SuppressWarnings("unused")
   @Cacheable
   public static <G, S, Q, O> AbstractBiEvolver.OpponentsSelector<MEIndividual<G, S, Q>, S, Q, O> farthestMESelector(
+      @Param(value = "name", iS = "farthest[{nOfOpponents}]") String name,
       @Param(value = "nOfOpponents", dI = 1) int nOfOpponents
   ) {
     return (population, individual, problem, random) -> {
@@ -279,6 +281,7 @@ public class Miscs {
   @SuppressWarnings("unused")
   @Cacheable
   public static <G, S, Q, O> AbstractBiEvolver.OpponentsSelector<MEIndividual<G, S, Q>, S, Q, O> nearestMESelector(
+      @Param(value = "name", iS = "nearest[{nOfOpponents}]") String name,
       @Param(value = "nOfOpponents", dI = 1) int nOfOpponents
   ) {
     return (population, individual, problem, random) -> {
@@ -316,6 +319,7 @@ public class Miscs {
   @SuppressWarnings("unused")
   @Cacheable
   public static <G, S, Q, O> AbstractBiEvolver.OpponentsSelector<Individual<G, S, Q>, S, Q, O> oldestSelector(
+      @Param(value = "name", iS = "oldest[{nOfOpponents}]") String name,
       @Param(value = "nOfOpponents", dI = 1) int nOfOpponents
   ) {
     return (population, individual, problem, random) -> population.stream()
@@ -326,17 +330,8 @@ public class Miscs {
 
   @SuppressWarnings("unused")
   @Cacheable
-  public static <G, S, Q, O> AbstractBiEvolver.OpponentsSelector<MEIndividual<G, S, Q>, S, Q, O> randomMESelector(
-      @Param(value = "nOfOpponents", dI = 1) int nOfOpponents
-  ) {
-    return (population, individual, problem, random) -> IntStream.range(0, nOfOpponents)
-        .mapToObj(j -> Misc.pickRandomly(population, random))
-        .toList();
-  }
-
-  @SuppressWarnings("unused")
-  @Cacheable
   public static <G, S, Q, O> AbstractBiEvolver.OpponentsSelector<Individual<G, S, Q>, S, Q, O> randomSelector(
+      @Param(value = "name", iS = "random[{nOfOpponents}]") String name,
       @Param(value = "nOfOpponents", dI = 1) int nOfOpponents
   ) {
     return (population, individual, problem, random) -> IntStream.range(0, nOfOpponents)
