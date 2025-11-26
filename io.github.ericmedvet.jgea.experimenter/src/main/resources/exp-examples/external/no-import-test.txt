@@ -95,11 +95,14 @@ $VSR_BODY_DESCRIPTORS = [
   ea.s.me.d.descriptor(f = f.gridElongation(of = s.f.vsrBody(of = ea.f.supplied(of = ea.f.solution()))); min = 0; max = 1; nOfBins = 8)
 ]
 
+
+$basePath = ''../results/{^^.name}/{^^.startTime}/''
+
 $GENERAL_LISTENERS = [
 
   ea.l.console(
     kFunctions = [
-      f.replaceAll(of = f.interpolated(name = "solver-name"; s = "{run.solver.name}-{run.solver.opponentsSelector.name}"); regex="^(.*?)(?:-null)*$")
+      f.replaceAll(of = f.interpolated(name = "solver-name"; s = "{solver.name}-{solver.opponentsSelector.name}"); regex="-null")
     ];
     eFunctions = [
       f.timestamp();
@@ -109,11 +112,11 @@ $GENERAL_LISTENERS = [
   );
 
   ea.listener.allCsv(
-    path = "../results/{name}/{startTime}/last-generations.csv";
+    path = $basePath + "last-generations.csv";
     runFunctions = [
-      f.replaceAll(of = f.interpolated(name = "solver-name"; s = "{run.solver.name}-{run.solver.opponentsSelector.name}"); regex="^(.*?)(?:-null)*$");
-      f.mappableKey(key = "run.problem.simulation.environment");
-      f.mappableKey(key = "run.solver.mapper")
+      f.replaceAll(of = f.interpolated(name = "solver-name"; s = "{solver.name}-{solver.opponentsSelector.name}"); regex="-null");
+      f.mappableKey(key = "problem.simulation.environment");
+      f.mappableKey(key = "solver.mapper")
     ];
     individualFunctions = [
       f.timestamp();
@@ -124,11 +127,11 @@ $GENERAL_LISTENERS = [
   );
 
   ea.l.csv(
-    path = "../results/{name}/{startTime}/last-generations-bests.csv";
+    path = $basePath + "last-generations-bests.csv";
     kFunctions = [
-      f.replaceAll(of = f.interpolated(name = "solver-name"; s = "{run.solver.name}-{run.solver.opponentsSelector.name}"); regex="^(.*?)(?:-null)*$");
-      f.mappableKey(key = "run.problem.simulation.environment");
-      f.mappableKey(key = "run.solver.mapper")
+      f.replaceAll(of = f.interpolated(name = "solver-name"; s = "{solver.name}-{solver.opponentsSelector.name}"); regex="-null");
+      f.mappableKey(key = "problem.simulation.environment");
+      f.mappableKey(key = "solver.mapper")
     ];
     eFunctions = [
       f.timestamp();
@@ -139,9 +142,11 @@ $GENERAL_LISTENERS = [
   );
 
   ea.l.savePlotAndCsvForExp(
-    path = "../results/{name}/{startTime}/best-q.svg";
+    path = $basePath + "best-q.svg";
     plot = ea.plot.multi.quality(
-      line = f.replaceAll(of = f.interpolated(name = "solver"; s = "{run.solver.name}-{run.solver.opponentsSelector.name}"); regex="^(.*?)(?:-null)*$")
+      line = f.replaceAll(of = f.interpolated(name = "solver"; s = "{solver.name}"); regex="-null");
+      xSubplot = f.interpolated(name = "solver"; s = "{solver.opponentsSelector.nOfOpponents}");
+      ySubplot = f.replaceAll(of = f.interpolated(name = "solver"; s = "{solver.opponentsSelector.name}"); regex = "\[[0-9]\]")
     );
     overwrite = true;
     type = svg
@@ -149,10 +154,12 @@ $GENERAL_LISTENERS = [
 
   ea.l.savePlotAndCsvForExp(
     deferred = true;
-    path = "../results/{name}/{startTime}/best-vs-self.svg";
+    path = $basePath + "best-vs-self.svg";
     plot = ea.plot.multi.xyExp(
       y = f.composition(of = f.composition(of = ea.f.best(); then = $VS_SELF); then = $QUALITY_F1);
-      line = f.replaceAll(of = f.interpolated(name = "solver"; s = "{run.solver.name}-{run.solver.opponentsSelector.name}"); regex="^(.*?)(?:-null)*$")
+      line = f.replaceAll(of = f.interpolated(name = "solver"; s = "{solver.name}"); regex="-null");
+      xSubplot = f.interpolated(name = "solver"; s = "{solver.opponentsSelector.nOfOpponents}");
+      ySubplot = f.replaceAll(of = f.interpolated(name = "solver"; s = "{solver.opponentsSelector.name}"); regex = "\[[0-9]\]")
     );
     overwrite = true;
     type = svg
@@ -160,20 +167,24 @@ $GENERAL_LISTENERS = [
 
   ea.l.savePlotAndCsvForExp(
     deferred = true;
-    path = "../results/{name}/{startTime}/best-vs-opponent.svg";
+    path = $basePath + "best-vs-opponent.svg";
     plot = ea.plot.multi.xyExp(
       y = f.composition(of = f.composition(of = ea.f.best(); then = $VS_OPPONENT); then = $QUALITY_F1);
-      line = f.replaceAll(of = f.interpolated(name = "solver"; s = "{run.solver.name}-{run.solver.opponentsSelector.name}"); regex="^(.*?)(?:-null)*$")
+      line = f.replaceAll(of = f.interpolated(name = "solver"; s = "{solver.name}"); regex="-null");
+      xSubplot = f.interpolated(name = "solver"; s = "{solver.opponentsSelector.nOfOpponents}");
+      ySubplot = f.replaceAll(of = f.interpolated(name = "solver"; s = "{solver.opponentsSelector.name}"); regex = "\[[0-9]\]")
     );
     overwrite = true;
     type = svg
   );
 
   ea.l.savePlotAndCsvForExp(
-    path = "../results/{name}/{startTime}/avg-q.svg";
+    path = $basePath + "avg-q.svg";
     plot = ea.plot.multi.xyExp(
       y = f.avg(of = f.each(mapF = ea.f.quality(); of = ea.f.all()));
-      line = f.replaceAll(of = f.interpolated(name = "solver"; s = "{run.solver.name}-{run.solver.opponentsSelector.name}"); regex="^(.*?)(?:-null)*$")
+      line = f.replaceAll(of = f.interpolated(name = "solver"; s = "{solver.name}"); regex="-null");
+      xSubplot = f.interpolated(name = "solver"; s = "{solver.opponentsSelector.nOfOpponents}");
+      ySubplot = f.replaceAll(of = f.interpolated(name = "solver"; s = "{solver.opponentsSelector.name}"); regex = "\[[0-9]\]")
     );
     overwrite = true;
     type = svg
@@ -181,10 +192,12 @@ $GENERAL_LISTENERS = [
 
   ea.l.savePlotAndCsvForExp(
     deferred = true;
-    path = "../results/{name}/{startTime}/avg-vs-self.svg";
+    path = $basePath + "avg-vs-self.svg";
     plot = ea.plot.multi.xyExp(
       y = f.avg(of = f.each(mapF = f.composition(of = f.composition(then = $VS_SELF); then = $QUALITY_F1); of = ea.f.all()));
-      line = f.replaceAll(of = f.interpolated(name = "solver"; s = "{run.solver.name}-{run.solver.opponentsSelector.name}"); regex="^(.*?)(?:-null)*$")
+      line = f.replaceAll(of = f.interpolated(name = "solver"; s = "{solver.name}"); regex="-null");
+      xSubplot = f.interpolated(name = "solver"; s = "{solver.opponentsSelector.nOfOpponents}");
+      ySubplot = f.replaceAll(of = f.interpolated(name = "solver"; s = "{solver.opponentsSelector.name}"); regex = "\[[0-9]\]")
     );
     overwrite = true;
     type = svg
@@ -192,21 +205,23 @@ $GENERAL_LISTENERS = [
 
   ea.l.savePlotAndCsvForExp(
     deferred = true;
-    path = "../results/{name}/{startTime}/avg-vs-opponent.svg";
+    path = $basePath + "avg-vs-opponent.svg";
     plot = ea.plot.multi.xyExp(
       y = f.avg(of = f.each(mapF = f.composition(of = f.composition(then = $VS_OPPONENT); then = $QUALITY_F1); of = ea.f.all()));
-      line = f.replaceAll(of = f.interpolated(name = "solver"; s = "{run.solver.name}-{run.solver.opponentsSelector.name}"); regex="^(.*?)(?:-null)*$")
+      line = f.replaceAll(of = f.interpolated(name = "solver"; s = "{solver.name}"); regex="-null");
+      xSubplot = f.interpolated(name = "solver"; s = "{solver.opponentsSelector.nOfOpponents}");
+      ySubplot = f.replaceAll(of = f.interpolated(name = "solver"; s = "{solver.opponentsSelector.name}"); regex = "\[[0-9]\]")
     );
     overwrite = true;
     type = svg
   );
 
   ea.l.savePlotAndCsvForRun(
-    path = "../results/{name}/{startTime}/archive-{run.problem.name}-{run.solver.name}-{run.solver.opponentsSelector.name}-{run.randomGenerator.seed:%02d}.svg";
+    path = $basePath + "archive-{problem.name}-{solver.name}-{solver.opponentsSelector.name}-{randomGenerator.seed:%02d}.svg";
     plot = ea.plot.single.me(
-      title = f.replaceAll(of = f.interpolated(name = "title"; s = "Archive of {run.solver.name}-{run.solver.opponentsSelector.name} on {run.problem.name} (seed={run.randomGenerator.seed})"); regex="^(.*?)(?:-null)*$")
+      title = f.replaceAll(of = f.interpolated(name = "title"; s = "Archive of {solver.name}-{solver.opponentsSelector.name} on {problem.name} (seed={randomGenerator.seed})"); regex="-null")
     );
-    kCondition = predicate.matches(f = f.mappableKey(key = "run.solver.name"); regex = ".*-me-.*");
+    kCondition = predicate.matches(f = f.mappableKey(key = "solver.name"); regex = ".*-me-.*");
     type = svg
   )
 
@@ -219,7 +234,7 @@ $PONG_LISTENERS = [
       video = ea.misc.toVideo(drawer = ds.d.pong());
       of = $VS_SELF
     );
-    path = "../results/{name}/{startTime}/best-vs-self-{run.solver.name}-{run.solver.opponentsSelector.name}-{run.randomGenerator.seed:%02d}";
+    path = $basePath + "best-vs-self-{solver.name}-{solver.opponentsSelector.name}-{randomGenerator.seed:%02d}";
     kCondition = $VIDEO
   )
 ]
@@ -234,7 +249,7 @@ $SUMO_LISTENERS =[
         task = $SIMULATION
       )
     );
-    path = "../results/{name}/{startTime}/best-vs-box-{run.solver.name}-{run.solver.opponentsSelector.name}-{run.randomGenerator.seed:%02d}.mp4";
+    path = $basePath + "best-vs-box-{solver.name}-{solver.opponentsSelector.name}-{randomGenerator.seed:%02d}.mp4";
     kCondition = $VIDEO
   )
 ]

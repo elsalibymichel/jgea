@@ -2482,10 +2482,11 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.core.InvertibleMapper">Inv
 
 ### Builder `ea.misc.bestSelector()`
 
-`ea.misc.bestSelector(nOfOpponents)`
+`ea.misc.bestSelector(name; nOfOpponents)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
+| `name` | s | interpolate `best[{nOfOpponents}]` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `nOfOpponents` | i | `1` | <code>int</code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.core.solver.bi.AbstractBiEvolver$OpponentsSelector">AbstractBiEvolver$OpponentsSelector</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.Individual">Individual</abbr>&lt;G, S, Q&gt;, S, Q, O&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.bestSelector()` by jgea-experimenter:2.8.1-SNAPSHOT
@@ -2551,10 +2552,11 @@ Produces <code><abbr title="java.util.Map$Entry">Map$Entry</abbr>&lt;K, V&gt;</c
 
 ### Builder `ea.misc.farthestMESelector()`
 
-`ea.misc.farthestMESelector(nOfOpponents)`
+`ea.misc.farthestMESelector(name; nOfOpponents)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
+| `name` | s | interpolate `farthest[{nOfOpponents}]` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `nOfOpponents` | i | `1` | <code>int</code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.core.solver.bi.AbstractBiEvolver$OpponentsSelector">AbstractBiEvolver$OpponentsSelector</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.mapelites.MEIndividual">MEIndividual</abbr>&lt;G, S, Q&gt;, S, Q, O&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.farthestMESelector()` by jgea-experimenter:2.8.1-SNAPSHOT
@@ -2638,10 +2640,11 @@ Produces <code><abbr title="java.util.function.BinaryOperator">BinaryOperator</a
 
 ### Builder `ea.misc.nearestMESelector()`
 
-`ea.misc.nearestMESelector(nOfOpponents)`
+`ea.misc.nearestMESelector(name; nOfOpponents)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
+| `name` | s | interpolate `nearest[{nOfOpponents}]` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `nOfOpponents` | i | `1` | <code>int</code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.core.solver.bi.AbstractBiEvolver$OpponentsSelector">AbstractBiEvolver$OpponentsSelector</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.mapelites.MEIndividual">MEIndividual</abbr>&lt;G, S, Q&gt;, S, Q, O&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.nearestMESelector()` by jgea-experimenter:2.8.1-SNAPSHOT
@@ -2654,30 +2657,22 @@ Produces <code><abbr title="java.lang.Object">Object</abbr></code>; built from `
 
 ### Builder `ea.misc.oldestSelector()`
 
-`ea.misc.oldestSelector(nOfOpponents)`
+`ea.misc.oldestSelector(name; nOfOpponents)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
+| `name` | s | interpolate `oldest[{nOfOpponents}]` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `nOfOpponents` | i | `1` | <code>int</code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.core.solver.bi.AbstractBiEvolver$OpponentsSelector">AbstractBiEvolver$OpponentsSelector</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.Individual">Individual</abbr>&lt;G, S, Q&gt;, S, Q, O&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.oldestSelector()` by jgea-experimenter:2.8.1-SNAPSHOT
 
-### Builder `ea.misc.randomMESelector()`
-
-`ea.misc.randomMESelector(nOfOpponents)`
-
-| Param | Type | Default | Java type |
-| --- | --- | --- | --- |
-| `nOfOpponents` | i | `1` | <code>int</code> |
-
-Produces <code><abbr title="io.github.ericmedvet.jgea.core.solver.bi.AbstractBiEvolver$OpponentsSelector">AbstractBiEvolver$OpponentsSelector</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.mapelites.MEIndividual">MEIndividual</abbr>&lt;G, S, Q&gt;, S, Q, O&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.randomMESelector()` by jgea-experimenter:2.8.1-SNAPSHOT
-
 ### Builder `ea.misc.randomSelector()`
 
-`ea.misc.randomSelector(nOfOpponents)`
+`ea.misc.randomSelector(name; nOfOpponents)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
+| `name` | s | interpolate `random[{nOfOpponents}]` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `nOfOpponents` | i | `1` | <code>int</code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.core.solver.bi.AbstractBiEvolver$OpponentsSelector">AbstractBiEvolver$OpponentsSelector</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.Individual">Individual</abbr>&lt;G, S, Q&gt;, S, Q, O&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.randomSelector()` by jgea-experimenter:2.8.1-SNAPSHOT
