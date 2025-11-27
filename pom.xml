@@ -52,9 +52,9 @@
     <jdk.version>21</jdk.version>
     <maven.version>3.9.11</maven.version>
     <revision>2.8.1-SNAPSHOT</revision>
-    <jnb.version>1.5.1-SNAPSHOT</jnb.version>
-    <jsdynsym.version>1.2.1-SNAPSHOT</jsdynsym.version>
-    <jviz.version>1.2.1-SNAPSHOT</jviz.version>
+    <jnb.version>1.5.1</jnb.version>
+    <jsdynsym.version>1.2.1</jsdynsym.version>
+    <jviz.version>1.2.1</jviz.version>
   </properties>
 
   <dependencyManagement>
