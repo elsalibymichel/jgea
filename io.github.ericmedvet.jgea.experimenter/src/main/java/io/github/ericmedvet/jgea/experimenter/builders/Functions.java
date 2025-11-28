@@ -35,7 +35,9 @@ import io.github.ericmedvet.jgea.core.solver.POCPopulationState;
 import io.github.ericmedvet.jgea.core.solver.State;
 import io.github.ericmedvet.jgea.core.solver.cabea.GridPopulationState;
 import io.github.ericmedvet.jgea.core.solver.mapelites.*;
-import io.github.ericmedvet.jgea.core.util.*;
+import io.github.ericmedvet.jgea.core.util.Misc;
+import io.github.ericmedvet.jgea.core.util.Progress;
+import io.github.ericmedvet.jgea.core.util.TextPlotter;
 import io.github.ericmedvet.jgea.experimenter.Experiment;
 import io.github.ericmedvet.jgea.experimenter.Run;
 import io.github.ericmedvet.jgea.experimenter.listener.GlobalProgressMonitor;
@@ -46,10 +48,6 @@ import io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction;
 import io.github.ericmedvet.jnb.datastructure.Grid;
 import io.github.ericmedvet.jnb.datastructure.NamedFunction;
 import io.github.ericmedvet.jnb.datastructure.Sized;
-import io.github.ericmedvet.jviz.core.plot.*;
-import io.github.ericmedvet.jviz.core.plot.csv.*;
-import io.github.ericmedvet.jviz.core.plot.image.*;
-import io.github.ericmedvet.jviz.core.plot.video.*;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -143,20 +141,6 @@ public class Functions {
         .iterator()
         .next();
     return NamedFunction.from(f, "best").compose(beforeF);
-  }
-
-  @SuppressWarnings("unused")
-  @Cacheable
-  public static <T, R> NamedFunction<T, R> cached(
-      @Param(value = "of", dNPM = "f.identity()") Function<T, R> f
-  ) {
-    if (f instanceof FormattedNamedFunction<T, R> fnf) {
-      return FormattedNamedFunction.from(FunctionUtils.cached(fnf), fnf.format(), fnf.name());
-    }
-    if (f instanceof NamedFunction<T, R> nf) {
-      return NamedFunction.from(FunctionUtils.cached(nf), nf.name());
-    }
-    return NamedFunction.from(FunctionUtils.cached(f));
   }
 
   @SuppressWarnings("unused")
