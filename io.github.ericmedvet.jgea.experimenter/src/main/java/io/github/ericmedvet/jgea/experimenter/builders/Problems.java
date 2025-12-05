@@ -311,7 +311,7 @@ public class Problems {
   @SuppressWarnings("unused")
   @Cacheable
   public static <S, B extends Simulation.Outcome<BS>, BS, O extends Comparable<O>> SimpleMFBBMOProblem<S, B, O> simToResolutionSmfbbmo(
-      @Param(value = "name", iS = "{simulation.name}[dT={dTRange.min}--{dTRange.min}]") String name,
+      @Param(value = "name", iS = "{simulation.name}[dT={dTRange.min}--{dTRange.max}]") String name,
       @Param("simulation") Simulation<S, BS, B> simulation,
       @Param("dTRange") DoubleRange dTRange,
       @Param("tRange") DoubleRange tRange,
