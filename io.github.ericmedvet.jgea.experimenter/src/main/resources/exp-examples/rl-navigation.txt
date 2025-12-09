@@ -34,9 +34,9 @@ ea.experiment(
   * (solver = (stop = ea.sc.nOfQualityEvaluations(n = 500))
   * (representation = [ea.representation.doubleString()])
   * (mapper = [
-    ea.mapper.ndsToNrla(name = "linear"; of = ea.mapper.dsToNpnds(npnds = ds.num.linear(zeroQ = false)));
-    ea.mapper.ndsToNrla(name = "linear-zeroq"; of = ea.mapper.dsToNpnds(npnds = ds.num.linear(zeroQ = true)));
-    ea.mapper.ndsToNrla(name = "mlp"; of = ea.mapper.dsToNpnds(npnds = ds.num.mlp(innerLayers = [8])))
+    ea.mapper.ndsToNrla(name = "linear"; of = ea.mapper.parametrized(of = ea.mapper.dsToDa(); parametrized = ds.num.linear(zeroQ = false)));
+    ea.mapper.ndsToNrla(name = "linear-zeroq"; of = ea.mapper.parametrized(of = ea.mapper.dsToDa(); parametrized = ds.num.linear(zeroQ = true)));
+    ea.mapper.ndsToNrla(name = "mlp"; of = ea.mapper.dsToParametrized(parametrized = ds.num.mlp(innerLayers = [8])))
   ])
   * [ea.s.ga(name = ''ga+{mapper.name}'')
   ])
@@ -53,7 +53,7 @@ ea.experiment(
   * [ea.run()];
   listeners = [
     ea.l.console(
-      functions = [
+      eFunctions = [
         f.mapValue(key = avg; of = ea.f.quality(of = ea.f.best()); format = "%6.1f")
       ];
       onlyLast = false

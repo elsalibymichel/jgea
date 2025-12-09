@@ -1,21 +1,17 @@
-/*-
- * ========================LICENSE_START=================================
- * jgea-experimenter
- * %%
- * Copyright (C) 2018 - 2025 Eric Medvet
- * %%
+/*
+ * Copyright 2025 eric
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * =========================LICENSE_END==================================
  */
 
 package io.github.ericmedvet.jgea.experimenter.builders;
@@ -23,7 +19,11 @@ package io.github.ericmedvet.jgea.experimenter.builders;
 import io.github.ericmedvet.jgea.core.InvertibleMapper;
 import io.github.ericmedvet.jgea.core.representation.grammar.Chooser;
 import io.github.ericmedvet.jgea.core.representation.grammar.Developer;
-import io.github.ericmedvet.jgea.core.representation.grammar.grid.*;
+import io.github.ericmedvet.jgea.core.representation.grammar.grid.BitStringChooser;
+import io.github.ericmedvet.jgea.core.representation.grammar.grid.DoublesChooser;
+import io.github.ericmedvet.jgea.core.representation.grammar.grid.GridGrammar;
+import io.github.ericmedvet.jgea.core.representation.grammar.grid.IntStringChooser;
+import io.github.ericmedvet.jgea.core.representation.grammar.grid.StandardGridDeveloper;
 import io.github.ericmedvet.jgea.core.representation.grammar.string.GrammarBasedProblem;
 import io.github.ericmedvet.jgea.core.representation.graph.Graph;
 import io.github.ericmedvet.jgea.core.representation.graph.Node;
@@ -43,21 +43,30 @@ import io.github.ericmedvet.jgea.core.representation.tree.numeric.TreeBasedMulti
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.TreeBasedUnivariateRealFunction;
 import io.github.ericmedvet.jgea.problem.ca.MultivariateRealGridCellularAutomaton;
 import io.github.ericmedvet.jgea.problem.regression.FormulaMapper;
+import io.github.ericmedvet.jnb.core.Alias;
 import io.github.ericmedvet.jnb.core.Cacheable;
 import io.github.ericmedvet.jnb.core.Discoverable;
 import io.github.ericmedvet.jnb.core.Param;
+import io.github.ericmedvet.jnb.core.ParamMap.Type;
+import io.github.ericmedvet.jnb.core.PassThroughParam;
 import io.github.ericmedvet.jnb.datastructure.DoubleRange;
 import io.github.ericmedvet.jnb.datastructure.Grid;
 import io.github.ericmedvet.jnb.datastructure.Naming;
-import io.github.ericmedvet.jnb.datastructure.NumericalParametrized;
 import io.github.ericmedvet.jnb.datastructure.Pair;
-import io.github.ericmedvet.jsdynsym.buildable.builders.NumericalDynamicalSystems;
-import io.github.ericmedvet.jsdynsym.core.StatelessSystem;
+import io.github.ericmedvet.jnb.datastructure.Parametrized;
 import io.github.ericmedvet.jsdynsym.core.composed.Stepped;
-import io.github.ericmedvet.jsdynsym.core.numerical.*;
+import io.github.ericmedvet.jsdynsym.core.numerical.AggregatedInput;
+import io.github.ericmedvet.jsdynsym.core.numerical.EnhancedInput;
+import io.github.ericmedvet.jsdynsym.core.numerical.MultivariateRealFunction;
+import io.github.ericmedvet.jsdynsym.core.numerical.Noised;
+import io.github.ericmedvet.jsdynsym.core.numerical.NumericalDynamicalSystem;
+import io.github.ericmedvet.jsdynsym.core.numerical.NumericalStatelessSystem;
+import io.github.ericmedvet.jsdynsym.core.numerical.NumericalTimeInvariantStatelessSystem;
+import io.github.ericmedvet.jsdynsym.core.numerical.UnivariateRealFunction;
 import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedMultivariateRealFunction;
 import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedUnivariateRealFunction;
 import io.github.ericmedvet.jsdynsym.core.rl.NumericalReinforcementLearningAgent;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -133,6 +142,20 @@ public class Mappers {
             (eBs, ds) -> new BitString(ds.stream().map(v -> v < t).toList()),
             eBs -> Collections.nCopies(eBs.size(), 0d),
             "dsToBs[t=%.1f]".formatted(t)
+        )
+    );
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static <X> InvertibleMapper<X, double[]> dsToDa(
+      @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Double>> beforeM
+  ) {
+    return beforeM.andThen(
+        InvertibleMapper.from(
+            (e, ds) -> ds.stream().mapToDouble(v -> v).toArray(),
+            da -> Arrays.stream(da).boxed().toList(),
+            "dsToDa"
         )
     );
   }
@@ -222,48 +245,6 @@ public class Mappers {
             },
             eIs -> Collections.nCopies(eIs.size(), 0d),
             "dsToIs[min=%.0f;max=%.0f]".formatted(range.min(), range.max())
-        )
-    );
-  }
-
-  @SuppressWarnings("unused")
-  @Cacheable
-  public static <X, P extends MultivariateRealFunction & NumericalParametrized<P>> InvertibleMapper<X, NamedMultivariateRealFunction> dsToNmrf(
-      @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Double>> beforeM,
-      @Param("npmrf") NumericalDynamicalSystems.Builder<P, StatelessSystem.State> builder
-  ) {
-    return beforeM.andThen(
-        InvertibleMapper.from(
-            (p, params) -> NamedMultivariateRealFunction.from(
-                builder.apply(p.nOfInputs(), p.nOfOutputs())
-                    .withParams(params.stream().mapToDouble(v -> v).toArray()),
-                p.xVarNames(),
-                p.yVarNames()
-            ),
-            p -> Collections.nCopies(
-                builder.apply(p.nOfInputs(), p.nOfOutputs()).getParams().length,
-                0d
-            ),
-            "dsToNmrf[npmrf=%s]".formatted(builder)
-        )
-    );
-  }
-
-  @SuppressWarnings("unused")
-  @Cacheable
-  public static <X, P extends NumericalDynamicalSystem<S> & NumericalParametrized<P>, S> InvertibleMapper<X, P> dsToNpnds(
-      @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Double>> beforeM,
-      @Param("npnds") NumericalDynamicalSystems.Builder<P, S> builder
-  ) {
-    return beforeM.andThen(
-        InvertibleMapper.from(
-            (p, params) -> builder.apply(p.nOfInputs(), p.nOfOutputs())
-                .withParams(params.stream().mapToDouble(v -> v).toArray()),
-            p -> Collections.nCopies(
-                builder.apply(p.nOfInputs(), p.nOfOutputs()).getParams().length,
-                0d
-            ),
-            "dsToNpnds[npnds=%s]".formatted(builder)
         )
     );
   }
@@ -792,6 +773,25 @@ public class Mappers {
             ),
             p2 -> new Pair<>(firstM.exampleFor(p2.first()), secondM.exampleFor(p2.second())),
             "pair[first=%s;second=%s]".formatted(firstM, secondM)
+        )
+    );
+  }
+
+  @Alias(
+      name = "dsToParametrized", value = "parametrized(of = ea.mapper.dsToDa(of = $innerOf))", passThroughParams = @PassThroughParam(name = "innerOf", value = "ea.m.identity()", type = Type.NAMED_PARAM_MAP)
+  )
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static <X, E, Y extends Parametrized<? extends E, P>, P> InvertibleMapper<X, E> parametrized(
+      @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, P> beforeM,
+      @Param("parametrized") Function<E, Y> exampleBuilder
+  ) {
+    //noinspection unchecked
+    return beforeM.andThen(
+        InvertibleMapper.from(
+            (e, p) -> exampleBuilder.apply(e).withParams(p),
+            e -> exampleBuilder.apply(e).getParams(),
+            "nmrfToParametrized[%s]".formatted(exampleBuilder)
         )
     );
   }
