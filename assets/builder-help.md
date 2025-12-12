@@ -3359,7 +3359,7 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.problem.synthetic.numerica
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
-| `name` | s | `shape-{target}` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `name` | s | interpolate `shape-{target}` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `target` | s |  | <code><abbr title="java.lang.String">String</abbr></code> |
 | `translation` | b | `true` | <code>boolean</code> |
 | `smoothed` | b | `true` | <code>boolean</code> |

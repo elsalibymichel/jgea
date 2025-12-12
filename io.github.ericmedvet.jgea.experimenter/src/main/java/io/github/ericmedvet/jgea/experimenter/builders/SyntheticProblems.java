@@ -65,7 +65,7 @@ public class SyntheticProblems {
   @SuppressWarnings("unused")
   @Cacheable
   public static CharShapeApproximation charShapeApproximation(
-      @Param(value = "name", dS = "shape-{target}") String name,
+      @Param(value = "name", iS = "shape-{target}") String name,
       @Param("target") String syntheticTargetName,
       @Param(value = "translation", dB = true) boolean translation,
       @Param(value = "smoothed", dB = true) boolean smoothed,
