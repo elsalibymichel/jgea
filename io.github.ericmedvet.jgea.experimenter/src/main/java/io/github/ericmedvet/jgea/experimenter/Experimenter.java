@@ -126,7 +126,14 @@ public class Experimenter {
       try {
         runOutcome.future().get();
       } catch (InterruptedException | ExecutionException e) {
-        L.warning(String.format("Cannot solve %s: %s", runOutcome.run().map(), e));
+        L.warning(
+            String.format(
+                "Cannot solve run %d of %d: %s",
+                runOutcome.run.index() + 1,
+                experiment.runs().size(),
+                e
+            )
+        );
         if (verbose) {
           //noinspection CallToPrintStackTrace
           e.printStackTrace();
