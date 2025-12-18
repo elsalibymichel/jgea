@@ -794,6 +794,27 @@ Aliases: `ds.rl`, `dynSys.rl`, `dynamicalSystem.rl`
 
 Produces <code><abbr title="java.util.function.UnaryOperator">UnaryOperator</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.core.rl.NumericalReinforcementLearningAgent">NumericalReinforcementLearningAgent</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.core.rl.LinearActorCritic$State">LinearActorCritic$State</abbr>&gt;&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.RLAgents.linearActorCritic()` by jgea-experimenter:2.8.2-SNAPSHOT
 
+## Package `dynamicalSystem.rl.num`
+
+Aliases: `ds.rl.num`, `dynSys.rl.num`, `dynamicalSystem.rl.num`
+
+### Builder `dynamicalSystem.rl.num.freeFormMlp()`
+
+`ds.rl.num.freeFormMlp(innerLayerRatio; nOfInnerLayers; innerLayers; activationFunction; historyLength; initialWeightRange; randomGenerator; weightInitializationType)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `innerLayerRatio` | d | `0.65` | <code>double</code> |
+| `nOfInnerLayers` | i | `1` | <code>int</code> |
+| `innerLayers` | i[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Integer">Integer</abbr>&gt;</code> |
+| `activationFunction` | e | `TANH` | <code><abbr title="io.github.ericmedvet.jsdynsym.core.numerical.ann.MultiLayerPerceptron$ActivationFunction">MultiLayerPerceptron$ActivationFunction</abbr></code> |
+| `historyLength` | i | `10` | <code>int</code> |
+| `initialWeightRange` | npm | `m.range(max = 0.1; min = -0.1)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
+| `randomGenerator` | npm | `m.defaultRG()` | <code><abbr title="java.util.random.RandomGenerator">RandomGenerator</abbr></code> |
+| `weightInitializationType` | e | `RANDOM` | <code><abbr title="io.github.ericmedvet.jsdynsym.core.numerical.ann.HebbianMultiLayerPerceptron$WeightInitializationType">HebbianMultiLayerPerceptron$WeightInitializationType</abbr></code> |
+
+Produces <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.core.numerical.NumericalDynamicalSystem">NumericalDynamicalSystem</abbr>&lt;?&gt;, <abbr title="io.github.ericmedvet.jsdynsym.core.rl.FreeFormPlasticMLPRLAgent">FreeFormPlasticMLPRLAgent</abbr>&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.NumericalRLAgents.freeFormMlp()` by jgea-experimenter:2.8.2-SNAPSHOT
+
 ## Package `dynamicalSystem.simulation`
 
 Aliases: `ds.s`, `ds.sim`, `ds.simulation`, `dynSys.s`, `dynSys.sim`, `dynSys.simulation`, `dynamicalSystem.s`, `dynamicalSystem.sim`, `dynamicalSystem.simulation`
