@@ -9,7 +9,7 @@ $annDesc1 = ea.s.me.d.descriptor(
       f.size(of = f.filter(condition = predicate.all(conditions = [predicate.lt(t = 0.5); predicate.gt(t = -0.5)])));
       f.size()
     ];
-    of = f.flat(of = f.nTh(of = ds.f.weights(of = ds.f.inner(of = ds.f.inner(of = ea.f.solution()))); n = 0))
+    of = f.flat(of = f.nTh(of = ds.f.weights(of = f.inner(of = f.inner(of = ea.f.solution()))); n = 0))
   );
   min = 0.0;
   max = 1.0;
@@ -22,7 +22,7 @@ $annDesc2 = ea.s.me.d.descriptor(
       f.size(of = f.filter(condition = predicate.all(conditions = [predicate.lt(t = 0.5); predicate.gt(t = -0.5)])));
       f.size()
     ];
-    of = f.flat(of = f.nTh(of = ds.f.weights(of = ds.f.inner(of = ds.f.inner(of = ea.f.solution()))); n = 1))
+    of = f.flat(of = f.nTh(of = ds.f.weights(of = f.inner(of = f.inner(of = ea.f.solution()))); n = 1))
   );
   min = 0.0;
   max = 1.0;
@@ -31,7 +31,7 @@ $annDesc2 = ea.s.me.d.descriptor(
 
 $annAltDesc1 = ea.s.me.d.descriptor(
   f = f.avg(of = f.each(
-    of = f.nTh(of = ds.f.weights(of = ds.f.inner(of = ds.f.inner(of = ea.f.solution()))); n = 0);
+    of = f.nTh(of = ds.f.weights(of = f.inner(of = f.inner(of = ea.f.solution()))); n = 0);
     mapF = f.sd()
   ));
   min = 0.0;
@@ -40,7 +40,7 @@ $annAltDesc1 = ea.s.me.d.descriptor(
 )
 $annAltDesc2 = ea.s.me.d.descriptor(
   f = f.avg(of = f.each(
-    of = f.nTh(of = ds.f.weights(of = ds.f.inner(of = ds.f.inner(of = ea.f.solution()))); n = 1);
+    of = f.nTh(of = ds.f.weights(of = f.inner(of = f.inner(of = ea.f.solution()))); n = 1);
     mapF = f.sd()
   ));
   min = 0.0;
@@ -160,7 +160,7 @@ ea.experiment(
         name = "ann-alt-mf-me-half-linear";
         schedule = ea.schedule.evenPiecewise(values = [0; 1; 1]);
         representation = ea.r.doubleString();
-        mapper = ea.m.nmrfToNurf(of = ea.m.dsToNmrf(npmrf = ds.num.mlp(innerLayers = [8])));
+        mapper = ea.m.nmrfToNurf(of = ea.m.dsToParametrized(parametrized = ds.num.mlp(innerLayers = [8])));
         descriptors = [$annAltDesc1; $annAltDesc2]
       )
     ]) * [
