@@ -22,16 +22,52 @@ package io.github.ericmedvet.jgea.core.problem;
 import io.github.ericmedvet.jgea.core.order.ParetoDominance;
 import io.github.ericmedvet.jgea.core.order.PartialComparator;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.SequencedMap;
 import java.util.function.Function;
 
 public interface MultiObjectiveProblem<S, Q, O> extends QualityBasedProblem<S, Q> {
-  record Objective<Q, O>(
-      Function<? super Q, ? extends O> function,
-      Comparator<O> comparator
-  ) {}
+  static <S, Q, O> MultiObjectiveProblem<S, Q, O> of(
+      Function<S, Q> qualityFunction,
+      Function<S, Q> validationQualityFunction,
+      SequencedMap<String, Objective<Q, O>> objectives,
+      S example,
+      String name
+  ) {
+    record HardMultiObjectiveProblem<S, Q, O>(
+        Function<S, Q> qualityFunction,
+        Function<S, Q> validationQualityFunction,
+        SequencedMap<String, Objective<Q, O>> objectives,
+        Optional<S> example,
+        String name
+    ) implements MultiObjectiveProblem<S, Q, O> {
+
+      @Override
+      public String toString() {
+        return name();
+      }
+    }
+    return new HardMultiObjectiveProblem<>(
+        qualityFunction,
+        validationQualityFunction,
+        objectives,
+        Optional.ofNullable(example),
+        name
+    );
+  }
 
   SequencedMap<String, Objective<Q, O>> objectives();
+
+  @Override
+  default <T> MultiObjectiveProblem<T, Q, O> on(Function<T, S> function, T example) {
+    return of(
+        qualityFunction().compose(function),
+        validationQualityFunction().compose(function),
+        objectives(),
+        example,
+        "%s[on=%s]".formatted(this, function)
+    );
+  }
 
   @Override
   default PartialComparator<Q> qualityComparator() {
@@ -59,5 +95,10 @@ public interface MultiObjectiveProblem<S, Q, O> extends QualityBasedProblem<S, Q
   default TotalOrderQualityBasedProblem<S, Q> toTotalOrderQualityBasedProblem() {
     return toTotalOrderQualityBasedProblem(objectives().firstEntry().getKey());
   }
+
+  record Objective<Q, O>(
+      Function<? super Q, ? extends O> function,
+      Comparator<O> comparator
+  ) {}
 
 }

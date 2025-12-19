@@ -75,6 +75,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.random.RandomGenerator;
@@ -84,6 +85,7 @@ import java.util.stream.Stream;
 
 @Discoverable(prefixTemplate = "ea.mapper|m")
 public class Mappers {
+
   private Mappers() {
   }
 
@@ -98,7 +100,10 @@ public class Mappers {
     return beforeM.andThen(
         InvertibleMapper.from(
             (eNds, nds) -> new AggregatedInput<>(nds, windowT, types),
-            eNds -> NumericalStatelessSystem.zeros(eNds.nOfInputs() * types.size(), eNds.nOfOutputs()),
+            eNds -> NumericalStatelessSystem.zeros(
+                eNds.nOfInputs() * types.size(),
+                eNds.nOfOutputs()
+            ),
             "aggregated[t=%.2f,%s]"
                 .formatted(
                     windowT,
@@ -126,7 +131,10 @@ public class Mappers {
     return beforeM.andThen(
         InvertibleMapper.from(
             (eGrid, bs) -> {
-              Chooser<T, GridGrammar.ReferencedGrid<T>> chooser = new BitStringChooser<>(bs, grammar);
+              Chooser<T, GridGrammar.ReferencedGrid<T>> chooser = new BitStringChooser<>(
+                  bs,
+                  grammar
+              );
               return gridDeveloper.develop(chooser).orElse(eGrid);
             },
             eGrid -> new BitString(l),
@@ -299,7 +307,10 @@ public class Mappers {
                 eNds.nOfOutputs()
             ),
             "enhanced[wT=%.2f;%s]"
-                .formatted(windowT, types.stream().map(Enum::toString).collect(Collectors.joining(";")))
+                .formatted(
+                    windowT,
+                    types.stream().map(Enum::toString).collect(Collectors.joining(";"))
+                )
         )
     );
   }
@@ -331,7 +342,11 @@ public class Mappers {
       @Param("problem") GrammarBasedProblem<N, S> problem
   ) {
     return beforeM.andThen(
-        InvertibleMapper.from((eS, t) -> problem.solutionMapper().apply(t), es -> null, "problem.specific")
+        InvertibleMapper.from(
+            (eS, t) -> problem.solutionMapper().apply(t),
+            es -> null,
+            "problem.specific"
+        )
     );
   }
 
@@ -341,7 +356,25 @@ public class Mappers {
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, Tree<String>> beforeM
   ) {
     FormulaMapper mapper = new FormulaMapper();
-    return beforeM.andThen(InvertibleMapper.from((eS, t) -> mapper.apply(t), es -> null, "problem.specific"));
+    return beforeM.andThen(
+        InvertibleMapper.from((eS, t) -> mapper.apply(t), es -> null, "problem.specific")
+    );
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static <X, T, K> InvertibleMapper<X, Grid<K>> gridToGrid(
+      @Param(value = "name", dS = "gridToGrid") String name,
+      @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, Grid<T>> beforeM,
+      @Param("map") Map<T, K> map
+  ) {
+    return beforeM.andThen(
+        InvertibleMapper.from(
+            (ekg, tg) -> tg.map(map::get),
+            ekg -> ekg.map(k -> map.keySet().iterator().next()),
+            name
+        )
+    );
   }
 
   @SuppressWarnings("unused")
@@ -428,7 +461,10 @@ public class Mappers {
     return beforeM.andThen(
         InvertibleMapper.from(
             (eGrid, is) -> {
-              Chooser<T, GridGrammar.ReferencedGrid<T>> chooser = new IntStringChooser<>(is, grammar);
+              Chooser<T, GridGrammar.ReferencedGrid<T>> chooser = new IntStringChooser<>(
+                  is,
+                  grammar
+              );
               return gridDeveloper.develop(chooser).orElse(eGrid);
             },
             eGrid -> new IntString(Collections.nCopies(l, 0), 0, upperBound),
@@ -472,7 +508,10 @@ public class Mappers {
   ) {
     return beforeM.andThen(
         InvertibleMapper.from(
-            (str, is) -> is.genes().stream().map(i -> alphabet.substring(i, i + 1)).collect(Collectors.joining()),
+            (str, is) -> is.genes()
+                .stream()
+                .map(i -> alphabet.substring(i, i + 1))
+                .collect(Collectors.joining()),
             str -> new IntString(Collections.nCopies(str.length(), 0), 0, alphabet.length()),
             "isToString[alphabetSize=%d]".formatted(alphabet.length())
         )
@@ -488,7 +527,12 @@ public class Mappers {
   ) {
     return beforeM.andThen(
         InvertibleMapper.from(
-            (nmrf, ts) -> new TreeBasedMultivariateRealFunction(ts, nmrf.xVarNames(), nmrf.yVarNames(), simplify)
+            (nmrf, ts) -> new TreeBasedMultivariateRealFunction(
+                ts,
+                nmrf.xVarNames(),
+                nmrf.yVarNames(),
+                simplify
+            )
                 .andThen(toOperator(postOperator)),
             nmrf -> TreeBasedMultivariateRealFunction.sampleFor(nmrf.xVarNames(), nmrf.yVarNames()),
             "multiSrTreeToNmrf[po=%s]".formatted(postOperator)
@@ -525,7 +569,9 @@ public class Mappers {
             (g, nmrf) -> {
               if (nmrf.nOfInputs() != 2) {
                 throw new IllegalArgumentException(
-                    "Wrong input size for the NMRF: 2 expected, %d found".formatted(nmrf.nOfInputs())
+                    "Wrong input size for the NMRF: 2 expected, %d found".formatted(
+                        nmrf.nOfInputs()
+                    )
                 );
               }
               if (nmrf.nOfOutputs() != items.size()) {
@@ -581,7 +627,9 @@ public class Mappers {
     return beforeM.andThen(
         InvertibleMapper.from(
             (mrca, nmrf) -> {
-              int minStateSize = MultivariateRealGridCellularAutomaton.minStateSize(mrca.getInitialStates());
+              int minStateSize = MultivariateRealGridCellularAutomaton.minStateSize(
+                  mrca.getInitialStates()
+              );
               int nOfInputs = (minStateSize + nOfAdditionalChannels) * kernelGrids.size();
               int nOfOutputs = minStateSize + nOfAdditionalChannels;
               if (nmrf.nOfInputs() != nOfInputs) {
@@ -612,12 +660,18 @@ public class Mappers {
               );
             },
             mrca -> {
-              int minStateSize = MultivariateRealGridCellularAutomaton.minStateSize(mrca.getInitialStates());
+              int minStateSize = MultivariateRealGridCellularAutomaton.minStateSize(
+                  mrca.getInitialStates()
+              );
               int nOfInputs = (minStateSize + nOfAdditionalChannels) * kernelGrids.size();
               int nOfOutputs = minStateSize + nOfAdditionalChannels;
               List<String> varNames = MultivariateRealFunction.varNames("c", nOfOutputs);
               return NamedMultivariateRealFunction.from(
-                  MultivariateRealFunction.from(vs -> new double[nOfOutputs], nOfInputs, nOfOutputs),
+                  MultivariateRealFunction.from(
+                      vs -> new double[nOfOutputs],
+                      nOfInputs,
+                      nOfOutputs
+                  ),
                   IntStream.range(0, kernelGrids.size())
                       .mapToObj(i -> varNames.stream().map(n -> "%s_k%d".formatted(n, i)))
                       .flatMap(Function.identity())
@@ -625,7 +679,10 @@ public class Mappers {
                   varNames
               );
             },
-            "nmrfToMrCA[addChannels=%d;kernels=%d]".formatted(nOfAdditionalChannels, kernelGrids.size())
+            "nmrfToMrCA[addChannels=%d;kernels=%d]".formatted(
+                nOfAdditionalChannels,
+                kernelGrids.size()
+            )
         )
     );
   }
@@ -755,7 +812,9 @@ public class Mappers {
   ) {
     return beforeM.andThen(
         InvertibleMapper.from(
-            (nmrf, g) -> new OperatorGraph(g, nmrf.xVarNames(), nmrf.yVarNames()).andThen(toOperator(postOperator)),
+            (nmrf, g) -> new OperatorGraph(g, nmrf.xVarNames(), nmrf.yVarNames()).andThen(
+                toOperator(postOperator)
+            ),
             nmrf -> OperatorGraph.sampleFor(nmrf.xVarNames(), nmrf.yVarNames()),
             "oGraphToNmrf[po=%s]".formatted(postOperator)
         )
@@ -843,10 +902,18 @@ public class Mappers {
   ) {
     return beforeM.andThen(
         InvertibleMapper.from(
-            (nurf, t) -> new TreeBasedUnivariateRealFunction(t, nurf.xVarNames(), nurf.yVarName(), simplify)
+            (nurf, t) -> new TreeBasedUnivariateRealFunction(
+                t,
+                nurf.xVarNames(),
+                nurf.yVarName(),
+                simplify
+            )
                 .andThen(toOperator(postOperator)),
             nurf -> TreeBasedUnivariateRealFunction.sampleFor(nurf.xVarNames(), nurf.yVarName()),
-            "srTreeToNurf[po=%s;simp=%s]".formatted(postOperator, Boolean.toString(simplify).substring(0, 1))
+            "srTreeToNurf[po=%s;simp=%s]".formatted(
+                postOperator,
+                Boolean.toString(simplify).substring(0, 1)
+            )
         )
     );
   }
@@ -894,7 +961,13 @@ public class Mappers {
       @Param(value = "maxSingleTokenSize", dI = 128) int maxSingleTokenSize,
       @Param(value = "skipBlocked", dB = true) boolean skipBlocked
   ) {
-    Runner runner = new Runner(maxNOfSteps, maxNOfTokens, maxTokensSize, maxSingleTokenSize, skipBlocked);
+    Runner runner = new Runner(
+        maxNOfSteps,
+        maxNOfTokens,
+        maxTokensSize,
+        maxSingleTokenSize,
+        skipBlocked
+    );
     return beforeM.andThen(
         InvertibleMapper.from(
             (eProgram, ttpn) -> runner.asInstrumentedProgram(ttpn),

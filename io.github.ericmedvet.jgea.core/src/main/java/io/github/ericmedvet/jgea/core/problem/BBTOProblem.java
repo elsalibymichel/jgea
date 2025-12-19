@@ -21,10 +21,40 @@ package io.github.ericmedvet.jgea.core.problem;
 
 import io.github.ericmedvet.jgea.core.order.PartialComparator;
 import java.util.Comparator;
+import java.util.Optional;
+import java.util.function.Function;
 
 public interface BBTOProblem<S, B, BQ> extends BehaviorBasedProblem<S, B, BQ>, TotalOrderQualityBasedProblem<S, BehaviorBasedProblem.Outcome<B, BQ>> {
 
-  Comparator<BQ> totalOrderBehaviorQualityComparator();
+  static <S, B, BQ> BBTOProblem<S, B, BQ> of(
+      Comparator<BQ> totalOrderBehaviorQualityComparator,
+      Function<? super S, ? extends B> behaviorFunction,
+      Function<? super B, ? extends BQ> behaviorQualityFunction,
+      S example,
+      String name
+  ) {
+    record HardBBTOProblem<S, B, BQ>(
+        Comparator<BQ> totalOrderBehaviorQualityComparator,
+        Function<? super S, ? extends B> behaviorFunction,
+        Function<? super B, ? extends BQ> behaviorQualityFunction,
+        Optional<S> example,
+        String name
+    ) implements BBTOProblem<S, B, BQ> {
+
+      @Override
+      public String toString() {
+        return name();
+      }
+
+    }
+    return new HardBBTOProblem<>(
+        totalOrderBehaviorQualityComparator,
+        behaviorFunction,
+        behaviorQualityFunction,
+        Optional.ofNullable(example),
+        name
+    );
+  }
 
   @Override
   default PartialComparator<BQ> behaviorQualityComparator() {
@@ -32,12 +62,28 @@ public interface BBTOProblem<S, B, BQ> extends BehaviorBasedProblem<S, B, BQ>, T
   }
 
   @Override
-  default Comparator<Outcome<B, BQ>> totalOrderComparator() {
-    return Comparator.comparing(Outcome::behaviorQuality, totalOrderBehaviorQualityComparator());
+  default <T> BBTOProblem<T, B, BQ> on(
+      Function<T, S> function,
+      T example
+  ) {
+    return of(
+        totalOrderBehaviorQualityComparator(),
+        behaviorFunction().compose(function),
+        behaviorQualityFunction(),
+        example,
+        "%s[on=%s]".formatted(this, function)
+    );
   }
 
   @Override
   default PartialComparator<Outcome<B, BQ>> qualityComparator() {
     return PartialComparator.from(totalOrderComparator());
+  }
+
+  Comparator<BQ> totalOrderBehaviorQualityComparator();
+
+  @Override
+  default Comparator<Outcome<B, BQ>> totalOrderComparator() {
+    return Comparator.comparing(Outcome::behaviorQuality, totalOrderBehaviorQualityComparator());
   }
 }

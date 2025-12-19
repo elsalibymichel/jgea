@@ -22,9 +22,39 @@ package io.github.ericmedvet.jgea.core.problem;
 
 import io.github.ericmedvet.jgea.core.order.PartialComparator;
 import java.util.Optional;
+import java.util.function.Function;
 
 public interface Problem<S> extends PartialComparator<S> {
+
   default Optional<S> example() {
     return Optional.empty();
+  }
+
+  static <S> Problem<S> of(PartialComparator<S> partialComparator, S example, String name) {
+    return new Problem<>() {
+      @Override
+      public PartialComparatorOutcome compare(S s1, S s2) {
+        return partialComparator.compare(s1, s2);
+      }
+
+      @Override
+      public Optional<S> example() {
+        return Optional.ofNullable(example);
+      }
+
+      @Override
+      public String toString() {
+        return name;
+      }
+    };
+
+  }
+
+  default <T> Problem<T> on(Function<T, S> function, T example) {
+    return of(
+        comparing(function),
+        example,
+        "%s[on=%s]".formatted(this, function)
+    );
   }
 }

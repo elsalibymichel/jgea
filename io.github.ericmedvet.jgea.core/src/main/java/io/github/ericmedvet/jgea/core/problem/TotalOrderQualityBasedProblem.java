@@ -25,46 +25,87 @@ import java.util.Optional;
 import java.util.function.Function;
 
 public interface TotalOrderQualityBasedProblem<S, Q> extends QualityBasedProblem<S, Q> {
-  Comparator<Q> totalOrderComparator();
 
   static <S, Q> TotalOrderQualityBasedProblem<S, Q> from(
       QualityBasedProblem<S, Q> qbProblem,
       Comparator<Q> comparator
   ) {
-    return from(qbProblem.qualityFunction(), qbProblem.validationQualityFunction(), comparator, qbProblem.example());
+    return of(
+        qbProblem.qualityFunction(),
+        qbProblem.validationQualityFunction(),
+        comparator,
+        qbProblem.example().orElse(null),
+        qbProblem.toString()
+    );
   }
 
-  static <S, Q> TotalOrderQualityBasedProblem<S, Q> from(
+  static <S, Q> TotalOrderQualityBasedProblem<S, Q> of(
       Function<S, Q> qualityFunction,
       Function<S, Q> validationQualityFunction,
       Comparator<Q> totalOrderComparator,
-      @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<S> example
+      S example,
+      String name
   ) {
     if (qualityFunction instanceof MultifidelityQualityBasedProblem.MultifidelityFunction<S, Q> multifidelityQualityFunction) {
       record HardTOMFQProblem<S, Q>(
           MultifidelityFunction<S, Q> qualityFunction,
           Function<S, Q> validationQualityFunction,
           Comparator<Q> totalOrderComparator,
-          Optional<S> example
-      ) implements TotalOrderQualityBasedProblem<S, Q>, MultifidelityQualityBasedProblem<S, Q> {}
+          Optional<S> example,
+          String name
+      ) implements TotalOrderQualityBasedProblem<S, Q>, MultifidelityQualityBasedProblem<S, Q> {
+
+        @Override
+        public String toString() {
+          return name();
+        }
+      }
       return new HardTOMFQProblem<>(
           multifidelityQualityFunction,
           validationQualityFunction,
           totalOrderComparator,
-          example
+          Optional.ofNullable(example),
+          name
       );
     }
     record HardTOQProblem<S, Q>(
         Function<S, Q> qualityFunction,
         Function<S, Q> validationQualityFunction,
         Comparator<Q> totalOrderComparator,
-        Optional<S> example
-    ) implements TotalOrderQualityBasedProblem<S, Q> {}
-    return new HardTOQProblem<>(qualityFunction, validationQualityFunction, totalOrderComparator, example);
+        Optional<S> example,
+        String name
+    ) implements TotalOrderQualityBasedProblem<S, Q> {
+
+      @Override
+      public String toString() {
+        return name();
+      }
+
+    }
+    return new HardTOQProblem<>(
+        qualityFunction,
+        validationQualityFunction,
+        totalOrderComparator,
+        Optional.ofNullable(example),
+        name
+    );
+  }
+
+  @Override
+  default <T> TotalOrderQualityBasedProblem<T, Q> on(Function<T, S> function, T example) {
+    return of(
+        qualityFunction().compose(function),
+        validationQualityFunction().compose(function),
+        totalOrderComparator(),
+        example,
+        "%s[on=%s]".formatted(this, function)
+    );
   }
 
   @Override
   default PartialComparator<Q> qualityComparator() {
     return PartialComparator.from(totalOrderComparator());
   }
+
+  Comparator<Q> totalOrderComparator();
 }

@@ -19,9 +19,11 @@
  */
 package io.github.ericmedvet.jgea.core.problem;
 
+import io.github.ericmedvet.jgea.core.order.PartialComparator;
 import io.github.ericmedvet.jgea.core.util.IndexedProvider;
 import io.github.ericmedvet.jgea.core.util.Naming;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -48,7 +50,7 @@ public interface CaseBasedProblem<S, C, CQ, Q> extends MultifidelityQualityBased
   default MultifidelityFunction<S, Q> qualityFunction() {
     return Naming.named(
         "%s[%s;%d]".formatted(aggregateFunction(), caseFunction(), caseProvider().size()),
-        (MultifidelityFunction<S, Q>) (s, fidelity) -> aggregateFunction().apply(
+        (s, fidelity) -> aggregateFunction().apply(
             caseProvider().stream()
                 .limit(
                     Math.clamp(
@@ -60,6 +62,55 @@ public interface CaseBasedProblem<S, C, CQ, Q> extends MultifidelityQualityBased
                 .map(c -> caseFunction().apply(s, c))
                 .toList()
         )
+    );
+  }
+
+  static <S, C, CQ, Q> CaseBasedProblem<S, C, CQ, Q> of(
+      PartialComparator<Q> qualityComparator,
+      Function<List<CQ>, Q> aggregateFunction,
+      BiFunction<S, C, CQ> caseFunction,
+      IndexedProvider<C> caseProvider,
+      IndexedProvider<C> validationCaseProvider,
+      S example,
+      String name
+  ) {
+    record HardCaseBasedProblem<S, C, CQ, Q>(
+        PartialComparator<Q> qualityComparator,
+        Function<List<CQ>, Q> aggregateFunction,
+        BiFunction<S, C, CQ> caseFunction,
+        IndexedProvider<C> caseProvider,
+        IndexedProvider<C> validationCaseProvider,
+        Optional<S> example,
+        String name
+    ) implements CaseBasedProblem<S, C, CQ, Q> {
+
+      @Override
+      public String toString() {
+        return name();
+      }
+
+    }
+    return new HardCaseBasedProblem<>(
+        qualityComparator,
+        aggregateFunction,
+        caseFunction,
+        caseProvider,
+        validationCaseProvider,
+        Optional.ofNullable(example),
+        name
+    );
+  }
+
+  @Override
+  default <T> CaseBasedProblem<T, C, CQ, Q> on(Function<T, S> function, T example) {
+    return of(
+        qualityComparator(),
+        aggregateFunction(),
+        (t, c) -> caseFunction().apply(function.apply(t), c),
+        caseProvider(),
+        validationCaseProvider(),
+        example,
+        "%s[on=%s]".formatted(this, function)
     );
   }
 }

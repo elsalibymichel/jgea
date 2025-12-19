@@ -20,10 +20,12 @@
 
 package io.github.ericmedvet.jgea.experimenter.builders;
 
+import io.github.ericmedvet.jgea.core.InvertibleMapper;
 import io.github.ericmedvet.jgea.core.problem.BBTOProblem;
 import io.github.ericmedvet.jgea.core.problem.MultiObjectiveProblem;
 import io.github.ericmedvet.jgea.core.problem.MultiObjectiveProblem.Objective;
 import io.github.ericmedvet.jgea.core.problem.MultiTargetProblem;
+import io.github.ericmedvet.jgea.core.problem.Problem;
 import io.github.ericmedvet.jgea.core.problem.SimpleBBMOProblem;
 import io.github.ericmedvet.jgea.core.problem.SimpleCBMOProblem;
 import io.github.ericmedvet.jgea.core.problem.SimpleMFBBMOProblem;
@@ -189,12 +191,13 @@ public class Problems {
       @Param(value = "type", dS = "minimize") OptimizationType type,
       @Param(value = "example", dNPM = "ea.misc.nullValue()") S example
   ) {
-    return TotalOrderQualityBasedProblem.from(
+    return TotalOrderQualityBasedProblem.of(
         qualityFunction,
         null,
         type.equals(OptimizationType.MAXIMIZE) ? Comparator.comparing(comparableFunction)
             .reversed() : Comparator.comparing(comparableFunction),
-        Optional.ofNullable(example)
+        example,
+        name
     );
   }
 
@@ -463,31 +466,17 @@ public class Problems {
       @Param("dT") double dT,
       @Param("tRange") DoubleRange tRange
   ) {
-    return new BBTOProblem<>() {
-      @Override
-      public Function<? super C, ? extends Simulation.Outcome<SingleAgentTask.Step<ReinforcementLearningAgent.RewardedInput<O>, A, TS>>> behaviorFunction() {
-        return c -> task.simulate(c, dT, tRange);
-      }
-
-      @Override
-      public Function<? super Simulation.Outcome<SingleAgentTask.Step<ReinforcementLearningAgent.RewardedInput<O>, A, TS>>, ? extends Double> behaviorQualityFunction() {
-        return o -> o.snapshots()
+    return BBTOProblem.of(
+        ((Comparator<Double>) Double::compareTo).reversed(),
+        c -> task.simulate(c, dT, tRange),
+        o -> o.snapshots()
             .values()
             .stream()
             .mapToDouble(s -> s.observation().reward())
-            .sum();
-      }
-
-      @Override
-      public Optional<C> example() {
-        return task.example();
-      }
-
-      @Override
-      public Comparator<Double> totalOrderBehaviorQualityComparator() {
-        return ((Comparator<Double>) Double::compareTo).reversed();
-      }
-    };
+            .sum(),
+        task.example().orElse(null),
+        name
+    );
   }
 
   @SuppressWarnings("unused")
@@ -498,32 +487,31 @@ public class Problems {
       @Param("dT") double dT,
       @Param("tRange") DoubleRange tRange
   ) {
-    return new TotalOrderQualityBasedProblem<>() {
-      @Override
-      public Optional<C> example() {
-        return task.example();
-      }
+    Function<C, Double> qualityFunction = c -> task.simulate(c, dT, tRange)
+        .snapshots()
+        .values()
+        .stream()
+        .mapToDouble(s -> s.observation().reward())
+        .sum();
+    return TotalOrderQualityBasedProblem.of(
+        qualityFunction,
+        qualityFunction,
+        ((Comparator<Double>) Double::compareTo).reversed(),
+        task.example().orElse(null),
+        name
+    );
+  }
 
-      @Override
-      public Function<C, Double> qualityFunction() {
-        return c -> task.simulate(c, dT, tRange)
-            .snapshots()
-            .values()
-            .stream()
-            .mapToDouble(s -> s.observation().reward())
-            .sum();
-      }
-
-      @Override
-      public String toString() {
-        return name;
-      }
-
-      @Override
-      public Comparator<Double> totalOrderComparator() {
-        return ((Comparator<Double>) Double::compareTo).reversed();
-      }
-    };
+  @SuppressWarnings("unused")
+  @Cacheable
+  public static <S, T> Problem<T> preMapped(
+      @Param(value = "mapper", dNPM = "ea.m.identity()") InvertibleMapper<T, S> mapper,
+      @Param("problem") Problem<S> problem
+  ) {
+    S exampleS = problem.example().orElse(null);
+    Function<T, S> f = mapper.mapperFor(exampleS);
+    T exampleT = mapper.exampleFor(exampleS);
+    return problem.on(f, exampleT);
   }
 
   public enum OptimizationType {
