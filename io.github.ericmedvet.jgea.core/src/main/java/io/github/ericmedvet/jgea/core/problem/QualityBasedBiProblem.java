@@ -19,19 +19,65 @@
  */
 package io.github.ericmedvet.jgea.core.problem;
 
+import io.github.ericmedvet.jgea.core.order.PartialComparator;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public interface QualityBasedBiProblem<S, O, Q> extends QualityBasedProblem<S, Q> {
 
-  BiFunction<S, S, O> outcomeFunction();
+  static <S, O, Q> QualityBasedBiProblem<S, O, Q> of(
+      PartialComparator<Q> qualityComparator,
+      BiFunction<S, S, O> outcomeFunction,
+      Function<O, Q> firstQualityFunction,
+      Function<O, Q> secondQualityFunction,
+      S example,
+      String name
+  ) {
+    record HardQualityBasedBiProblem<S, O, Q>(
+        PartialComparator<Q> qualityComparator,
+        BiFunction<S, S, O> outcomeFunction,
+        Function<O, Q> firstQualityFunction,
+        Function<O, Q> secondQualityFunction,
+        Optional<S> example,
+        String name
+    ) implements QualityBasedBiProblem<S, O, Q> {
+
+      @Override
+      public String toString() {
+        return name();
+      }
+    }
+    return new HardQualityBasedBiProblem<>(
+        qualityComparator,
+        outcomeFunction,
+        firstQualityFunction,
+        secondQualityFunction,
+        Optional.ofNullable(example),
+        name
+    );
+  }
 
   Function<O, Q> firstQualityFunction();
 
-  Function<O, Q> secondQualityFunction();
+  @Override
+  default <T> QualityBasedBiProblem<T, O, Q> on(Function<T, S> function, T example) {
+    return of(
+        qualityComparator(),
+        (t1, t2) -> outcomeFunction().apply(function.apply(t1), function.apply(t2)),
+        firstQualityFunction(),
+        secondQualityFunction(),
+        example,
+        "%s[on=%s]".formatted(this, function)
+    );
+  }
+
+  BiFunction<S, S, O> outcomeFunction();
 
   @Override
   default Function<S, Q> qualityFunction() {
     return s -> firstQualityFunction().apply(outcomeFunction().apply(s, s));
   }
+
+  Function<O, Q> secondQualityFunction();
 }

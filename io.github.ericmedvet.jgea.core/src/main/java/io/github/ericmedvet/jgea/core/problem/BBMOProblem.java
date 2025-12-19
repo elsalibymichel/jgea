@@ -21,6 +21,7 @@ package io.github.ericmedvet.jgea.core.problem;
 
 import io.github.ericmedvet.jgea.core.order.ParetoDominance;
 import io.github.ericmedvet.jgea.core.order.PartialComparator;
+import io.github.ericmedvet.jgea.core.problem.MultifidelityQualityBasedProblem.MultifidelityFunction;
 import io.github.ericmedvet.jgea.core.util.Misc;
 import java.util.Optional;
 import java.util.SequencedMap;
@@ -46,13 +47,34 @@ public interface BBMOProblem<S, B, BQ, O> extends MultiObjectiveProblem<S, Behav
         return name();
       }
     }
-    return new HardBBMOProblem<>(
-        behaviorQualityObjectives,
-        behaviorFunction,
-        behaviorQualityFunction,
-        Optional.ofNullable(example),
-        name
-    );
+    record HardMFBBMOProblem<S, B, BQ, O>(
+        SequencedMap<String, Objective<BQ, O>> behaviorQualityObjectives,
+        MultifidelityFunction<? super S, ? extends B> behaviorFunction,
+        Function<? super B, ? extends BQ> behaviorQualityFunction,
+        Optional<S> example,
+        String name
+    ) implements MFBBMOProblem<S, B, BQ, O> {
+      @Override
+      public String toString() {
+        return name();
+      }
+    }
+    return switch (behaviorFunction) {
+      case MultifidelityFunction<? super S, ? extends B> mfBehaviorFunction -> new HardMFBBMOProblem<>(
+          behaviorQualityObjectives,
+          mfBehaviorFunction,
+          behaviorQualityFunction,
+          Optional.ofNullable(example),
+          name
+      );
+      default -> new HardBBMOProblem<>(
+          behaviorQualityObjectives,
+          behaviorFunction,
+          behaviorQualityFunction,
+          Optional.ofNullable(example),
+          name
+      );
+    };
   }
 
   @Override

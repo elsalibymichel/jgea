@@ -29,22 +29,35 @@ import java.util.function.Function;
 
 public interface SimpleMOProblem<S, O> extends MultiObjectiveProblem<S, SequencedMap<String, O>, O> {
 
-  SequencedMap<String, Comparator<O>> comparators();
-
-  static <S, O> SimpleMOProblem<S, O> from(
+  static <S, O> SimpleMOProblem<S, O> of(
       SequencedMap<String, Comparator<O>> comparators,
       Function<S, SequencedMap<String, O>> qualityFunction,
       Function<S, SequencedMap<String, O>> validationQualityFunction,
-      @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<S> example
+      S example,
+      String name
   ) {
-    record HardSMOProblem<S, O>(
+    record HardSimpleMOProblem<S, O>(
         SequencedMap<String, Comparator<O>> comparators,
         Function<S, SequencedMap<String, O>> qualityFunction,
         Function<S, SequencedMap<String, O>> validationQualityFunction,
-        Optional<S> example
-    ) implements SimpleMOProblem<S, O> {}
-    return new HardSMOProblem<>(comparators, qualityFunction, qualityFunction, example);
+        Optional<S> example,
+        String name
+    ) implements SimpleMOProblem<S, O> {
+      @Override
+      public String toString() {
+        return name();
+      }
+    }
+    return new HardSimpleMOProblem<>(
+        comparators,
+        qualityFunction,
+        validationQualityFunction,
+        Optional.ofNullable(example),
+        name
+    );
   }
+
+  SequencedMap<String, Comparator<O>> comparators();
 
   @Override
   default SequencedMap<String, Objective<SequencedMap<String, O>, O>> objectives() {
@@ -66,6 +79,6 @@ public interface SimpleMOProblem<S, O> extends MultiObjectiveProblem<S, Sequence
         .stream()
         .filter(objectiveNames::contains)
         .collect(Utils.toSequencedMap(cn -> comparators().get(cn)));
-    return from(reducedComparators, qualityFunction(), validationQualityFunction(), example());
+    return of(reducedComparators, qualityFunction(), validationQualityFunction(), example().orElse(null), toString());
   }
 }

@@ -19,14 +19,60 @@
  */
 package io.github.ericmedvet.jgea.core.problem;
 
+import io.github.ericmedvet.jgea.core.problem.MultifidelityQualityBasedProblem.MultifidelityFunction;
 import io.github.ericmedvet.jnb.datastructure.Utils;
 import java.util.Map;
+import java.util.Optional;
 import java.util.SequencedMap;
 import java.util.function.Function;
 
 public interface SimpleBBMOProblem<S, B, O> extends BBMOProblem<S, B, SequencedMap<String, O>, O> {
 
   SequencedMap<String, Objective<B, O>> behaviorObjectives();
+
+  static <S, B, O> SimpleBBMOProblem<S, B, O> of(
+      SequencedMap<String, Objective<B, O>> behaviorObjectives,
+      Function<? super S, ? extends B> behaviorFunction,
+      S example,
+      String name
+  ) {
+    record HardSimpleBBMOProblem<S, B, O>(
+        SequencedMap<String, Objective<B, O>> behaviorObjectives,
+        Function<? super S, ? extends B> behaviorFunction,
+        Optional<S> example,
+        String name
+    ) implements SimpleBBMOProblem<S, B, O> {
+      @Override
+      public String toString() {
+        return name();
+      }
+    }
+    record HardSimpleMFBBMOProblem<S, B, O>(
+        SequencedMap<String, Objective<B, O>> behaviorObjectives,
+        MultifidelityFunction<? super S, ? extends B> behaviorFunction,
+        Optional<S> example,
+        String name
+    ) implements SimpleMFBBMOProblem<S, B, O> {
+      @Override
+      public String toString() {
+        return name();
+      }
+    }
+    return switch (behaviorFunction) {
+      case MultifidelityFunction<? super S, ? extends B> mfBehaviorFunction -> new HardSimpleMFBBMOProblem<>(
+          behaviorObjectives,
+          mfBehaviorFunction,
+          Optional.of(example),
+          name
+      );
+      default -> new HardSimpleBBMOProblem<>(
+          behaviorObjectives,
+          behaviorFunction,
+          Optional.of(example),
+          name
+      );
+    };
+  }
 
   @Override
   default Function<? super B, ? extends SequencedMap<String, O>> behaviorQualityFunction() {

@@ -68,6 +68,6 @@ public interface MultiTargetProblem<S> extends TotalOrderQualityBasedProblem<S, 
                 i -> distance().apply(s, targets.get(i))
             )
         );
-    return SimpleMOProblem.from(comparators, outcomeF, null, example());
+    return SimpleMOProblem.of(comparators, outcomeF, outcomeF, example().orElse(null), toString());
   }
 }

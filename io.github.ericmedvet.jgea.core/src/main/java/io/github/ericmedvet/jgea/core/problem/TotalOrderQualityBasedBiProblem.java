@@ -27,42 +27,60 @@ import java.util.function.Function;
 
 public interface TotalOrderQualityBasedBiProblem<S, O, Q> extends QualityBasedBiProblem<S, O, Q> {
 
-  Comparator<Q> totalOrderComparator();
-
   static <S, O, Q> TotalOrderQualityBasedBiProblem<S, O, Q> from(
       QualityBasedBiProblem<S, O, Q> qbBiProblem,
       Comparator<Q> comparator
   ) {
-    return from(
+    return of(
         qbBiProblem.outcomeFunction(),
         qbBiProblem.firstQualityFunction(),
         qbBiProblem.secondQualityFunction(),
         comparator,
-        qbBiProblem.example()
+        qbBiProblem.example().orElse(null),
+        qbBiProblem.toString()
     );
   }
 
-  static <S, O, Q> TotalOrderQualityBasedBiProblem<S, O, Q> from(
+  static <S, O, Q> TotalOrderQualityBasedBiProblem<S, O, Q> of(
       BiFunction<S, S, O> outcomeFunction,
       Function<O, Q> firstQualityFunction,
       Function<O, Q> secondQualityFunction,
       Comparator<Q> totalOrderComparator,
-      @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<S> example
+      S example,
+      String name
   ) {
-    record HardTOQBiProblem<S, O, Q>(
+    record HardTotalOrderQualityBasedBiProblem<S, O, Q>(
         BiFunction<S, S, O> outcomeFunction,
         Function<O, Q> firstQualityFunction,
         Function<O, Q> secondQualityFunction,
         Comparator<Q> totalOrderComparator,
-        Optional<S> example
+        Optional<S> example,
+        String name
     ) implements TotalOrderQualityBasedBiProblem<S, O, Q> {
+      @Override
+      public String toString() {
+        return name();
+      }
     }
-    return new HardTOQBiProblem<>(
+    return new HardTotalOrderQualityBasedBiProblem<>(
         outcomeFunction,
         firstQualityFunction,
         secondQualityFunction,
         totalOrderComparator,
-        example
+        Optional.ofNullable(example),
+        name
+    );
+  }
+
+  @Override
+  default <T> TotalOrderQualityBasedBiProblem<T, O, Q> on(Function<T, S> function, T example) {
+    return of(
+        (t1, t2) -> outcomeFunction().apply(function.apply(t1), function.apply(t2)),
+        firstQualityFunction(),
+        secondQualityFunction(),
+        totalOrderComparator(),
+        example,
+        "%s[on=%s]".formatted(this, function)
     );
   }
 
@@ -70,4 +88,6 @@ public interface TotalOrderQualityBasedBiProblem<S, O, Q> extends QualityBasedBi
   default PartialComparator<Q> qualityComparator() {
     return PartialComparator.from(totalOrderComparator());
   }
+
+  Comparator<Q> totalOrderComparator();
 }

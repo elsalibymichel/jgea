@@ -25,6 +25,7 @@ import io.github.ericmedvet.jgea.core.problem.BBTOProblem;
 import io.github.ericmedvet.jgea.core.problem.MultiObjectiveProblem;
 import io.github.ericmedvet.jgea.core.problem.MultiObjectiveProblem.Objective;
 import io.github.ericmedvet.jgea.core.problem.MultiTargetProblem;
+import io.github.ericmedvet.jgea.core.problem.MultifidelityQualityBasedProblem.MultifidelityFunction;
 import io.github.ericmedvet.jgea.core.problem.Problem;
 import io.github.ericmedvet.jgea.core.problem.SimpleBBMOProblem;
 import io.github.ericmedvet.jgea.core.problem.SimpleCBMOProblem;
@@ -49,9 +50,7 @@ import io.github.ericmedvet.jsdynsym.core.rl.ReinforcementLearningAgent;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.SequencedMap;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -76,41 +75,18 @@ public class Problems {
       @Param("dT") double dT,
       @Param("tRange") DoubleRange tRange
   ) {
-    return new TotalOrderQualityBasedBiProblem<>() {
-      @Override
-      public Optional<S> example() {
-        return simulation.homogeneousExample();
-      }
-
-      @Override
-      public Function<B, Q> firstQualityFunction() {
-        return qFunction1;
-      }
-
-      @Override
-      public BiFunction<S, S, B> outcomeFunction() {
-        return (s1, s2) -> simulation.simulate(s1, s2, dT, tRange);
-      }
-
-      @Override
-      public Function<B, Q> secondQualityFunction() {
-        return qFunction1;
-      }
-
-      @Override
-      public String toString() {
-        return "%s[%s]".formatted(
+    return TotalOrderQualityBasedBiProblem.of(
+        (s1, s2) -> simulation.simulate(s1, s2, dT, tRange),
+        qFunction1,
+        qFunction2,
+        type.equals(OptimizationType.MAXIMIZE) ? Comparator.comparing(comparableFunction)
+            .reversed() : Comparator.comparing(comparableFunction),
+        simulation.homogeneousExample().orElse(null),
+        "%s[%s]".formatted(
             name,
             String.join(";", NamedFunction.name(qFunction1), NamedFunction.name(qFunction2))
-        );
-      }
-
-      @Override
-      public Comparator<Q> totalOrderComparator() {
-        return type.equals(OptimizationType.MAXIMIZE) ? Comparator.comparing(comparableFunction)
-            .reversed() : Comparator.comparing(comparableFunction);
-      }
-    };
+        )
+    );
   }
 
   @SuppressWarnings("unused")
@@ -125,28 +101,14 @@ public class Problems {
       @Param("dT") double dT,
       @Param("tRange") DoubleRange tRange
   ) {
-    return new TotalOrderQualityBasedProblem<>() {
-      @Override
-      public Optional<S> example() {
-        return simulation.homogeneousExample();
-      }
-
-      @Override
-      public Function<S, Q> qualityFunction() {
-        return (s -> qFunction.apply(simulation.simulate(s, trainingOpponent.get(), dT, tRange)));
-      }
-
-      @Override
-      public String toString() {
-        return "%s[%s]".formatted(name, String.join(";", NamedFunction.name(qFunction)));
-      }
-
-      @Override
-      public Comparator<Q> totalOrderComparator() {
-        return type.equals(OptimizationType.MAXIMIZE) ? Comparator.comparing(comparableFunction)
-            .reversed() : Comparator.comparing(comparableFunction);
-      }
-    };
+    return TotalOrderQualityBasedProblem.of(
+        s -> qFunction.apply(simulation.simulate(s, trainingOpponent.get(), dT, tRange)),
+        s -> qFunction.apply(simulation.simulate(s, trainingOpponent.get(), dT, tRange)),
+        type.equals(OptimizationType.MAXIMIZE) ? Comparator.comparing(comparableFunction)
+            .reversed() : Comparator.comparing(comparableFunction),
+        simulation.homogeneousExample().orElse(null),
+        "%s[%s]".formatted(name, NamedFunction.name(qFunction))
+    );
   }
 
   private static <Q, O extends Comparable<O>> SequencedMap<String, Objective<Q, O>> buildObjectives(
@@ -211,43 +173,17 @@ public class Problems {
       @Param("toMaxObjectives") List<Function<List<CQ>, O>> toMaxObjectives,
       @Param(value = "example", dNPM = "ea.misc.nullValue()") S example
   ) {
-    SequencedMap<String, Objective<List<CQ>, O>> objectives = buildObjectives(
-        toMinObjectives,
-        toMaxObjectives
+    return SimpleCBMOProblem.of(
+        buildObjectives(
+            toMinObjectives,
+            toMaxObjectives
+        ),
+        (s, caseF) -> caseF.apply(s),
+        IndexedProvider.from(cases),
+        IndexedProvider.from(validationCases),
+        example,
+        name
     );
-    IndexedProvider<Function<S, CQ>> caseProvider = IndexedProvider.from(cases);
-    IndexedProvider<Function<S, CQ>> validationCaseProvider = IndexedProvider.from(validationCases);
-    return new SimpleCBMOProblem<>() {
-      @Override
-      public SequencedMap<String, Objective<List<CQ>, O>> aggregateObjectives() {
-        return objectives;
-      }
-
-      @Override
-      public BiFunction<S, Function<S, CQ>, CQ> caseFunction() {
-        return (s, caseF) -> caseF.apply(s);
-      }
-
-      @Override
-      public IndexedProvider<Function<S, CQ>> caseProvider() {
-        return caseProvider;
-      }
-
-      @Override
-      public Optional<S> example() {
-        return Optional.ofNullable(example);
-      }
-
-      @Override
-      public String toString() {
-        return name;
-      }
-
-      @Override
-      public IndexedProvider<Function<S, CQ>> validationCaseProvider() {
-        return validationCaseProvider;
-      }
-    };
   }
 
   @SuppressWarnings("unused")
@@ -280,39 +216,19 @@ public class Problems {
       @Param("toMinObjectives") List<Function<B, O>> toMinObjectives,
       @Param("toMaxObjectives") List<Function<B, O>> toMaxObjectives
   ) {
-    SequencedMap<String, Objective<B, O>> behaviorObjectives = buildObjectives(
-        toMinObjectives,
-        toMaxObjectives
-    );
-    return new SimpleMFBBMOProblem<>() {
-      @Override
-      public MultifidelityFunction<? super S, ? extends B> behaviorFunction() {
-        return (s, fidelity) -> simulation.simulate(
+    return (SimpleMFBBMOProblem<S, B, O>) SimpleBBMOProblem.of(
+        buildObjectives(
+            toMinObjectives,
+            toMaxObjectives
+        ),
+        (MultifidelityFunction<S, B>) ((s, fidelity) -> simulation.simulate(
             s,
             dT,
             new DoubleRange(initT, finalTRange.denormalize(fidelity))
-        );
-      }
-
-      @Override
-      public SequencedMap<String, Objective<B, O>> behaviorObjectives() {
-        return behaviorObjectives;
-      }
-
-      @Override
-      public Optional<S> example() {
-        return simulation.example();
-      }
-
-      @Override
-      public String toString() {
-        return "%s[fT=%s;%s]".formatted(
-            name,
-            finalTRange,
-            String.join(";", behaviorObjectives.keySet())
-        );
-      }
-    };
+        )),
+        simulation.example().orElse(null),
+        name
+    );
   }
 
   @SuppressWarnings("unused")
@@ -325,35 +241,15 @@ public class Problems {
       @Param("toMinObjectives") List<Function<B, O>> toMinObjectives,
       @Param("toMaxObjectives") List<Function<B, O>> toMaxObjectives
   ) {
-    SequencedMap<String, Objective<B, O>> behaviorObjectives = buildObjectives(
-        toMinObjectives,
-        toMaxObjectives
+    return (SimpleMFBBMOProblem<S, B, O>) SimpleBBMOProblem.of(
+        buildObjectives(
+            toMinObjectives,
+            toMaxObjectives
+        ),
+        (MultifidelityFunction<S, B>) ((s, fidelity) -> simulation.simulate(s, dTRange.denormalize(fidelity), tRange)),
+        simulation.example().orElse(null),
+        name
     );
-    return new SimpleMFBBMOProblem<>() {
-      @Override
-      public MultifidelityFunction<? super S, ? extends B> behaviorFunction() {
-        return (s, fidelity) -> simulation.simulate(s, dTRange.denormalize(fidelity), tRange);
-      }
-
-      @Override
-      public SequencedMap<String, Objective<B, O>> behaviorObjectives() {
-        return behaviorObjectives;
-      }
-
-      @Override
-      public Optional<S> example() {
-        return simulation.example();
-      }
-
-      @Override
-      public String toString() {
-        return "%s[dT=%s;%s]".formatted(
-            name,
-            dTRange,
-            String.join(";", behaviorObjectives.keySet())
-        );
-      }
-    };
   }
 
   @SuppressWarnings("unused")
@@ -370,27 +266,12 @@ public class Problems {
         toMinObjectives,
         toMaxObjectives
     );
-    return new SimpleBBMOProblem<>() {
-      @Override
-      public Function<? super S, ? extends B> behaviorFunction() {
-        return s -> simulation.simulate(s, dT, tRange);
-      }
-
-      @Override
-      public SequencedMap<String, Objective<B, O>> behaviorObjectives() {
-        return behaviorObjectives;
-      }
-
-      @Override
-      public Optional<S> example() {
-        return simulation.example();
-      }
-
-      @Override
-      public String toString() {
-        return "%s[%s]".formatted(name, String.join(";", behaviorObjectives.keySet()));
-      }
-    };
+    return SimpleBBMOProblem.of(
+        behaviorObjectives,
+        s -> simulation.simulate(s, dT, tRange),
+        simulation.example().orElse(null),
+        "%s[%s]".formatted(name, String.join(";", behaviorObjectives.keySet()))
+    );
   }
 
   @SuppressWarnings("unused")
@@ -425,27 +306,13 @@ public class Problems {
                 Pair::second
             )
         );
-    return new SimpleMOProblem<>() {
-      @Override
-      public SequencedMap<String, Comparator<O>> comparators() {
-        return comparators;
-      }
-
-      @Override
-      public Optional<S> example() {
-        return simulation.example();
-      }
-
-      @Override
-      public Function<S, SequencedMap<String, O>> qualityFunction() {
-        return simulationFunction.andThen(objectivesFunction);
-      }
-
-      @Override
-      public String toString() {
-        return "%s[%s]".formatted(name, String.join(";", comparators.keySet()));
-      }
-    };
+    return SimpleMOProblem.of(
+        comparators,
+        simulationFunction.andThen(objectivesFunction),
+        simulationFunction.andThen(objectivesFunction),
+        simulation.example().orElse(null),
+        "%s[%s]".formatted(name, String.join(";", comparators.keySet()))
+    );
   }
 
   @SuppressWarnings("unused")
