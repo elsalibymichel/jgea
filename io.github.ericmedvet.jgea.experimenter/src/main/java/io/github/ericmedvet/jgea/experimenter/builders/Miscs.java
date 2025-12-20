@@ -319,12 +319,6 @@ public class Miscs {
 
   @SuppressWarnings("unused")
   @Cacheable
-  public static Object nullValue() {
-    return null;
-  }
-
-  @SuppressWarnings("unused")
-  @Cacheable
   public static <G, S, Q, O> AbstractBiEvolver.OpponentsSelector<Individual<G, S, Q>, S, Q, O> oldestSelector(
       @Param(value = "name", iS = "oldest[{nOfOpponents}]") String name,
       @Param(value = "nOfOpponents", dI = 1) int nOfOpponents
@@ -350,31 +344,6 @@ public class Miscs {
   @Cacheable
   public static <V> Map.Entry<String, V> sEntry(@Param("key") String key, @Param("value") V value) {
     return Map.entry(key, value);
-  }
-
-  @SuppressWarnings("unused")
-  public static <V> Map<String, V> sMapFromLists(
-      @Param("keys") List<String> keys,
-      @Param("values") List<V> values
-  ) {
-    if (keys.size() != values.size()) {
-      throw new IllegalArgumentException(
-          "Keys and values size do not match: %d != %d".formatted(
-              keys.size(),
-              values.size()
-          )
-      );
-    }
-    return Collections.unmodifiableSequencedMap(
-        IntStream.range(0, keys.size())
-            .boxed()
-            .collect(
-                Utils.toSequencedMap(
-                    keys::get,
-                    values::get
-                )
-            )
-    );
   }
 
   @SuppressWarnings("unused")

@@ -2305,16 +2305,19 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.core.InvertibleMapper">Inv
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.core.InvertibleMapper">InvertibleMapper</abbr>&lt;X, <abbr title="io.github.ericmedvet.jnb.datastructure.Grid">Grid</abbr>&lt;T&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Mappers.isToGrammarGrid()` by jgea-experimenter:2.8.2-SNAPSHOT
 
-### Builder `ea.mapper.isToGrid()`
+### Builder `ea.mapper.isToSGrid()`
 
-`ea.m.isToGrid(of; items)`
+`ea.m.isToSGrid(of; maxW; maxH; nullItem; items)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
 | `of` | npm | `ea.m.identity()` | <code><abbr title="io.github.ericmedvet.jgea.core.InvertibleMapper">InvertibleMapper</abbr>&lt;X, <abbr title="io.github.ericmedvet.jgea.core.representation.sequence.integer.IntString">IntString</abbr>&gt;</code> |
-| `items` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;T&gt;</code> |
+| `maxW` | i | `-1` | <code>int</code> |
+| `maxH` | i | `-1` | <code>int</code> |
+| `nullItem` | b | `true` | <code>boolean</code> |
+| `items` | s[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.String">String</abbr>&gt;</code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jgea.core.InvertibleMapper">InvertibleMapper</abbr>&lt;X, <abbr title="io.github.ericmedvet.jnb.datastructure.Grid">Grid</abbr>&lt;T&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Mappers.isToGrid()` by jgea-experimenter:2.8.2-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jgea.core.InvertibleMapper">InvertibleMapper</abbr>&lt;X, <abbr title="io.github.ericmedvet.jnb.datastructure.Grid">Grid</abbr>&lt;<abbr title="java.lang.String">String</abbr>&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Mappers.isToSGrid()` by jgea-experimenter:2.8.2-SNAPSHOT
 
 ### Builder `ea.mapper.isToString()`
 
@@ -2695,12 +2698,6 @@ Produces <code><abbr title="java.util.function.BinaryOperator">BinaryOperator</a
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.core.solver.bi.AbstractBiEvolver$OpponentsSelector">AbstractBiEvolver$OpponentsSelector</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.mapelites.MEIndividual">MEIndividual</abbr>&lt;G, S, Q&gt;, S, Q, O&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.nearestMESelector()` by jgea-experimenter:2.8.2-SNAPSHOT
 
-### Builder `ea.misc.nullValue()`
-
-`ea.misc.nullValue()`
-
-Produces <code><abbr title="java.lang.Object">Object</abbr></code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.nullValue()` by jgea-experimenter:2.8.2-SNAPSHOT
-
 ### Builder `ea.misc.oldestSelector()`
 
 `ea.misc.oldestSelector(name; nOfOpponents)`
@@ -2733,17 +2730,6 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.core.solver.bi.AbstractBiE
 | `value` | npm |  | <code>V</code> |
 
 Produces <code><abbr title="java.util.Map$Entry">Map$Entry</abbr>&lt;<abbr title="java.lang.String">String</abbr>, V&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.sEntry()` by jgea-experimenter:2.8.2-SNAPSHOT
-
-### Builder `ea.misc.sMapFromLists()`
-
-`ea.misc.sMapFromLists(keys; values)`
-
-| Param | Type | Default | Java type |
-| --- | --- | --- | --- |
-| `keys` | s[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.String">String</abbr>&gt;</code> |
-| `values` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;V&gt;</code> |
-
-Produces <code><abbr title="java.util.Map">Map</abbr>&lt;<abbr title="java.lang.String">String</abbr>, V&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.sMapFromLists()` by jgea-experimenter:2.8.2-SNAPSHOT
 
 ### Builder `ea.misc.toVideo()`
 
@@ -3186,7 +3172,7 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.TotalOrderQua
 | `qFunction` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;S, Q&gt;</code> |
 | `cFunction` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;Q, C&gt;</code> |
 | `type` | e | `MINIMIZE` | <code><abbr title="io.github.ericmedvet.jgea.experimenter.builders.Problems$OptimizationType">Problems$OptimizationType</abbr></code> |
-| `example` | npm | `ea.misc.nullValue()` | <code>S</code> |
+| `example` | npm | `misc.nullValue()` | <code>S</code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.TotalOrderQualityBasedProblem">TotalOrderQualityBasedProblem</abbr>&lt;S, Q&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Problems.functionToTo()` by jgea-experimenter:2.8.2-SNAPSHOT
 
@@ -3201,7 +3187,7 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.TotalOrderQua
 | `validationCases` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;S, CQ&gt;&gt;</code> |
 | `toMinObjectives` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;CQ&gt;, O&gt;&gt;</code> |
 | `toMaxObjectives` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;CQ&gt;, O&gt;&gt;</code> |
-| `example` | npm | `ea.misc.nullValue()` | <code>S</code> |
+| `example` | npm | `misc.nullValue()` | <code>S</code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.SimpleCBMOProblem">SimpleCBMOProblem</abbr>&lt;S, <abbr title="java.util.function.Function">Function</abbr>&lt;S, CQ&gt;, CQ, O&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Problems.functionsToScbmo()` by jgea-experimenter:2.8.2-SNAPSHOT
 
@@ -5002,6 +4988,18 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.NamedFunction
 
 Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.NamedFunction">NamedFunction</abbr>&lt;X, T&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Functions.nTh()` by jgea-experimenter:2.8.2-SNAPSHOT
 
+### Builder `function.fittedGrid()`
+
+`f.fittedGrid(name; of; predicate)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `name` | s | `fitted.grid` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jnb.datastructure.Grid">Grid</abbr>&lt;T&gt;&gt;</code> |
+| `predicate` | npm | `f.nonNull()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;T, <abbr title="java.lang.Boolean">Boolean</abbr>&gt;</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="io.github.ericmedvet.jnb.datastructure.Grid">Grid</abbr>&lt;T&gt;&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Functions.fittedGrid()` by jgea-experimenter:2.8.2-SNAPSHOT
+
 ### Builder `function.flat()`
 
 `f.flat(of; format)`
@@ -5122,7 +5120,7 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedName
 
 ### Builder `function.gridString()`
 
-`f.gridString(name; of; elementF; separator; format)`
+`f.gridString(name; of; elementF; separator; format; nullString)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -5131,6 +5129,7 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedName
 | `elementF` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;T, <abbr title="java.lang.String">String</abbr>&gt;</code> |
 | `separator` | s | `;` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `format` | s | `%s` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `nullString` | s | `` | <code><abbr title="java.lang.String">String</abbr></code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.String">String</abbr>&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Functions.gridString()` by jgea-experimenter:2.8.2-SNAPSHOT
 
@@ -5245,6 +5244,18 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedName
 | `format` | s | `%s` | <code><abbr title="java.lang.String">String</abbr></code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.String">String</abbr>&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Functions.mappableKey()` by jgea-experimenter:2.8.2-SNAPSHOT
+
+### Builder `function.mapper()`
+
+`f.mapper(name; of; map)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `name` | s | `mapper` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, T&gt;</code> |
+| `map` | npm |  | <code><abbr title="java.util.Map">Map</abbr>&lt;T, K&gt;</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.NamedFunction">NamedFunction</abbr>&lt;X, K&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Functions.mapper()` by jgea-experimenter:2.8.2-SNAPSHOT
 
 ### Builder `function.mathConst()`
 
@@ -5686,6 +5697,17 @@ Produces <code><abbr title="java.util.random.RandomGenerator">RandomGenerator</a
 
 Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.Grid">Grid</abbr>&lt;T&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Miscs.grid()` by jgea-experimenter:2.8.2-SNAPSHOT
 
+### Builder `misc.map()`
+
+`m.map(keys; values)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `keys` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;K&gt;</code> |
+| `values` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;V&gt;</code> |
+
+Produces <code><abbr title="java.util.Map">Map</abbr>&lt;K, V&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Miscs.map()` by jgea-experimenter:2.8.2-SNAPSHOT
+
 ### Builder `misc.nth()`
 
 `m.nth(n; values)`
@@ -5697,6 +5719,12 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.Grid">Grid</a
 
 Produces <code>T</code>; built from `io.github.ericmedvet.jnb.buildable.Miscs.nth()` by jgea-experimenter:2.8.2-SNAPSHOT
 
+### Builder `misc.nullValue()`
+
+`m.nullValue()`
+
+Produces <code><abbr title="java.lang.Object">Object</abbr></code>; built from `io.github.ericmedvet.jnb.buildable.Miscs.nullValue()` by jgea-experimenter:2.8.2-SNAPSHOT
+
 ### Builder `misc.range()`
 
 `m.range(min; max)`
@@ -5707,6 +5735,39 @@ Produces <code>T</code>; built from `io.github.ericmedvet.jnb.buildable.Miscs.nt
 | `max` | d |  | <code>double</code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code>; built from `io.github.ericmedvet.jnb.buildable.Miscs.range()` by jgea-experimenter:2.8.2-SNAPSHOT
+
+### Builder `misc.sKeyMap()`
+
+`m.sKeyMap(keys; values)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `keys` | s[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `values` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;V&gt;</code> |
+
+Produces <code><abbr title="java.util.Map">Map</abbr>&lt;<abbr title="java.lang.String">String</abbr>, V&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Miscs.sKeyMap()` by jgea-experimenter:2.8.2-SNAPSHOT
+
+### Builder `misc.sMap()`
+
+`m.sMap(keys; values)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `keys` | s[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `values` | s[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.String">String</abbr>&gt;</code> |
+
+Produces <code><abbr title="java.util.Map">Map</abbr>&lt;<abbr title="java.lang.String">String</abbr>, <abbr title="java.lang.String">String</abbr>&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Miscs.sMap()` by jgea-experimenter:2.8.2-SNAPSHOT
+
+### Builder `misc.sValueMap()`
+
+`m.sValueMap(keys; values)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `keys` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;K&gt;</code> |
+| `values` | s[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.String">String</abbr>&gt;</code> |
+
+Produces <code><abbr title="java.util.Map">Map</abbr>&lt;K, <abbr title="java.lang.String">String</abbr>&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Miscs.sValueMap()` by jgea-experimenter:2.8.2-SNAPSHOT
 
 ### Builder `misc.sharedRG()`
 

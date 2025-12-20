@@ -475,26 +475,59 @@ public class Mappers {
 
   @SuppressWarnings("unused")
   @Cacheable
-  public static <X, T> InvertibleMapper<X, Grid<T>> isToGrid(
+  public static <X> InvertibleMapper<X, Grid<String>> isToSGrid(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, IntString> beforeM,
-      @Param("items") List<T> items
+      @Param(value = "maxW", dI = -1) int maxW,
+      @Param(value = "maxH", dI = -1) int maxH,
+      @Param(value = "nullItem", dB = true) boolean nullItem,
+      @Param("items") List<String> items
   ) {
     return beforeM.andThen(
         InvertibleMapper.from(
             (g, is) -> {
-              if (is.size() != g.w() * g.h()) {
+              int w = (maxW > 0) ? Math.min(maxW, g.w()) : g.w();
+              int h = (maxH > 0) ? Math.min(maxH, g.h()) : g.h();
+              int upperBound = items.size() + (nullItem ? 1 : 0);
+              if (is.size() != w * h) {
                 throw new IllegalArgumentException(
-                    "Wrong size for the integer string: %dx%d=%d expected, %d found"
-                        .formatted(g.w(), g.h(), g.w() * g.h(), is.size())
+                    "Wrong size of the integer string: %dx%d=%d expected, %d found"
+                        .formatted(w, h, w * h, is.size())
                 );
               }
+              if (is.lowerBound() != 0 || is.upperBound() != upperBound) {
+                throw new IllegalArgumentException(
+                    "Wrong bounds of the integer string: [0;%d] expected, [%d;%d] found".formatted(
+                        upperBound,
+                        is.lowerBound(),
+                        is.upperBound()
+                    )
+                );
+              }
+              Grid<String> grid = Grid.create(
+                  w,
+                  h,
+                  is.genes()
+                      .stream()
+                      .map(i -> {
+                        if (nullItem) {
+                          return i == 0 ? null : items.get(i - 1);
+                        }
+                        return items.get(i);
+                      })
+                      .toList()
+              );
               return Grid.create(
                   g.w(),
                   g.h(),
-                  is.genes().stream().map(items::get).toList()
+                  k -> grid.isValid(k) ? grid.get(k) : (nullItem ? null : items.getFirst())
               );
             },
-            g -> new IntString(Collections.nCopies(g.w() * g.h(), 0), 0, items.size()),
+            g -> {
+              int w = (maxW > 0) ? Math.min(maxW, g.w()) : g.w();
+              int h = (maxH > 0) ? Math.min(maxH, g.h()) : g.h();
+              int upperBound = items.size() + (nullItem ? 1 : 0);
+              return new IntString(Collections.nCopies(w * h, 0), 0, upperBound);
+            },
             "isToGrid[nOfItems=%d]".formatted(items.size())
         )
     );

@@ -151,7 +151,7 @@ public class Problems {
       @Param("qFunction") Function<S, Q> qualityFunction,
       @Param(value = "cFunction", dNPM = "f.identity()") Function<Q, C> comparableFunction,
       @Param(value = "type", dS = "minimize") OptimizationType type,
-      @Param(value = "example", dNPM = "ea.misc.nullValue()") S example
+      @Param(value = "example", dNPM = "misc.nullValue()") S example
   ) {
     return TotalOrderQualityBasedProblem.of(
         qualityFunction,
@@ -171,7 +171,7 @@ public class Problems {
       @Param("validationCases") List<Function<S, CQ>> validationCases,
       @Param("toMinObjectives") List<Function<List<CQ>, O>> toMinObjectives,
       @Param("toMaxObjectives") List<Function<List<CQ>, O>> toMaxObjectives,
-      @Param(value = "example", dNPM = "ea.misc.nullValue()") S example
+      @Param(value = "example", dNPM = "misc.nullValue()") S example
   ) {
     return SimpleCBMOProblem.of(
         buildObjectives(
