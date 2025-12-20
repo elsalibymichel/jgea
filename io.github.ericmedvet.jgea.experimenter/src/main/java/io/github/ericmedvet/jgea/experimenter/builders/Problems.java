@@ -207,6 +207,19 @@ public class Problems {
 
   @SuppressWarnings("unused")
   @Cacheable
+  public static <S, T> Problem<T> preMapped(
+      @Param(value = "name", iS = "{problem.name}") String name,
+      @Param(value = "mapper", dNPM = "ea.m.identity()") InvertibleMapper<T, S> mapper,
+      @Param("problem") Problem<S> problem
+  ) {
+    S exampleS = problem.example().orElse(null);
+    Function<T, S> f = mapper.mapperFor(exampleS);
+    T exampleT = mapper.exampleFor(exampleS);
+    return problem.on(f, exampleT);
+  }
+
+  @SuppressWarnings("unused")
+  @Cacheable
   public static <S, B extends Simulation.Outcome<BS>, BS, O extends Comparable<O>> SimpleMFBBMOProblem<S, B, O> simToDurationSmfbbmo(
       @Param(value = "name", iS = "{simulation.name}[finalT={finalTRange.min}--{finalTRange.min}]") String name,
       @Param("simulation") Simulation<S, BS, B> simulation,
@@ -367,18 +380,6 @@ public class Problems {
         task.example().orElse(null),
         name
     );
-  }
-
-  @SuppressWarnings("unused")
-  @Cacheable
-  public static <S, T> Problem<T> preMapped(
-      @Param(value = "mapper", dNPM = "ea.m.identity()") InvertibleMapper<T, S> mapper,
-      @Param("problem") Problem<S> problem
-  ) {
-    S exampleS = problem.example().orElse(null);
-    Function<T, S> f = mapper.mapperFor(exampleS);
-    T exampleT = mapper.exampleFor(exampleS);
-    return problem.on(f, exampleT);
   }
 
   public enum OptimizationType {
