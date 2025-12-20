@@ -55,6 +55,7 @@ import io.github.ericmedvet.jnb.core.ParamMap.Type;
 import io.github.ericmedvet.jnb.core.PassThroughParam;
 import io.github.ericmedvet.jnb.datastructure.DoubleRange;
 import io.github.ericmedvet.jnb.datastructure.Grid;
+import io.github.ericmedvet.jnb.datastructure.GridUtils;
 import io.github.ericmedvet.jnb.datastructure.Naming;
 import io.github.ericmedvet.jnb.datastructure.Pair;
 import io.github.ericmedvet.jnb.datastructure.Parametrized;
@@ -75,7 +76,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Function;
 import java.util.random.RandomGenerator;
@@ -366,12 +366,21 @@ public class Mappers {
   public static <X, T, K> InvertibleMapper<X, Grid<K>> gridToGrid(
       @Param(value = "name", dS = "gridToGrid") String name,
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, Grid<T>> beforeM,
-      @Param("map") Map<T, K> map
+      @Param(value = "mapper", dNPM = "ea.m.identity()") InvertibleMapper<T, K> elementMapper,
+      @Param(value = "predicate", dNPM = "f.nonNull()") Function<K, Boolean> predicate,
+      @Param(value = "defaultElement", dNPM = "m.nullValue()") K defaultElement,
+      @Param("onlyLargestConnected") boolean onlyLargestConnected
   ) {
     return beforeM.andThen(
         InvertibleMapper.from(
-            (ekg, tg) -> tg.map(map::get),
-            ekg -> ekg.map(k -> map.keySet().iterator().next()),
+            (ekg, tg) -> {
+              Grid<K> kg = tg.map(t -> elementMapper.mapperFor(ekg.values().getFirst()).apply(t));
+              if (onlyLargestConnected) {
+                kg = GridUtils.largestConnected(kg, predicate::apply, defaultElement);
+              }
+              return kg;
+            },
+            ekg -> ekg.map(elementMapper::exampleFor),
             name
         )
     );

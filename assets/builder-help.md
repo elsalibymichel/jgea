@@ -2263,13 +2263,16 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.core.InvertibleMapper">Inv
 
 ### Builder `ea.mapper.gridToGrid()`
 
-`ea.m.gridToGrid(name; of; map)`
+`ea.m.gridToGrid(name; of; mapper; predicate; defaultElement; onlyLargestConnected)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
 | `name` | s | `gridToGrid` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `of` | npm | `ea.m.identity()` | <code><abbr title="io.github.ericmedvet.jgea.core.InvertibleMapper">InvertibleMapper</abbr>&lt;X, <abbr title="io.github.ericmedvet.jnb.datastructure.Grid">Grid</abbr>&lt;T&gt;&gt;</code> |
-| `map` | npm |  | <code><abbr title="java.util.Map">Map</abbr>&lt;T, K&gt;</code> |
+| `mapper` | npm | `ea.m.identity()` | <code><abbr title="io.github.ericmedvet.jgea.core.InvertibleMapper">InvertibleMapper</abbr>&lt;T, K&gt;</code> |
+| `predicate` | npm | `f.nonNull()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;K, <abbr title="java.lang.Boolean">Boolean</abbr>&gt;</code> |
+| `defaultElement` | npm | `m.nullValue()` | <code>K</code> |
+| `onlyLargestConnected` | b | `false` | <code>boolean</code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.core.InvertibleMapper">InvertibleMapper</abbr>&lt;X, <abbr title="io.github.ericmedvet.jnb.datastructure.Grid">Grid</abbr>&lt;K&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Mappers.gridToGrid()` by jgea-experimenter:2.8.2-SNAPSHOT
 
@@ -3216,10 +3219,11 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.SimpleMOProbl
 
 ### Builder `ea.problem.preMapped()`
 
-`ea.p.preMapped(mapper; problem)`
+`ea.p.preMapped(name; mapper; problem)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
+| `name` | s | interpolate `{problem.name}` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `mapper` | npm | `ea.m.identity()` | <code><abbr title="io.github.ericmedvet.jgea.core.InvertibleMapper">InvertibleMapper</abbr>&lt;T, S&gt;</code> |
 | `problem` | npm |  | <code><abbr title="io.github.ericmedvet.jgea.core.problem.Problem">Problem</abbr>&lt;S&gt;</code> |
 
@@ -5120,7 +5124,7 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedName
 
 ### Builder `function.gridString()`
 
-`f.gridString(name; of; elementF; separator; format; nullString)`
+`f.gridString(name; of; elementF; separator; format; nullString; byRows; yMirror; xMirror)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -5130,6 +5134,9 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedName
 | `separator` | s | `;` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `format` | s | `%s` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `nullString` | s | `` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `byRows` | b | `false` | <code>boolean</code> |
+| `yMirror` | b | `false` | <code>boolean</code> |
+| `xMirror` | b | `false` | <code>boolean</code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.String">String</abbr>&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Functions.gridString()` by jgea-experimenter:2.8.2-SNAPSHOT
 
