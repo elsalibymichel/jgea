@@ -5585,11 +5585,14 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.NamedFunction
 
 ### Builder `function.toString()`
 
-`f.toString(of; format)`
+`f.toString(name; of; nullString; keepNull; format)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
+| `name` | s | `to.string` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="java.lang.Object">Object</abbr>&gt;</code> |
+| `nullString` | s | `` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `keepNull` | b | `false` | <code>boolean</code> |
 | `format` | s | `%s` | <code><abbr title="java.lang.String">String</abbr></code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.NamedFunction">NamedFunction</abbr>&lt;X, <abbr title="java.lang.String">String</abbr>&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Functions.toString()` by jgea-experimenter:2.8.2-SNAPSHOT
