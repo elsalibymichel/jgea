@@ -3194,6 +3194,20 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.TotalOrderQua
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.SimpleCBMOProblem">SimpleCBMOProblem</abbr>&lt;S, <abbr title="java.util.function.Function">Function</abbr>&lt;S, CQ&gt;, CQ, O&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Problems.functionsToScbmo()` by jgea-experimenter:2.8.2-SNAPSHOT
 
+### Builder `ea.problem.manyToCbto()`
+
+`ea.p.manyToCbto(name; problems; validationProblems; aggregator; comparator)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `name` | s | interpolate `{problems}` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `problems` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.problem.QualityBasedProblem">QualityBasedProblem</abbr>&lt;S, PQ&gt;&gt;</code> |
+| `validationProblems` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.problem.QualityBasedProblem">QualityBasedProblem</abbr>&lt;S, PQ&gt;&gt;</code> |
+| `aggregator` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;PQ&gt;, AQ&gt;</code> |
+| `comparator` | npm |  | <code><abbr title="java.util.Comparator">Comparator</abbr>&lt;AQ&gt;</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.CBTOProblem">CBTOProblem</abbr>&lt;S, <abbr title="io.github.ericmedvet.jgea.core.problem.QualityBasedProblem">QualityBasedProblem</abbr>&lt;S, PQ&gt;, PQ, AQ&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Problems.manyToCbto()` by jgea-experimenter:2.8.2-SNAPSHOT
+
 ### Builder `ea.problem.moToSo()`
 
 `ea.p.moToSo(name; objective; moProblem)`
@@ -3289,6 +3303,21 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.SimpleBBMOPro
 | `toMaxObjectives` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;B, O&gt;&gt;</code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.SimpleMOProblem">SimpleMOProblem</abbr>&lt;S, O&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Problems.simToSmo()` by jgea-experimenter:2.8.2-SNAPSHOT
+
+### Builder `ea.problem.simToTo()`
+
+`ea.p.simToTo(name; simulation; dT; tRange; comparator; qFunction)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `name` | s | interpolate `{simulation.name}->{qFunction}` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `simulation` | npm |  | <code><abbr title="io.github.ericmedvet.jsdynsym.control.Simulation">Simulation</abbr>&lt;S, BS, B&gt;</code> |
+| `dT` | d |  | <code>double</code> |
+| `tRange` | npm |  | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
+| `comparator` | npm |  | <code><abbr title="java.util.Comparator">Comparator</abbr>&lt;Q&gt;</code> |
+| `qFunction` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;B, Q&gt;</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.TotalOrderQualityBasedProblem">TotalOrderQualityBasedProblem</abbr>&lt;S, Q&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Problems.simToTo()` by jgea-experimenter:2.8.2-SNAPSHOT
 
 ### Builder `ea.problem.smoToSubsettedSmo()`
 

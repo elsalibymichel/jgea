@@ -344,9 +344,8 @@ public class Functions {
       @Param(value = "name", dS = "global.progress") String name,
       @Param(value = "l", dI = 8) int l
   ) {
-    GlobalProgressMonitor globalProgressMonitor = GlobalProgressMonitor.get();
     return FormattedNamedFunction.from(
-        o -> TextPlotter.horizontalBar(globalProgressMonitor.progress().rate(), 0, 1, l),
+        o -> TextPlotter.horizontalBar(GlobalProgressMonitor.get().progress().rate(), 0, 1, l),
         "%" + l + "s",
         name
     );
@@ -358,9 +357,8 @@ public class Functions {
       @Param(value = "name", dS = "global.progress.rate") String name,
       @Param(value = "format", dS = "%4.2f") String format
   ) {
-    GlobalProgressMonitor globalProgressMonitor = GlobalProgressMonitor.get();
     return FormattedNamedFunction.from(
-        o -> globalProgressMonitor.progress().rate(),
+        o -> GlobalProgressMonitor.get().progress().rate(),
         format,
         name
     );

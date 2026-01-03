@@ -22,11 +22,13 @@ package io.github.ericmedvet.jgea.experimenter.builders;
 
 import io.github.ericmedvet.jgea.core.InvertibleMapper;
 import io.github.ericmedvet.jgea.core.problem.BBTOProblem;
+import io.github.ericmedvet.jgea.core.problem.CBTOProblem;
 import io.github.ericmedvet.jgea.core.problem.MultiObjectiveProblem;
 import io.github.ericmedvet.jgea.core.problem.MultiObjectiveProblem.Objective;
 import io.github.ericmedvet.jgea.core.problem.MultiTargetProblem;
 import io.github.ericmedvet.jgea.core.problem.MultifidelityQualityBasedProblem.MultifidelityFunction;
 import io.github.ericmedvet.jgea.core.problem.Problem;
+import io.github.ericmedvet.jgea.core.problem.QualityBasedProblem;
 import io.github.ericmedvet.jgea.core.problem.SimpleBBMOProblem;
 import io.github.ericmedvet.jgea.core.problem.SimpleCBMOProblem;
 import io.github.ericmedvet.jgea.core.problem.SimpleMFBBMOProblem;
@@ -62,7 +64,6 @@ public class Problems {
   private Problems() {
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   //bi simulation to homogeneous bi quality based problem
   public static <S, B extends BiSimulation.Outcome<BS>, BS, Q, C extends Comparable<C>> TotalOrderQualityBasedBiProblem<S, B, Q> biSimToBiTo(
@@ -89,7 +90,6 @@ public class Problems {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <S, B extends BiSimulation.Outcome<BS>, BS, Q, C extends Comparable<C>> TotalOrderQualityBasedProblem<S, Q> biSimToTo(
       @Param(value = "name", iS = "{simulation.name}") String name,
@@ -144,7 +144,6 @@ public class Problems {
     return objectives;
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <S, Q, C extends Comparable<C>> TotalOrderQualityBasedProblem<S, Q> functionToTo(
       @Param(value = "name", iS = "{qFunction.name}") String name,
@@ -163,7 +162,6 @@ public class Problems {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <S, CQ, O extends Comparable<O>> SimpleCBMOProblem<S, Function<S, CQ>, CQ, O> functionsToScbmo(
       @Param(value = "name", iS = "cases") String name,
@@ -186,7 +184,25 @@ public class Problems {
     );
   }
 
-  @SuppressWarnings("unused")
+  @Cacheable
+  public static <S, PQ, AQ> CBTOProblem<S, QualityBasedProblem<S, PQ>, PQ, AQ> manyToCbto(
+      @Param(value = "name", iS = "{problems}") String name,
+      @Param("problems") List<QualityBasedProblem<S, PQ>> problems,
+      @Param("validationProblems") List<QualityBasedProblem<S, PQ>> validationProblems,
+      @Param(value = "aggregator", dNPM = "f.identity()") Function<List<PQ>, AQ> aggregator,
+      @Param("comparator") Comparator<AQ> comparator
+  ) {
+    return CBTOProblem.of(
+        aggregator,
+        (s, p) -> p.apply(s),
+        IndexedProvider.from(problems),
+        IndexedProvider.from(validationProblems),
+        comparator,
+        problems.getFirst().example().orElse(null),
+        name
+    );
+  }
+
   @Cacheable
   public static <S, Q, O> TotalOrderQualityBasedProblem<S, Q> moToSo(
       @Param(value = "name", iS = "{moProblem.name}[{objective}]") String name,
@@ -196,7 +212,6 @@ public class Problems {
     return moProblem.toTotalOrderQualityBasedProblem(objective);
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <S> SimpleMOProblem<S, Double> mtToMo(
       @Param(value = "name", iS = "mt2mo[{mtProblem.name}]") String name,
@@ -205,7 +220,6 @@ public class Problems {
     return mtProblem.toMHOProblem();
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <S, T> Problem<T> preMapped(
       @Param(value = "name", iS = "{problem.name}") String name,
@@ -218,7 +232,6 @@ public class Problems {
     return problem.on(f, exampleT);
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <S, B extends Simulation.Outcome<BS>, BS, O extends Comparable<O>> SimpleMFBBMOProblem<S, B, O> simToDurationSmfbbmo(
       @Param(value = "name", iS = "{simulation.name}[finalT={finalTRange.min}--{finalTRange.min}]") String name,
@@ -244,7 +257,6 @@ public class Problems {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <S, B extends Simulation.Outcome<BS>, BS, O extends Comparable<O>> SimpleMFBBMOProblem<S, B, O> simToResolutionSmfbbmo(
       @Param(value = "name", iS = "{simulation.name}[dT={dTRange.min}--{dTRange.max}]") String name,
@@ -265,7 +277,6 @@ public class Problems {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <S, B extends Simulation.Outcome<BS>, BS, O extends Comparable<O>> SimpleBBMOProblem<S, B, O> simToSbbmo(
       @Param(value = "name", iS = "{simulation.name}") String name,
@@ -287,7 +298,6 @@ public class Problems {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <S, B extends Simulation.Outcome<BS>, BS, O extends Comparable<O>> SimpleMOProblem<S, O> simToSmo(
       @Param(value = "name", iS = "{simulation.name}") String name,
@@ -328,7 +338,25 @@ public class Problems {
     );
   }
 
-  @SuppressWarnings("unused")
+  @Cacheable
+  public static <S, B extends Simulation.Outcome<BS>, BS, Q> TotalOrderQualityBasedProblem<S, Q> simToTo(
+      @Param(value = "name", iS = "{simulation.name}->{qFunction}") String name,
+      @Param("simulation") Simulation<S, BS, B> simulation,
+      @Param("dT") double dT,
+      @Param("tRange") DoubleRange tRange,
+      @Param("comparator") Comparator<Q> comparator,
+      @Param("qFunction") Function<B, Q> qFunction
+  ) {
+    Function<S, Q> f = qFunction.compose(s -> simulation.simulate(s, dT, tRange));
+    return TotalOrderQualityBasedProblem.of(
+        f,
+        f,
+        comparator,
+        simulation.example().orElse(null),
+        name
+    );
+  }
+
   @Cacheable
   public static <S, O> SimpleMOProblem<S, O> smoToSubsettedSmo(
       @Param(value = "name", iS = "{smoProblem.name}") String name,
@@ -338,7 +366,6 @@ public class Problems {
     return smoProblem.toReducedSimpleMOProblem(new HashSet<>(objectives));
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <C extends ReinforcementLearningAgent<O, A, TS>, TS, O, A> BBTOProblem<C, Simulation.Outcome<SingleAgentTask.Step<ReinforcementLearningAgent.RewardedInput<O>, A, TS>>, Double> srlatToBbto(
       @Param(value = "name", iS = "{task.name}") String name,
@@ -359,7 +386,6 @@ public class Problems {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <C extends ReinforcementLearningAgent<O, A, ?>, O, A> TotalOrderQualityBasedProblem<C, Double> srlatToTo(
       @Param(value = "name", iS = "{task.name}") String name,
@@ -383,6 +409,6 @@ public class Problems {
   }
 
   public enum OptimizationType {
-    @SuppressWarnings("unused") MINIMIZE, MAXIMIZE
+    MINIMIZE, MAXIMIZE
   }
 }
