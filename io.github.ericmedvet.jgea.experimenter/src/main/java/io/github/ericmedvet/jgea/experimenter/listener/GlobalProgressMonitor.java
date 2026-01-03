@@ -25,7 +25,11 @@ public class GlobalProgressMonitor implements ProgressMonitor {
 
   private Progress lastProgress;
   private String lastMessage;
-  static GlobalProgressMonitor instance;
+
+  // see https://www.baeldung.com/java-implement-thread-safe-singleton#bill-pugh-singleton-lazy-and-elegant
+  private static class GlobalProgressMonitorHelper {
+    private static final GlobalProgressMonitor INSTANCE = new GlobalProgressMonitor();
+  }
 
   private GlobalProgressMonitor() {
     lastProgress = Progress.NA;
@@ -47,10 +51,7 @@ public class GlobalProgressMonitor implements ProgressMonitor {
   }
 
   public static GlobalProgressMonitor get() {
-    if (instance == null) {
-      instance = new GlobalProgressMonitor();
-    }
-    return instance;
+    return GlobalProgressMonitorHelper.INSTANCE;
   }
 
 }
