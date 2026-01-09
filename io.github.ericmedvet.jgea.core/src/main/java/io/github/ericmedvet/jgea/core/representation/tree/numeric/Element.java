@@ -58,7 +58,11 @@ public interface Element {
         "ternary",
         x -> x[0] > 0 ? x[1] : x[2],
         3
-    );
+    ), MAX("max", x -> Math.max(x[0], x[1]), 2), MIN("min", x -> Math.min(x[0], x[1]), 2), TANH(
+        "tanh",
+        x -> Math.tanh(x[0]),
+        1
+    ), GT(">", x -> Math.signum(x[0] - x[1]), 2), LT("<", x -> Math.signum(x[1] - x[0]), 2);
 
     private final String string;
     private final ToDoubleFunction<double[]> function;

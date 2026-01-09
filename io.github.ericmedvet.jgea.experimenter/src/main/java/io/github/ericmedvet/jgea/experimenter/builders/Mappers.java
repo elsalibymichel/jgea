@@ -89,7 +89,6 @@ public class Mappers {
   private Mappers() {
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NumericalDynamicalSystem<?>> aggregatedInputNds(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NumericalDynamicalSystem<?>> beforeM,
@@ -113,7 +112,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X, T> InvertibleMapper<X, Grid<T>> bsToGrammarGrid(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, BitString> beforeM,
@@ -143,7 +141,28 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
+  @Cacheable
+  public static <X> InvertibleMapper<X, NumericalDynamicalSystem<?>> composedNds(
+      @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NumericalDynamicalSystem<?>> beforeM,
+      @Param("then") Function<NumericalDynamicalSystem<?>, NumericalDynamicalSystem<?>> exampleBuilder,
+      @Param("nOfInternalIOs") int nOfInternalIOs
+  ) {
+    return beforeM.andThen(
+        InvertibleMapper.from(
+            (eNds, nds) -> nds.andThen(
+                exampleBuilder.apply(
+                    MultivariateRealFunction.from(nOfInternalIOs, eNds.nOfOutputs())
+                )
+            ),
+            eNds -> MultivariateRealFunction.from(
+                eNds.nOfInputs(),
+                nOfInternalIOs
+            ),
+            "then[%s]".formatted(exampleBuilder)
+        )
+    );
+  }
+
   @Cacheable
   public static <X> InvertibleMapper<X, BitString> dsToBitString(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Double>> beforeM,
@@ -158,7 +177,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, double[]> dsToDa(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Double>> beforeM
@@ -172,7 +190,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X, T> InvertibleMapper<X, Grid<T>> dsToFixedGrid(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Double>> beforeM,
@@ -209,7 +226,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X, T> InvertibleMapper<X, Grid<T>> dsToGrammarGrid(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Double>> beforeM,
@@ -236,7 +252,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, IntString> dsToIs(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Double>> beforeM,
@@ -261,7 +276,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X, T> InvertibleMapper<X, Grid<T>> dsToThresholdedGrid(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Double>> beforeM,
@@ -290,7 +304,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NumericalDynamicalSystem<?>> enhancedNds(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NumericalDynamicalSystem<?>> beforeM,
@@ -302,7 +315,6 @@ public class Mappers {
         InvertibleMapper.from(
             (eNds, nds) -> new EnhancedInput<>(nds, windowT, types),
             eNds -> MultivariateRealFunction.from(
-                in -> new double[eNds.nOfOutputs()],
                 eNds.nOfInputs() * types.size(),
                 eNds.nOfOutputs()
             ),
@@ -315,7 +327,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NamedMultivariateRealFunction> fGraphToNmrf(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, Graph<Node, Double>> beforeM,
@@ -324,7 +335,6 @@ public class Mappers {
     return beforeM.andThen(
         InvertibleMapper.from(
             (nmrf, g) -> NamedMultivariateRealFunction.from(
-                new FunctionGraph(g, nmrf.xVarNames(), nmrf.yVarNames()),
                 nmrf.xVarNames(),
                 nmrf.yVarNames()
             )
@@ -335,7 +345,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X, N, S> InvertibleMapper<X, S> grammarTreeBP(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, Tree<N>> beforeM,
@@ -350,7 +359,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, Tree<Element>> grammarTreeRegression(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, Tree<String>> beforeM
@@ -361,7 +369,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X, T, K> InvertibleMapper<X, Grid<K>> gridToGrid(
       @Param(value = "name", dS = "gridToGrid") String name,
@@ -386,13 +393,11 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, X> identity() {
     return InvertibleMapper.identity();
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X, T> InvertibleMapper<X, List<T>> isIndexed(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, Pair<List<T>, IntString>> beforeM,
@@ -451,7 +456,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X, T> InvertibleMapper<X, Grid<T>> isToGrammarGrid(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, IntString> beforeM,
@@ -482,7 +486,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, Grid<String>> isToSGrid(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, IntString> beforeM,
@@ -542,7 +545,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, String> isToString(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, IntString> beforeM,
@@ -560,7 +562,7 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
+
   @Cacheable
   public static <X> InvertibleMapper<X, NamedMultivariateRealFunction> multiSrTreeToNmrf(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Tree<Element>>> beforeM,
@@ -582,7 +584,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NumericalReinforcementLearningAgent<?>> ndsToNrla(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NumericalDynamicalSystem<?>> beforeM
@@ -591,7 +592,6 @@ public class Mappers {
         InvertibleMapper.from(
             (eNrla, nds) -> NumericalReinforcementLearningAgent.from(nds),
             eNrla -> MultivariateRealFunction.from(
-                in -> new double[eNrla.nOfOutputs()],
                 eNrla.nOfInputs(),
                 eNrla.nOfOutputs()
             ),
@@ -600,7 +600,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X, T> InvertibleMapper<X, Grid<T>> nmrfToGrid(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NamedMultivariateRealFunction> beforeM,
@@ -639,7 +638,7 @@ public class Mappers {
               );
             },
             g -> NamedMultivariateRealFunction.from(
-                MultivariateRealFunction.from(vs -> new double[items.size()], 2, items.size()),
+                MultivariateRealFunction.from(2, items.size()),
                 List.of("x", "y"),
                 IntStream.range(0, items.size())
                     .mapToObj("item%02d"::formatted)
@@ -650,7 +649,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   public static <X> InvertibleMapper<X, MultivariateRealGridCellularAutomaton> nmrfToMrca(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NamedMultivariateRealFunction> beforeM,
       @Param(value = "nOfAdditionalChannels", dI = 1) int nOfAdditionalChannels,
@@ -710,7 +708,6 @@ public class Mappers {
               List<String> varNames = MultivariateRealFunction.varNames("c", nOfOutputs);
               return NamedMultivariateRealFunction.from(
                   MultivariateRealFunction.from(
-                      vs -> new double[nOfOutputs],
                       nOfInputs,
                       nOfOutputs
                   ),
@@ -729,7 +726,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NumericalDynamicalSystem<?>> nmrfToNds(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NamedMultivariateRealFunction> beforeM
@@ -739,7 +735,6 @@ public class Mappers {
             (nds, nmrf) -> nmrf,
             nds -> NamedMultivariateRealFunction.from(
                 MultivariateRealFunction.from(
-                    in -> new double[nds.nOfOutputs()],
                     nds.nOfInputs(),
                     nds.nOfOutputs()
                 ),
@@ -751,7 +746,7 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
+
   @Cacheable
   public static <X> InvertibleMapper<X, NamedUnivariateRealFunction> nmrfToNurf(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NamedMultivariateRealFunction> beforeM
@@ -765,7 +760,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NumericalDynamicalSystem<?>> noisedNds(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NumericalDynamicalSystem<?>> beforeM,
@@ -782,7 +776,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NamedMultivariateRealFunction> noisedNmrf(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NamedMultivariateRealFunction> beforeM,
@@ -803,7 +796,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NamedMultivariateRealFunction> ntissToNmrf(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NumericalTimeInvariantStatelessSystem> beforeM
@@ -811,12 +803,10 @@ public class Mappers {
     return beforeM.andThen(
         InvertibleMapper.from(
             (nmrf, ntiss) -> NamedMultivariateRealFunction.from(
-                MultivariateRealFunction.from(ntiss, nmrf.nOfInputs(), nmrf.nOfOutputs()),
                 nmrf.xVarNames(),
                 nmrf.yVarNames()
             ),
             nmrf -> MultivariateRealFunction.from(
-                v -> new double[nmrf.nOfOutputs()],
                 nmrf.nOfInputs(),
                 nmrf.nOfOutputs()
             ),
@@ -825,7 +815,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NumericalDynamicalSystem<?>> nurfToNds(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NamedUnivariateRealFunction> beforeM
@@ -846,7 +835,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NamedMultivariateRealFunction> oGraphToNmrf(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, Graph<Node, OperatorGraph.NonValuedArc>> beforeM,
@@ -863,7 +851,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X, F1, S1, F2, S2> InvertibleMapper<X, Pair<F2, S2>> pair(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, Pair<F1, S1>> beforeM,
@@ -885,7 +872,6 @@ public class Mappers {
   @Alias(
       name = "dsToParametrized", value = "parametrized(of = ea.mapper.dsToDa(of = $innerOf))", passThroughParams = @PassThroughParam(name = "innerOf", value = "ea.m.identity()", type = Type.NAMED_PARAM_MAP)
   )
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X, E, Y extends Parametrized<? extends E, P>, P> InvertibleMapper<X, E> parametrized(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, P> beforeM,
@@ -901,7 +887,7 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
+
   @Cacheable
   public static <X, T> InvertibleMapper<X, Pair<List<T>, List<T>>> splitter(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<T>> beforeM
@@ -935,7 +921,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NamedUnivariateRealFunction> srTreeToNurf(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, Tree<Element>> beforeM,
@@ -960,7 +945,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NumericalDynamicalSystem<?>> steppedNds(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NumericalDynamicalSystem<?>> beforeM,
@@ -993,7 +977,6 @@ public class Mappers {
     };
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, Program> ttpnToProgram(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, Network> beforeM,

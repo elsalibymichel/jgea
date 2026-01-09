@@ -30,6 +30,10 @@ import io.github.ericmedvet.jgea.core.representation.programsynthesis.ttpn.Netwo
 import io.github.ericmedvet.jgea.core.representation.sequence.bit.BitString;
 import io.github.ericmedvet.jgea.core.representation.sequence.integer.IntString;
 import io.github.ericmedvet.jgea.core.representation.tree.Tree;
+import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element;
+import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element.Variable;
+import io.github.ericmedvet.jgea.core.representation.tree.numeric.NumericTreeUtils;
+import io.github.ericmedvet.jgea.core.representation.tree.numeric.TreeBasedUnivariateRealFunction;
 import io.github.ericmedvet.jgea.core.solver.Individual;
 import io.github.ericmedvet.jgea.core.solver.MultiFidelityPOCPopulationState;
 import io.github.ericmedvet.jgea.core.solver.POCPopulationState;
@@ -55,6 +59,7 @@ import io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction;
 import io.github.ericmedvet.jnb.datastructure.Grid;
 import io.github.ericmedvet.jnb.datastructure.NamedFunction;
 import io.github.ericmedvet.jnb.datastructure.Sized;
+import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedUnivariateRealFunction;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -62,6 +67,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Discoverable(prefixTemplate = "ea.function|f")
 public class Functions {
@@ -589,6 +596,45 @@ public class Functions {
   ) {
     Function<State<?, ?>, Long> f = State::nOfIterations;
     return FormattedNamedFunction.from(f, format, "n.iterations").compose(beforeF);
+  }
+
+  @Cacheable
+  public static <X, Z> FormattedNamedFunction<X, Double> numExpr(
+      @Param(value = "name", iS = "[{expr}]") String name,
+      @Param(value = "of", dNPM = "f.identity()") Function<X, Z> beforeF,
+      @Param(value = "args", dNPMs = "f.identity()") List<Function<Z, ? extends Number>> args,
+      @Param("expr") String expr,
+      @Param(value = "format", dS = "%s") String format
+  ) {
+    Tree<Element> t = NumericTreeUtils.parse(expr);
+    NamedUnivariateRealFunction exprF = new TreeBasedUnivariateRealFunction(
+        t,
+        t.leaves()
+            .stream()
+            .map(Tree::content)
+            .filter(c -> c instanceof Variable)
+            .map(c -> ((Variable) c).name())
+            .toList(),
+        "y",
+        true
+    );
+    if (exprF.nOfInputs() > args.size()) {
+      throw new IllegalArgumentException(
+          "Wrong number of arguments in expr: %d found, <=%d expected".formatted(exprF.nOfOutputs(), args.size())
+      );
+    }
+    List<String> xVarNames = exprF.xVarNames().stream().sorted().toList();
+    Function<Z, Double> f = z -> exprF.computeAsDouble(
+        IntStream.range(0, xVarNames.size())
+            .boxed()
+            .collect(
+                Collectors.toMap(
+                    xVarNames::get,
+                    i -> args.get(i).apply(z).doubleValue()
+                )
+            )
+    );
+    return FormattedNamedFunction.from(f, format, name).compose(beforeF);
   }
 
   @SuppressWarnings("unused")
