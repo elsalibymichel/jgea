@@ -1163,7 +1163,7 @@ Aliases: `ea.d`, `ea.drawer`
 | --- | --- | --- | --- |
 | `maxW` | i | `0` | <code>int</code> |
 | `maxH` | i | `0` | <code>int</code> |
-| `colors` | npm | `ea.misc.map(entries = [])` | <code><abbr title="java.util.Map">Map</abbr>&lt;<abbr title="java.lang.Character">Character</abbr>, <abbr title="java.awt.Color">Color</abbr>&gt;</code> |
+| `colors` | npm |  | <code><abbr title="java.util.Map">Map</abbr>&lt;<abbr title="java.lang.Character">Character</abbr>, <abbr title="java.awt.Color">Color</abbr>&gt;</code> |
 | `borderColor` | npm | `ea.misc.colorByName(name = white)` | <code><abbr title="java.awt.Color">Color</abbr></code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.drawer.PolyominoDrawer">PolyominoDrawer</abbr></code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Drawers.polyomino()` by jgea-experimenter:2.8.2-SNAPSHOT
@@ -2724,17 +2724,6 @@ Produces <code><abbr title="java.awt.Color">Color</abbr></code>; built from `io.
 
 Produces <code><abbr title="java.awt.Color">Color</abbr></code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.colorByRgb()` by jgea-experimenter:2.8.2-SNAPSHOT
 
-### Builder `ea.misc.entry()`
-
-`ea.misc.entry(key; value)`
-
-| Param | Type | Default | Java type |
-| --- | --- | --- | --- |
-| `key` | npm |  | <code>K</code> |
-| `value` | npm |  | <code>V</code> |
-
-Produces <code><abbr title="java.util.Map$Entry">Map$Entry</abbr>&lt;K, V&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.entry()` by jgea-experimenter:2.8.2-SNAPSHOT
-
 ### Builder `ea.misc.farthestMESelector()`
 
 `ea.misc.farthestMESelector(name; nOfOpponents)`
@@ -2795,27 +2784,6 @@ Produces <code><abbr title="java.awt.image.BufferedImage">BufferedImage</abbr></
 | `memoryFactor` | d | `0.5` | <code>double</code> |
 
 Produces <code><abbr title="java.util.function.BinaryOperator">BinaryOperator</abbr>&lt;<abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.lossyAverage()` by jgea-experimenter:2.8.2-SNAPSHOT
-
-### Builder `ea.misc.map()`
-
-`ea.misc.map(entries)`
-
-| Param | Type | Default | Java type |
-| --- | --- | --- | --- |
-| `entries` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.Map$Entry">Map$Entry</abbr>&lt;K, V&gt;&gt;</code> |
-
-Produces <code><abbr title="java.util.Map">Map</abbr>&lt;K, V&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.map()` by jgea-experimenter:2.8.2-SNAPSHOT
-
-### Builder `ea.misc.mapFromLists()`
-
-`ea.misc.mapFromLists(keys; values)`
-
-| Param | Type | Default | Java type |
-| --- | --- | --- | --- |
-| `keys` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;K&gt;</code> |
-| `values` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;V&gt;</code> |
-
-Produces <code><abbr title="java.util.Map">Map</abbr>&lt;K, V&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.mapFromLists()` by jgea-experimenter:2.8.2-SNAPSHOT
 
 ### Builder `ea.misc.minValue()`
 
@@ -4978,6 +4946,18 @@ Aliases: `f`, `function`
 | `format` | s | `%s` | <code><abbr title="java.lang.String">String</abbr></code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.NamedFunction">NamedFunction</abbr>&lt;X, <abbr title="java.util.List">List</abbr>&lt;K&gt;&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Functions.all()` by jgea-experimenter:2.8.2-SNAPSHOT
+
+### Builder `function.allNamed()`
+
+`f.allNamed(of; fs; format)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, T&gt;</code> |
+| `fs` | npm |  | <code><abbr title="java.util.SequencedMap">SequencedMap</abbr>&lt;<abbr title="java.lang.String">String</abbr>, <abbr title="java.util.function.Function">Function</abbr>&lt;T, K&gt;&gt;</code> |
+| `format` | s | `%s` | <code><abbr title="java.lang.String">String</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.NamedFunction">NamedFunction</abbr>&lt;X, <abbr title="java.util.SequencedMap">SequencedMap</abbr>&lt;<abbr title="java.lang.String">String</abbr>, K&gt;&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Functions.allNamed()` by jgea-experimenter:2.8.2-SNAPSHOT
 
 ### Builder `function.any()`
 

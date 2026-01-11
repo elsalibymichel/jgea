@@ -33,12 +33,11 @@ public class Drawers {
   private Drawers() {
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static PolyominoDrawer polyomino(
       @Param(value = "maxW", dI = 0) int maxW,
       @Param(value = "maxH", dI = 0) int maxH,
-      @Param(value = "colors", dNPM = "ea.misc.map(entries=[])") Map<Character, Color> colors,
+      @Param("colors") Map<Character, Color> colors,
       @Param(value = "borderColor", dNPM = "ea.misc.colorByName(name=white)") Color borderColor
   ) {
     return new PolyominoDrawer(

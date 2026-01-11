@@ -35,7 +35,6 @@ import io.github.ericmedvet.jnb.core.Param;
 import io.github.ericmedvet.jnb.datastructure.DoubleRange;
 import io.github.ericmedvet.jnb.datastructure.Grid;
 import io.github.ericmedvet.jnb.datastructure.Pair;
-import io.github.ericmedvet.jnb.datastructure.Utils;
 import io.github.ericmedvet.jsdynsym.control.Simulation;
 import io.github.ericmedvet.jsdynsym.control.SimulationOutcomeDrawer;
 import io.github.ericmedvet.jviz.core.drawer.Drawer;
@@ -48,9 +47,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -65,7 +62,6 @@ public class Miscs {
   private Miscs() {
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <G, S, Q, O> AbstractBiEvolver.OpponentsSelector<Individual<G, S, Q>, S, Q, O> bestSelector(
       @Param(value = "name", iS = "best[{nOfOpponents}]") String name,
@@ -104,7 +100,6 @@ public class Miscs {
     };
   }
 
-  @SuppressWarnings("unused")
   public static VideoBuilder<MultivariateRealGridCellularAutomaton> caVideo(
       @Param(value = "gray", dB = true) boolean gray,
       @Param(value = "caStateRange", dNPM = "m.range(min=-1;max=1)") DoubleRange caStateRange,
@@ -143,12 +138,12 @@ public class Miscs {
     });
   }
 
-  @SuppressWarnings("unused")
+  @Cacheable
   public static Character ch(@Param("s") String s) {
     return s.charAt(0);
   }
 
-  @SuppressWarnings("unused")
+  @Cacheable
   public static Color colorByName(@Param("name") String name) {
     try {
       return (Color) Color.class.getField(name.toUpperCase()).get(null);
@@ -157,18 +152,11 @@ public class Miscs {
     }
   }
 
-  @SuppressWarnings("unused")
+  @Cacheable
   public static Color colorByRgb(@Param("r") int r, @Param("g") int g, @Param("b") int b) {
     return new Color(r, g, b);
   }
 
-  @SuppressWarnings("unused")
-  @Cacheable
-  public static <K, V> Map.Entry<K, V> entry(@Param("key") K key, @Param("value") V value) {
-    return Map.entry(key, value);
-  }
-
-  @SuppressWarnings("unused")
   @Cacheable
   public static <G, S, Q, O> AbstractBiEvolver.OpponentsSelector<MEIndividual<G, S, Q>, S, Q, O> farthestMESelector(
       @Param(value = "name", iS = "farthest[{nOfOpponents}]") String name,
@@ -199,7 +187,6 @@ public class Miscs {
     };
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> X fromTextFile(
       @Param("path") String filePath,
@@ -213,7 +200,6 @@ public class Miscs {
     }
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static BufferedImage imgByName(
       @Param("name") String name,
@@ -226,7 +212,6 @@ public class Miscs {
         .buildRaster(new Drawer.ImageInfo(w, h), ImageUtils.loadFromResource(name));
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static BufferedImage imgFromString(
       @Param("s") String s,
@@ -239,7 +224,6 @@ public class Miscs {
     return ImageUtils.stringDrawer(fgColor, bgColor, marginRate).buildRaster(new Drawer.ImageInfo(w, h), s);
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static BinaryOperator<Double> lossyAverage(
       @Param(value = "memoryFactor", dD = 0.5) double memoryFactor
@@ -247,45 +231,11 @@ public class Miscs {
     return (q1, q2) -> q1 * memoryFactor + (1 - memoryFactor) * q2;
   }
 
-  @SuppressWarnings("unused")
-  public static <K, V> Map<K, V> map(@Param("entries") List<Map.Entry<K, V>> entries) {
-    Map<K, V> map = new LinkedHashMap<>();
-    entries.forEach(e -> map.put(e.getKey(), e.getValue()));
-    return Collections.unmodifiableMap(map);
-  }
-
-  @SuppressWarnings("unused")
-  public static <K, V> Map<K, V> mapFromLists(
-      @Param("keys") List<K> keys,
-      @Param("values") List<V> values
-  ) {
-    if (keys.size() != values.size()) {
-      throw new IllegalArgumentException(
-          "Keys and values size do not match: %d != %d".formatted(
-              keys.size(),
-              values.size()
-          )
-      );
-    }
-    return Collections.unmodifiableSequencedMap(
-        IntStream.range(0, keys.size())
-            .boxed()
-            .collect(
-                Utils.toSequencedMap(
-                    keys::get,
-                    values::get
-                )
-            )
-    );
-  }
-
-  @SuppressWarnings("unused")
   @Cacheable
   public static BinaryOperator<Double> minValue() {
     return Math::min;
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <G, S, Q, O> AbstractBiEvolver.OpponentsSelector<MEIndividual<G, S, Q>, S, Q, O> nearestMESelector(
       @Param(value = "name", iS = "nearest[{nOfOpponents}]") String name,
@@ -317,7 +267,6 @@ public class Miscs {
     };
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <G, S, Q, O> AbstractBiEvolver.OpponentsSelector<Individual<G, S, Q>, S, Q, O> oldestSelector(
       @Param(value = "name", iS = "oldest[{nOfOpponents}]") String name,
@@ -329,7 +278,6 @@ public class Miscs {
         .collect(Collectors.toList());
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <G, S, Q, O> AbstractBiEvolver.OpponentsSelector<Individual<G, S, Q>, S, Q, O> randomSelector(
       @Param(value = "name", iS = "random[{nOfOpponents}]") String name,
@@ -340,13 +288,12 @@ public class Miscs {
         .toList();
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <V> Map.Entry<String, V> sEntry(@Param("key") String key, @Param("value") V value) {
     return Map.entry(key, value);
   }
 
-  @SuppressWarnings("unused")
+  @Cacheable
   public static <S> VideoBuilder<Simulation.Outcome<S>> toVideo(@Param("drawer") SimulationOutcomeDrawer<S> drawer) {
     return drawer.videoBuilder();
   }
