@@ -170,6 +170,17 @@ Produces <code><abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.Sequ
 
 Produces <code><abbr title="io.github.ericmedvet.jsdynsym.control.drawer.VectorFieldDrawer">VectorFieldDrawer</abbr></code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.Drawers.vectorField()` by jgea-experimenter:2.8.2-SNAPSHOT
 
+### Builder `dynamicalSystem.drawer.vectorialTrajectory()`
+
+`ds.d.vectorialTrajectory(configuration; reductionType)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `configuration` | npm | `viz.plot.configuration.image()` | <code><abbr title="io.github.ericmedvet.jviz.core.plot.image.Configuration">Configuration</abbr></code> |
+| `reductionType` | e | `PCA` | <code><abbr title="io.github.ericmedvet.jviz.core.plot.TrajectoryPlot$Data$ReductionType">TrajectoryPlot$Data$ReductionType</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jsdynsym.control.drawer.VectorialTrajectoryDrawer">VectorialTrajectoryDrawer</abbr></code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.Drawers.vectorialTrajectory()` by jgea-experimenter:2.8.2-SNAPSHOT
+
 ## Package `dynamicalSystem.environment`
 
 Aliases: `ds.e`, `ds.env`, `ds.environment`, `dynSys.e`, `dynSys.env`, `dynSys.environment`, `dynamicalSystem.e`, `dynamicalSystem.env`, `dynamicalSystem.environment`
@@ -989,7 +1000,7 @@ Aliases: `ds.rl.num`, `dynSys.rl.num`, `dynamicalSystem.rl.num`
 | `activationFunction` | e | `TANH` | <code><abbr title="io.github.ericmedvet.jsdynsym.core.numerical.ann.MultiLayerPerceptron$ActivationFunction">MultiLayerPerceptron$ActivationFunction</abbr></code> |
 | `historyLength` | i | `10` | <code>int</code> |
 | `weightsUpdateInterval` | i | `1` | <code>int</code> |
-| `initialWeightRange` | npm | `m.range(max = 0.1; min = -0.1)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
+| `initialWeightRange` | npm | `m.range(max = 0.01; min = -0.01)` | <code><abbr title="io.github.ericmedvet.jnb.datastructure.DoubleRange">DoubleRange</abbr></code> |
 | `randomGenerator` | npm | `m.defaultRG()` | <code><abbr title="java.util.random.RandomGenerator">RandomGenerator</abbr></code> |
 | `weightInitializationType` | e | `RANDOM` | <code><abbr title="io.github.ericmedvet.jsdynsym.core.numerical.ann.HebbianMultiLayerPerceptron$WeightInitializationType">HebbianMultiLayerPerceptron$WeightInitializationType</abbr></code> |
 
