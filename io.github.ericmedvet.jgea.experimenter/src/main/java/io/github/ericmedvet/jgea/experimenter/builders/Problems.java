@@ -367,9 +367,9 @@ public class Problems {
   }
 
   @Cacheable
-  public static <C extends ReinforcementLearningAgent<O, A, TS>, TS, O, A> BBTOProblem<C, Simulation.Outcome<SingleAgentTask.Step<ReinforcementLearningAgent.RewardedInput<O>, A, TS>>, Double> srlatToBbto(
+  public static <C extends ReinforcementLearningAgent<O, A, CS>, O, A, CS, TS> BBTOProblem<C, Simulation.Outcome<SingleAgentTask.Step<ReinforcementLearningAgent.RewardedInput<O>, A, TS>>, Double> srlatToBbto(
       @Param(value = "name", iS = "{task.name}") String name,
-      @Param("task") SingleRLAgentTask<C, O, A, TS> task,
+      @Param("task") SingleRLAgentTask<C, O, A, CS, TS> task,
       @Param("dT") double dT,
       @Param("tRange") DoubleRange tRange
   ) {
@@ -387,9 +387,9 @@ public class Problems {
   }
 
   @Cacheable
-  public static <C extends ReinforcementLearningAgent<O, A, ?>, O, A> TotalOrderQualityBasedProblem<C, Double> srlatToTo(
+  public static <C extends ReinforcementLearningAgent<O, A, CS>, O, A, CS> TotalOrderQualityBasedProblem<C, Double> srlatToTo(
       @Param(value = "name", iS = "{task.name}") String name,
-      @Param("task") SingleRLAgentTask<C, O, A, ?> task,
+      @Param("task") SingleRLAgentTask<C, O, A, CS, ?> task,
       @Param("dT") double dT,
       @Param("tRange") DoubleRange tRange
   ) {
