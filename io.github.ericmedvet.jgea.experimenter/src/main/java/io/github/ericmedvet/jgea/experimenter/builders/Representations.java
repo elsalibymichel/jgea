@@ -26,12 +26,23 @@ import io.github.ericmedvet.jgea.core.operator.Mutation;
 import io.github.ericmedvet.jgea.core.representation.grammar.string.StringGrammar;
 import io.github.ericmedvet.jgea.core.representation.grammar.string.cfggp.GrammarBasedSubtreeMutation;
 import io.github.ericmedvet.jgea.core.representation.grammar.string.cfggp.GrammarRampedHalfAndHalf;
-import io.github.ericmedvet.jgea.core.representation.programsynthesis.ttpn.*;
+import io.github.ericmedvet.jgea.core.representation.programsynthesis.ttpn.BackTracingNetworkFactory;
+import io.github.ericmedvet.jgea.core.representation.programsynthesis.ttpn.Gate;
+import io.github.ericmedvet.jgea.core.representation.programsynthesis.ttpn.GateInserterMutation;
+import io.github.ericmedvet.jgea.core.representation.programsynthesis.ttpn.GateRemoverMutation;
+import io.github.ericmedvet.jgea.core.representation.programsynthesis.ttpn.Network;
+import io.github.ericmedvet.jgea.core.representation.programsynthesis.ttpn.NetworkCrossover;
+import io.github.ericmedvet.jgea.core.representation.programsynthesis.ttpn.WireSwapperMutation;
 import io.github.ericmedvet.jgea.core.representation.sequence.FixedLengthListFactory;
 import io.github.ericmedvet.jgea.core.representation.sequence.UniformCrossover;
 import io.github.ericmedvet.jgea.core.representation.sequence.bit.BitString;
 import io.github.ericmedvet.jgea.core.representation.sequence.integer.IntString;
-import io.github.ericmedvet.jgea.core.representation.tree.*;
+import io.github.ericmedvet.jgea.core.representation.tree.GrowTreeBuilder;
+import io.github.ericmedvet.jgea.core.representation.tree.RampedHalfAndHalf;
+import io.github.ericmedvet.jgea.core.representation.tree.SubtreeCrossover;
+import io.github.ericmedvet.jgea.core.representation.tree.SubtreeMutation;
+import io.github.ericmedvet.jgea.core.representation.tree.Tree;
+import io.github.ericmedvet.jgea.core.representation.tree.TreeBuilder;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.ConstantsMutation;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element.Constant;
@@ -193,14 +204,18 @@ public class Representations {
       @Param("ephemeral") boolean ephemeral,
       @Param(value = "ephemeralMinV", dD = -5d) double ephemeralMinV,
       @Param(value = "ephemeralMinV", dD = 5d) double ephemeralMaxV,
-      @Param(value = "ephemeralSigmaMut", dD = 0.25) double ephemeralSigmaMut
+      @Param(value = "ephemeralSigmaMut", dD = 0.25) double ephemeralSigmaMut,
+      @Param(value = "includeVarNameRegex", dS = ".*") String includeVarNameRegex,
+      @Param(value = "excludeVarNameRegex", dS = "") String excludeVarNameRegex
   ) {
-    return g -> {
-      List<Element.Variable> variables = g.visitDepth()
+    return exampleTree -> {
+      List<Element.Variable> variables = exampleTree.visitDepth()
           .stream()
           .filter(e -> e instanceof Element.Variable)
           .map(e -> ((Element.Variable) e).name())
           .distinct()
+          .filter(n -> n.matches(includeVarNameRegex))
+          .filter(n -> !n.matches(excludeVarNameRegex))
           .map(Element.Variable::new)
           .toList();
       List<Element.Constant> constantElements = constants.stream()

@@ -4092,7 +4092,7 @@ Produces <code><abbr title="java.util.function.Function">Function</abbr>&lt;G, <
 
 ### Builder `ea.representation.srTree()`
 
-`ea.r.srTree(constants; operators; minTreeH; maxTreeH; ephemeral; ephemeralMinV; ephemeralMinV; ephemeralSigmaMut)`
+`ea.r.srTree(constants; operators; minTreeH; maxTreeH; ephemeral; ephemeralMinV; ephemeralMinV; ephemeralSigmaMut; includeVarNameRegex; excludeVarNameRegex)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -4104,6 +4104,8 @@ Produces <code><abbr title="java.util.function.Function">Function</abbr>&lt;G, <
 | `ephemeralMinV` | d | `-5.0` | <code>double</code> |
 | `ephemeralMinV` | d | `5.0` | <code>double</code> |
 | `ephemeralSigmaMut` | d | `0.25` | <code>double</code> |
+| `includeVarNameRegex` | s | `.*` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `excludeVarNameRegex` | s | `` | <code><abbr title="java.lang.String">String</abbr></code> |
 
 Produces <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.representation.tree.Tree">Tree</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.representation.tree.numeric.Element">Element</abbr>&gt;, <abbr title="io.github.ericmedvet.jgea.experimenter.Representation">Representation</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.representation.tree.Tree">Tree</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.representation.tree.numeric.Element">Element</abbr>&gt;&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Representations.srTree()` by jgea-experimenter:2.8.2-SNAPSHOT
 
