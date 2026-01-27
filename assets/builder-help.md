@@ -1031,14 +1031,16 @@ Aliases: `ds.s`, `ds.sim`, `ds.simulation`, `dynSys.s`, `dynSys.sim`, `dynSys.si
 
 ### Builder `dynamicalSystem.simulation.sequentialXor()`
 
-`ds.s.sequentialXor(name; cases; resetAgent; rewardType)`
+`ds.s.sequentialXor(name; cases; rewardType; resetAgent; shuffle; randomGenerator)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
 | `name` | s | interpolate `sequentialXor` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `cases` | s[] | `[00, 01, 10, 11]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.String">String</abbr>&gt;</code> |
-| `resetAgent` | b | `false` | <code>boolean</code> |
 | `rewardType` | e | `UNLIMITED` | <code><abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.SequentialXor$RewardType">SequentialXor$RewardType</abbr></code> |
+| `resetAgent` | b | `false` | <code>boolean</code> |
+| `shuffle` | b | `false` | <code>boolean</code> |
+| `randomGenerator` | npm | `m.defaultRG()` | <code><abbr title="java.util.random.RandomGenerator">RandomGenerator</abbr></code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.SequentialXor">SequentialXor</abbr></code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.Simulations.sequentialXor()` by jgea-experimenter:2.8.2-SNAPSHOT
 
