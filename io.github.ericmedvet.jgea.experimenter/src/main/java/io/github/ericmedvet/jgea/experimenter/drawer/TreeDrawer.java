@@ -121,6 +121,7 @@ public class TreeDrawer implements Drawer<Tree<?>> {
   }
 
   protected static void drawString(Graphics2D g, Point p, Color color, double charH, boolean debug, String s) {
+    g.setFont(new Font("Monospaced", Font.PLAIN, (int) charH));
     List<String> lines = s.lines().toList();
     for (double l = 0; l < lines.size(); l = l + 1) {
       String line = lines.get((int) l);
@@ -141,7 +142,6 @@ public class TreeDrawer implements Drawer<Tree<?>> {
   @Override
   public void draw(Graphics2D g, Tree<?> tree) {
     java.awt.Rectangle clipBounds = g.getClipBounds();
-    g.setFont(new Font("Monospaced", Font.PLAIN, (int) c.charH));
     draw(
         g,
         Rectangle.of(

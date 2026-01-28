@@ -30,7 +30,7 @@ public interface Element {
         "÷",
         x -> x[0] / x[1],
         2
-    ), PROT_DIVISION("p÷", x -> (x[1] != 0d) ? (x[0] / x[1]) : 1, 2), MULTIPLICATION(
+    ), PROT_DIVISION("p÷", x -> (x[1] != 0d) ? (x[0] / x[1]) : 1E9, 2), MULTIPLICATION(
         "*",
         x -> x[0] * x[1],
         2
@@ -38,7 +38,7 @@ public interface Element {
         "log",
         x -> Math.log(x[0]),
         1
-    ), PROT_LOG("plog", x -> (x[0] > 0d) ? Math.log(x[0]) : 0d, 1), EXP(
+    ), PROT_LOG("plog", x -> (x[0] > 0d) ? Math.log(x[0]) : -1E9, 1), EXP(
         "exp",
         x -> Math.exp(x[0]),
         1
@@ -62,7 +62,11 @@ public interface Element {
         "tanh",
         x -> Math.tanh(x[0]),
         1
-    ), GT(">", x -> Math.signum(x[0] - x[1]), 2), LT("<", x -> Math.signum(x[1] - x[0]), 2);
+    ), GT(">", x -> Math.signum(x[0] - x[1]), 2), LT("<", x -> Math.signum(x[1] - x[0]), 2), POW(
+        "^",
+        x -> Math.pow(x[0], x[1]),
+        2
+    );
 
     private final String string;
     private final ToDoubleFunction<double[]> function;
