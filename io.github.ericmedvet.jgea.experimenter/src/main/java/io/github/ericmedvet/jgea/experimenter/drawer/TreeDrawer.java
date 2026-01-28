@@ -25,6 +25,8 @@ import io.github.ericmedvet.jgea.core.representation.tree.numeric.NumericTreeUti
 import io.github.ericmedvet.jsdynsym.control.geometry.Point;
 import io.github.ericmedvet.jsdynsym.control.geometry.Rectangle;
 import io.github.ericmedvet.jviz.core.drawer.Drawer;
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -94,6 +96,52 @@ public class TreeDrawer implements Drawer<Tree<?>> {
     }
   }
 
+  protected static void drawString(Graphics2D g, Point p, Color color, double charH, boolean debug, String s) {
+    List<String> lines = s.lines().toList();
+    for (double l = 0; l < lines.size(); l = l + 1) {
+      String line = lines.get((int) l);
+      Point lineSize = stringSize(g, line);
+      Point lineCenter = p.sum(Point.ofY(+((lines.size() - 1d) / 2d - l) * charH));
+      g.setColor(color);
+      g.drawString(
+          line,
+          (float) (lineCenter.x() - lineSize.x() / 2),
+          (float) (lineCenter.y() + g.getFontMetrics().getAscent() / 3d)
+      );
+      if (debug) {
+        g.setColor(Color.RED);
+        g.draw(
+            new Rectangle2D.Double(
+                lineCenter.x() - lineSize.x() / 2,
+                lineCenter.y() - lineSize.y() / 2,
+                lineSize.x(),
+                lineSize.y()
+            )
+        );
+      }
+    }
+  }
+
+  protected static Rectangle2D.Double drawable(Rectangle nodeR) {
+    return new Rectangle2D.Double(
+        nodeR.min().x(),
+        nodeR.min().y(),
+        nodeR.width(),
+        nodeR.height()
+    );
+  }
+
+  public static void main(String[] args) {
+    new TreeDrawer(Configuration.DEFAULT.scaled(10)).show(
+        NumericTreeUtils.parse("+(x;*(x;5))")
+    );
+  }
+
+  protected static Point stringSize(Graphics2D g, String s) {
+    Rectangle2D r = g.getFontMetrics().getStringBounds(s, g);
+    return new Point(r.getWidth(), r.getHeight());
+  }
+
   @Override
   public void draw(Graphics2D g, Tree<?> tree) {
     java.awt.Rectangle clipBounds = g.getClipBounds();
@@ -143,12 +191,7 @@ public class TreeDrawer implements Drawer<Tree<?>> {
       if (configuration.debug) {
         g.setColor(Color.RED);
         g.draw(
-            new Rectangle2D.Double(
-                childR.min().x(),
-                childR.min().y(),
-                childR.width(),
-                childR.height()
-            )
+            drawable(childR)
         );
       }
     }
@@ -165,42 +208,14 @@ public class TreeDrawer implements Drawer<Tree<?>> {
         nodeSize.y()
     );
     //draw box
-    Rectangle2D.Double box = new Rectangle2D.Double(
-        nodeR.min().x(),
-        nodeR.min().y(),
-        nodeR.width(),
-        nodeR.height()
-    );
+    Rectangle2D.Double box = drawable(nodeR);
     g.setColor(configuration.boxBGColor());
     g.fill(box);
     g.setStroke(new BasicStroke((float) configuration.boxBorderThickness));
     g.setColor(configuration.boxBorderColor);
     g.draw(box);
     //draw string
-    List<String> lines = t.content().toString().lines().toList();
-    for (double l = 0; l < lines.size(); l = l + 1) {
-      String line = lines.get((int) l);
-      Point lineSize = stringSize(g, line);
-      Point lineCenter = nodeR.center()
-          .sum(Point.ofY(+((lines.size() - 1d) / 2d - l) * configuration.charH()));
-      g.setColor(configuration.labelColor);
-      g.drawString(
-          line,
-          (float) (lineCenter.x() - lineSize.x() / 2),
-          (float) (lineCenter.y() + g.getFontMetrics().getAscent() / 3d)
-      );
-      if (configuration.debug) {
-        g.setColor(Color.RED);
-        g.draw(
-            new Rectangle2D.Double(
-                lineCenter.x() - lineSize.x() / 2,
-                lineCenter.y() - lineSize.y() / 2,
-                lineSize.x(),
-                lineSize.y()
-            )
-        );
-      }
-    }
+    drawString(g, nodeR.center(), configuration.labelColor, configuration.charH, configuration.debug, t.content().toString());
     //draw edges
     g.setStroke(new BasicStroke((float) configuration.edgeThickness));
     g.setColor(configuration.edgeColor);
@@ -232,11 +247,6 @@ public class TreeDrawer implements Drawer<Tree<?>> {
     );
   }
 
-  private Point stringSize(Graphics2D g, String s) {
-    Rectangle2D r = g.getFontMetrics().getStringBounds(s, g);
-    return new Point(r.getWidth(), r.getHeight());
-  }
-
   private Point treeSize(Tree<?> t, Function<String, Point> stringSizer) {
     if (t.nChildren() == 0) {
       return nodeSize(t, stringSizer);
@@ -252,12 +262,6 @@ public class TreeDrawer implements Drawer<Tree<?>> {
     return new Point(
         Math.max(nodeSize.x(), w),
         nodeSize.y() + configuration.nodeMinYGap + h
-    );
-  }
-
-  public static void main(String[] args) {
-    new TreeDrawer(Configuration.DEFAULT.scaled(10)).show(
-        NumericTreeUtils.parse("+(x;*(x;5))")
     );
   }
 
