@@ -21,6 +21,7 @@
 package io.github.ericmedvet.jgea.experimenter.drawer;
 
 import io.github.ericmedvet.jgea.core.representation.tree.Tree;
+import io.github.ericmedvet.jgea.core.representation.tree.numeric.NumericTreeUtils;
 import io.github.ericmedvet.jsdynsym.control.geometry.Point;
 import io.github.ericmedvet.jsdynsym.control.geometry.Rectangle;
 import io.github.ericmedvet.jviz.core.drawer.Drawer;
@@ -42,6 +43,57 @@ public class TreeDrawer implements Drawer<Tree<?>> {
     this.configuration = configuration;
   }
 
+  public record Configuration(
+      double margin,
+      double boxBorderThickness,
+      double edgeThickness,
+      Color boxBorderColor,
+      Color boxBGColor,
+      Color labelColor,
+      Color edgeColor,
+      double charW,
+      double charH,
+      double boxMargin,
+      double nodeMinXGap,
+      double nodeMinYGap,
+      boolean debug
+  ) {
+
+    public static Configuration DEFAULT = new Configuration(
+        5,
+        1,
+        1,
+        Color.BLACK,
+        Color.LIGHT_GRAY,
+        Color.BLUE,
+        Color.DARK_GRAY,
+        10,
+        16,
+        2,
+        5,
+        20,
+        false
+    );
+
+    public Configuration scaled(double r) {
+      return new Configuration(
+          margin * r,
+          boxBorderThickness * r,
+          edgeThickness * r,
+          boxBorderColor,
+          boxBGColor,
+          labelColor,
+          edgeColor,
+          charW * r,
+          charH * r,
+          boxMargin * r,
+          nodeMinXGap * r,
+          nodeMinYGap * r,
+          debug
+      );
+    }
+  }
+
   @Override
   public void draw(Graphics2D g, Tree<?> tree) {
     java.awt.Rectangle clipBounds = g.getClipBounds();
@@ -57,13 +109,6 @@ public class TreeDrawer implements Drawer<Tree<?>> {
             )
         ),
         tree
-    );
-  }
-
-  private Point stringSize(String s) {
-    return new Point(
-        s.lines().mapToDouble(String::length).max().orElse(0) * configuration.charW,
-        s.lines().count() * configuration.charH
     );
   }
 
@@ -157,6 +202,7 @@ public class TreeDrawer implements Drawer<Tree<?>> {
       }
     }
     //draw edges
+    g.setStroke(new BasicStroke((float) configuration.edgeThickness));
     g.setColor(configuration.edgeColor);
     for (double dstX : centers) {
       g.draw(
@@ -176,6 +222,13 @@ public class TreeDrawer implements Drawer<Tree<?>> {
     return new Point(
         sSize.x() + 2 * configuration.boxMargin,
         sSize.y() + 2 * configuration.boxMargin
+    );
+  }
+
+  private Point stringSize(String s) {
+    return new Point(
+        s.lines().mapToDouble(String::length).max().orElse(0) * configuration.charW,
+        s.lines().count() * configuration.charH
     );
   }
 
@@ -202,36 +255,9 @@ public class TreeDrawer implements Drawer<Tree<?>> {
     );
   }
 
-  public record Configuration(
-      double margin,
-      double boxBorderThickness,
-      double edgeThickness,
-      Color boxBorderColor,
-      Color boxBGColor,
-      Color labelColor,
-      Color edgeColor,
-      double charW,
-      double charH,
-      double boxMargin,
-      double nodeMinXGap,
-      double nodeMinYGap,
-      boolean debug
-  ) {
-
-    public static Configuration DEFAULT = new Configuration(
-        5,
-        1,
-        1,
-        Color.BLACK,
-        Color.LIGHT_GRAY,
-        Color.BLUE,
-        Color.DARK_GRAY,
-        10,
-        16,
-        2,
-        5,
-        20,
-        false
+  public static void main(String[] args) {
+    new TreeDrawer(Configuration.DEFAULT.scaled(10)).show(
+        NumericTreeUtils.parse("+(x;*(x;5))")
     );
   }
 
