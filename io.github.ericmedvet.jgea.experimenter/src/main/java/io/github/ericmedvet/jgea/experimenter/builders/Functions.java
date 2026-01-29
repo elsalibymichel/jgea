@@ -52,6 +52,7 @@ import io.github.ericmedvet.jgea.core.util.TextPlotter;
 import io.github.ericmedvet.jgea.experimenter.Experiment;
 import io.github.ericmedvet.jgea.experimenter.Run;
 import io.github.ericmedvet.jgea.experimenter.listener.GlobalProgressMonitor;
+import io.github.ericmedvet.jnb.core.Alias;
 import io.github.ericmedvet.jnb.core.Cacheable;
 import io.github.ericmedvet.jnb.core.Discoverable;
 import io.github.ericmedvet.jnb.core.Param;
@@ -215,7 +216,9 @@ public class Functions {
       Archive<MEIndividual<G, S, Q>> archive = new Archive<>(
           descriptors.stream().map(MapElites.Descriptor::nOfBins).toList()
       );
-      PartialComparator<MEIndividual<G, S, Q>> iPartialComparator = qPartialComparatorFunction.apply(x)
+      PartialComparator<MEIndividual<G, S, Q>> iPartialComparator = qPartialComparatorFunction.apply(
+          x
+      )
           .comparing(MEIndividual::quality);
       meIndividuals.forEach(i -> archive.put(i.bins(), i, iPartialComparator));
       return archive;
@@ -578,7 +581,10 @@ public class Functions {
     );
     if (exprF.nOfInputs() > args.size()) {
       throw new IllegalArgumentException(
-          "Wrong number of arguments in expr: %d found, <=%d expected".formatted(exprF.nOfOutputs(), args.size())
+          "Wrong number of arguments in expr: %d found, <=%d expected".formatted(
+              exprF.nOfOutputs(),
+              args.size()
+          )
       );
     }
     List<String> xVarNames = exprF.xVarNames().stream().sorted().toList();
@@ -729,6 +735,28 @@ public class Functions {
   ) {
     Function<Individual<?, S, ?>, S> f = Individual::solution;
     return FormattedNamedFunction.from(f, format, "solution").compose(beforeF);
+  }
+
+  @Alias(name = "srTreeShortVarName", value = """
+      srTreeVarNameChange(
+        findRegex = "(([a-zA-Z])[a-z]++_?)";
+        replaceExpr ="$2"
+      )
+      """)
+  @Cacheable
+  public static <X> FormattedNamedFunction<X, Tree<Element>> srTreeVarNameChange(
+      @Param(value = "name", iS = "var.name.change") String name,
+      @Param(value = "of", dNPM = "f.identity()") Function<X, Tree<Element>> beforeF,
+      @Param(value = "format", dS = "s") String format,
+      @Param(value = "map", dNPM = "m.sMap()") Map<String, String> map,
+      @Param(value = "findRegex", dS = "") String findRegex,
+      @Param(value = "replaceExpr", dS = "") String replaceExpr
+  ) {
+    Function<Tree<Element>, Tree<Element>> f = t -> Tree.map(t, e -> switch (e) {
+      case Variable v -> new Variable(map.getOrDefault(v.name(), v.name()).replaceAll(findRegex, replaceExpr));
+      default -> e;
+    });
+    return FormattedNamedFunction.from(f, format, name).compose(beforeF);
   }
 
   @Cacheable

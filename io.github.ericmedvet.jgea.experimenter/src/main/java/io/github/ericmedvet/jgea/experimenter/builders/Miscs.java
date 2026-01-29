@@ -121,7 +121,7 @@ public class Miscs {
       @Override
       public void draw(Graphics2D g, Pair<Integer, Grid<double[]>> p) {
         gDrawer.draw(g, p.second());
-        Drawer.stringWriter(Color.PINK, (float) fontSize, Function.identity())
+        Drawer.stringWriter(null, Color.PINK, (float) fontSize, Function.identity())
             .draw(g, "k=%3d".formatted(p.first()));
       }
 

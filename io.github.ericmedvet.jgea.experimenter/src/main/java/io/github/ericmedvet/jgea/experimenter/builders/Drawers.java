@@ -20,17 +20,33 @@
 
 package io.github.ericmedvet.jgea.experimenter.builders;
 
+import io.github.ericmedvet.jgea.core.representation.tree.Tree;
+import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element;
+import io.github.ericmedvet.jgea.core.representation.tree.numeric.NumericTreeUtils;
+import io.github.ericmedvet.jgea.experimenter.drawer.FormulaDrawer;
 import io.github.ericmedvet.jgea.experimenter.drawer.PolyominoDrawer;
+import io.github.ericmedvet.jgea.experimenter.drawer.TreeDrawer;
 import io.github.ericmedvet.jnb.core.Cacheable;
 import io.github.ericmedvet.jnb.core.Discoverable;
 import io.github.ericmedvet.jnb.core.Param;
+import io.github.ericmedvet.jviz.core.drawer.Drawer;
 import java.awt.*;
 import java.util.Map;
+import java.util.function.Function;
 
 @Discoverable(prefixTemplate = "ea.drawer|d")
 public class Drawers {
 
   private Drawers() {
+  }
+
+  @Cacheable
+  public static Drawer<Tree<Element>> formula(
+      @Param(value = "scale", dD = 1) double scale,
+      @Param("simplify") boolean simplify
+  ) {
+    return new FormulaDrawer(FormulaDrawer.Configuration.DEFAULT.scaled(scale))
+        .on(simplify ? NumericTreeUtils::simplify : Function.identity());
   }
 
   @Cacheable
@@ -49,5 +65,12 @@ public class Drawers {
             PolyominoDrawer.Configuration.DEFAULT.marginRate()
         )
     );
+  }
+
+  @Cacheable
+  public static TreeDrawer tree(
+      @Param(value = "scale", dD = 1) double scale
+  ) {
+    return new TreeDrawer(TreeDrawer.Configuration.DEFAULT.scaled(scale));
   }
 }

@@ -89,11 +89,12 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
       return false;
     }
     if (child.content().equals(Operator.SIN) || child.content().equals(Operator.COS) || child.content()
-        .equals(Operator.TANH) || child.content().equals(Operator.SQ) || child.content().equals(Operator.SQRT) || child
-            .content()
-            .equals(Operator.LOG) || child.content().equals(Operator.PROT_LOG) || child.content()
-                .equals(Operator.RE_LU) || child.content().equals(Operator.DIVISION) || child.content()
-                    .equals(Operator.PROT_DIVISION) || child.content().equals(Operator.EXP)) {
+        .equals(Operator.TANH) || child.content().equals(Operator.SQ) || child.content()
+            .equals(Operator.SQRT) || child
+                .content()
+                .equals(Operator.LOG) || child.content().equals(Operator.PROT_LOG) || child.content()
+                    .equals(Operator.RE_LU) || child.content().equals(Operator.DIVISION) || child.content()
+                        .equals(Operator.PROT_DIVISION) || child.content().equals(Operator.EXP)) {
       return false;
     }
     if (o.equals(Operator.MULTIPLICATION) && child.content().equals(Operator.MULTIPLICATION)) {
@@ -111,10 +112,15 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
 
   public static void main(String[] args) {
     Tree<Element> t = NumericTreeUtils.parse(
-        "*(+(*(exp(max(3;x));sin(p÷(√(+(1;÷(1;x)));log(^(+(x;tanh(x));+(x;>(x;ternary(x;2;3))))))));+(1;²(^(x;^(y;x)))));*(x;÷(5;exp(+(x;^(2;2))))))"
+        "*(+(*(exp(max(3;x));sin(p÷(√(+(1;÷(1.4231423523423;x)));log(^(+(x;tanh(x));+(x;>(x;ternary(x;2;3))))))));+(1;²(^(x;^(y;x)))));*(x;÷(5;exp(+(x;^(2;2))))))"
     );
-    new TreeDrawer(TreeDrawer.Configuration.DEFAULT.scaled(3)).show(t);
-    new FormulaDrawer(Configuration.DEFAULT.scaled(7)).show(t);
+    Drawer.stacked(
+        List.of(
+            new TreeDrawer(TreeDrawer.Configuration.DEFAULT.scaled(3)),
+            new FormulaDrawer(Configuration.DEFAULT.scaled(7))
+        ),
+        Arrangement.VERTICAL
+    ).show(t);
   }
 
   @Override
@@ -158,7 +164,7 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
         yield nodeR;
       }
       case Element.Constant n -> {
-        String s = (n.value() % 1d == 0) ? Integer.toString((int) n.value()) : n.toString();
+        String s = (n.value() % 1d == 0) ? Integer.toString((int) n.value()) : c.constFormat.formatted(n.value());
         Rectangle nodeR = at(r.center(), stringSize(s, textScale));
         if (Objects.nonNull(g)) {
           TreeDrawer.drawString(
@@ -334,7 +340,10 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
               path.moveTo(r.min().x(), r.min().y() + childRs.getFirst().height() + c.fractionYGap);
               path.lineTo(r.max().x(), r.min().y() + childRs.getFirst().height() + c.fractionYGap);
               if (o.equals(Operator.PROT_DIVISION)) {
-                path.lineTo(r.max().x(), r.min().y() + childRs.getFirst().height() + c.fractionYGap + r.height() * 0.1);
+                path.lineTo(
+                    r.max().x(),
+                    r.min().y() + childRs.getFirst().height() + c.fractionYGap + r.height() * 0.1
+                );
               }
               g.draw(path);
             }
@@ -557,9 +566,11 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
       double margin, double fractionThickness, double parenthesisThickness, double sqrtThickness,
       Color operatorColor, Color constColor, Color varFGColor,
       Color varBGColor, Color parenthesisColor, double charW, double charH,
-      double fractionYGap, double fractionXGap, double operatorXGap, double operatorThinXGap, double powerRaiseRate,
+      double fractionYGap, double fractionXGap, double operatorXGap, double operatorThinXGap,
+      double powerRaiseRate,
       double parenthesisWHRate, double parenthesisHRate, double sqrtOpenWHRate,
       double sqrtCloseWHRate, double sqrtCeilYGap, double expTextScaleR, double minTextScale,
+      String constFormat,
       boolean debug
   ) {
 
@@ -587,6 +598,7 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
         2,
         0.7,
         0.4,
+        "%+.3f",
         false
     );
 
@@ -615,6 +627,7 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
           sqrtCeilYGap * r,
           expTextScaleR,
           minTextScale,
+          constFormat,
           debug
       );
     }

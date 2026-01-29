@@ -1261,6 +1261,17 @@ Produces <code><abbr title="java.util.function.BiConsumer">BiConsumer</abbr>&lt;
 
 Aliases: `ea.d`, `ea.drawer`
 
+### Builder `ea.drawer.formula()`
+
+`ea.d.formula(scale; simplify)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `scale` | d | `1.0` | <code>double</code> |
+| `simplify` | b | `false` | <code>boolean</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.drawer.Drawer">Drawer</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.representation.tree.Tree">Tree</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.representation.tree.numeric.Element">Element</abbr>&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Drawers.formula()` by jgea-experimenter:2.8.2-SNAPSHOT
+
 ### Builder `ea.drawer.polyomino()`
 
 `ea.d.polyomino(maxW; maxH; colors; borderColor)`
@@ -1273,6 +1284,16 @@ Aliases: `ea.d`, `ea.drawer`
 | `borderColor` | npm | `ea.misc.colorByName(name = white)` | <code><abbr title="java.awt.Color">Color</abbr></code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.drawer.PolyominoDrawer">PolyominoDrawer</abbr></code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Drawers.polyomino()` by jgea-experimenter:2.8.2-SNAPSHOT
+
+### Builder `ea.drawer.tree()`
+
+`ea.d.tree(scale)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `scale` | d | `1.0` | <code>double</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jgea.experimenter.drawer.TreeDrawer">TreeDrawer</abbr></code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Drawers.tree()` by jgea-experimenter:2.8.2-SNAPSHOT
 
 ## Package `ea.function`
 
@@ -1889,6 +1910,36 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedName
 | `format` | s | `%s` | <code><abbr title="java.lang.String">String</abbr></code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, S&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Functions.solution()` by jgea-experimenter:2.8.2-SNAPSHOT
+
+### Builder `ea.function.srTreeShortVarName()`
+
+`ea.f.srTreeShortVarName(name; of; format; map; findRegex; replaceExpr)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `name` | s | interpolate `var.name.change` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jgea.core.representation.tree.Tree">Tree</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.representation.tree.numeric.Element">Element</abbr>&gt;&gt;</code> |
+| `format` | s | `s` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `map` | npm | `m.sMap()` | <code><abbr title="java.util.Map">Map</abbr>&lt;<abbr title="java.lang.String">String</abbr>, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `findRegex` | s | `(([a-zA-Z])[a-z]++_?)` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `replaceExpr` | s | `$2` | <code><abbr title="java.lang.String">String</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="io.github.ericmedvet.jgea.core.representation.tree.Tree">Tree</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.representation.tree.numeric.Element">Element</abbr>&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Functions.srTreeVarNameChange()` by jgea-experimenter:2.8.2-SNAPSHOT
+
+### Builder `ea.function.srTreeVarNameChange()`
+
+`ea.f.srTreeVarNameChange(name; of; format; map; findRegex; replaceExpr)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `name` | s | interpolate `var.name.change` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jgea.core.representation.tree.Tree">Tree</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.representation.tree.numeric.Element">Element</abbr>&gt;&gt;</code> |
+| `format` | s | `s` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `map` | npm | `m.sMap()` | <code><abbr title="java.util.Map">Map</abbr>&lt;<abbr title="java.lang.String">String</abbr>, <abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `findRegex` | s | `` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `replaceExpr` | s | `` | <code><abbr title="java.lang.String">String</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="io.github.ericmedvet.jgea.core.representation.tree.Tree">Tree</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.representation.tree.numeric.Element">Element</abbr>&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Functions.srTreeVarNameChange()` by jgea-experimenter:2.8.2-SNAPSHOT
 
 ### Builder `ea.function.stateGrid()`
 
@@ -6253,6 +6304,21 @@ Produces <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&
 | `condition` | npm |  | <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&gt;</code> |
 
 Produces <code><abbr title="java.util.function.Predicate">Predicate</abbr>&lt;X&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Predicates.not()` by jgea-experimenter:2.8.2-SNAPSHOT
+
+## Package `viz.drawer`
+
+Aliases: `viz.d`, `viz.drawer`
+
+### Builder `viz.drawer.stacked()`
+
+`viz.d.stacked(drawers; arrangement)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `drawers` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;? extends <abbr title="io.github.ericmedvet.jviz.core.drawer.Drawer">Drawer</abbr>&lt;? super E&gt;&gt;</code> |
+| `arrangement` | e | `VERTICAL` | <code><abbr title="io.github.ericmedvet.jviz.core.drawer.Drawer$Arrangement">Drawer$Arrangement</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jviz.core.drawer.Drawer">Drawer</abbr>&lt;E&gt;</code>; built from `io.github.ericmedvet.jviz.buildable.builders.Drawers.stacked()` by jgea-experimenter:2.8.2-SNAPSHOT
 
 ## Package `viz.function`
 
