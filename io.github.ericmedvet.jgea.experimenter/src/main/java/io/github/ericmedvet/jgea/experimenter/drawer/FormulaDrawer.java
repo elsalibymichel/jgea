@@ -77,6 +77,19 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
     );
   }
 
+  private static Tree<Element> groupAddAndMult(Tree<Element> tree) {
+    if (tree.content() instanceof Operator o) {
+      if (o.equals(Operator.ADDITION) || o.equals(Operator.MULTIPLICATION)) {
+        return Tree.of(o, opChildren(o, tree));
+      }
+    }
+    return Tree.of(tree.content(), tree.childStream().map(FormulaDrawer::groupAddAndMult).toList());
+  }
+
+  private static boolean isConstant(Tree<Element> t) {
+    return t.content() instanceof Element.Constant;
+  }
+
   private static boolean hasParentheses(Element.Operator o, Tree<Element> child, int index) {
     if (child.nChildren() == 0) {
       return false;
@@ -87,20 +100,22 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
     if (o.equals(Operator.PROT_DIVISION) || o.equals(Operator.DIVISION)) {
       return false;
     }
-    if (child.content().equals(Operator.LT) || child.content().equals(Operator.GT) || child.content()
+    if (child.content().equals(Operator.LT) || child.content().equals(Operator.GT)
+        || child.content()
         .equals(Operator.TERNARY)) {
       return true;
     }
     if (o.equals(Operator.ADDITION)) {
       return false;
     }
-    if (child.content().equals(Operator.SIN) || child.content().equals(Operator.COS) || child.content()
+    if (child.content().equals(Operator.SIN) || child.content().equals(Operator.COS)
+        || child.content()
         .equals(Operator.TANH) || child.content().equals(Operator.SQ) || child.content()
-            .equals(Operator.SQRT) || child
-                .content()
-                .equals(Operator.LOG) || child.content().equals(Operator.PROT_LOG) || child.content()
-                    .equals(Operator.RE_LU) || child.content().equals(Operator.DIVISION) || child.content()
-                        .equals(Operator.PROT_DIVISION) || child.content().equals(Operator.EXP)) {
+        .equals(Operator.SQRT) || child
+        .content()
+        .equals(Operator.LOG) || child.content().equals(Operator.PROT_LOG) || child.content()
+        .equals(Operator.RE_LU) || child.content().equals(Operator.DIVISION) || child.content()
+        .equals(Operator.PROT_DIVISION) || child.content().equals(Operator.EXP)) {
       return false;
     }
     if (o.equals(Operator.MULTIPLICATION) && child.content().equals(Operator.MULTIPLICATION)) {
@@ -110,23 +125,6 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
       return false;
     }
     return true;
-  }
-
-  private static boolean isConstant(Tree<Element> t) {
-    return t.content() instanceof Element.Constant;
-  }
-
-  public static void main(String[] args) {
-    Tree<Element> t = NumericTreeUtils.parse(
-        "*(+(*(exp(max(3;x));sin(p÷(√(+(*(x;*(7;3));÷(1.4231423523423;x)));log(^(+(x;tanh(x));+(x;>(x;ternary(x;2;3))))))));+(1;²(^(x;^(y;x)))));*(x;÷(+(1.5;x);exp(+(x;^(2;2))))))"
-    );
-    Drawer.stacked(
-        List.of(
-            new TreeDrawer(TreeDrawer.Configuration.DEFAULT.scaled(3)),
-            new FormulaDrawer(Configuration.DEFAULT.scaled(5))
-        ),
-        Arrangement.VERTICAL
-    ).show(t);
   }
 
   @Override
@@ -151,315 +149,33 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
     );
   }
 
-  private static int sorter(Tree<Element> t1, Tree<Element> t2) {
-    if (t1.content() instanceof Constant(double value1)) {
-      if (t2.content() instanceof Constant(double value2)) {
-        return Double.compare(value1, value2);
-      }
-      return -1;
-    }
-    if (t1.content() instanceof Variable(String name1)) {
-      if (t2.content() instanceof Variable(String name2)) {
-        return name1.compareTo(name2);
-      }
-      return -1;
-    }
-    return Integer.compare(t2.size(), t1.size());
+  public static void main(String[] args) {
+    Tree<Element> t = NumericTreeUtils.parse(
+        "*(+(*(exp(max(3;x));sin(p÷(√(+(*(x;*(7;3));÷(1.4231423523423;x)));log(^(+(x;tanh(x));+(x;>(x;ternary(x;2;3))))))));+(1;²(^(x;^(y;x)))));*(x;÷(+(1.5;x);exp(+(x;^(2;2))))))"
+    );
+    // TODO check simplification here
+    t = NumericTreeUtils.parse("p÷(*(+(10;x7);x5);+(+(*(0.1;x3);10);10))");
+    Drawer.stacked(
+        List.of(
+            Drawer.stacked(List.of(
+                new TreeDrawer(TreeDrawer.Configuration.DEFAULT.scaled(3)),
+                new TreeDrawer(TreeDrawer.Configuration.DEFAULT.scaled(3))
+                    .on(FormulaDrawer::groupAddAndMult)
+            ), Arrangement.HORIZONTAL),
+            new FormulaDrawer(Configuration.DEFAULT.scaled(5)),
+            new FormulaDrawer(Configuration.DEFAULT.scaled(5)).on(NumericTreeUtils::simplify).on(FormulaDrawer::groupAddAndMult)
+        ),
+        Arrangement.VERTICAL
+    ).show(t);
   }
 
-  private Rectangle draw(Graphics2D g, Rectangle r, Tree<Element> t, double textScale) {
-    Rectangle innerR = switch (t.content()) {
-      case Element.Variable v -> {
-        Rectangle nodeR = at(r.center(), stringSize(v.name(), textScale));
-        if (Objects.nonNull(g)) {
-          g.setColor(c.varBGColor);
-          g.fill(TreeDrawer.drawable(nodeR));
-          TreeDrawer.drawString(
-              g,
-              nodeR.center(),
-              c.varFGColor,
-              c.charH * textScale,
-              c.debug,
-              v.name()
-          );
-        }
-        yield nodeR;
+  private static List<Tree<Element>> opChildren(Operator operator, Tree<Element> t) {
+    if (t.content() instanceof Operator o) {
+      if (o.equals(operator)) {
+        return t.childStream().flatMap(c -> opChildren(operator, c).stream()).toList();
       }
-      case Element.Constant n -> {
-        String s = (n.value() % 1d == 0) ? Integer.toString((int) n.value()) : c.constFormat.formatted(n.value());
-        Rectangle nodeR = at(r.center(), stringSize(s, textScale));
-        if (Objects.nonNull(g)) {
-          TreeDrawer.drawString(
-              g,
-              nodeR.center(),
-              c.constColor,
-              c.charH * textScale,
-              c.debug,
-              s
-          );
-        }
-        yield nodeR;
-      }
-      case Element.Operator o -> {
-        List<Tree<Element>> children = new ArrayList<>(t.childStream().toList());
-        if (c.sortChildren) {
-          switch (o) {
-            case MULTIPLICATION -> children.sort(FormulaDrawer::sorter);
-            case ADDITION -> children.sort((t1, t2) -> sorter(t2, t1));
-          }
-        }
-        Rectangle opR = at(r.center(), stringSize(switch (o) {
-          case MULTIPLICATION -> "·";
-          case PROT_LOG -> "log*";
-          default -> o.toString();
-        }, textScale));
-        double childTextScale = Math.max(c.minTextScale, textScale * c.expTextScaleR);
-        List<Rectangle> childRs = IntStream.range(0, t.nChildren()).mapToObj(j -> {
-          Rectangle childR = draw(null, r, children.get(j), switch (o) {
-            case POW -> j == 0 ? textScale : childTextScale;
-            case EXP -> childTextScale;
-            default -> textScale;
-          });
-          if (hasParentheses(o, children.get(j), j)) {
-            childR = withPars(childR);
-          }
-          return childR;
-        }).toList();
-        double childrenW = childRs.stream().mapToDouble(Rectangle::width).sum();
-        double h = switch (o) {
-          case POW -> childRs.get(0).height() * c.powerRaiseRate + childRs.get(1).height();
-          case EXP ->
-            stringSize("e", textScale).y() * c.powerRaiseRate + childRs.getFirst().height();
-          case SQ -> childRs.getFirst().height() * c.powerRaiseRate + stringSize(
-              "2",
-              childTextScale
-          ).y();
-          case SQRT -> withSqrt(childRs.getFirst()).height();
-          case DIVISION, PROT_DIVISION ->
-            childRs.stream().mapToDouble(Rectangle::height).sum() + 2 * c.fractionYGap;
-          default -> Math.max(
-              opR.height(),
-              childRs.stream().mapToDouble(Rectangle::height).max().orElse(0)
-          );
-        };
-        double w = switch (o) {
-          case POW -> childRs.getFirst().width() + c.operatorThinXGap + childRs.get(1).width();
-          case EXP ->
-            stringSize("e", textScale).x() + c.operatorThinXGap + childRs.getFirst().width();
-          case SQ -> childRs.getFirst().width() + c.operatorThinXGap + stringSize(
-              "2",
-              childTextScale
-          ).x();
-          case SQRT -> withSqrt(childRs.getFirst()).width();
-          case DIVISION, PROT_DIVISION ->
-            childRs.stream().mapToDouble(Rectangle::width).max().orElseThrow() + 2 * c.fractionXGap;
-          case MULTIPLICATION -> {
-            int nOfDots = 0;
-            for (int i = 1; i < t.nChildren(); i = i + 1) {
-              if (isConstant(children.get(i - 1)) && isConstant(children.get(i))) {
-                nOfDots = nOfDots + 1;
-              }
-            }
-            yield (opR.width() + 2 * c.operatorXGap) * nOfDots + c.operatorXGap * (t
-                .nChildren() - 1 - nOfDots) + childrenW;
-          }
-          case ADDITION, SUBTRACTION, GT, LT ->
-            (opR.width() + 2 * c.operatorXGap) * (t.nChildren() - 1) + childrenW;
-          default -> {
-            if (t.nChildren() > 1) {
-              Rectangle argsR = withPars(
-                  new Rectangle(
-                      Point.ORIGIN,
-                      (c.operatorXGap + stringSize(",", textScale).x()) * (t.nChildren() - 1) + childrenW,
-                      h
-                  )
-              );
-              h = Math.max(argsR.height(), h);
-              yield opR.width() + c.operatorThinXGap + argsR.width();
-            }
-            yield opR.width() + c.operatorThinXGap + childRs.getFirst().width();
-          }
-        };
-        if (Objects.nonNull(g)) {
-          double x = r.min().x() + (r.width() - w) / 2d;
-          switch (o) {
-            case POW -> {
-              drawChild(
-                  g,
-                  textScale,
-                  atMinXMaxY(r.min().x(), r.max().y(), childRs.getFirst()),
-                  o,
-                  children.getFirst(),
-                  0
-              );
-              drawChild(
-                  g,
-                  childTextScale,
-                  atMaxXMinY(r.max().x(), r.min().y(), childRs.get(1)),
-                  o,
-                  children.get(1),
-                  1
-              );
-            }
-            case EXP -> {
-              Point size = stringSize("e", textScale);
-              drawOp(g, textScale, r.min().x() + size.x() / 2d, r.max().y() - size.y() / 2d, "e");
-              drawChild(
-                  g,
-                  childTextScale,
-                  atMaxXMinY(r.max().x(), r.min().y(), childRs.getFirst()),
-                  o,
-                  children.getFirst(),
-                  0
-              );
-            }
-            case SQ -> {
-              Point size = stringSize("2", childTextScale);
-              drawChild(
-                  g,
-                  textScale,
-                  atMinXMaxY(r.min().x(), r.max().y(), childRs.getFirst()),
-                  o,
-                  children.getFirst(),
-                  0
-              );
-              drawOp(
-                  g,
-                  childTextScale,
-                  r.max().x() - size.x() / 2d,
-                  r.min().y() + size.y() / 2d,
-                  "2"
-              );
-            }
-            case SQRT -> {
-              Rectangle argR = withoutSqrt(childRs.getFirst());
-              double openW = argR.height() * c.sqrtOpenWHRate;
-              drawChild(g, textScale, argR, o, children.getFirst(), 0);
-              g.setColor(c.operatorColor);
-              g.setStroke(new BasicStroke((float) c.sqrtThickness));
-              Path2D path = new Path2D.Double();
-              path.moveTo(r.min().x(), r.max().y() - 0.2 * r.height());
-              path.lineTo(r.min().x() + openW / 3d, r.max().y() - 0.2 * r.height());
-              path.lineTo(r.min().x() + openW * 2d / 3d, r.max().y());
-              path.lineTo(r.min().x() + openW, r.min().y());
-              path.lineTo(r.max().x(), r.min().y());
-              path.lineTo(r.max().x(), r.min().y() + 0.1 * r.height());
-              g.draw(path);
-            }
-            case DIVISION, PROT_DIVISION -> {
-              drawChild(
-                  g,
-                  textScale,
-                  atMinY(r.center().x(), r.min().y(), childRs.getFirst()),
-                  o,
-                  children.getFirst(),
-                  0
-              );
-              drawChild(
-                  g,
-                  textScale,
-                  atMaxY(r.center().x(), r.max().y(), childRs.get(1)),
-                  o,
-                  children.get(1),
-                  1
-              );
-              g.setColor(c.operatorColor);
-              g.setStroke(new BasicStroke((float) c.fractionThickness));
-              Path2D path = new Path2D.Double();
-              path.moveTo(r.min().x(), r.min().y() + childRs.getFirst().height() + c.fractionYGap);
-              path.lineTo(r.max().x(), r.min().y() + childRs.getFirst().height() + c.fractionYGap);
-              if (o.equals(Operator.PROT_DIVISION)) {
-                path.lineTo(
-                    r.max().x(),
-                    r.min().y() + childRs.getFirst().height() + c.fractionYGap + r.height() * 0.1
-                );
-              }
-              g.draw(path);
-            }
-            case MULTIPLICATION -> {
-              for (int i = 0; i < t.nChildren(); i = i + 1) {
-                if (i > 0) {
-                  if (isConstant(children.get(i - 1)) && isConstant(children.get(i))) {
-                    drawOp(
-                        g,
-                        textScale,
-                        x + opR.width() / 2d + c.operatorXGap,
-                        r.center().y(),
-                        "·"
-                    );
-                    x = x + opR.width() + c.operatorXGap;
-                  }
-                  x = x + c.operatorXGap;
-                }
-                Rectangle childR = atMinX(x, r.center().y(), childRs.get(i));
-                drawChild(g, textScale, childR, o, children.get(i), i);
-                x = x + childR.width();
-              }
-            }
-            case ADDITION, SUBTRACTION, GT, LT -> {
-              for (int i = 0; i < t.nChildren(); i = i + 1) {
-                if (i > 0) {
-                  drawOp(
-                      g,
-                      textScale,
-                      x + opR.width() / 2d + c.operatorXGap,
-                      r.center().y(),
-                      o.toString()
-                  );
-                  x = x + opR.width() + 2 * c.operatorXGap;
-                }
-                Rectangle childR = atMinX(x, r.center().y(), childRs.get(i));
-                drawChild(g, textScale, childR, o, children.get(i), i);
-                x = x + childR.width();
-              }
-            }
-            default -> {
-              drawOp(g, textScale, x + opR.width() / 2d, r.center().y(), o.toString());
-              x = x + opR.width() + c.operatorThinXGap;
-              if (t.nChildren() == 1) {
-                drawChild(
-                    g,
-                    textScale,
-                    atMinX(x, r.center().y(), childRs.getFirst()),
-                    o,
-                    children.getFirst(),
-                    0
-                );
-              } else {
-                Rectangle argsR = Rectangle.of(new Point(x, r.min().y()), r.max());
-                drawParenthesis(g, openedParR(argsR), true);
-                drawParenthesis(g, closedParR(argsR), false);
-                argsR = withoutPars(argsR);
-                x = argsR.min().x();
-                Point sepSize = stringSize(",", textScale);
-                for (int i = 0; i < t.nChildren(); i = i + 1) {
-                  if (i > 0) {
-                    drawOp(
-                        g,
-                        textScale,
-                        x + sepSize.x() / 2d,
-                        r.center().y() + opR.height() / 2d - sepSize.y() / 2d,
-                        ","
-                    );
-                    x = x + sepSize.x() + c.operatorXGap;
-                  }
-                  Rectangle childR = atMinX(x, argsR.center().y(), childRs.get(i));
-                  drawChild(g, textScale, childR, o, children.get(i), i);
-                  x = x + childR.width();
-                }
-              }
-            }
-          }
-        }
-        yield new Rectangle(r.center(), w, h);
-      }
-      default ->
-        throw new IllegalArgumentException("Unexpected node type: %s".formatted(t.content()));
-    };
-    if (Objects.nonNull(g) && c.debug) {
-      TreeDrawer.drawDebugBox(g, innerR);
     }
-    return innerR;
+    return List.of(t);
   }
 
   private Rectangle openedParR(Rectangle r) {
@@ -663,6 +379,323 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
           debug
       );
     }
+  }
+
+  private static int sorter(Tree<Element> t1, Tree<Element> t2) {
+    if (t1.content() instanceof Constant(double value1)) {
+      if (t2.content() instanceof Constant(double value2)) {
+        return Double.compare(value1, value2);
+      }
+      return -1;
+    }
+    if (t1.content() instanceof Variable(String name1)) {
+      if (t2.content() instanceof Constant) {
+        return 1;
+      }
+      if (t2.content() instanceof Variable(String name2)) {
+        return name1.compareTo(name2);
+      }
+      return -1;
+    }
+    return Integer.compare(t2.size(), t1.size());
+  }
+
+  private Rectangle draw(Graphics2D g, Rectangle r, Tree<Element> t, double textScale) {
+    Rectangle innerR = switch (t.content()) {
+      case Element.Variable v -> {
+        Rectangle nodeR = at(r.center(), stringSize(v.name(), textScale));
+        if (Objects.nonNull(g)) {
+          g.setColor(c.varBGColor);
+          g.fill(TreeDrawer.drawable(nodeR));
+          TreeDrawer.drawString(
+              g,
+              nodeR.center(),
+              c.varFGColor,
+              c.charH * textScale,
+              c.debug,
+              v.name()
+          );
+        }
+        yield nodeR;
+      }
+      case Element.Constant n -> {
+        String s = (n.value() % 1d == 0) ? Integer.toString((int) n.value())
+            : c.constFormat.formatted(n.value());
+        Rectangle nodeR = at(r.center(), stringSize(s, textScale));
+        if (Objects.nonNull(g)) {
+          TreeDrawer.drawString(
+              g,
+              nodeR.center(),
+              c.constColor,
+              c.charH * textScale,
+              c.debug,
+              s
+          );
+        }
+        yield nodeR;
+      }
+      case Element.Operator o -> {
+        List<Tree<Element>> children = new ArrayList<>(t.childStream().toList());
+        if (c.sortChildren) {
+          switch (o) {
+            case MULTIPLICATION -> children.sort((t1, t2) -> sorter(t1, t2));
+            case ADDITION -> children.sort((t1, t2) -> sorter(t2, t1));
+          }
+        }
+        Rectangle opR = at(r.center(), stringSize(switch (o) {
+          case MULTIPLICATION -> "·";
+          case PROT_LOG -> "log*";
+          default -> o.toString();
+        }, textScale));
+        double childTextScale = Math.max(c.minTextScale, textScale * c.expTextScaleR);
+        List<Rectangle> childRs = IntStream.range(0, t.nChildren()).mapToObj(j -> {
+          Rectangle childR = draw(null, r, children.get(j), switch (o) {
+            case POW -> j == 0 ? textScale : childTextScale;
+            case EXP -> childTextScale;
+            default -> textScale;
+          });
+          if (hasParentheses(o, children.get(j), j)) {
+            childR = withPars(childR);
+          }
+          return childR;
+        }).toList();
+        double childrenW = childRs.stream().mapToDouble(Rectangle::width).sum();
+        double h = switch (o) {
+          case POW -> childRs.get(0).height() * c.powerRaiseRate + childRs.get(1).height();
+          case EXP ->
+              stringSize("e", textScale).y() * c.powerRaiseRate + childRs.getFirst().height();
+          case SQ -> childRs.getFirst().height() * c.powerRaiseRate + stringSize(
+              "2",
+              childTextScale
+          ).y();
+          case SQRT -> withSqrt(childRs.getFirst()).height();
+          case DIVISION, PROT_DIVISION ->
+              childRs.stream().mapToDouble(Rectangle::height).sum() + 2 * c.fractionYGap;
+          default -> Math.max(
+              opR.height(),
+              childRs.stream().mapToDouble(Rectangle::height).max().orElse(0)
+          );
+        };
+        double w = switch (o) {
+          case POW -> childRs.getFirst().width() + c.operatorThinXGap + childRs.get(1).width();
+          case EXP ->
+              stringSize("e", textScale).x() + c.operatorThinXGap + childRs.getFirst().width();
+          case SQ -> childRs.getFirst().width() + c.operatorThinXGap + stringSize(
+              "2",
+              childTextScale
+          ).x();
+          case SQRT -> withSqrt(childRs.getFirst()).width();
+          case DIVISION, PROT_DIVISION ->
+              childRs.stream().mapToDouble(Rectangle::width).max().orElseThrow()
+                  + 2 * c.fractionXGap;
+          case MULTIPLICATION -> {
+            int nOfDots = 0;
+            for (int i = 1; i < t.nChildren(); i = i + 1) {
+              if (isConstant(children.get(i - 1)) && isConstant(children.get(i))) {
+                nOfDots = nOfDots + 1;
+              }
+            }
+            yield (opR.width() + 2 * c.operatorXGap) * nOfDots + c.operatorXGap * (t
+                .nChildren() - 1 - nOfDots) + childrenW;
+          }
+          case ADDITION, SUBTRACTION, GT, LT ->
+              (opR.width() + 2 * c.operatorXGap) * (t.nChildren() - 1) + childrenW;
+          default -> {
+            if (t.nChildren() > 1) {
+              Rectangle argsR = withPars(
+                  new Rectangle(
+                      Point.ORIGIN,
+                      (c.operatorXGap + stringSize(",", textScale).x()) * (t.nChildren() - 1)
+                          + childrenW,
+                      h
+                  )
+              );
+              h = Math.max(argsR.height(), h);
+              yield opR.width() + c.operatorThinXGap + argsR.width();
+            }
+            yield opR.width() + c.operatorThinXGap + childRs.getFirst().width();
+          }
+        };
+        if (Objects.nonNull(g)) {
+          double x = r.min().x() + (r.width() - w) / 2d;
+          switch (o) {
+            case POW -> {
+              drawChild(
+                  g,
+                  textScale,
+                  atMinXMaxY(r.min().x(), r.max().y(), childRs.getFirst()),
+                  o,
+                  children.getFirst(),
+                  0
+              );
+              drawChild(
+                  g,
+                  childTextScale,
+                  atMaxXMinY(r.max().x(), r.min().y(), childRs.get(1)),
+                  o,
+                  children.get(1),
+                  1
+              );
+            }
+            case EXP -> {
+              Point size = stringSize("e", textScale);
+              drawOp(g, textScale, r.min().x() + size.x() / 2d, r.max().y() - size.y() / 2d, "e");
+              drawChild(
+                  g,
+                  childTextScale,
+                  atMaxXMinY(r.max().x(), r.min().y(), childRs.getFirst()),
+                  o,
+                  children.getFirst(),
+                  0
+              );
+            }
+            case SQ -> {
+              Point size = stringSize("2", childTextScale);
+              drawChild(
+                  g,
+                  textScale,
+                  atMinXMaxY(r.min().x(), r.max().y(), childRs.getFirst()),
+                  o,
+                  children.getFirst(),
+                  0
+              );
+              drawOp(
+                  g,
+                  childTextScale,
+                  r.max().x() - size.x() / 2d,
+                  r.min().y() + size.y() / 2d,
+                  "2"
+              );
+            }
+            case SQRT -> {
+              Rectangle argR = withoutSqrt(childRs.getFirst());
+              double openW = argR.height() * c.sqrtOpenWHRate;
+              drawChild(g, textScale, argR, o, children.getFirst(), 0);
+              g.setColor(c.operatorColor);
+              g.setStroke(new BasicStroke((float) c.sqrtThickness));
+              Path2D path = new Path2D.Double();
+              path.moveTo(r.min().x(), r.max().y() - 0.2 * r.height());
+              path.lineTo(r.min().x() + openW / 3d, r.max().y() - 0.2 * r.height());
+              path.lineTo(r.min().x() + openW * 2d / 3d, r.max().y());
+              path.lineTo(r.min().x() + openW, r.min().y());
+              path.lineTo(r.max().x(), r.min().y());
+              path.lineTo(r.max().x(), r.min().y() + 0.1 * r.height());
+              g.draw(path);
+            }
+            case DIVISION, PROT_DIVISION -> {
+              drawChild(
+                  g,
+                  textScale,
+                  atMinY(r.center().x(), r.min().y(), childRs.getFirst()),
+                  o,
+                  children.getFirst(),
+                  0
+              );
+              drawChild(
+                  g,
+                  textScale,
+                  atMaxY(r.center().x(), r.max().y(), childRs.get(1)),
+                  o,
+                  children.get(1),
+                  1
+              );
+              g.setColor(c.operatorColor);
+              g.setStroke(new BasicStroke((float) c.fractionThickness));
+              Path2D path = new Path2D.Double();
+              path.moveTo(r.min().x(), r.min().y() + childRs.getFirst().height() + c.fractionYGap);
+              path.lineTo(r.max().x(), r.min().y() + childRs.getFirst().height() + c.fractionYGap);
+              if (o.equals(Operator.PROT_DIVISION)) {
+                path.lineTo(
+                    r.max().x(),
+                    r.min().y() + childRs.getFirst().height() + c.fractionYGap + r.height() * 0.1
+                );
+              }
+              g.draw(path);
+            }
+            case MULTIPLICATION -> {
+              for (int i = 0; i < t.nChildren(); i = i + 1) {
+                if (i > 0) {
+                  if (isConstant(children.get(i - 1)) && isConstant(children.get(i))) {
+                    drawOp(
+                        g,
+                        textScale,
+                        x + opR.width() / 2d + c.operatorXGap,
+                        r.center().y(),
+                        "·"
+                    );
+                    x = x + opR.width() + c.operatorXGap;
+                  }
+                  x = x + c.operatorXGap;
+                }
+                Rectangle childR = atMinX(x, r.center().y(), childRs.get(i));
+                drawChild(g, textScale, childR, o, children.get(i), i);
+                x = x + childR.width();
+              }
+            }
+            case ADDITION, SUBTRACTION, GT, LT -> {
+              for (int i = 0; i < t.nChildren(); i = i + 1) {
+                if (i > 0) {
+                  drawOp(
+                      g,
+                      textScale,
+                      x + opR.width() / 2d + c.operatorXGap,
+                      r.center().y(),
+                      o.toString()
+                  );
+                  x = x + opR.width() + 2 * c.operatorXGap;
+                }
+                Rectangle childR = atMinX(x, r.center().y(), childRs.get(i));
+                drawChild(g, textScale, childR, o, children.get(i), i);
+                x = x + childR.width();
+              }
+            }
+            default -> {
+              drawOp(g, textScale, x + opR.width() / 2d, r.center().y(), o.toString());
+              x = x + opR.width() + c.operatorThinXGap;
+              if (t.nChildren() == 1) {
+                drawChild(
+                    g,
+                    textScale,
+                    atMinX(x, r.center().y(), childRs.getFirst()),
+                    o,
+                    children.getFirst(),
+                    0
+                );
+              } else {
+                Rectangle argsR = Rectangle.of(new Point(x, r.min().y()), r.max());
+                drawParenthesis(g, openedParR(argsR), true);
+                drawParenthesis(g, closedParR(argsR), false);
+                argsR = withoutPars(argsR);
+                x = argsR.min().x();
+                Point sepSize = stringSize(",", textScale);
+                for (int i = 0; i < t.nChildren(); i = i + 1) {
+                  if (i > 0) {
+                    drawOp(
+                        g,
+                        textScale,
+                        x + sepSize.x() / 2d,
+                        r.center().y() + opR.height() / 2d - sepSize.y() / 2d,
+                        ","
+                    );
+                    x = x + sepSize.x() + c.operatorXGap;
+                  }
+                  Rectangle childR = atMinX(x, argsR.center().y(), childRs.get(i));
+                  drawChild(g, textScale, childR, o, children.get(i), i);
+                  x = x + childR.width();
+                }
+              }
+            }
+          }
+        }
+        yield new Rectangle(r.center(), w, h);
+      }
+      default ->
+          throw new IllegalArgumentException("Unexpected node type: %s".formatted(t.content()));
+    };
+    if (Objects.nonNull(g) && c.debug) {
+      TreeDrawer.drawDebugBox(g, innerR);
+    }
+    return innerR;
   }
 
 }
