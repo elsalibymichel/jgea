@@ -81,6 +81,26 @@ public class NumericTreeUtils {
     return false;
   }
 
+  private static boolean isNegative(Tree<Element> tree) {
+    if (tree.content() instanceof Constant(double value)) {
+      return value < 0;
+    }
+    return false;
+  }
+
+  private static boolean isPositive(Tree<Element> tree) {
+    if (tree.content() instanceof Constant(double value)) {
+      return value > 0;
+    }
+    if (tree.content() instanceof Operator o) {
+      return switch (o) {
+        case EXP, SQRT, SQ -> true;
+        default -> false;
+      };
+    }
+    return false;
+  }
+
   public static Tree<Element> simplify(Tree<Element> tree) {
     if (tree.nChildren() == 0) {
       return tree;
@@ -92,7 +112,9 @@ public class NumericTreeUtils {
             Tree.of(
                 new Element.Constant(
                     operator.applyAsDouble(
-                        tree.childStream().mapToDouble(c -> ((Element.Constant) c.content()).value()).toArray()
+                        tree.childStream()
+                            .mapToDouble(c -> ((Element.Constant) c.content()).value())
+                            .toArray()
                     )
                 )
             )
@@ -175,6 +197,15 @@ public class NumericTreeUtils {
           .content()
           .equals(Operator.SQRT)) {
         return simplify(tree.child(0).child(0));
+      }
+      // ternary (pos; x; y) -> x, ternary (pos; x; neg) -> y
+      if (operator.equals(Operator.TERNARY)) {
+        if (isPositive(tree.child(0))) {
+          return simplify(tree.child(1));
+        }
+        if (isNegative(tree.child(0))) {
+          return simplify(tree.child(2));
+        }
       }
       // sqrt sq (x) -> x
       if ((operator.equals(Element.Operator.SQRT)) && tree.child(0)

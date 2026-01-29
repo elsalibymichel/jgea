@@ -21,7 +21,9 @@ package io.github.ericmedvet.jgea.experimenter.drawer;
 
 import io.github.ericmedvet.jgea.core.representation.tree.Tree;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element;
+import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element.Constant;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element.Operator;
+import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element.Variable;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.NumericTreeUtils;
 import io.github.ericmedvet.jsdynsym.control.geometry.Point;
 import io.github.ericmedvet.jsdynsym.control.geometry.Rectangle;
@@ -30,6 +32,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Path2D;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
@@ -81,6 +84,9 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
     if (o.equals(Operator.EXP) || o.equals(Operator.SQRT)) {
       return false;
     }
+    if (o.equals(Operator.PROT_DIVISION) || o.equals(Operator.DIVISION)) {
+      return false;
+    }
     if (child.content().equals(Operator.LT) || child.content().equals(Operator.GT) || child.content()
         .equals(Operator.TERNARY)) {
       return true;
@@ -112,12 +118,12 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
 
   public static void main(String[] args) {
     Tree<Element> t = NumericTreeUtils.parse(
-        "*(+(*(exp(max(3;x));sin(p÷(√(+(1;÷(1.4231423523423;x)));log(^(+(x;tanh(x));+(x;>(x;ternary(x;2;3))))))));+(1;²(^(x;^(y;x)))));*(x;÷(5;exp(+(x;^(2;2))))))"
+        "*(+(*(exp(max(3;x));sin(p÷(√(+(*(x;*(7;3));÷(1.4231423523423;x)));log(^(+(x;tanh(x));+(x;>(x;ternary(x;2;3))))))));+(1;²(^(x;^(y;x)))));*(x;÷(+(1.5;x);exp(+(x;^(2;2))))))"
     );
     Drawer.stacked(
         List.of(
             new TreeDrawer(TreeDrawer.Configuration.DEFAULT.scaled(3)),
-            new FormulaDrawer(Configuration.DEFAULT.scaled(7))
+            new FormulaDrawer(Configuration.DEFAULT.scaled(5))
         ),
         Arrangement.VERTICAL
     ).show(t);
@@ -143,6 +149,22 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
         tree,
         1d
     );
+  }
+
+  private static int sorter(Tree<Element> t1, Tree<Element> t2) {
+    if (t1.content() instanceof Constant(double value1)) {
+      if (t2.content() instanceof Constant(double value2)) {
+        return Double.compare(value1, value2);
+      }
+      return -1;
+    }
+    if (t1.content() instanceof Variable(String name1)) {
+      if (t2.content() instanceof Variable(String name2)) {
+        return name1.compareTo(name2);
+      }
+      return -1;
+    }
+    return Integer.compare(t2.size(), t1.size());
   }
 
   private Rectangle draw(Graphics2D g, Rectangle r, Tree<Element> t, double textScale) {
@@ -179,6 +201,13 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
         yield nodeR;
       }
       case Element.Operator o -> {
+        List<Tree<Element>> children = new ArrayList<>(t.childStream().toList());
+        if (c.sortChildren) {
+          switch (o) {
+            case MULTIPLICATION -> children.sort(FormulaDrawer::sorter);
+            case ADDITION -> children.sort((t1, t2) -> sorter(t2, t1));
+          }
+        }
         Rectangle opR = at(r.center(), stringSize(switch (o) {
           case MULTIPLICATION -> "·";
           case PROT_LOG -> "log*";
@@ -186,12 +215,12 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
         }, textScale));
         double childTextScale = Math.max(c.minTextScale, textScale * c.expTextScaleR);
         List<Rectangle> childRs = IntStream.range(0, t.nChildren()).mapToObj(j -> {
-          Rectangle childR = draw(null, r, t.child(j), switch (o) {
+          Rectangle childR = draw(null, r, children.get(j), switch (o) {
             case POW -> j == 0 ? textScale : childTextScale;
             case EXP -> childTextScale;
             default -> textScale;
           });
-          if (hasParentheses(o, t.child(j), j)) {
+          if (hasParentheses(o, children.get(j), j)) {
             childR = withPars(childR);
           }
           return childR;
@@ -227,7 +256,7 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
           case MULTIPLICATION -> {
             int nOfDots = 0;
             for (int i = 1; i < t.nChildren(); i = i + 1) {
-              if (isConstant(t.child(i - 1)) && isConstant(t.child(i))) {
+              if (isConstant(children.get(i - 1)) && isConstant(children.get(i))) {
                 nOfDots = nOfDots + 1;
               }
             }
@@ -260,7 +289,7 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
                   textScale,
                   atMinXMaxY(r.min().x(), r.max().y(), childRs.getFirst()),
                   o,
-                  t.child(0),
+                  children.getFirst(),
                   0
               );
               drawChild(
@@ -268,7 +297,7 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
                   childTextScale,
                   atMaxXMinY(r.max().x(), r.min().y(), childRs.get(1)),
                   o,
-                  t.child(1),
+                  children.get(1),
                   1
               );
             }
@@ -280,7 +309,7 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
                   childTextScale,
                   atMaxXMinY(r.max().x(), r.min().y(), childRs.getFirst()),
                   o,
-                  t.child(0),
+                  children.getFirst(),
                   0
               );
             }
@@ -291,7 +320,7 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
                   textScale,
                   atMinXMaxY(r.min().x(), r.max().y(), childRs.getFirst()),
                   o,
-                  t.child(0),
+                  children.getFirst(),
                   0
               );
               drawOp(
@@ -305,7 +334,7 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
             case SQRT -> {
               Rectangle argR = withoutSqrt(childRs.getFirst());
               double openW = argR.height() * c.sqrtOpenWHRate;
-              drawChild(g, textScale, argR, o, t.child(0), 0);
+              drawChild(g, textScale, argR, o, children.getFirst(), 0);
               g.setColor(c.operatorColor);
               g.setStroke(new BasicStroke((float) c.sqrtThickness));
               Path2D path = new Path2D.Double();
@@ -323,7 +352,7 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
                   textScale,
                   atMinY(r.center().x(), r.min().y(), childRs.getFirst()),
                   o,
-                  t.child(0),
+                  children.getFirst(),
                   0
               );
               drawChild(
@@ -331,7 +360,7 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
                   textScale,
                   atMaxY(r.center().x(), r.max().y(), childRs.get(1)),
                   o,
-                  t.child(1),
+                  children.get(1),
                   1
               );
               g.setColor(c.operatorColor);
@@ -350,7 +379,7 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
             case MULTIPLICATION -> {
               for (int i = 0; i < t.nChildren(); i = i + 1) {
                 if (i > 0) {
-                  if (isConstant(t.child(i - 1)) && isConstant(t.child(i))) {
+                  if (isConstant(children.get(i - 1)) && isConstant(children.get(i))) {
                     drawOp(
                         g,
                         textScale,
@@ -363,7 +392,7 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
                   x = x + c.operatorXGap;
                 }
                 Rectangle childR = atMinX(x, r.center().y(), childRs.get(i));
-                drawChild(g, textScale, childR, o, t.child(i), i);
+                drawChild(g, textScale, childR, o, children.get(i), i);
                 x = x + childR.width();
               }
             }
@@ -380,7 +409,7 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
                   x = x + opR.width() + 2 * c.operatorXGap;
                 }
                 Rectangle childR = atMinX(x, r.center().y(), childRs.get(i));
-                drawChild(g, textScale, childR, o, t.child(i), i);
+                drawChild(g, textScale, childR, o, children.get(i), i);
                 x = x + childR.width();
               }
             }
@@ -393,7 +422,7 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
                     textScale,
                     atMinX(x, r.center().y(), childRs.getFirst()),
                     o,
-                    t.child(0),
+                    children.getFirst(),
                     0
                 );
               } else {
@@ -415,7 +444,7 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
                     x = x + sepSize.x() + c.operatorXGap;
                   }
                   Rectangle childR = atMinX(x, argsR.center().y(), childRs.get(i));
-                  drawChild(g, textScale, childR, o, t.child(i), i);
+                  drawChild(g, textScale, childR, o, children.get(i), i);
                   x = x + childR.width();
                 }
               }
@@ -571,6 +600,7 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
       double parenthesisWHRate, double parenthesisHRate, double sqrtOpenWHRate,
       double sqrtCloseWHRate, double sqrtCeilYGap, double expTextScaleR, double minTextScale,
       String constFormat,
+      boolean sortChildren,
       boolean debug
   ) {
 
@@ -598,7 +628,8 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
         2,
         0.7,
         0.4,
-        "%+.3f",
+        "%.3f",
+        true,
         false
     );
 
@@ -628,6 +659,7 @@ public class FormulaDrawer implements Drawer<Tree<Element>> {
           expTextScaleR,
           minTextScale,
           constFormat,
+          sortChildren,
           debug
       );
     }

@@ -56,7 +56,7 @@ public interface Element {
         1
     ), SQ("²", x -> Math.pow(x[0], 2d), 1), RE_LU("relu", x -> Math.max(x[0], 0d), 1), TERNARY(
         "ternary",
-        x -> x[0] > 0 ? x[1] : x[2],
+        x -> x[0] >= 0 ? x[1] : x[2],
         3
     ), MAX("max", x -> Math.max(x[0], x[1]), 2), MIN("min", x -> Math.min(x[0], x[1]), 2), TANH(
         "tanh",
