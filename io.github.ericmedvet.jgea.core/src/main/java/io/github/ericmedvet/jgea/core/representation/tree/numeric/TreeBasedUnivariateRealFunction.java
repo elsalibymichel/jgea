@@ -60,7 +60,9 @@ public class TreeBasedUnivariateRealFunction implements NamedUnivariateRealFunct
 
   protected static double compute(Tree<Element> tree, Map<String, Double> input) {
     if (tree.content() instanceof Element.Decoration) {
-      throw new RuntimeException(String.format("Cannot compute: decoration node %s found", tree.content()));
+      throw new RuntimeException(
+          String.format("Cannot compute: decoration node %s found", tree.content())
+      );
     }
     if (tree.content() instanceof Element.Variable(String name)) {
       Double varValue = input.get(name);
@@ -82,7 +84,10 @@ public class TreeBasedUnivariateRealFunction implements NamedUnivariateRealFunct
     return ((Element.Operator) tree.content()).applyAsDouble(childrenValues);
   }
 
-  public static Tree<Element> sampleFor(List<String> xVarNames, @SuppressWarnings("unused") String yVarName) {
+  public static Tree<Element> sampleFor(
+      List<String> xVarNames,
+      @SuppressWarnings("unused") String yVarName
+  ) {
     return Tree.of(
         Element.Operator.ADDITION,
         xVarNames.stream()
@@ -118,10 +123,12 @@ public class TreeBasedUnivariateRealFunction implements NamedUnivariateRealFunct
 
   @Override
   public boolean equals(Object o) {
-    if (this == o)
+    if (this == o) {
       return true;
-    if (o == null || getClass() != o.getClass())
+    }
+    if (o == null || getClass() != o.getClass()) {
       return false;
+    }
     TreeBasedUnivariateRealFunction that = (TreeBasedUnivariateRealFunction) o;
     return Objects.equals(xVarNames, that.xVarNames) && Objects.equals(yVarName, that.yVarName) && Objects.equals(
         tree,

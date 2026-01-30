@@ -32,7 +32,6 @@ import io.github.ericmedvet.jnb.core.Param;
 import io.github.ericmedvet.jviz.core.drawer.Drawer;
 import java.awt.*;
 import java.util.Map;
-import java.util.function.Function;
 
 @Discoverable(prefixTemplate = "ea.drawer|d")
 public class Drawers {
@@ -46,7 +45,7 @@ public class Drawers {
       @Param("simplify") boolean simplify
   ) {
     return new FormulaDrawer(FormulaDrawer.Configuration.DEFAULT.scaled(scale))
-        .on(simplify ? NumericTreeUtils::simplify : Function.identity());
+        .on(NumericTreeUtils::simplify);
   }
 
   @Cacheable

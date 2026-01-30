@@ -48,7 +48,11 @@ public class TreeBasedMultivariateRealFunction implements NamedMultivariateRealF
     this.xVarNames = xVarNames;
     this.yVarNames = yVarNames;
     this.postOperator = postOperator;
-    setParams(simplify ? trees.stream().map(NumericTreeUtils::simplify).toList() : trees);
+    setParams(
+        simplify ? trees.stream()
+            .map(NumericTreeUtils::simplify)
+            .toList() : trees
+    );
   }
 
   public TreeBasedMultivariateRealFunction(
@@ -78,7 +82,9 @@ public class TreeBasedMultivariateRealFunction implements NamedMultivariateRealF
         .mapToObj(
             i -> Map.entry(
                 yVarNames.get(i),
-                postOperator.applyAsDouble(TreeBasedUnivariateRealFunction.compute(trees.get(i), input))
+                postOperator.applyAsDouble(
+                    TreeBasedUnivariateRealFunction.compute(trees.get(i), input)
+                )
             )
         )
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
