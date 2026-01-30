@@ -2959,6 +2959,20 @@ Produces <code><abbr title="java.util.function.BinaryOperator">BinaryOperator</a
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.core.solver.bi.AbstractBiEvolver$OpponentsSelector">AbstractBiEvolver$OpponentsSelector</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.mapelites.MEIndividual">MEIndividual</abbr>&lt;G, S, Q&gt;, S, Q, O&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.nearestMESelector()` by jgea-experimenter:2.8.2-SNAPSHOT
 
+### Builder `ea.misc.nurf()`
+
+`ea.misc.nurf(expr; yVarName; additionalVars; postOperator; simplify)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `expr` | s |  | <code><abbr title="java.lang.String">String</abbr></code> |
+| `yVarName` | s | `y` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `additionalVars` | s[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `postOperator` | npm | `ds.f.doubleOp(activationF = identity)` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.lang.Double">Double</abbr>, <abbr title="java.lang.Double">Double</abbr>&gt;</code> |
+| `simplify` | b | `false` | <code>boolean</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jsdynsym.core.numerical.named.NamedUnivariateRealFunction">NamedUnivariateRealFunction</abbr></code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.nurf()` by jgea-experimenter:2.8.2-SNAPSHOT
+
 ### Builder `ea.misc.oldestSelector()`
 
 `ea.misc.oldestSelector(name; nOfOpponents)`

@@ -21,6 +21,11 @@ package io.github.ericmedvet.jgea.experimenter.builders;
 
 import io.github.ericmedvet.jgea.core.order.PartialComparator;
 import io.github.ericmedvet.jgea.core.order.PartiallyOrderedCollection;
+import io.github.ericmedvet.jgea.core.representation.tree.Tree;
+import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element;
+import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element.Variable;
+import io.github.ericmedvet.jgea.core.representation.tree.numeric.NumericTreeUtils;
+import io.github.ericmedvet.jgea.core.representation.tree.numeric.TreeBasedUnivariateRealFunction;
 import io.github.ericmedvet.jgea.core.solver.Individual;
 import io.github.ericmedvet.jgea.core.solver.bi.AbstractBiEvolver;
 import io.github.ericmedvet.jgea.core.solver.mapelites.MEIndividual;
@@ -37,6 +42,7 @@ import io.github.ericmedvet.jnb.datastructure.Grid;
 import io.github.ericmedvet.jnb.datastructure.Pair;
 import io.github.ericmedvet.jsdynsym.control.Simulation;
 import io.github.ericmedvet.jsdynsym.control.SimulationOutcomeDrawer;
+import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedUnivariateRealFunction;
 import io.github.ericmedvet.jviz.core.drawer.Drawer;
 import io.github.ericmedvet.jviz.core.drawer.VideoBuilder;
 import java.awt.Color;
@@ -55,6 +61,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Discoverable(prefixTemplate = "ea.misc")
 public class Miscs {
@@ -147,7 +154,8 @@ public class Miscs {
   public static Color colorByName(@Param("name") String name) {
     try {
       return (Color) Color.class.getField(name.toUpperCase()).get(null);
-    } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+    } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException |
+             SecurityException e) {
       throw new RuntimeException(e);
     }
   }
@@ -171,14 +179,19 @@ public class Miscs {
         if (v1.length != v2.length) {
           throw new IllegalArgumentException("Mismatch in array size");
         }
-        return Math.sqrt(IntStream.range(0, v1.length).mapToDouble(i -> Math.pow(v1[i] - v2[i], 2)).sum());
+        return Math.sqrt(
+            IntStream.range(0, v1.length).mapToDouble(i -> Math.pow(v1[i] - v2[i], 2)).sum()
+        );
       };
       return population.stream()
           .sorted(
               Comparator.comparingDouble(
                   candidate -> -euclideanDistance.apply(
                       targetCoordinates,
-                      candidate.coordinates().stream().mapToDouble(MapElites.Descriptor.Coordinate::value).toArray()
+                      candidate.coordinates()
+                          .stream()
+                          .mapToDouble(MapElites.Descriptor.Coordinate::value)
+                          .toArray()
                   )
               )
           )
@@ -221,7 +234,8 @@ public class Miscs {
       @Param(value = "h", dI = 15) int h,
       @Param(value = "marginRate", dD = 0.1) double marginRate
   ) {
-    return ImageUtils.stringDrawer(fgColor, bgColor, marginRate).buildRaster(new Drawer.ImageInfo(w, h), s);
+    return ImageUtils.stringDrawer(fgColor, bgColor, marginRate)
+        .buildRaster(new Drawer.ImageInfo(w, h), s);
   }
 
   @Cacheable
@@ -250,7 +264,9 @@ public class Miscs {
         if (v1.length != v2.length) {
           throw new IllegalArgumentException("Mismatch in array size");
         }
-        return Math.sqrt(IntStream.range(0, v1.length).mapToDouble(i -> Math.pow(v1[i] - v2[i], 2)).sum());
+        return Math.sqrt(
+            IntStream.range(0, v1.length).mapToDouble(i -> Math.pow(v1[i] - v2[i], 2)).sum()
+        );
       };
       return population.stream()
           .filter(candidate -> !candidate.equals(individual))
@@ -258,7 +274,10 @@ public class Miscs {
               Comparator.comparingDouble(
                   candidate -> euclideanDistance.apply(
                       individualCoordinates,
-                      candidate.coordinates().stream().mapToDouble(MapElites.Descriptor.Coordinate::value).toArray()
+                      candidate.coordinates()
+                          .stream()
+                          .mapToDouble(MapElites.Descriptor.Coordinate::value)
+                          .toArray()
                   )
               )
           )
@@ -294,7 +313,33 @@ public class Miscs {
   }
 
   @Cacheable
-  public static <S> VideoBuilder<Simulation.Outcome<S>> toVideo(@Param("drawer") SimulationOutcomeDrawer<S> drawer) {
+  public static <S> VideoBuilder<Simulation.Outcome<S>> toVideo(
+      @Param("drawer") SimulationOutcomeDrawer<S> drawer
+  ) {
     return drawer.videoBuilder();
+  }
+
+  @Cacheable
+  public static <S> NamedUnivariateRealFunction nurf(
+      @Param("expr") String expr,
+      @Param(value = "yVarName", dS = "y") String yVarName,
+      @Param("additionalVars") List<String> additionalVars,
+      @Param(value = "postOperator", dNPM = "ds.f.doubleOp(activationF=identity)") Function<Double, Double> postOperator,
+      @Param("simplify") boolean simplify
+  ) {
+    Tree<Element> tree = NumericTreeUtils.parse(expr);
+    return new TreeBasedUnivariateRealFunction(
+        tree,
+        Stream.concat(
+            tree.leaves()
+                .stream()
+                .filter(t -> t.content() instanceof Variable)
+                .map(t -> ((Variable) t.content()).toString()),
+            additionalVars.stream()
+        ).distinct().sorted(String::compareTo).toList(),
+        yVarName,
+        Mappers.toOperator(postOperator),
+        simplify
+    );
   }
 }

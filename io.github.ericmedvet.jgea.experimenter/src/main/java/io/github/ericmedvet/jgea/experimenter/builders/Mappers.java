@@ -963,7 +963,7 @@ public class Mappers {
     );
   }
 
-  private static DoubleUnaryOperator toOperator(Function<Double, Double> f) {
+  protected static DoubleUnaryOperator toOperator(Function<Double, Double> f) {
     return new DoubleUnaryOperator() {
       @Override
       public double applyAsDouble(double v) {
