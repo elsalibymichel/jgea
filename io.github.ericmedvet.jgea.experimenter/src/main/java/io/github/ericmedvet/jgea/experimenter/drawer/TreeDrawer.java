@@ -21,7 +21,6 @@
 package io.github.ericmedvet.jgea.experimenter.drawer;
 
 import io.github.ericmedvet.jgea.core.representation.tree.Tree;
-import io.github.ericmedvet.jgea.core.representation.tree.numeric.NumericTreeUtils;
 import io.github.ericmedvet.jsdynsym.control.geometry.Point;
 import io.github.ericmedvet.jsdynsym.control.geometry.Rectangle;
 import io.github.ericmedvet.jviz.core.drawer.Drawer;
@@ -36,6 +35,8 @@ import java.util.List;
 import java.util.function.Function;
 
 public class TreeDrawer implements Drawer<Tree<?>> {
+
+  private final static String CONTINUATION_STRING = "…";
 
   private final Configuration c;
 
@@ -56,6 +57,7 @@ public class TreeDrawer implements Drawer<Tree<?>> {
       double boxMargin,
       double nodeMinXGap,
       double nodeMinYGap,
+      int maxLabelLength,
       boolean debug
   ) {
 
@@ -72,6 +74,7 @@ public class TreeDrawer implements Drawer<Tree<?>> {
         2,
         5,
         20,
+        7,
         false
     );
 
@@ -89,6 +92,7 @@ public class TreeDrawer implements Drawer<Tree<?>> {
           boxMargin * r,
           nodeMinXGap * r,
           nodeMinYGap * r,
+          maxLabelLength,
           debug
       );
     }
@@ -109,18 +113,19 @@ public class TreeDrawer implements Drawer<Tree<?>> {
     );
   }
 
-  public static void main(String[] args) {
-    new TreeDrawer(Configuration.DEFAULT.scaled(10)).show(
-        NumericTreeUtils.parse("+(x;*(x;5))")
-    );
-  }
-
   protected static Point stringSize(Graphics2D g, String s) {
     Rectangle2D r = g.getFontMetrics().getStringBounds(s, g);
     return new Point(r.getWidth(), r.getHeight());
   }
 
-  protected static void drawString(Graphics2D g, Point p, Color color, double charH, boolean debug, String s) {
+  protected static void drawString(
+      Graphics2D g,
+      Point p,
+      Color color,
+      double charH,
+      boolean debug,
+      String s
+  ) {
     g.setFont(new Font("Monospaced", Font.PLAIN, (int) charH));
     List<String> lines = s.lines().toList();
     for (double l = 0; l < lines.size(); l = l + 1) {
@@ -199,7 +204,11 @@ public class TreeDrawer implements Drawer<Tree<?>> {
     g.setColor(c.boxBorderColor);
     g.draw(box);
     //draw string
-    drawString(g, nodeR.center(), c.labelColor, c.charH, c.debug, t.content().toString());
+    String labelString = t.content().toString();
+    if (labelString.length() > c.maxLabelLength) {
+      labelString = labelString.substring(0, c.maxLabelLength) + CONTINUATION_STRING;
+    }
+    drawString(g, nodeR.center(), c.labelColor, c.charH, c.debug, labelString);
     //draw edges
     g.setStroke(new BasicStroke((float) c.edgeThickness));
     g.setColor(c.edgeColor);
