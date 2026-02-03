@@ -23,6 +23,7 @@ import io.github.ericmedvet.jgea.core.order.PartialComparator;
 import io.github.ericmedvet.jgea.core.problem.SymmetricQualityBasedBiProblem;
 import io.github.ericmedvet.jgea.core.representation.sequence.integer.IntString;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -71,6 +72,6 @@ public record BoundedSumBiProblem(int d, int b) implements SymmetricQualityBased
 
   @Override
   public PartialComparator<Double> qualityComparator() {
-    return PartialComparator.from(Double.class);
+    return PartialComparator.from(Comparator.comparingDouble(Double::doubleValue).reversed());
   }
 }
