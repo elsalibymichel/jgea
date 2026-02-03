@@ -1180,6 +1180,18 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.AccumulatorFa
 
 Aliases: `ea.biproblem.s`, `ea.biproblem.synthetic`, `ea.bp.s`, `ea.bp.synthetic`
 
+### Builder `ea.biproblem.synthetic.boundedSumBiProblem()`
+
+`ea.bp.s.boundedSumBiProblem(name; d; b)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `name` | s | interpolate `boundedSumBiProblem-{d}-{b}` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `d` | i | `5` | <code>int</code> |
+| `b` | i | `100` | <code>int</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jgea.problem.synthetic.numerical.BoundedSumBiProblem">BoundedSumBiProblem</abbr></code>; built from `io.github.ericmedvet.jgea.experimenter.builders.SyntheticBiProblems.boundedSumBiProblem()` by jgea-experimenter:2.8.2-SNAPSHOT
+
 ### Builder `ea.biproblem.synthetic.pointAimingBiProblem()`
 
 `ea.bp.s.pointAimingBiProblem(name; p; target)`
