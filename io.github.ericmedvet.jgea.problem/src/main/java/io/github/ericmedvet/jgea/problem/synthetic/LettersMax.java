@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-problem
  * %%
- * Copyright (C) 2018 - 2025 Eric Medvet
+ * Copyright (C) 2018 - 2026 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,13 @@ package io.github.ericmedvet.jgea.problem.synthetic;
 
 import io.github.ericmedvet.jgea.core.problem.SimpleMOProblem;
 import io.github.ericmedvet.jgea.core.util.Misc;
-import java.util.*;
+import io.github.ericmedvet.jnb.datastructure.Utils;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.Optional;
+import java.util.SequencedMap;
+import java.util.SequencedSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -39,7 +45,7 @@ public record LettersMax(
         s -> countCharOccurrences(s, letters),
         letters.stream()
             .collect(
-                Misc.toSequencedMap(
+                Utils.toSequencedMap(
                     letter -> ((Comparator<Double>) Double::compareTo).reversed()
                 )
             ),

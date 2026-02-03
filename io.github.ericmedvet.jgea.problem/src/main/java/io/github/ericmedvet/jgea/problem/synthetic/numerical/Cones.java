@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-problem
  * %%
- * Copyright (C) 2018 - 2025 Eric Medvet
+ * Copyright (C) 2018 - 2026 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,12 @@
 package io.github.ericmedvet.jgea.problem.synthetic.numerical;
 
 import io.github.ericmedvet.jgea.core.problem.SimpleMOProblem;
-import io.github.ericmedvet.jgea.core.util.Misc;
-import java.util.*;
+import io.github.ericmedvet.jnb.datastructure.Utils;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.SequencedMap;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -38,7 +42,7 @@ public record Cones(
       Map.entry("volume", ((Comparator<Double>) Double::compareTo).reversed())
   )
       .collect(
-          Misc.toSequencedMap(
+          Utils.toSequencedMap(
               Map.Entry::getKey,
               Map.Entry::getValue
           )
@@ -58,7 +62,7 @@ public record Cones(
               Map.entry("lateralSurface", lateralSurface),
               Map.entry("totalSurface", totalSurface),
               Map.entry("volume", volume)
-          ).collect(Misc.toSequencedMap(Map.Entry::getKey, Map.Entry::getValue));
+          ).collect(Utils.toSequencedMap(Map.Entry::getKey, Map.Entry::getValue));
         },
         Optional.of(List.of(0d, 0d))
     );

@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-core
  * %%
- * Copyright (C) 2018 - 2025 Eric Medvet
+ * Copyright (C) 2018 - 2026 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,55 @@
 package io.github.ericmedvet.jgea.core.problem;
 
 import io.github.ericmedvet.jgea.core.order.PartialComparator;
+import java.util.Optional;
 import java.util.function.Function;
 
 public interface BehaviorBasedProblem<S, B, BQ> extends QualityBasedProblem<S, BehaviorBasedProblem.Outcome<B, BQ>> {
-  record Outcome<B, BQ>(B behavior, BQ behaviorQuality) {}
+  static <S, B, BQ> BehaviorBasedProblem<S, B, BQ> of(
+      Function<? super S, ? extends B> behaviorFunction,
+      Function<? super B, ? extends BQ> behaviorQualityFunction,
+      PartialComparator<BQ> behaviorQualityComparator,
+      S example,
+      String name
+  ) {
+    record HardBehaviorBasedProblem<S, B, BQ>(
+        Function<? super S, ? extends B> behaviorFunction,
+        Function<? super B, ? extends BQ> behaviorQualityFunction,
+        PartialComparator<BQ> behaviorQualityComparator,
+        Optional<S> example,
+        String name
+    ) implements BehaviorBasedProblem<S, B, BQ> {
+      @Override
+      public String toString() {
+        return name();
+      }
+
+    }
+    return new HardBehaviorBasedProblem<>(
+        behaviorFunction,
+        behaviorQualityFunction,
+        behaviorQualityComparator,
+        Optional.ofNullable(example),
+        name
+    );
+  }
 
   Function<? super S, ? extends B> behaviorFunction();
 
+  PartialComparator<BQ> behaviorQualityComparator();
+
   Function<? super B, ? extends BQ> behaviorQualityFunction();
 
-  PartialComparator<BQ> behaviorQualityComparator();
+  @Override
+  default <T> QualityBasedProblem<T, Outcome<B, BQ>> on(Function<T, S> function, T example) {
+    return of(
+        behaviorFunction().compose(function),
+        behaviorQualityFunction(),
+        behaviorQualityComparator(),
+        example,
+        "%s[on=%s]".formatted(this, function)
+    );
+  }
 
   @Override
   default PartialComparator<Outcome<B, BQ>> qualityComparator() {
@@ -43,4 +82,6 @@ public interface BehaviorBasedProblem<S, B, BQ> extends QualityBasedProblem<S, B
       return new Outcome<>(b, behaviorQualityFunction().apply(b));
     };
   }
+
+  record Outcome<B, BQ>(B behavior, BQ behaviorQuality) {}
 }

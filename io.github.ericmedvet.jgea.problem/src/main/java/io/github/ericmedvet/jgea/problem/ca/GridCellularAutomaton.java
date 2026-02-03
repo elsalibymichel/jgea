@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-problem
  * %%
- * Copyright (C) 2018 - 2025 Eric Medvet
+ * Copyright (C) 2018 - 2026 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,11 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
+
 package io.github.ericmedvet.jgea.problem.ca;
 
 import io.github.ericmedvet.jnb.datastructure.Grid;
-import io.github.ericmedvet.jnb.datastructure.HashGrid;
+import io.github.ericmedvet.jnb.datastructure.HashMapGrid;
 import io.github.ericmedvet.jsdynsym.core.TimeInvariantDynamicalSystem;
 import java.util.List;
 import java.util.function.Function;
@@ -48,47 +49,12 @@ public class GridCellularAutomaton<S> implements TimeInvariantDynamicalSystem<Vo
     this.updateRule = updateRule;
     this.torodial = torodial;
     this.emptyState = emptyState;
-    states = new HashGrid<>(initialStates.w(), initialStates.h());
+    states = new HashMapGrid<>(initialStates.w(), initialStates.h());
     reset();
-  }
-
-  @Override
-  public Grid<S> getState() {
-    return states;
-  }
-
-  @Override
-  public void reset() {
-    states.keys().forEach(k -> states.set(k, initialStates.get(k)));
-  }
-
-  @Override
-  public Void step(Void i) {
-    step();
-    return null;
-  }
-
-  public Grid<S> step() {
-    Grid<S> newStates = states.entries()
-        .stream()
-        .map(
-            e -> new Grid.Entry<>(
-                e.key(),
-                updateRule.apply(neighborhood(e.key(), states, neighboroodRadius, torodial, emptyState))
-            )
-        )
-        .collect(Grid.collector());
-    states.keys().forEach(k -> states.set(k, newStates.get(k)));
-    return states;
-  }
-
-  public List<Grid<S>> evolve(int nOfSteps) {
-    reset();
-    return IntStream.range(0, nOfSteps).mapToObj(i -> step().copy()).toList();
   }
 
   private static <S> Grid<S> neighborhood(Grid.Key k, Grid<S> g, int radius, boolean torodial, S emptyState) {
-    Grid<S> n = new HashGrid<>(2 * radius + 1, 2 * radius + 1);
+    Grid<S> n = new HashMapGrid<>(2 * radius + 1, 2 * radius + 1);
     n.keys().forEach(lK -> {
       Grid.Key tK = lK.translated(k.x() - radius, k.y() - radius);
       if (torodial) {
@@ -108,5 +74,40 @@ public class GridCellularAutomaton<S> implements TimeInvariantDynamicalSystem<Vo
       n.set(lK, g.isValid(tK) ? g.get(tK) : emptyState);
     });
     return n;
+  }
+
+  public List<Grid<S>> evolve(int nOfSteps) {
+    reset();
+    return IntStream.range(0, nOfSteps).mapToObj(i -> step().copy()).toList();
+  }
+
+  @Override
+  public Grid<S> getState() {
+    return states;
+  }
+
+  @Override
+  public void reset() {
+    states.keys().forEach(k -> states.set(k, initialStates.get(k)));
+  }
+
+  public Grid<S> step() {
+    Grid<S> newStates = states.entries()
+        .stream()
+        .map(
+            e -> new Grid.Entry<>(
+                e.key(),
+                updateRule.apply(neighborhood(e.key(), states, neighboroodRadius, torodial, emptyState))
+            )
+        )
+        .collect(Grid.collector());
+    states.keys().forEach(k -> states.set(k, newStates.get(k)));
+    return states;
+  }
+
+  @Override
+  public Void step(Void i) {
+    step();
+    return null;
   }
 }

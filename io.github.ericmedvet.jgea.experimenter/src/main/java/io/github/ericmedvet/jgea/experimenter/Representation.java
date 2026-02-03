@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-experimenter
  * %%
- * Copyright (C) 2018 - 2025 Eric Medvet
+ * Copyright (C) 2018 - 2026 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import io.github.ericmedvet.jgea.core.operator.Mutation;
 import io.github.ericmedvet.jgea.core.util.Misc;
 import io.github.ericmedvet.jnb.datastructure.DoubleRange;
 import io.github.ericmedvet.jnb.datastructure.Pair;
+import io.github.ericmedvet.jnb.datastructure.Utils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -104,7 +105,6 @@ public record Representation<G>(Factory<G> factory, List<Mutation<G>> mutations,
     return Stream.concat(
         mutations.stream().map(m -> Map.entry(m, (1d - crossoverP) / (double) mutations.size())),
         crossovers.stream().map(c -> Map.entry(c, crossoverP / (double) crossovers.size()))
-    )
-        .collect(Misc.toSequencedMap(Map.Entry::getKey, Map.Entry::getValue));
+    ).collect(Utils.toSequencedMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 }

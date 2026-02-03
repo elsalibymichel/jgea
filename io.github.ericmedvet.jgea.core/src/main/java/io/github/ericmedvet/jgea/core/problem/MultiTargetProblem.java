@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-core
  * %%
- * Copyright (C) 2018 - 2025 Eric Medvet
+ * Copyright (C) 2018 - 2026 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,11 @@
 package io.github.ericmedvet.jgea.core.problem;
 
 import io.github.ericmedvet.jgea.core.distance.Distance;
-import io.github.ericmedvet.jgea.core.util.Misc;
-import java.util.*;
+import io.github.ericmedvet.jnb.datastructure.Utils;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.SequencedMap;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
@@ -52,7 +55,7 @@ public interface MultiTargetProblem<S> extends TotalOrderQualityBasedProblem<S, 
     )
         .boxed()
         .collect(
-            Misc.toSequencedMap(
+            Utils.toSequencedMap(
                 "target%d"::formatted,
                 i -> Double::compareTo
             )
@@ -60,11 +63,11 @@ public interface MultiTargetProblem<S> extends TotalOrderQualityBasedProblem<S, 
     Function<S, SequencedMap<String, Double>> outcomeF = s -> IntStream.range(0, targets().size())
         .boxed()
         .collect(
-            Misc.toSequencedMap(
+            Utils.toSequencedMap(
                 "target%d"::formatted,
                 i -> distance().apply(s, targets.get(i))
             )
         );
-    return SimpleMOProblem.from(comparators, outcomeF, null, example());
+    return SimpleMOProblem.of(comparators, outcomeF, outcomeF, example().orElse(null), toString());
   }
 }

@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-core
  * %%
- * Copyright (C) 2018 - 2025 Eric Medvet
+ * Copyright (C) 2018 - 2026 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,35 +19,52 @@
  */
 package io.github.ericmedvet.jgea.core.problem;
 
-import io.github.ericmedvet.jgea.core.util.Misc;
-import java.util.*;
+import io.github.ericmedvet.jnb.datastructure.Utils;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.SequencedMap;
+import java.util.Set;
 import java.util.function.Function;
 
 public interface SimpleMOProblem<S, O> extends MultiObjectiveProblem<S, SequencedMap<String, O>, O> {
 
-  SequencedMap<String, Comparator<O>> comparators();
-
-  static <S, O> SimpleMOProblem<S, O> from(
+  static <S, O> SimpleMOProblem<S, O> of(
       SequencedMap<String, Comparator<O>> comparators,
       Function<S, SequencedMap<String, O>> qualityFunction,
       Function<S, SequencedMap<String, O>> validationQualityFunction,
-      @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<S> example
+      S example,
+      String name
   ) {
-    record HardSMOProblem<S, O>(
+    record HardSimpleMOProblem<S, O>(
         SequencedMap<String, Comparator<O>> comparators,
         Function<S, SequencedMap<String, O>> qualityFunction,
         Function<S, SequencedMap<String, O>> validationQualityFunction,
-        Optional<S> example
-    ) implements SimpleMOProblem<S, O> {}
-    return new HardSMOProblem<>(comparators, qualityFunction, qualityFunction, example);
+        Optional<S> example,
+        String name
+    ) implements SimpleMOProblem<S, O> {
+      @Override
+      public String toString() {
+        return name();
+      }
+    }
+    return new HardSimpleMOProblem<>(
+        comparators,
+        qualityFunction,
+        validationQualityFunction,
+        Optional.ofNullable(example),
+        name
+    );
   }
+
+  SequencedMap<String, Comparator<O>> comparators();
 
   @Override
   default SequencedMap<String, Objective<SequencedMap<String, O>, O>> objectives() {
     return comparators().entrySet()
         .stream()
         .collect(
-            Misc.toSequencedMap(
+            Utils.toSequencedMap(
                 Map.Entry::getKey,
                 e -> new Objective<>(
                     map -> map.get(e.getKey()),
@@ -61,7 +78,7 @@ public interface SimpleMOProblem<S, O> extends MultiObjectiveProblem<S, Sequence
     SequencedMap<String, Comparator<O>> reducedComparators = comparators().keySet()
         .stream()
         .filter(objectiveNames::contains)
-        .collect(Misc.toSequencedMap(cn -> comparators().get(cn)));
-    return from(reducedComparators, qualityFunction(), validationQualityFunction(), example());
+        .collect(Utils.toSequencedMap(cn -> comparators().get(cn)));
+    return of(reducedComparators, qualityFunction(), validationQualityFunction(), example().orElse(null), toString());
   }
 }

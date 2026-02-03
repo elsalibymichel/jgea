@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-problem
  * %%
- * Copyright (C) 2018 - 2025 Eric Medvet
+ * Copyright (C) 2018 - 2026 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@
 package io.github.ericmedvet.jgea.problem.booleanfunction;
 
 import io.github.ericmedvet.jgea.core.problem.SimpleEBMOProblem;
-import io.github.ericmedvet.jgea.core.util.Misc;
 import io.github.ericmedvet.jnb.datastructure.TriFunction;
+import io.github.ericmedvet.jnb.datastructure.Utils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -73,7 +73,7 @@ public interface BooleanRegressionProblem extends SimpleEBMOProblem<BooleanFunct
   default SequencedMap<String, Objective<List<Outcome>, Double>> aggregateObjectives() {
     return metrics().stream()
         .collect(
-            Misc.toSequencedMap(
+            Utils.toSequencedMap(
                 Enum::toString,
                 m -> new Objective<>(m, Double::compareTo)
             )

@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-experimenter
  * %%
- * Copyright (C) 2018 - 2025 Eric Medvet
+ * Copyright (C) 2018 - 2026 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
+
 package io.github.ericmedvet.jgea.experimenter.listener.tui.util;
 
 import com.googlecode.lanterna.SGR;
@@ -188,7 +189,7 @@ public class TuiDrawer {
   }
 
   public <K> TuiDrawer drawTable(Table<K, String, ? extends Cell> table) {
-    return drawTable(table, table.colIndexes());
+    return drawTable(table, table.colIndexes().stream().toList());
   }
 
   public <K> TuiDrawer drawTable(Table<K, String, ? extends Cell> table, List<String> columns) {

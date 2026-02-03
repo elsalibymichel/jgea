@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-experimenter
  * %%
- * Copyright (C) 2018 - 2025 Eric Medvet
+ * Copyright (C) 2018 - 2026 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,17 +28,37 @@ import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import io.github.ericmedvet.jgea.core.util.Progress;
 import io.github.ericmedvet.jgea.core.util.TextPlotter;
 import io.github.ericmedvet.jgea.experimenter.listener.net.NetUtils;
-import io.github.ericmedvet.jgea.experimenter.listener.tui.table.*;
+import io.github.ericmedvet.jgea.experimenter.listener.tui.table.AreaPlotCell;
+import io.github.ericmedvet.jgea.experimenter.listener.tui.table.Cell;
+import io.github.ericmedvet.jgea.experimenter.listener.tui.table.CompositeCell;
+import io.github.ericmedvet.jgea.experimenter.listener.tui.table.EmptyCell;
+import io.github.ericmedvet.jgea.experimenter.listener.tui.table.EtaCell;
+import io.github.ericmedvet.jgea.experimenter.listener.tui.table.HorizontalBarCell;
+import io.github.ericmedvet.jgea.experimenter.listener.tui.table.LogLevelCell;
+import io.github.ericmedvet.jgea.experimenter.listener.tui.table.MiniplotCell;
+import io.github.ericmedvet.jgea.experimenter.listener.tui.table.NumericCell;
+import io.github.ericmedvet.jgea.experimenter.listener.tui.table.ProgressCell;
+import io.github.ericmedvet.jgea.experimenter.listener.tui.table.StatusCell;
+import io.github.ericmedvet.jgea.experimenter.listener.tui.table.StringCell;
+import io.github.ericmedvet.jgea.experimenter.listener.tui.table.TrendedNumericCell;
 import io.github.ericmedvet.jgea.experimenter.listener.tui.util.TuiDrawer;
 import io.github.ericmedvet.jnb.datastructure.HashMapTable;
 import io.github.ericmedvet.jnb.datastructure.Pair;
 import io.github.ericmedvet.jnb.datastructure.StringUtils;
 import io.github.ericmedvet.jnb.datastructure.Table;
+import io.github.ericmedvet.jnb.datastructure.Utils;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.SequencedMap;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -169,6 +189,11 @@ public class TuiMonitor implements Runnable {
         .compareTo(es2.getFirst().getValue().startLocalDateTime());
   }
 
+  @SafeVarargs
+  private static <K, V> SequencedMap<K, V> sequencedMap(Map.Entry<K, V>... entries) {
+    return Arrays.stream(entries).collect(Utils.toSequencedMap(Map.Entry::getKey, Map.Entry::getValue));
+  }
+
   private void refreshTables() {
     machineSource.pull(lastRefreshLocalDateTime).forEach((p, v) -> machineTable.set(p, VALUE_NAME, v));
     processSource.pull(lastRefreshLocalDateTime).forEach((p, v) -> processTable.set(p, VALUE_NAME, v));
@@ -181,7 +206,7 @@ public class TuiMonitor implements Runnable {
     LocalDateTime now = LocalDateTime.now();
     // prune shallowly
     List<Pair<LocalDateTime, RunKey>> toRemoveRKs = runTable
-        .aggregateByIndexSingle(
+        .aggregateRowsByIndexSingle(
             Pair::second,
             Comparator.comparing(Pair::first),
             es -> es.stream()
@@ -196,7 +221,7 @@ public class TuiMonitor implements Runnable {
         .toList();
     toRemoveRKs.forEach(runTable::removeRow);
     List<Pair<LocalDateTime, DataItemKey>> toRemoveDIKs = dataItemTable
-        .aggregateByIndexSingle(
+        .aggregateRowsByIndexSingle(
             Pair::second,
             Comparator.comparing(Pair::first),
             es -> es.stream()
@@ -212,7 +237,7 @@ public class TuiMonitor implements Runnable {
     toRemoveDIKs.forEach(dataItemTable::removeRow);
     // prune deeply
     List<Pair<LocalDateTime, MachineKey>> toRemoveMKs = machineTable
-        .aggregateByIndexSingle(Pair::second, (p1, p2) -> p2.first().compareTo(p1.first()), vs -> "")
+        .aggregateRowsByIndexSingle(Pair::second, (p1, p2) -> p2.first().compareTo(p1.first()), vs -> "")
         .rowIndexes()
         .stream()
         .filter(p -> p.first().until(now, ChronoUnit.SECONDS) > configuration.purgeThreshold)
@@ -226,7 +251,7 @@ public class TuiMonitor implements Runnable {
         .flatMap(List::stream)
         .toList();
     List<Pair<LocalDateTime, ProcessKey>> toRemovePKs = processTable
-        .aggregateByIndexSingle(Pair::second, (p1, p2) -> p2.first().compareTo(p1.first()), vs -> "")
+        .aggregateRowsByIndexSingle(Pair::second, (p1, p2) -> p2.first().compareTo(p1.first()), vs -> "")
         .rowIndexes()
         .stream()
         .filter(p -> p.first().until(now, ChronoUnit.SECONDS) > configuration.purgeThreshold)
@@ -271,7 +296,7 @@ public class TuiMonitor implements Runnable {
     toRemoveEKs.forEach(experimentTable::removeRow);
     toRemoveRKs.forEach(runTable::removeRow);
     toRemoveDIKs.forEach(dataItemTable::removeRow);
-    while (logTable.nRows() > configuration.logHistorySize) {
+    while (logTable.nOfRows() > configuration.logHistorySize) {
       logTable.removeRow(logTable.rowIndexes().getFirst());
     }
   }
@@ -327,30 +352,30 @@ public class TuiMonitor implements Runnable {
     LocalDateTime machineHistoryStartTime = LocalDateTime.now().minusSeconds(configuration.machineHistorySeconds);
     LocalDateTime machineHistoryEndTime = LocalDateTime.now();
     Map<ProcessKey, ProcessInfo> processInfos = processTable
-        .aggregateByIndexSingle(
+        .aggregateRowsByIndexSingle(
             Pair::second,
             Comparator.comparing(Pair::first),
             vs -> vs.getLast()
                 .getValue()
         )
-        .remapRowIndex(Pair::second)
+        .mapRowIndexes(Pair::second)
         .column(VALUE_NAME);
-    Map<RunKey, RunInfo> runInfos = runTable.aggregateByIndexSingle(
+    Map<RunKey, RunInfo> runInfos = runTable.aggregateRowsByIndexSingle(
         Pair::second,
         Comparator.comparing(Pair::first),
         vs -> vs.getLast()
             .getValue()
     )
-        .remapRowIndex(Pair::second)
+        .mapRowIndexes(Pair::second)
         .column(VALUE_NAME);
     Map<ExperimentKey, ExperimentInfo> experimentInfos = experimentTable
-        .aggregateByIndexSingle(
+        .aggregateRowsByIndexSingle(
             Pair::second,
             Comparator.comparing(Pair::first),
             vs -> vs.getLast()
                 .getValue()
         )
-        .remapRowIndex(Pair::second)
+        .mapRowIndexes(Pair::second)
         .column(VALUE_NAME);
     List<String> dataItemNames = experimentInfos.values()
         .stream()
@@ -370,11 +395,11 @@ public class TuiMonitor implements Runnable {
         .flatMap(List::stream)
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (v1, v2) -> v1));
     // machines table
-    Table<MachineKey, String, Cell> machines = machineTable
-        .aggregateByIndexSingle(Pair::second, (p1, p2) -> p2.first().compareTo(p1.first()), vs -> vs)
+    Table<MachineKey, String, ? extends Cell> machines = machineTable
+        .aggregateRowsByIndexSingle(Pair::second, (p1, p2) -> p2.first().compareTo(p1.first()), vs -> vs)
         .expandColumn(
             VALUE_NAME,
-            (p, vs) -> Map.ofEntries(
+            (p, vs) -> sequencedMap(
                 Map.entry("S", new StatusCell(p.first())),
                 Map.entry(
                     "Name",
@@ -425,94 +450,105 @@ public class TuiMonitor implements Runnable {
                 )
             )
         )
-        .remapRowIndex(Pair::second);
-    Table<MachineKey, String, Cell> pCells = processTable
-        .aggregateByIndexSingle(
+        .mapRowIndexes(Pair::second);
+    Table<MachineKey, String, ? extends Cell> pCells = processTable
+        .aggregateRowsByIndexSingle(
             Pair::second,
             Comparator.comparing(Pair::first),
             ps -> ps.getLast()
                 .getValue()
         )
-        .aggregateByIndexSingle(p -> p.second().machineKey(), Comparator.comparing(Pair::first), ps -> ps)
-        .expandColumn(VALUE_NAME, (p, vs) -> {
-          double usedMemory = vs.stream()
-              .mapToDouble(v -> v.getValue().usedMemory() / 1024d / 1024d)
-              .average()
-              .orElse(0);
-          double maxMemory = vs.stream()
-              .mapToDouble(v -> v.getValue().maxMemory() / 1024d / 1024d)
-              .average()
-              .orElse(0);
-          return Map.ofEntries(
-              Map.entry("Used", new NumericCell(usedMemory, "%.0f", "MB").rightAligned()),
-              Map.entry("Tot", new NumericCell(maxMemory, "%.0f", "MB").rightAligned()),
-              Map.entry("%Mem", new HorizontalBarCell(configuration.barLength, 0, maxMemory, usedMemory)),
-              Map.entry("#Proc", new NumericCell(vs.size(), "%d").rightAligned())
-          );
-        })
-        .remapRowIndex(p -> p.second().machineKey());
-    machines = machines.colLeftJoin(pCells)
+        .aggregateRowsByIndexSingle(p -> p.second().machineKey(), Comparator.comparing(Pair::first), ps -> ps)
+        .expandColumn(
+            VALUE_NAME,
+            (p, vs) -> {
+              double usedMemory = vs.stream()
+                  .mapToDouble(v -> v.getValue().usedMemory() / 1024d / 1024d)
+                  .average()
+                  .orElse(0);
+              double maxMemory = vs.stream()
+                  .mapToDouble(v -> v.getValue().maxMemory() / 1024d / 1024d)
+                  .average()
+                  .orElse(0);
+              return sequencedMap(
+                  Map.entry("Used", new NumericCell(usedMemory, "%.0f", "MB").rightAligned()),
+                  Map.entry("Tot", new NumericCell(maxMemory, "%.0f", "MB").rightAligned()),
+                  Map.entry("%Mem", new HorizontalBarCell(configuration.barLength, 0, maxMemory, usedMemory)),
+                  Map.entry("#Proc", new NumericCell(vs.size(), "%d").rightAligned())
+              );
+            }
+        )
+        .mapRowIndexes(p -> p.second().machineKey());
+    //noinspection unchecked,rawtypes
+    machines = machines.colLeftJoin((Table) pCells)
         .expandRowIndex(
-            "MK",
-            m -> new StringCell(
-                "M%02d".formatted(machineKeys.indexOf(m)),
-                td.getConfiguration().secondaryStringColor()
+            m -> sequencedMap(
+                Map.entry(
+                    "MK",
+                    new StringCell(
+                        "M%02d".formatted(machineKeys.indexOf(m)),
+                        td.getConfiguration().secondaryStringColor()
+                    )
+                )
             )
         )
-        .sorted(Comparator.comparing(MachineKey::value));
+        .sortedByRowIndex(Comparator.comparing(MachineKey::value));
     // experiments table
-    Table<ExperimentKey, String, Cell> experiments = experimentTable
-        .aggregateByIndexSingle(Pair::second, (p1, p2) -> p2.first().compareTo(p1.first()), vs -> vs)
-        .expandColumn(VALUE_NAME, (p, vs) -> {
-          long nOfAll = vs.getFirst().getValue().nOfRuns();
-          List<RunInfo> eRunInfos = runInfos.entrySet()
-              .stream()
-              .filter(e -> e.getKey().experimentKey().equals(p.second()))
-              .map(Map.Entry::getValue)
-              .toList();
-          long nOfDone = eRunInfos.stream().filter(RunInfo::ended).count();
-          long nOfDoing = eRunInfos.stream().filter(ri -> !ri.ended()).count();
-          double sumOfProgresses = eRunInfos.stream()
-              .mapToDouble(ri -> ri.progress().equals(Progress.NA) ? 0 : ri.progress().rate())
-              .sum();
-          return Map.ofEntries(
-              Map.entry("S", new StatusCell(p.first())),
-              Map.entry(
-                  "User",
-                  new StringCell(
-                      processInfos
-                          .get(p.second().processKey())
-                          .username()
+    Table<ExperimentKey, String, ? extends Cell> experiments = experimentTable
+        .aggregateRowsByIndexSingle(Pair::second, (p1, p2) -> p2.first().compareTo(p1.first()), vs -> vs)
+        .expandColumn(
+            VALUE_NAME,
+            (p, vs) -> {
+              long nOfAll = vs.getFirst().getValue().nOfRuns();
+              List<RunInfo> eRunInfos = runInfos.entrySet()
+                  .stream()
+                  .filter(e -> e.getKey().experimentKey().equals(p.second()))
+                  .map(Map.Entry::getValue)
+                  .toList();
+              long nOfDone = eRunInfos.stream().filter(RunInfo::ended).count();
+              long nOfDoing = eRunInfos.stream().filter(ri -> !ri.ended()).count();
+              double sumOfProgresses = eRunInfos.stream()
+                  .mapToDouble(ri -> ri.progress().equals(Progress.NA) ? 0 : ri.progress().rate())
+                  .sum();
+              return sequencedMap(
+                  Map.entry("S", new StatusCell(p.first())),
+                  Map.entry(
+                      "User",
+                      new StringCell(
+                          processInfos
+                              .get(p.second().processKey())
+                              .username()
+                      )
+                  ),
+                  Map.entry(
+                      "#Runs",
+                      (Cell) new CompositeCell(
+                          "/",
+                          new NumericCell(nOfAll, "%d").rightAligned(),
+                          new NumericCell(nOfDoing, "%d").rightAligned(),
+                          new NumericCell(nOfDone, "%d").rightAligned()
+                      )
+                  ),
+                  Map.entry(
+                      "Progress",
+                      new ProgressCell(
+                          configuration.barLength,
+                          new Progress(0, nOfAll, sumOfProgresses)
+                      )
+                  ),
+                  Map.entry(
+                      "ETA",
+                      new EtaCell(
+                          vs.getFirst().getValue().startLocalDateTime(),
+                          new Progress(0, nOfAll, sumOfProgresses)
+                      )
                   )
-              ),
-              Map.entry(
-                  "#Runs",
-                  (Cell) new CompositeCell(
-                      "/",
-                      new NumericCell(nOfAll, "%d").rightAligned(),
-                      new NumericCell(nOfDoing, "%d").rightAligned(),
-                      new NumericCell(nOfDone, "%d").rightAligned()
-                  )
-              ),
-              Map.entry(
-                  "Progress",
-                  new ProgressCell(
-                      configuration.barLength,
-                      new Progress(0, nOfAll, sumOfProgresses)
-                  )
-              ),
-              Map.entry(
-                  "ETA",
-                  new EtaCell(
-                      vs.getFirst().getValue().startLocalDateTime(),
-                      new Progress(0, nOfAll, sumOfProgresses)
-                  )
-              )
-          );
-        })
-        .remapRowIndex(Pair::second)
+              );
+            }
+        )
+        .mapRowIndexes(Pair::second)
         .expandRowIndex(
-            e -> Map.ofEntries(
+            e -> sequencedMap(
                 Map.entry(
                     "EK",
                     new StringCell(
@@ -534,17 +570,17 @@ public class TuiMonitor implements Runnable {
                 )
             )
         )
-        .sorted(Comparator.comparing(ExperimentKey::value));
+        .sortedByRowIndex(Comparator.comparing(ExperimentKey::value));
     // runs table
-    Table<RunKey, String, Cell> runs = runTable.aggregateByIndexSingle(
+    Table<RunKey, String, Cell> runs = runTable.aggregateRowsByIndexSingle(
         Pair::second,
         (p1, p2) -> p2.first().compareTo(p1.first()),
         vs -> vs
     )
-        .sorted(VALUE_NAME, TuiMonitor::compareRunTableItems)
+        .sortedByValue(VALUE_NAME, TuiMonitor::compareRunTableItems)
         .expandColumn(
             VALUE_NAME,
-            (p, vs) -> Map.ofEntries(
+            (p, vs) -> sequencedMap(
                 Map.entry("S", (Cell) new StatusCell(p.first())),
                 Map.entry(
                     "Progress",
@@ -562,9 +598,9 @@ public class TuiMonitor implements Runnable {
                 )
             )
         )
-        .remapRowIndex(Pair::second)
+        .mapRowIndexes(Pair::second)
         .expandRowIndex(
-            r -> Map.ofEntries(
+            r -> sequencedMap(
                 Map.entry(
                     "RK",
                     new StringCell(r.value(), td.getConfiguration().secondaryStringColor())
@@ -593,9 +629,9 @@ public class TuiMonitor implements Runnable {
             )
         );
     Table<RunKey, String, Cell> diCells = dataItemTable
-        .aggregateByIndexSingle(Pair::second, Comparator.comparing(Pair::first), vs -> vs)
+        .aggregateRowsByIndexSingle(Pair::second, Comparator.comparing(Pair::first), vs -> vs)
         .wider(p -> p.second().runKey(), VALUE_NAME, p -> p.second().name())
-        .map((rk, name, es) -> {
+        .mapValues((rk, name, es) -> {
           if (es == null || es.isEmpty()) {
             return new EmptyCell();
           }
@@ -612,12 +648,12 @@ public class TuiMonitor implements Runnable {
         });
     runs = runs.colLeftJoin(diCells);
     // log table
-    Table<Pair<LocalDateTime, ProcessKey>, String, Cell> logs = logTable.sorted(
+    Table<Pair<LocalDateTime, ProcessKey>, String, Cell> logs = logTable.sortedByRowIndex(
         (p1, p2) -> p2.first().compareTo(p1.first())
     )
         .expandColumn(
             VALUE_NAME,
-            (p, li) -> Map.ofEntries(
+            (p, li) -> sequencedMap(
                 Map.entry("Level", (Cell) new LogLevelCell(li.level())),
                 Map.entry(
                     "Time",
@@ -630,7 +666,7 @@ public class TuiMonitor implements Runnable {
             )
         )
         .expandRowIndex(
-            p -> Map.ofEntries(
+            p -> sequencedMap(
                 Map.entry(
                     "MK",
                     new StringCell(
@@ -641,20 +677,20 @@ public class TuiMonitor implements Runnable {
             )
         );
     // legend table
-    Table<String, String, StringCell> legend = Table.of(
+    Table<String, String, StringCell> legend = Table.from(
         dataItemNames.stream()
             .distinct()
             .collect(
-                Collectors.toMap(
+                Utils.toSequencedMap(
                     n -> n,
-                    n -> Map.ofEntries(
+                    n -> sequencedMap(
                         Map.entry("Short", new StringCell(StringUtils.collapse(n))),
                         Map.entry("Long", new StringCell(n))
                     )
                 )
             )
     )
-        .sorted(String::compareTo);
+        .sortedByRowIndex(String::compareTo);
     // local machine table
     Table<Integer, String, Cell> local = new HashMapTable<>();
     local.set(1, "Name", new StringCell("#Machines", td.getConfiguration().secondaryStringColor()));
@@ -667,12 +703,12 @@ public class TuiMonitor implements Runnable {
     );
     local.set(5, "Name", new StringCell("#Runs", td.getConfiguration().secondaryStringColor()));
     local.set(6, "Name", new StringCell("#DataItems", td.getConfiguration().secondaryStringColor()));
-    local.set(1, "Value", new NumericCell(machineTable.nRows(), "%d").rightAligned());
-    local.set(2, "Value", new NumericCell(processTable.nRows(), "%d").rightAligned());
-    local.set(3, "Value", new NumericCell(logTable.nRows(), "%d").rightAligned());
-    local.set(4, "Value", new NumericCell(experimentTable.nRows(), "%d").rightAligned());
-    local.set(5, "Value", new NumericCell(runTable.nRows(), "%d").rightAligned());
-    local.set(6, "Value", new NumericCell(dataItemTable.nRows(), "%d").rightAligned());
+    local.set(1, "Value", new NumericCell(machineTable.nOfRows(), "%d").rightAligned());
+    local.set(2, "Value", new NumericCell(processTable.nOfRows(), "%d").rightAligned());
+    local.set(3, "Value", new NumericCell(logTable.nOfRows(), "%d").rightAligned());
+    local.set(4, "Value", new NumericCell(experimentTable.nOfRows(), "%d").rightAligned());
+    local.set(5, "Value", new NumericCell(runTable.nOfRows(), "%d").rightAligned());
+    local.set(6, "Value", new NumericCell(dataItemTable.nOfRows(), "%d").rightAligned());
     local.set(7, "Name", new StringCell("Memory", td.getConfiguration().secondaryStringColor()));
     local.set(
         7,
@@ -703,7 +739,7 @@ public class TuiMonitor implements Runnable {
     td.inX(0, 0.5f)
         .inY(0, 0.2f)
         .clear()
-        .drawFrame("Machines (%d)".formatted(machines.nRows()))
+        .drawFrame("Machines (%d)".formatted(machines.nOfRows()))
         .inner(1)
         .drawTable(
             machines,
@@ -723,7 +759,7 @@ public class TuiMonitor implements Runnable {
     td.inX(0, 0.5f)
         .inY(0.2f, 0.2f)
         .clear()
-        .drawFrame("Experiments (%d)".formatted(experiments.nRows()))
+        .drawFrame("Experiments (%d)".formatted(experiments.nOfRows()))
         .inner(1)
         .drawTable(experiments, List.of("S", "EK", "MK", "User", "#Runs", "Progress", "ETA"));
     td.inX(0.8f, 0.2f).inY(0, 0.4f).clear().drawFrame("Local").inner(1).drawTable(local, List.of("Name", "Value"));
@@ -735,7 +771,7 @@ public class TuiMonitor implements Runnable {
         .drawTable(legend, List.of("Short", "Long"));
     td.inY(0.4f, 0.4f)
         .clear()
-        .drawFrame("Runs (%d)".formatted(runs.nRows()))
+        .drawFrame("Runs (%d)".formatted(runs.nOfRows()))
         .inner(1)
         .drawTable(
             runs,
@@ -746,7 +782,7 @@ public class TuiMonitor implements Runnable {
         );
     td.inY(0.8f, 0.2f)
         .clear()
-        .drawFrame("Logs (%d)".formatted(logs.nRows()))
+        .drawFrame("Logs (%d)".formatted(logs.nOfRows()))
         .inner(1)
         .drawTable(logs, List.of("MK", "Level", "Time", "Message"));
     td.drawString(

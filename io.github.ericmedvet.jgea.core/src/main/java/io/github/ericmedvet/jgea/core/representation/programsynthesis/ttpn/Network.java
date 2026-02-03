@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-core
  * %%
- * Copyright (C) 2018 - 2025 Eric Medvet
+ * Copyright (C) 2018 - 2026 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,22 @@ import io.github.ericmedvet.jgea.core.representation.programsynthesis.type.Type;
 import io.github.ericmedvet.jgea.core.representation.programsynthesis.type.TypeException;
 import io.github.ericmedvet.jgea.core.util.Misc;
 import io.github.ericmedvet.jnb.datastructure.Sized;
-import java.util.*;
+import io.github.ericmedvet.jnb.datastructure.Utils;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.SequencedSet;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -46,7 +61,7 @@ public final class Network implements Sized {
   private Set<Wire.EndPoint> freeOutputEndPoints;
 
   public Network(List<Gate> gates, Set<Wire> wires) throws NetworkStructureException, TypeException {
-    this(IntStream.range(0, gates.size()).boxed().collect(Misc.toSequencedMap(gates::get)), wires);
+    this(IntStream.range(0, gates.size()).boxed().collect(Utils.toSequencedMap(gates::get)), wires);
   }
 
   public Network(Map<Integer, Gate> gates, Set<Wire> wires) throws NetworkStructureException, TypeException {

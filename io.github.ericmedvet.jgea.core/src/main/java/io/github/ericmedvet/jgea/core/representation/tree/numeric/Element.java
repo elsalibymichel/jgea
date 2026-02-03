@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-core
  * %%
- * Copyright (C) 2018 - 2025 Eric Medvet
+ * Copyright (C) 2018 - 2026 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,54 +20,85 @@
 package io.github.ericmedvet.jgea.core.representation.tree.numeric;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 
 public interface Element {
 
   enum Operator implements Element, ToDoubleFunction<double[]>, Serializable {
-    ADDITION("+", x -> x[0] + x[1], 2), SUBTRACTION("-", x -> x[0] - x[1], 2), DIVISION(
+    ADDITION("+", x -> switch (x.length) { // optimization to avoid streams
+      case 2 -> x[0] + x[1];
+      case 3 -> x[0] + x[1] + x[2];
+      case 4 -> x[0] + x[1] + x[2] + x[3];
+      default -> Arrays.stream(x).sum();
+    }, 2, true), SUBTRACTION("-", x -> x[0] - x[1], 2, false), DIVISION(
         "÷",
         x -> x[0] / x[1],
-        2
-    ), PROT_DIVISION("p÷", x -> (x[1] != 0d) ? (x[0] / x[1]) : 1, 2), MULTIPLICATION(
+        2,
+        false
+    ), PROT_DIVISION("p÷", x -> (x[1] != 0d) ? (x[0] / x[1]) : 1E9, 2, false), MULTIPLICATION(
         "*",
-        x -> x[0] * x[1],
-        2
+        x -> switch (x.length) { // optimization to avoid streams
+          case 2 -> x[0] * x[1];
+          case 3 -> x[0] * x[1] * x[2];
+          case 4 -> x[0] * x[1] * x[2] * x[3];
+          default -> Arrays.stream(x).reduce((v1, v2) -> (v1 * v2)).orElseThrow();
+        },
+        2,
+        true
     ), LOG(
         "log",
         x -> Math.log(x[0]),
-        1
-    ), PROT_LOG("plog", x -> (x[0] > 0d) ? Math.log(x[0]) : 0d, 1), EXP(
+        1,
+        false
+    ), PROT_LOG("plog", x -> (x[0] > 0d) ? Math.log(x[0]) : -1E9, 1, false), EXP(
         "exp",
         x -> Math.exp(x[0]),
-        1
+        1,
+        false
     ), SIN(
         "sin",
         x -> Math.sin(x[0]),
-        1
-    ), COS("cos", x -> Math.cos(x[0]), 1), INVERSE("1÷", x -> 1d / x[0], 1), OPPOSITE(
+        1,
+        false
+    ), COS("cos", x -> Math.cos(x[0]), 1, false), INVERSE("1÷", x -> 1d / x[0], 1, false), OPPOSITE(
         "_",
         x -> -x[0],
-        1
+        1,
+        false
     ), SQRT(
         "√",
         x -> Math.sqrt(x[0]),
-        1
-    ), SQ("²", x -> Math.pow(x[0], 2d), 1), RE_LU("relu", x -> Math.max(x[0], 0d), 1), TERNARY(
+        1,
+        false
+    ), SQ("²", x -> Math.pow(x[0], 2d), 1, false), RE_LU("relu", x -> Math.max(x[0], 0d), 1, false), TERNARY(
         "ternary",
-        x -> x[0] > 0 ? x[1] : x[2],
-        3
+        x -> x[0] >= 0 ? x[1] : x[2],
+        3,
+        false
+    ), MAX("max", x -> Math.max(x[0], x[1]), 2, false), MIN("min", x -> Math.min(x[0], x[1]), 2, false), TANH(
+        "tanh",
+        x -> Math.tanh(x[0]),
+        1,
+        false
+    ), GT(">", x -> Math.signum(x[0] - x[1]), 2, false), LT("<", x -> Math.signum(x[1] - x[0]), 2, false), POW(
+        "^",
+        x -> Math.pow(x[0], x[1]),
+        2,
+        false
     );
 
     private final String string;
     private final ToDoubleFunction<double[]> function;
     private final int arity;
+    private final boolean unlimitedArity;
 
-    Operator(String string, ToDoubleFunction<double[]> function, int arity) {
+    Operator(String string, ToDoubleFunction<double[]> function, int arity, boolean unlimitedArity) {
       this.string = string;
       this.function = function;
       this.arity = arity;
+      this.unlimitedArity = unlimitedArity;
     }
 
     public static ToIntFunction<Element> arityFunction() {
@@ -76,11 +107,25 @@ public interface Element {
 
     @Override
     public double applyAsDouble(double... input) {
+      if (input.length != arity && !unlimitedArity) {
+        throw new IllegalArgumentException(
+            "Wrong number of inputs: %d expected, %d found".formatted(arity, input.length)
+        );
+      }
+      if (input.length < arity) {
+        throw new IllegalArgumentException(
+            "Wrong number of inputs: >=%d expected, %d found".formatted(arity, input.length)
+        );
+      }
       return function.applyAsDouble(input);
     }
 
     public int arity() {
       return arity;
+    }
+
+    public boolean isUnlimitedArity() {
+      return unlimitedArity;
     }
 
     @Override

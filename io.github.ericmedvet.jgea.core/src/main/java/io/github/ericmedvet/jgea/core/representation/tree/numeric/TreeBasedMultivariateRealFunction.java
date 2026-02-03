@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-core
  * %%
- * Copyright (C) 2018 - 2025 Eric Medvet
+ * Copyright (C) 2018 - 2026 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,11 @@ public class TreeBasedMultivariateRealFunction implements NamedMultivariateRealF
     this.xVarNames = xVarNames;
     this.yVarNames = yVarNames;
     this.postOperator = postOperator;
-    setParams(simplify ? trees.stream().map(NumericTreeUtils::simplify).toList() : trees);
+    setParams(
+        simplify ? trees.stream()
+            .map(NumericTreeUtils::simplify)
+            .toList() : trees
+    );
   }
 
   public TreeBasedMultivariateRealFunction(
@@ -78,7 +82,9 @@ public class TreeBasedMultivariateRealFunction implements NamedMultivariateRealF
         .mapToObj(
             i -> Map.entry(
                 yVarNames.get(i),
-                postOperator.applyAsDouble(TreeBasedUnivariateRealFunction.compute(trees.get(i), input))
+                postOperator.applyAsDouble(
+                    TreeBasedUnivariateRealFunction.compute(trees.get(i), input)
+                )
             )
         )
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));

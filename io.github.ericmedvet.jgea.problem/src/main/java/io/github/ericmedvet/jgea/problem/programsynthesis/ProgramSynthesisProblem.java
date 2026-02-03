@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-problem
  * %%
- * Copyright (C) 2018 - 2025 Eric Medvet
+ * Copyright (C) 2018 - 2026 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@ import io.github.ericmedvet.jgea.core.representation.programsynthesis.Program;
 import io.github.ericmedvet.jgea.core.representation.programsynthesis.ProgramExecutionException;
 import io.github.ericmedvet.jgea.core.representation.programsynthesis.RunProfile;
 import io.github.ericmedvet.jgea.core.representation.programsynthesis.type.Type;
-import io.github.ericmedvet.jgea.core.util.Misc;
 import io.github.ericmedvet.jnb.datastructure.TriFunction;
+import io.github.ericmedvet.jnb.datastructure.Utils;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -111,7 +111,7 @@ public interface ProgramSynthesisProblem extends SimpleEBMOProblem<Program, List
     Distance<List<Object>> outputDistance = outputDistance();
     return metrics().stream()
         .collect(
-            Misc.toSequencedMap(
+            Utils.toSequencedMap(
                 Enum::toString,
                 m -> new Objective<>(outcomes -> m.apply(outcomes, outputDistance), Double::compareTo)
             )

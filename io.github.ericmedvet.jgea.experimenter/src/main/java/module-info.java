@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-experimenter
  * %%
- * Copyright (C) 2018 - 2025 Eric Medvet
+ * Copyright (C) 2018 - 2026 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,4 +42,5 @@ module io.github.ericmedvet.jgea.experimenter {
   requires commons.math3;
   requires java.sql;
   requires annotations;
+  requires org.jspecify;
 }

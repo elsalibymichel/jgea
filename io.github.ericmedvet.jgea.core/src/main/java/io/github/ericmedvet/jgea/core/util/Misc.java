@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-core
  * %%
- * Copyright (C) 2018 - 2025 Eric Medvet
+ * Copyright (C) 2018 - 2026 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,20 @@
 
 package io.github.ericmedvet.jgea.core.util;
 
-import java.util.*;
+import io.github.ericmedvet.jnb.datastructure.Utils;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.SequencedMap;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.random.RandomGenerator;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -221,26 +230,6 @@ public class Misc {
     return ranges;
   }
 
-  public static <T, K, U> Collector<T, ?, SequencedMap<K, U>> toSequencedMap(
-      // TODO remove when upgrading to new jnb
-      Function<? super T, ? extends K> keyMapper,
-      Function<? super T, ? extends U> valueMapper
-  ) {
-    return Collectors.toMap(
-        keyMapper,
-        valueMapper,
-        (u1, u2) -> u1,
-        LinkedHashMap::new
-    );
-  }
-
-  public static <T, U> Collector<T, ?, SequencedMap<T, U>> toSequencedMap(
-      // TODO remove when upgrading to new jnb
-      Function<? super T, ? extends U> valueMapper
-  ) {
-    return toSequencedMap(Function.identity(), valueMapper);
-  }
-
   public static <K, V, U> Map<K, U> transformValues(Map<K, V> map, Function<? super V, ? extends U> transformer) {
     return map.entrySet()
         .stream()
@@ -259,7 +248,7 @@ public class Misc {
     return map.entrySet()
         .stream()
         .collect(
-            Misc.toSequencedMap(
+            Utils.toSequencedMap(
                 Map.Entry::getKey,
                 e -> transformer.apply(e.getValue())
             )

@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-experimenter
  * %%
- * Copyright (C) 2018 - 2025 Eric Medvet
+ * Copyright (C) 2018 - 2026 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,16 @@
 
 package io.github.ericmedvet.jgea.experimenter.builders;
 
+import io.github.ericmedvet.jgea.core.representation.tree.Tree;
+import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element;
+import io.github.ericmedvet.jgea.core.representation.tree.numeric.NumericTreeUtils;
+import io.github.ericmedvet.jgea.experimenter.drawer.FormulaDrawer;
 import io.github.ericmedvet.jgea.experimenter.drawer.PolyominoDrawer;
+import io.github.ericmedvet.jgea.experimenter.drawer.TreeDrawer;
 import io.github.ericmedvet.jnb.core.Cacheable;
 import io.github.ericmedvet.jnb.core.Discoverable;
 import io.github.ericmedvet.jnb.core.Param;
+import io.github.ericmedvet.jviz.core.drawer.Drawer;
 import java.awt.*;
 import java.util.Map;
 
@@ -33,12 +39,20 @@ public class Drawers {
   private Drawers() {
   }
 
-  @SuppressWarnings("unused")
+  @Cacheable
+  public static Drawer<Tree<Element>> formula(
+      @Param(value = "scale", dD = 1) double scale,
+      @Param("simplify") boolean simplify
+  ) {
+    return new FormulaDrawer(FormulaDrawer.Configuration.DEFAULT.scaled(scale))
+        .on(NumericTreeUtils::simplify);
+  }
+
   @Cacheable
   public static PolyominoDrawer polyomino(
       @Param(value = "maxW", dI = 0) int maxW,
       @Param(value = "maxH", dI = 0) int maxH,
-      @Param(value = "colors", dNPM = "ea.misc.map(entries=[])") Map<Character, Color> colors,
+      @Param("colors") Map<Character, Color> colors,
       @Param(value = "borderColor", dNPM = "ea.misc.colorByName(name=white)") Color borderColor
   ) {
     return new PolyominoDrawer(
@@ -50,5 +64,12 @@ public class Drawers {
             PolyominoDrawer.Configuration.DEFAULT.marginRate()
         )
     );
+  }
+
+  @Cacheable
+  public static TreeDrawer tree(
+      @Param(value = "scale", dD = 1) double scale
+  ) {
+    return new TreeDrawer(TreeDrawer.Configuration.DEFAULT.scaled(scale));
   }
 }

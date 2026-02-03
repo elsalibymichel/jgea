@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-problem
  * %%
- * Copyright (C) 2018 - 2025 Eric Medvet
+ * Copyright (C) 2018 - 2026 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,16 @@ import io.github.ericmedvet.jgea.core.representation.graph.finiteautomata.Extrac
 import io.github.ericmedvet.jgea.core.util.IntRange;
 import io.github.ericmedvet.jgea.core.util.Misc;
 import io.github.ericmedvet.jnb.datastructure.TriFunction;
-import java.util.*;
+import io.github.ericmedvet.jnb.datastructure.Utils;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.EnumMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.SequencedMap;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -41,41 +50,6 @@ public interface ExtractionProblem<A> extends SimpleEBMOProblem<Extractor<A>, Li
   }
 
   List<Metric> metrics();
-
-  @Override
-  default SequencedMap<String, Objective<List<Outcome>, Double>> aggregateObjectives() {
-    return metrics().stream()
-        .collect(
-            Misc.toSequencedMap(
-                Enum::toString,
-                m -> new Objective<>(
-                    outcomes -> aggregateFunction().apply(outcomes).get(m.toString()), // should never be called
-                    Double::compareTo
-                )
-            )
-        );
-  }
-
-  @Override
-  default TriFunction<List<A>, Set<IntRange>, Set<IntRange>, Outcome> errorFunction() {
-    return (as, desiredExtractions, extractions) -> new Outcome(as.size(), desiredExtractions, extractions);
-  }
-
-  @Override
-  default Function<List<Outcome>, SequencedMap<String, Double>> aggregateFunction() {
-    return results -> {
-      SequencedMap<String, List<Double>> raw = new LinkedHashMap<>();
-      Set<Metric> metrics = new LinkedHashSet<>(metrics());
-      metrics.forEach(m -> raw.put(m.toString(), new ArrayList<>()));
-      results.forEach(outcome -> computeForResult(outcome, metrics).forEach((k, v) -> raw.get(k).add(v)));
-      return Misc.sequencedTransformValues(raw, vs -> vs.stream().mapToDouble(v -> v).average().orElseThrow());
-    };
-  }
-
-  @Override
-  default BiFunction<Extractor<A>, List<A>, Set<IntRange>> predictFunction() {
-    return Extractor::extractNonOverlapping;
-  }
 
   private static SequencedMap<String, Double> computeForResult(Outcome outcome, Set<Metric> metrics) {
     Map<Metric, Double> values = new EnumMap<>(Metric.class);
@@ -117,9 +91,44 @@ public interface ExtractionProblem<A> extends SimpleEBMOProblem<Extractor<A>, Li
     }
     return metrics.stream()
         .collect(
-            Misc.toSequencedMap(
+            Utils.toSequencedMap(
                 Enum::toString,
                 values::get
+            )
+        );
+  }
+
+  @Override
+  default TriFunction<List<A>, Set<IntRange>, Set<IntRange>, Outcome> errorFunction() {
+    return (as, desiredExtractions, extractions) -> new Outcome(as.size(), desiredExtractions, extractions);
+  }
+
+  @Override
+  default Function<List<Outcome>, SequencedMap<String, Double>> aggregateFunction() {
+    return results -> {
+      SequencedMap<String, List<Double>> raw = new LinkedHashMap<>();
+      Set<Metric> metrics = new LinkedHashSet<>(metrics());
+      metrics.forEach(m -> raw.put(m.toString(), new ArrayList<>()));
+      results.forEach(outcome -> computeForResult(outcome, metrics).forEach((k, v) -> raw.get(k).add(v)));
+      return Misc.sequencedTransformValues(raw, vs -> vs.stream().mapToDouble(v -> v).average().orElseThrow());
+    };
+  }
+
+  @Override
+  default BiFunction<Extractor<A>, List<A>, Set<IntRange>> predictFunction() {
+    return Extractor::extractNonOverlapping;
+  }
+
+  @Override
+  default SequencedMap<String, Objective<List<Outcome>, Double>> aggregateObjectives() {
+    return metrics().stream()
+        .collect(
+            Utils.toSequencedMap(
+                Enum::toString,
+                m -> new Objective<>(
+                    outcomes -> aggregateFunction().apply(outcomes).get(m.toString()), // should never be called
+                    Double::compareTo
+                )
             )
         );
   }

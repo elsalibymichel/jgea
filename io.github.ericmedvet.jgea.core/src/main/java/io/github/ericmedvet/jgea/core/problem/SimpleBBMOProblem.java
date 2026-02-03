@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-core
  * %%
- * Copyright (C) 2018 - 2025 Eric Medvet
+ * Copyright (C) 2018 - 2026 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,10 @@
  */
 package io.github.ericmedvet.jgea.core.problem;
 
-import io.github.ericmedvet.jgea.core.util.Misc;
+import io.github.ericmedvet.jgea.core.problem.MultifidelityQualityBasedProblem.MultifidelityFunction;
+import io.github.ericmedvet.jnb.datastructure.Utils;
 import java.util.Map;
+import java.util.Optional;
 import java.util.SequencedMap;
 import java.util.function.Function;
 
@@ -28,19 +30,48 @@ public interface SimpleBBMOProblem<S, B, O> extends BBMOProblem<S, B, SequencedM
 
   SequencedMap<String, Objective<B, O>> behaviorObjectives();
 
-  @Override
-  default SequencedMap<String, Objective<SequencedMap<String, O>, O>> behaviorQualityObjectives() {
-    return behaviorObjectives().entrySet()
-        .stream()
-        .collect(
-            Misc.toSequencedMap(
-                Map.Entry::getKey,
-                e -> new Objective<>(
-                    map -> map.get(e.getKey()),
-                    e.getValue().comparator()
-                )
-            )
-        );
+  static <S, B, O> SimpleBBMOProblem<S, B, O> of(
+      SequencedMap<String, Objective<B, O>> behaviorObjectives,
+      Function<? super S, ? extends B> behaviorFunction,
+      S example,
+      String name
+  ) {
+    record HardSimpleBBMOProblem<S, B, O>(
+        SequencedMap<String, Objective<B, O>> behaviorObjectives,
+        Function<? super S, ? extends B> behaviorFunction,
+        Optional<S> example,
+        String name
+    ) implements SimpleBBMOProblem<S, B, O> {
+      @Override
+      public String toString() {
+        return name();
+      }
+    }
+    record HardSimpleMFBBMOProblem<S, B, O>(
+        SequencedMap<String, Objective<B, O>> behaviorObjectives,
+        MultifidelityFunction<? super S, ? extends B> behaviorFunction,
+        Optional<S> example,
+        String name
+    ) implements SimpleMFBBMOProblem<S, B, O> {
+      @Override
+      public String toString() {
+        return name();
+      }
+    }
+    return switch (behaviorFunction) {
+      case MultifidelityFunction<? super S, ? extends B> mfBehaviorFunction -> new HardSimpleMFBBMOProblem<>(
+          behaviorObjectives,
+          mfBehaviorFunction,
+          Optional.of(example),
+          name
+      );
+      default -> new HardSimpleBBMOProblem<>(
+          behaviorObjectives,
+          behaviorFunction,
+          Optional.of(example),
+          name
+      );
+    };
   }
 
   @Override
@@ -48,9 +79,24 @@ public interface SimpleBBMOProblem<S, B, O> extends BBMOProblem<S, B, SequencedM
     return b -> behaviorObjectives().entrySet()
         .stream()
         .collect(
-            Misc.toSequencedMap(
+            Utils.toSequencedMap(
                 Map.Entry::getKey,
                 e -> e.getValue().function().apply(b)
+            )
+        );
+  }
+
+  @Override
+  default SequencedMap<String, Objective<SequencedMap<String, O>, O>> behaviorQualityObjectives() {
+    return behaviorObjectives().entrySet()
+        .stream()
+        .collect(
+            Utils.toSequencedMap(
+                Map.Entry::getKey,
+                e -> new Objective<>(
+                    map -> map.get(e.getKey()),
+                    e.getValue().comparator()
+                )
             )
         );
   }

@@ -1,7 +1,7 @@
 $basePath = ''../../Documenti/experiments/{^^.name}/{^^.startTime}/''
 
 ea.experiment(
-  runs = (randomGenerator = (seed = [1:1:5]) * [m.defaultRG()]) *
+  runs = (randomGenerator = (seed = [1:1:1]) * [m.defaultRG()]) *
     (problem = [
       ea.p.moToSo(objective = mse; moProblem = ea.p.ur.synthetic(name = "keijzer6"));
       ea.p.moToSo(objective = mse; moProblem = ea.p.ur.synthetic(name = "nguyen7"));
@@ -60,6 +60,21 @@ ea.experiment(
       plot = ea.plot.multi.yBoxplotExp(y = f.mapValue(key = mse; of = ea.f.validationQuality()));
       configuration = viz.plot.conf.image(axesShow = all; axesIndependences = [all]);
       type = svg
+    );
+
+    % ========= TREES
+    ea.l.saveForRun(
+      path = $basePath + "{solver.name}/{problem.name}/best-{randomGenerator.seed:%02d}.svg";
+      of = ea.acc.lastBest();
+      processor = viz.f.toImage(
+        drawer = viz.d.stacked(drawers = [
+          ea.d.tree(scale = 3);
+          ea.d.formula(scale = 3);
+          ea.d.formula(scale = 3; simplify = true)
+        ]);
+        of = ea.f.srTreeShortVarName(of = ea.f.genotype());
+        type = svg
+      )
     )
   ]
 )

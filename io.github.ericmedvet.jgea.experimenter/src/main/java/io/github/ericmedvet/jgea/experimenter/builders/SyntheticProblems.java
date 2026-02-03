@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-experimenter
  * %%
- * Copyright (C) 2018 - 2025 Eric Medvet
+ * Copyright (C) 2018 - 2026 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ public class SyntheticProblems {
   @SuppressWarnings("unused")
   @Cacheable
   public static CharShapeApproximation charShapeApproximation(
-      @Param(value = "name", dS = "shape-{target}") String name,
+      @Param(value = "name", iS = "shape-{target}") String name,
       @Param("target") String syntheticTargetName,
       @Param(value = "translation", dB = true) boolean translation,
       @Param(value = "smoothed", dB = true) boolean smoothed,

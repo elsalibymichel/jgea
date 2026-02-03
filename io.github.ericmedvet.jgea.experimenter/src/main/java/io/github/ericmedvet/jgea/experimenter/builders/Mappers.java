@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-experimenter
  * %%
- * Copyright (C) 2018 - 2025 Eric Medvet
+ * Copyright (C) 2018 - 2026 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,11 @@ package io.github.ericmedvet.jgea.experimenter.builders;
 import io.github.ericmedvet.jgea.core.InvertibleMapper;
 import io.github.ericmedvet.jgea.core.representation.grammar.Chooser;
 import io.github.ericmedvet.jgea.core.representation.grammar.Developer;
-import io.github.ericmedvet.jgea.core.representation.grammar.grid.*;
+import io.github.ericmedvet.jgea.core.representation.grammar.grid.BitStringChooser;
+import io.github.ericmedvet.jgea.core.representation.grammar.grid.DoublesChooser;
+import io.github.ericmedvet.jgea.core.representation.grammar.grid.GridGrammar;
+import io.github.ericmedvet.jgea.core.representation.grammar.grid.IntStringChooser;
+import io.github.ericmedvet.jgea.core.representation.grammar.grid.StandardGridDeveloper;
 import io.github.ericmedvet.jgea.core.representation.grammar.string.GrammarBasedProblem;
 import io.github.ericmedvet.jgea.core.representation.graph.Graph;
 import io.github.ericmedvet.jgea.core.representation.graph.Node;
@@ -43,21 +47,31 @@ import io.github.ericmedvet.jgea.core.representation.tree.numeric.TreeBasedMulti
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.TreeBasedUnivariateRealFunction;
 import io.github.ericmedvet.jgea.problem.ca.MultivariateRealGridCellularAutomaton;
 import io.github.ericmedvet.jgea.problem.regression.FormulaMapper;
+import io.github.ericmedvet.jnb.core.Alias;
 import io.github.ericmedvet.jnb.core.Cacheable;
 import io.github.ericmedvet.jnb.core.Discoverable;
 import io.github.ericmedvet.jnb.core.Param;
+import io.github.ericmedvet.jnb.core.ParamMap.Type;
+import io.github.ericmedvet.jnb.core.PassThroughParam;
 import io.github.ericmedvet.jnb.datastructure.DoubleRange;
 import io.github.ericmedvet.jnb.datastructure.Grid;
+import io.github.ericmedvet.jnb.datastructure.GridUtils;
 import io.github.ericmedvet.jnb.datastructure.Naming;
-import io.github.ericmedvet.jnb.datastructure.NumericalParametrized;
 import io.github.ericmedvet.jnb.datastructure.Pair;
-import io.github.ericmedvet.jsdynsym.buildable.builders.NumericalDynamicalSystems;
-import io.github.ericmedvet.jsdynsym.core.StatelessSystem;
+import io.github.ericmedvet.jnb.datastructure.Parametrized;
 import io.github.ericmedvet.jsdynsym.core.composed.Stepped;
-import io.github.ericmedvet.jsdynsym.core.numerical.*;
+import io.github.ericmedvet.jsdynsym.core.numerical.AggregatedInput;
+import io.github.ericmedvet.jsdynsym.core.numerical.EnhancedInput;
+import io.github.ericmedvet.jsdynsym.core.numerical.MultivariateRealFunction;
+import io.github.ericmedvet.jsdynsym.core.numerical.Noised;
+import io.github.ericmedvet.jsdynsym.core.numerical.NumericalDynamicalSystem;
+import io.github.ericmedvet.jsdynsym.core.numerical.NumericalStatelessSystem;
+import io.github.ericmedvet.jsdynsym.core.numerical.NumericalTimeInvariantStatelessSystem;
+import io.github.ericmedvet.jsdynsym.core.numerical.UnivariateRealFunction;
 import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedMultivariateRealFunction;
 import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedUnivariateRealFunction;
 import io.github.ericmedvet.jsdynsym.core.rl.NumericalReinforcementLearningAgent;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -71,10 +85,10 @@ import java.util.stream.Stream;
 
 @Discoverable(prefixTemplate = "ea.mapper|m")
 public class Mappers {
+
   private Mappers() {
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NumericalDynamicalSystem<?>> aggregatedInputNds(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NumericalDynamicalSystem<?>> beforeM,
@@ -85,7 +99,10 @@ public class Mappers {
     return beforeM.andThen(
         InvertibleMapper.from(
             (eNds, nds) -> new AggregatedInput<>(nds, windowT, types),
-            eNds -> NumericalStatelessSystem.zeros(eNds.nOfInputs() * types.size(), eNds.nOfOutputs()),
+            eNds -> NumericalStatelessSystem.zeros(
+                eNds.nOfInputs() * types.size(),
+                eNds.nOfOutputs()
+            ),
             "aggregated[t=%.2f,%s]"
                 .formatted(
                     windowT,
@@ -95,7 +112,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X, T> InvertibleMapper<X, Grid<T>> bsToGrammarGrid(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, BitString> beforeM,
@@ -113,7 +129,10 @@ public class Mappers {
     return beforeM.andThen(
         InvertibleMapper.from(
             (eGrid, bs) -> {
-              Chooser<T, GridGrammar.ReferencedGrid<T>> chooser = new BitStringChooser<>(bs, grammar);
+              Chooser<T, GridGrammar.ReferencedGrid<T>> chooser = new BitStringChooser<>(
+                  bs,
+                  grammar
+              );
               return gridDeveloper.develop(chooser).orElse(eGrid);
             },
             eGrid -> new BitString(l),
@@ -122,7 +141,28 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
+  @Cacheable
+  public static <X> InvertibleMapper<X, NumericalDynamicalSystem<?>> composedNds(
+      @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NumericalDynamicalSystem<?>> beforeM,
+      @Param("then") Function<NumericalDynamicalSystem<?>, NumericalDynamicalSystem<?>> exampleBuilder,
+      @Param("nOfInternalIOs") int nOfInternalIOs
+  ) {
+    return beforeM.andThen(
+        InvertibleMapper.from(
+            (eNds, nds) -> nds.andThen(
+                exampleBuilder.apply(
+                    MultivariateRealFunction.from(nOfInternalIOs, eNds.nOfOutputs())
+                )
+            ),
+            eNds -> MultivariateRealFunction.from(
+                eNds.nOfInputs(),
+                nOfInternalIOs
+            ),
+            "then[%s]".formatted(exampleBuilder)
+        )
+    );
+  }
+
   @Cacheable
   public static <X> InvertibleMapper<X, BitString> dsToBitString(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Double>> beforeM,
@@ -137,7 +177,19 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
+  @Cacheable
+  public static <X> InvertibleMapper<X, double[]> dsToDa(
+      @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Double>> beforeM
+  ) {
+    return beforeM.andThen(
+        InvertibleMapper.from(
+            (e, ds) -> ds.stream().mapToDouble(v -> v).toArray(),
+            da -> Arrays.stream(da).boxed().toList(),
+            "dsToDa"
+        )
+    );
+  }
+
   @Cacheable
   public static <X, T> InvertibleMapper<X, Grid<T>> dsToFixedGrid(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Double>> beforeM,
@@ -174,7 +226,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X, T> InvertibleMapper<X, Grid<T>> dsToGrammarGrid(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Double>> beforeM,
@@ -201,7 +252,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, IntString> dsToIs(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Double>> beforeM,
@@ -226,49 +276,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
-  @Cacheable
-  public static <X, P extends MultivariateRealFunction & NumericalParametrized<P>> InvertibleMapper<X, NamedMultivariateRealFunction> dsToNmrf(
-      @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Double>> beforeM,
-      @Param("npmrf") NumericalDynamicalSystems.Builder<P, StatelessSystem.State> builder
-  ) {
-    return beforeM.andThen(
-        InvertibleMapper.from(
-            (p, params) -> NamedMultivariateRealFunction.from(
-                builder.apply(p.nOfInputs(), p.nOfOutputs())
-                    .withParams(params.stream().mapToDouble(v -> v).toArray()),
-                p.xVarNames(),
-                p.yVarNames()
-            ),
-            p -> Collections.nCopies(
-                builder.apply(p.nOfInputs(), p.nOfOutputs()).getParams().length,
-                0d
-            ),
-            "dsToNmrf[npmrf=%s]".formatted(builder)
-        )
-    );
-  }
-
-  @SuppressWarnings("unused")
-  @Cacheable
-  public static <X, P extends NumericalDynamicalSystem<S> & NumericalParametrized<P>, S> InvertibleMapper<X, P> dsToNpnds(
-      @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Double>> beforeM,
-      @Param("npnds") NumericalDynamicalSystems.Builder<P, S> builder
-  ) {
-    return beforeM.andThen(
-        InvertibleMapper.from(
-            (p, params) -> builder.apply(p.nOfInputs(), p.nOfOutputs())
-                .withParams(params.stream().mapToDouble(v -> v).toArray()),
-            p -> Collections.nCopies(
-                builder.apply(p.nOfInputs(), p.nOfOutputs()).getParams().length,
-                0d
-            ),
-            "dsToNpnds[npnds=%s]".formatted(builder)
-        )
-    );
-  }
-
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X, T> InvertibleMapper<X, Grid<T>> dsToThresholdedGrid(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Double>> beforeM,
@@ -297,7 +304,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NumericalDynamicalSystem<?>> enhancedNds(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NumericalDynamicalSystem<?>> beforeM,
@@ -309,17 +315,18 @@ public class Mappers {
         InvertibleMapper.from(
             (eNds, nds) -> new EnhancedInput<>(nds, windowT, types),
             eNds -> MultivariateRealFunction.from(
-                in -> new double[eNds.nOfOutputs()],
                 eNds.nOfInputs() * types.size(),
                 eNds.nOfOutputs()
             ),
             "enhanced[wT=%.2f;%s]"
-                .formatted(windowT, types.stream().map(Enum::toString).collect(Collectors.joining(";")))
+                .formatted(
+                    windowT,
+                    types.stream().map(Enum::toString).collect(Collectors.joining(";"))
+                )
         )
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NamedMultivariateRealFunction> fGraphToNmrf(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, Graph<Node, Double>> beforeM,
@@ -328,7 +335,6 @@ public class Mappers {
     return beforeM.andThen(
         InvertibleMapper.from(
             (nmrf, g) -> NamedMultivariateRealFunction.from(
-                new FunctionGraph(g, nmrf.xVarNames(), nmrf.yVarNames()),
                 nmrf.xVarNames(),
                 nmrf.yVarNames()
             )
@@ -339,33 +345,59 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X, N, S> InvertibleMapper<X, S> grammarTreeBP(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, Tree<N>> beforeM,
       @Param("problem") GrammarBasedProblem<N, S> problem
   ) {
     return beforeM.andThen(
-        InvertibleMapper.from((eS, t) -> problem.solutionMapper().apply(t), es -> null, "problem.specific")
+        InvertibleMapper.from(
+            (eS, t) -> problem.solutionMapper().apply(t),
+            es -> null,
+            "problem.specific"
+        )
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, Tree<Element>> grammarTreeRegression(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, Tree<String>> beforeM
   ) {
     FormulaMapper mapper = new FormulaMapper();
-    return beforeM.andThen(InvertibleMapper.from((eS, t) -> mapper.apply(t), es -> null, "problem.specific"));
+    return beforeM.andThen(
+        InvertibleMapper.from((eS, t) -> mapper.apply(t), es -> null, "problem.specific")
+    );
   }
 
-  @SuppressWarnings("unused")
+  @Cacheable
+  public static <X, T, K> InvertibleMapper<X, Grid<K>> gridToGrid(
+      @Param(value = "name", dS = "gridToGrid") String name,
+      @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, Grid<T>> beforeM,
+      @Param(value = "mapper", dNPM = "ea.m.identity()") InvertibleMapper<T, K> elementMapper,
+      @Param(value = "predicate", dNPM = "f.nonNull()") Function<K, Boolean> predicate,
+      @Param(value = "defaultElement", dNPM = "m.nullValue()") K defaultElement,
+      @Param("onlyLargestConnected") boolean onlyLargestConnected
+  ) {
+    return beforeM.andThen(
+        InvertibleMapper.from(
+            (ekg, tg) -> {
+              Grid<K> kg = tg.map(t -> elementMapper.mapperFor(ekg.values().getFirst()).apply(t));
+              if (onlyLargestConnected) {
+                kg = GridUtils.largestConnected(kg, predicate::apply, defaultElement);
+              }
+              return kg;
+            },
+            ekg -> ekg.map(elementMapper::exampleFor),
+            name
+        )
+    );
+  }
+
   @Cacheable
   public static <X> InvertibleMapper<X, X> identity() {
     return InvertibleMapper.identity();
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X, T> InvertibleMapper<X, List<T>> isIndexed(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, Pair<List<T>, IntString>> beforeM,
@@ -424,7 +456,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X, T> InvertibleMapper<X, Grid<T>> isToGrammarGrid(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, IntString> beforeM,
@@ -443,7 +474,10 @@ public class Mappers {
     return beforeM.andThen(
         InvertibleMapper.from(
             (eGrid, is) -> {
-              Chooser<T, GridGrammar.ReferencedGrid<T>> chooser = new IntStringChooser<>(is, grammar);
+              Chooser<T, GridGrammar.ReferencedGrid<T>> chooser = new IntStringChooser<>(
+                  is,
+                  grammar
+              );
               return gridDeveloper.develop(chooser).orElse(eGrid);
             },
             eGrid -> new IntString(Collections.nCopies(l, 0), 0, upperBound),
@@ -452,34 +486,65 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
-  public static <X, T> InvertibleMapper<X, Grid<T>> isToGrid(
+  public static <X> InvertibleMapper<X, Grid<String>> isToSGrid(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, IntString> beforeM,
-      @Param("items") List<T> items
+      @Param(value = "maxW", dI = -1) int maxW,
+      @Param(value = "maxH", dI = -1) int maxH,
+      @Param(value = "nullItem", dB = true) boolean nullItem,
+      @Param("items") List<String> items
   ) {
     return beforeM.andThen(
         InvertibleMapper.from(
             (g, is) -> {
-              if (is.size() != g.w() * g.h()) {
+              int w = (maxW > 0) ? Math.min(maxW, g.w()) : g.w();
+              int h = (maxH > 0) ? Math.min(maxH, g.h()) : g.h();
+              int upperBound = items.size() + (nullItem ? 1 : 0);
+              if (is.size() != w * h) {
                 throw new IllegalArgumentException(
-                    "Wrong size for the integer string: %dx%d=%d expected, %d found"
-                        .formatted(g.w(), g.h(), g.w() * g.h(), is.size())
+                    "Wrong size of the integer string: %dx%d=%d expected, %d found"
+                        .formatted(w, h, w * h, is.size())
                 );
               }
+              if (is.lowerBound() != 0 || is.upperBound() != upperBound) {
+                throw new IllegalArgumentException(
+                    "Wrong bounds of the integer string: [0;%d] expected, [%d;%d] found".formatted(
+                        upperBound,
+                        is.lowerBound(),
+                        is.upperBound()
+                    )
+                );
+              }
+              Grid<String> grid = Grid.create(
+                  w,
+                  h,
+                  is.genes()
+                      .stream()
+                      .map(i -> {
+                        if (nullItem) {
+                          return i == 0 ? null : items.get(i - 1);
+                        }
+                        return items.get(i);
+                      })
+                      .toList()
+              );
               return Grid.create(
                   g.w(),
                   g.h(),
-                  is.genes().stream().map(items::get).toList()
+                  k -> grid.isValid(k) ? grid.get(k) : (nullItem ? null : items.getFirst())
               );
             },
-            g -> new IntString(Collections.nCopies(g.w() * g.h(), 0), 0, items.size()),
+            g -> {
+              int w = (maxW > 0) ? Math.min(maxW, g.w()) : g.w();
+              int h = (maxH > 0) ? Math.min(maxH, g.h()) : g.h();
+              int upperBound = items.size() + (nullItem ? 1 : 0);
+              return new IntString(Collections.nCopies(w * h, 0), 0, upperBound);
+            },
             "isToGrid[nOfItems=%d]".formatted(items.size())
         )
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, String> isToString(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, IntString> beforeM,
@@ -487,14 +552,17 @@ public class Mappers {
   ) {
     return beforeM.andThen(
         InvertibleMapper.from(
-            (str, is) -> is.genes().stream().map(i -> alphabet.substring(i, i + 1)).collect(Collectors.joining()),
+            (str, is) -> is.genes()
+                .stream()
+                .map(i -> alphabet.substring(i, i + 1))
+                .collect(Collectors.joining()),
             str -> new IntString(Collections.nCopies(str.length(), 0), 0, alphabet.length()),
             "isToString[alphabetSize=%d]".formatted(alphabet.length())
         )
     );
   }
 
-  @SuppressWarnings("unused")
+
   @Cacheable
   public static <X> InvertibleMapper<X, NamedMultivariateRealFunction> multiSrTreeToNmrf(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Tree<Element>>> beforeM,
@@ -503,7 +571,12 @@ public class Mappers {
   ) {
     return beforeM.andThen(
         InvertibleMapper.from(
-            (nmrf, ts) -> new TreeBasedMultivariateRealFunction(ts, nmrf.xVarNames(), nmrf.yVarNames(), simplify)
+            (nmrf, ts) -> new TreeBasedMultivariateRealFunction(
+                ts,
+                nmrf.xVarNames(),
+                nmrf.yVarNames(),
+                simplify
+            )
                 .andThen(toOperator(postOperator)),
             nmrf -> TreeBasedMultivariateRealFunction.sampleFor(nmrf.xVarNames(), nmrf.yVarNames()),
             "multiSrTreeToNmrf[po=%s]".formatted(postOperator)
@@ -511,7 +584,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NumericalReinforcementLearningAgent<?>> ndsToNrla(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NumericalDynamicalSystem<?>> beforeM
@@ -520,7 +592,6 @@ public class Mappers {
         InvertibleMapper.from(
             (eNrla, nds) -> NumericalReinforcementLearningAgent.from(nds),
             eNrla -> MultivariateRealFunction.from(
-                in -> new double[eNrla.nOfOutputs()],
                 eNrla.nOfInputs(),
                 eNrla.nOfOutputs()
             ),
@@ -529,7 +600,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X, T> InvertibleMapper<X, Grid<T>> nmrfToGrid(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NamedMultivariateRealFunction> beforeM,
@@ -540,7 +610,9 @@ public class Mappers {
             (g, nmrf) -> {
               if (nmrf.nOfInputs() != 2) {
                 throw new IllegalArgumentException(
-                    "Wrong input size for the NMRF: 2 expected, %d found".formatted(nmrf.nOfInputs())
+                    "Wrong input size for the NMRF: 2 expected, %d found".formatted(
+                        nmrf.nOfInputs()
+                    )
                 );
               }
               if (nmrf.nOfOutputs() != items.size()) {
@@ -566,7 +638,7 @@ public class Mappers {
               );
             },
             g -> NamedMultivariateRealFunction.from(
-                MultivariateRealFunction.from(vs -> new double[items.size()], 2, items.size()),
+                MultivariateRealFunction.from(2, items.size()),
                 List.of("x", "y"),
                 IntStream.range(0, items.size())
                     .mapToObj("item%02d"::formatted)
@@ -577,7 +649,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   public static <X> InvertibleMapper<X, MultivariateRealGridCellularAutomaton> nmrfToMrca(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NamedMultivariateRealFunction> beforeM,
       @Param(value = "nOfAdditionalChannels", dI = 1) int nOfAdditionalChannels,
@@ -596,7 +667,9 @@ public class Mappers {
     return beforeM.andThen(
         InvertibleMapper.from(
             (mrca, nmrf) -> {
-              int minStateSize = MultivariateRealGridCellularAutomaton.minStateSize(mrca.getInitialStates());
+              int minStateSize = MultivariateRealGridCellularAutomaton.minStateSize(
+                  mrca.getInitialStates()
+              );
               int nOfInputs = (minStateSize + nOfAdditionalChannels) * kernelGrids.size();
               int nOfOutputs = minStateSize + nOfAdditionalChannels;
               if (nmrf.nOfInputs() != nOfInputs) {
@@ -627,12 +700,17 @@ public class Mappers {
               );
             },
             mrca -> {
-              int minStateSize = MultivariateRealGridCellularAutomaton.minStateSize(mrca.getInitialStates());
+              int minStateSize = MultivariateRealGridCellularAutomaton.minStateSize(
+                  mrca.getInitialStates()
+              );
               int nOfInputs = (minStateSize + nOfAdditionalChannels) * kernelGrids.size();
               int nOfOutputs = minStateSize + nOfAdditionalChannels;
               List<String> varNames = MultivariateRealFunction.varNames("c", nOfOutputs);
               return NamedMultivariateRealFunction.from(
-                  MultivariateRealFunction.from(vs -> new double[nOfOutputs], nOfInputs, nOfOutputs),
+                  MultivariateRealFunction.from(
+                      nOfInputs,
+                      nOfOutputs
+                  ),
                   IntStream.range(0, kernelGrids.size())
                       .mapToObj(i -> varNames.stream().map(n -> "%s_k%d".formatted(n, i)))
                       .flatMap(Function.identity())
@@ -640,12 +718,14 @@ public class Mappers {
                   varNames
               );
             },
-            "nmrfToMrCA[addChannels=%d;kernels=%d]".formatted(nOfAdditionalChannels, kernelGrids.size())
+            "nmrfToMrCA[addChannels=%d;kernels=%d]".formatted(
+                nOfAdditionalChannels,
+                kernelGrids.size()
+            )
         )
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NumericalDynamicalSystem<?>> nmrfToNds(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NamedMultivariateRealFunction> beforeM
@@ -655,7 +735,6 @@ public class Mappers {
             (nds, nmrf) -> nmrf,
             nds -> NamedMultivariateRealFunction.from(
                 MultivariateRealFunction.from(
-                    in -> new double[nds.nOfOutputs()],
                     nds.nOfInputs(),
                     nds.nOfOutputs()
                 ),
@@ -667,7 +746,7 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
+
   @Cacheable
   public static <X> InvertibleMapper<X, NamedUnivariateRealFunction> nmrfToNurf(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NamedMultivariateRealFunction> beforeM
@@ -681,7 +760,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NumericalDynamicalSystem<?>> noisedNds(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NumericalDynamicalSystem<?>> beforeM,
@@ -698,7 +776,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NamedMultivariateRealFunction> noisedNmrf(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NamedMultivariateRealFunction> beforeM,
@@ -719,7 +796,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NamedMultivariateRealFunction> ntissToNmrf(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NumericalTimeInvariantStatelessSystem> beforeM
@@ -727,12 +803,10 @@ public class Mappers {
     return beforeM.andThen(
         InvertibleMapper.from(
             (nmrf, ntiss) -> NamedMultivariateRealFunction.from(
-                MultivariateRealFunction.from(ntiss, nmrf.nOfInputs(), nmrf.nOfOutputs()),
                 nmrf.xVarNames(),
                 nmrf.yVarNames()
             ),
             nmrf -> MultivariateRealFunction.from(
-                v -> new double[nmrf.nOfOutputs()],
                 nmrf.nOfInputs(),
                 nmrf.nOfOutputs()
             ),
@@ -741,7 +815,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NumericalDynamicalSystem<?>> nurfToNds(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NamedUnivariateRealFunction> beforeM
@@ -762,7 +835,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NamedMultivariateRealFunction> oGraphToNmrf(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, Graph<Node, OperatorGraph.NonValuedArc>> beforeM,
@@ -770,14 +842,15 @@ public class Mappers {
   ) {
     return beforeM.andThen(
         InvertibleMapper.from(
-            (nmrf, g) -> new OperatorGraph(g, nmrf.xVarNames(), nmrf.yVarNames()).andThen(toOperator(postOperator)),
+            (nmrf, g) -> new OperatorGraph(g, nmrf.xVarNames(), nmrf.yVarNames()).andThen(
+                toOperator(postOperator)
+            ),
             nmrf -> OperatorGraph.sampleFor(nmrf.xVarNames(), nmrf.yVarNames()),
             "oGraphToNmrf[po=%s]".formatted(postOperator)
         )
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X, F1, S1, F2, S2> InvertibleMapper<X, Pair<F2, S2>> pair(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, Pair<F1, S1>> beforeM,
@@ -796,7 +869,25 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
+  @Alias(
+      name = "dsToParametrized", value = "parametrized(of = ea.mapper.dsToDa(of = $innerOf))", passThroughParams = @PassThroughParam(name = "innerOf", value = "ea.m.identity()", type = Type.NAMED_PARAM_MAP)
+  )
+  @Cacheable
+  public static <X, E, Y extends Parametrized<? extends E, P>, P> InvertibleMapper<X, E> parametrized(
+      @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, P> beforeM,
+      @Param("parametrized") Function<E, Y> exampleBuilder
+  ) {
+    //noinspection unchecked
+    return beforeM.andThen(
+        InvertibleMapper.from(
+            (e, p) -> exampleBuilder.apply(e).withParams(p),
+            e -> exampleBuilder.apply(e).getParams(),
+            "nmrfToParametrized[%s]".formatted(exampleBuilder)
+        )
+    );
+  }
+
+
   @Cacheable
   public static <X, T> InvertibleMapper<X, Pair<List<T>, List<T>>> splitter(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<T>> beforeM
@@ -830,7 +921,6 @@ public class Mappers {
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NamedUnivariateRealFunction> srTreeToNurf(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, Tree<Element>> beforeM,
@@ -839,15 +929,22 @@ public class Mappers {
   ) {
     return beforeM.andThen(
         InvertibleMapper.from(
-            (nurf, t) -> new TreeBasedUnivariateRealFunction(t, nurf.xVarNames(), nurf.yVarName(), simplify)
+            (nurf, t) -> new TreeBasedUnivariateRealFunction(
+                t,
+                nurf.xVarNames(),
+                nurf.yVarName(),
+                simplify
+            )
                 .andThen(toOperator(postOperator)),
             nurf -> TreeBasedUnivariateRealFunction.sampleFor(nurf.xVarNames(), nurf.yVarName()),
-            "srTreeToNurf[po=%s;simp=%s]".formatted(postOperator, Boolean.toString(simplify).substring(0, 1))
+            "srTreeToNurf[po=%s;simp=%s]".formatted(
+                postOperator,
+                Boolean.toString(simplify).substring(0, 1)
+            )
         )
     );
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, NumericalDynamicalSystem<?>> steppedNds(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NumericalDynamicalSystem<?>> beforeM,
@@ -866,7 +963,7 @@ public class Mappers {
     );
   }
 
-  private static DoubleUnaryOperator toOperator(Function<Double, Double> f) {
+  protected static DoubleUnaryOperator toOperator(Function<Double, Double> f) {
     return new DoubleUnaryOperator() {
       @Override
       public double applyAsDouble(double v) {
@@ -880,7 +977,6 @@ public class Mappers {
     };
   }
 
-  @SuppressWarnings("unused")
   @Cacheable
   public static <X> InvertibleMapper<X, Program> ttpnToProgram(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, Network> beforeM,
@@ -890,7 +986,13 @@ public class Mappers {
       @Param(value = "maxSingleTokenSize", dI = 128) int maxSingleTokenSize,
       @Param(value = "skipBlocked", dB = true) boolean skipBlocked
   ) {
-    Runner runner = new Runner(maxNOfSteps, maxNOfTokens, maxTokensSize, maxSingleTokenSize, skipBlocked);
+    Runner runner = new Runner(
+        maxNOfSteps,
+        maxNOfTokens,
+        maxTokensSize,
+        maxSingleTokenSize,
+        skipBlocked
+    );
     return beforeM.andThen(
         InvertibleMapper.from(
             (eProgram, ttpn) -> runner.asInstrumentedProgram(ttpn),

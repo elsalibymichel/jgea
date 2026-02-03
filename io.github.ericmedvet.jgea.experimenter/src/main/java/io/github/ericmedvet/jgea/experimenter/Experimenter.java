@@ -2,7 +2,7 @@
  * ========================LICENSE_START=================================
  * jgea-experimenter
  * %%
- * Copyright (C) 2018 - 2025 Eric Medvet
+ * Copyright (C) 2018 - 2026 Eric Medvet
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -126,7 +126,14 @@ public class Experimenter {
       try {
         runOutcome.future().get();
       } catch (InterruptedException | ExecutionException e) {
-        L.warning(String.format("Cannot solve %s: %s", runOutcome.run().map(), e));
+        L.warning(
+            String.format(
+                "Cannot solve run %d of %d: %s",
+                runOutcome.run.index() + 1,
+                experiment.runs().size(),
+                e
+            )
+        );
         if (verbose) {
           //noinspection CallToPrintStackTrace
           e.printStackTrace();
