@@ -32,7 +32,6 @@ import io.github.ericmedvet.jgea.core.representation.sequence.integer.IntString;
 import io.github.ericmedvet.jgea.core.representation.tree.Tree;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element.Variable;
-import io.github.ericmedvet.jgea.core.representation.tree.numeric.NumericTreeUtils;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.TreeBasedUnivariateRealFunction;
 import io.github.ericmedvet.jgea.core.solver.Individual;
 import io.github.ericmedvet.jgea.core.solver.MultiFidelityPOCPopulationState;
@@ -567,7 +566,7 @@ public class Functions {
       @Param("expr") String expr,
       @Param(value = "format", dS = "%s") String format
   ) {
-    Tree<Element> t = NumericTreeUtils.parse(expr);
+    Tree<Element> t = Element.stringParser(true).parse(expr);
     NamedUnivariateRealFunction exprF = new TreeBasedUnivariateRealFunction(
         t,
         t.leaves()

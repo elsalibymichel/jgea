@@ -22,16 +22,12 @@ package io.github.ericmedvet.jgea.core.representation.tree.numeric;
 import io.github.ericmedvet.jgea.core.representation.tree.Tree;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element.Constant;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element.Operator;
-import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element.Variable;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.SequencedMap;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -448,140 +444,6 @@ public class NumericTreeUtils {
       }
       tree = simplify(simplified, types);
     }
-  }
-
-  public static Tree<Element> parse(String string) {
-    return new StringParser(string).parse();
-  }
-
-  private record StringParser(String s) {
-
-    private final static String CONSTANT_REGEX = "-?[0-9]+(\\.[0-9]+)?";
-    private final static String VAR_REGEX = "[A-Za-z][A-Za-z0-9_]*";
-    public static final String VOID_REGEX = "\\s*";
-
-    public Tree<Element> parse() {
-      try {
-        return parseNode(0).element;
-      } catch (ParseException e) {
-        throw new RuntimeException("Cannot parse '%s': %s".formatted(s, e), e);
-      }
-    }
-
-    private record ParsedNode(Tree<Element> element, int start, int end) {
-
-      @SafeVarargs
-      private ParsedNode(Matcher matcher, Element element, Tree<Element>... children) {
-        this(Tree.of(element, List.of(children)), matcher.start(), matcher.end());
-      }
-    }
-
-    private static class ParseException extends Exception {
-
-      public ParseException(int i, Class<? extends Element> elementType) {
-        super("Node %s not found at %d".formatted(elementType, i));
-      }
-
-      public ParseException(int i, String message) {
-        super("At %d: %s".formatted(i, message));
-      }
-    }
-
-    private String content(Matcher matcher) {
-      return s.substring(matcher.start(), matcher.end())
-          .replaceAll("\\A" + VOID_REGEX, "")
-          .replaceAll(VOID_REGEX + "\\z", "");
-    }
-
-    private Matcher findAt(int i, String regex) throws ParseException {
-      Matcher matcher = Pattern.compile(VOID_REGEX + regex + VOID_REGEX).matcher(s);
-      if (!matcher.find(i) || matcher.start() != i) {
-        throw new ParseException(i, Constant.class);
-      }
-      return matcher;
-    }
-
-    private ParsedNode parseNode(int i) throws ParseException {
-      try {
-        return parseOperator(i);
-      } catch (ParseException e) {
-        // ignore
-      }
-      try {
-        return parseVariable(i);
-      } catch (ParseException e) {
-        // ignore
-      }
-      try {
-        return parseConstant(i);
-      } catch (ParseException e) {
-        // ignore
-      }
-      throw new ParseException(i, Element.class);
-    }
-
-    private ParsedNode parseConstant(int i) throws ParseException {
-      Matcher m = findAt(i, CONSTANT_REGEX);
-      return new ParsedNode(m, new Constant(Double.parseDouble(content(m))));
-    }
-
-    private ParsedNode parseVariable(int i) throws ParseException {
-      Matcher m = findAt(i, VAR_REGEX);
-      return new ParsedNode(m, new Variable(content(m)));
-    }
-
-    private ParsedNode parseOperator(int i) throws ParseException {
-      Matcher m;
-      for (Operator operator : Operator.values()) {
-        try {
-          m = findAt(i, Pattern.quote(operator.toString()));
-          m = findAt(m.end(), Pattern.quote(Tree.CHILDREN_START_DELIMITER));
-          List<Tree<Element>> children = new ArrayList<>(operator.arity());
-          int end = m.end();
-          if (!operator.isUnlimitedArity()) {
-            for (int j = 0; j < operator.arity(); j++) {
-              ParsedNode child = parseNode(m.end());
-              children.add(child.element);
-              end = child.end;
-              if (j < operator.arity() - 1) {
-                m = findAt(child.end, Pattern.quote(Tree.CHILDREN_SEPARATOR));
-              }
-            }
-          } else {
-            int j = m.end();
-            while (true) {
-              if (!children.isEmpty()) {
-                try {
-                  j = findAt(j, Pattern.quote(Tree.CHILDREN_SEPARATOR)).end();
-                } catch (ParseException e) {
-                  break;
-                }
-              }
-              ParsedNode child = parseNode(j);
-              children.add(child.element);
-              j = child.end;
-            }
-            if (children.size() < operator.arity()) {
-              throw new ParseException(
-                  j,
-                  "Not enough args for %s: %d < %d".formatted(
-                      operator,
-                      children.size(),
-                      operator.arity()
-                  )
-              );
-            }
-            end = j;
-          }
-          m = findAt(end, Pattern.quote(Tree.CHILDREN_END_DELIMITER));
-          return new ParsedNode(Tree.of(operator, children), i, m.end());
-        } catch (ParseException e) {
-          //ignore
-        }
-      }
-      throw new ParseException(i, Operator.class);
-    }
-
   }
 
 }

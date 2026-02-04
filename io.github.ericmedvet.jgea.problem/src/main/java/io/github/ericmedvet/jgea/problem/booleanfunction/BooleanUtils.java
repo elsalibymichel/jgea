@@ -66,7 +66,7 @@ public class BooleanUtils {
     };
   }
 
-  public static boolean[] compute(List<Tree<Element>> formulas, Map<String, Boolean> values) {
+  public static boolean[] compute(List<Tree<Element>> formulas, Map<String, Boolean> values) { // TODO remove
     boolean[] result = new boolean[formulas.size()];
     for (int i = 0; i < result.length; i++) {
       result[i] = compute(formulas.get(i), values);

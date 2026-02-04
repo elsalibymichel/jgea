@@ -20,30 +20,101 @@
 
 package io.github.ericmedvet.jgea.core.representation.tree.booleanfunction;
 
+import io.github.ericmedvet.jgea.core.representation.tree.parsing.StringParser;
 import java.io.Serializable;
+import java.util.List;
+import java.util.function.Predicate;
 
 public interface Element {
+  String CONSTANT_REGEX = "[TF]";
+  String VAR_REGEX = "i[0-9]+";
 
-  enum Operator implements Element, Serializable {
-    AND(".and"), AND1NOT(".and1not"), OR(".or"), XOR(".xor"), NOT(".not"), IF(".if");
+  enum Operator implements Element, Serializable, Predicate<boolean[]> {
+    AND(
+        "and",
+        input -> {
+          if (input.length == 2) {
+            return input[0] && input[1];
+          }
+          for (boolean b : input) {
+            if (!b) {
+              return false;
+            }
+          }
+          return true;
+        },
+        2,
+        true
+    ), AND1NOT("and1not", input -> !input[0] && input[1], 2, false), OR(
+        "or",
+        input -> {
+          if (input.length == 2) {
+            return input[0] && input[1];
+          }
+          for (boolean b : input) {
+            if (b) {
+              return true;
+            }
+          }
+          return false;
+        },
+        2,
+        true
+    ), XOR("xor", input -> input[0] != input[1], 2, false), NOT("not", input -> !input[0], 1, false), IF(
+        "if",
+        input -> input[0] ? input[1] : input[2],
+        3,
+        false
+    );
 
     private final String string;
+    private final Predicate<boolean[]> predicate;
+    private final int arity;
+    private final boolean unlimitedArity;
 
-    Operator(String string) {
+    Operator(String string, Predicate<boolean[]> predicate, int arity, boolean unlimitedArity) {
       this.string = string;
+      this.predicate = predicate;
+      this.arity = arity;
+      this.unlimitedArity = unlimitedArity;
+    }
+
+
+    public int arity() {
+      return arity;
+    }
+
+    public boolean isUnlimitedArity() {
+      return unlimitedArity;
+    }
+
+    @Override
+    public boolean test(boolean[] input) {
+      if (input.length != arity && !unlimitedArity) {
+        throw new IllegalArgumentException(
+            "Wrong number of inputs: %d expected, %d found".formatted(arity, input.length)
+        );
+      }
+      if (input.length < arity) {
+        throw new IllegalArgumentException(
+            "Wrong number of inputs: >=%d expected, %d found".formatted(arity, input.length)
+        );
+      }
+      return predicate.test(input);
     }
 
     @Override
     public String toString() {
       return string;
     }
+
   }
 
   record Constant(boolean value) implements Element, Serializable {
 
     @Override
     public String toString() {
-      return Boolean.toString(value);
+      return value ? "T" : "F";
     }
   }
 
@@ -52,4 +123,34 @@ public interface Element {
   record Variable(String name) implements Element, Serializable {}
 
   String toString();
+
+  static StringParser<Element, Element.Operator, Element> stringParser(boolean allowVoid) {
+    return new StringParser<>(
+        StringParser.NodeParser.fromEnum(Element.Operator.class, allowVoid),
+        List.of(
+            StringParser.NodeParser.fromRegex(
+                CONSTANT_REGEX,
+                s -> new Constant(switch (s) {
+                  case "T" -> true;
+                  case "F" -> false;
+                  default ->
+                    throw new IllegalArgumentException(
+                        "Unexpected constant value %s not matching %s".formatted(
+                            s,
+                            CONSTANT_REGEX
+                        )
+                    );
+                }),
+                allowVoid
+            ),
+            StringParser.NodeParser.fromRegex(
+                VAR_REGEX,
+                Element.Variable::new,
+                allowVoid
+            )
+        ),
+        (op, n) -> op.unlimitedArity ? (n >= op.arity) : (n == op.arity),
+        StringParser.Configuration.DEFAULT
+    );
+  }
 }

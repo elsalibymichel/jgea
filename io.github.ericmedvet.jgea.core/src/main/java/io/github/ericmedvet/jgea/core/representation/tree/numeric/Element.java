@@ -19,20 +19,49 @@
  */
 package io.github.ericmedvet.jgea.core.representation.tree.numeric;
 
+import io.github.ericmedvet.jgea.core.representation.tree.parsing.StringParser;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 
 public interface Element {
+  String CONSTANT_REGEX = "-?[0-9]+(\\.[0-9]+)?";
+  String VAR_REGEX = "[A-Za-z][A-Za-z0-9_]*";
+
+  static StringParser<Element, Element.Operator, Element> stringParser(boolean allowVoid) {
+    return new StringParser<>(
+        StringParser.NodeParser.fromEnum(Element.Operator.class, allowVoid),
+        List.of(
+            StringParser.NodeParser.fromRegex(
+                CONSTANT_REGEX,
+                s -> new Element.Constant(Double.parseDouble(s)),
+                allowVoid
+            ),
+            StringParser.NodeParser.fromRegex(
+                VAR_REGEX,
+                Variable::new,
+                allowVoid
+            )
+        ),
+        (op, n) -> op.unlimitedArity ? (n >= op.arity) : (n == op.arity),
+        StringParser.Configuration.DEFAULT
+    );
+  }
 
   enum Operator implements Element, ToDoubleFunction<double[]>, Serializable {
-    ADDITION("+", x -> switch (x.length) { // optimization to avoid streams
-      case 2 -> x[0] + x[1];
-      case 3 -> x[0] + x[1] + x[2];
-      case 4 -> x[0] + x[1] + x[2] + x[3];
-      default -> Arrays.stream(x).sum();
-    }, 2, true), SUBTRACTION("-", x -> x[0] - x[1], 2, false), DIVISION(
+    ADDITION(
+        "+",
+        x -> switch (x.length) { // optimization to avoid streams
+          case 2 -> x[0] + x[1];
+          case 3 -> x[0] + x[1] + x[2];
+          case 4 -> x[0] + x[1] + x[2] + x[3];
+          default -> Arrays.stream(x).sum();
+        },
+        2,
+        true
+    ), SUBTRACTION("-", x -> x[0] - x[1], 2, false), DIVISION(
         "÷",
         x -> x[0] / x[1],
         2,

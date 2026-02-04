@@ -24,7 +24,6 @@ import io.github.ericmedvet.jgea.core.order.PartiallyOrderedCollection;
 import io.github.ericmedvet.jgea.core.representation.tree.Tree;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element.Variable;
-import io.github.ericmedvet.jgea.core.representation.tree.numeric.NumericTreeUtils;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.TreeBasedUnivariateRealFunction;
 import io.github.ericmedvet.jgea.core.solver.Individual;
 import io.github.ericmedvet.jgea.core.solver.bi.AbstractBiEvolver;
@@ -327,7 +326,7 @@ public class Miscs {
       @Param(value = "postOperator", dNPM = "ds.f.doubleOp(activationF=identity)") Function<Double, Double> postOperator,
       @Param("simplify") boolean simplify
   ) {
-    Tree<Element> tree = NumericTreeUtils.parse(expr);
+    Tree<Element> tree = Element.stringParser(true).parse(expr);
     return new TreeBasedUnivariateRealFunction(
         tree,
         Stream.concat(
