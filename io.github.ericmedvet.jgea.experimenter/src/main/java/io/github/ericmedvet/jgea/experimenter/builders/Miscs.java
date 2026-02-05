@@ -22,8 +22,10 @@ package io.github.ericmedvet.jgea.experimenter.builders;
 import io.github.ericmedvet.jgea.core.order.PartialComparator;
 import io.github.ericmedvet.jgea.core.order.PartiallyOrderedCollection;
 import io.github.ericmedvet.jgea.core.representation.tree.Tree;
+import io.github.ericmedvet.jgea.core.representation.tree.bool.TreeBasedBooleanFunction;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element.Variable;
+import io.github.ericmedvet.jgea.core.representation.tree.numeric.TreeBasedMultivariateRealFunction;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.TreeBasedUnivariateRealFunction;
 import io.github.ericmedvet.jgea.core.solver.Individual;
 import io.github.ericmedvet.jgea.core.solver.bi.AbstractBiEvolver;
@@ -41,9 +43,12 @@ import io.github.ericmedvet.jnb.datastructure.Grid;
 import io.github.ericmedvet.jnb.datastructure.Pair;
 import io.github.ericmedvet.jsdynsym.control.Simulation;
 import io.github.ericmedvet.jsdynsym.control.SimulationOutcomeDrawer;
+import io.github.ericmedvet.jsdynsym.core.bool.BooleanFunction;
+import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedMultivariateRealFunction;
 import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedUnivariateRealFunction;
 import io.github.ericmedvet.jviz.core.drawer.Drawer;
 import io.github.ericmedvet.jviz.core.drawer.VideoBuilder;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -104,6 +109,17 @@ public class Miscs {
       }
       return opponents;
     };
+  }
+
+  @Cacheable
+  public static BooleanFunction bf(
+      @Param("exprs") List<String> exprs
+  ) {
+    return new TreeBasedBooleanFunction(
+        exprs.stream()
+            .map(e -> io.github.ericmedvet.jgea.core.representation.tree.bool.Element.stringParser(true).parse(e))
+            .toList()
+    );
   }
 
   public static VideoBuilder<MultivariateRealGridCellularAutomaton> caVideo(
@@ -286,6 +302,60 @@ public class Miscs {
   }
 
   @Cacheable
+  public static NamedMultivariateRealFunction nmrf(
+      @Param("exprs") List<String> exprs,
+      @Param("yNames") List<String> yNames
+  ) {
+    if (exprs.size() != yNames.size()) {
+      throw new IllegalArgumentException("Different number of trees and y names: %d != %d".formatted(
+          exprs.size(),
+          yNames.size()
+      ));
+    }
+    return new TreeBasedMultivariateRealFunction(
+        exprs.stream().map(e -> Element.stringParser(true).parse(e)).toList(),
+        yNames,
+        false
+    );
+  }
+
+  @Cacheable
+  public static NamedUnivariateRealFunction nurf(
+      @Param("expr") String expr,
+      @Param(value = "yName", dS = "y") String yName
+  ) {
+    return new TreeBasedUnivariateRealFunction(
+        Element.stringParser(true).parse(expr),
+        yName,
+        false
+    );
+  }
+
+  @Cacheable
+  public static <S> NamedUnivariateRealFunction nurf(
+      @Param("expr") String expr,
+      @Param(value = "yVarName", dS = "y") String yVarName,
+      @Param("additionalVars") List<String> additionalVars,
+      @Param(value = "postOperator", dNPM = "ds.f.doubleOp(activationF=identity)") Function<Double, Double> postOperator,
+      @Param("simplify") boolean simplify
+  ) {
+    Tree<Element> tree = Element.stringParser(true).parse(expr);
+    return new TreeBasedUnivariateRealFunction(
+        tree,
+        Stream.concat(
+            tree.leaves()
+                .stream()
+                .filter(t -> t.content() instanceof Variable)
+                .map(t -> ((Variable) t.content()).toString()),
+            additionalVars.stream()
+        ).distinct().sorted(String::compareTo).toList(),
+        yVarName,
+        Mappers.toOperator(postOperator),
+        simplify
+    );
+  }
+
+  @Cacheable
   public static <G, S, Q, O> AbstractBiEvolver.OpponentsSelector<Individual<G, S, Q>, S, Q, O> oldestSelector(
       @Param(value = "name", iS = "oldest[{nOfOpponents}]") String name,
       @Param(value = "nOfOpponents", dI = 1) int nOfOpponents
@@ -316,29 +386,5 @@ public class Miscs {
       @Param("drawer") SimulationOutcomeDrawer<S> drawer
   ) {
     return drawer.videoBuilder();
-  }
-
-  @Cacheable
-  public static <S> NamedUnivariateRealFunction nurf(
-      @Param("expr") String expr,
-      @Param(value = "yVarName", dS = "y") String yVarName,
-      @Param("additionalVars") List<String> additionalVars,
-      @Param(value = "postOperator", dNPM = "ds.f.doubleOp(activationF=identity)") Function<Double, Double> postOperator,
-      @Param("simplify") boolean simplify
-  ) {
-    Tree<Element> tree = Element.stringParser(true).parse(expr);
-    return new TreeBasedUnivariateRealFunction(
-        tree,
-        Stream.concat(
-            tree.leaves()
-                .stream()
-                .filter(t -> t.content() instanceof Variable)
-                .map(t -> ((Variable) t.content()).toString()),
-            additionalVars.stream()
-        ).distinct().sorted(String::compareTo).toList(),
-        yVarName,
-        Mappers.toOperator(postOperator),
-        simplify
-    );
   }
 }

@@ -21,6 +21,7 @@ package io.github.ericmedvet.jgea.core.representation.tree.bool;
 
 import io.github.ericmedvet.jgea.core.representation.tree.Tree;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class BooleanTreeUtils {
   private BooleanTreeUtils() {
@@ -54,22 +55,30 @@ public class BooleanTreeUtils {
       }
     }
     //and(x;x;...) -> and(x;...); and(T;...) -> and(...)
-    if (tree.content().equals(Element.Operator.AND)) { // TODO merge children and
+    if (tree.content().equals(Element.Operator.AND)) {
       List<Tree<Element>> reducedChildren = tree.childStream()
           .distinct()
           .filter(c -> !isTrue(c.content()))
+          .flatMap(c -> switch (c.content()) {
+            case Element.Operator.AND -> c.childStream();
+            default -> Stream.of(c);
+          })
           .toList();
-      if (reducedChildren.size() < tree.nChildren()) {
+      if (!reducedChildren.equals(tree.childStream().toList())) {
         return simplify(Tree.of(Element.Operator.AND, reducedChildren));
       }
     }
     //or(x;x;...) -> or(x;...); or(F;...) -> or(...)
-    if (tree.content().equals(Element.Operator.OR)) { // TODO merge children or
+    if (tree.content().equals(Element.Operator.OR)) {
       List<Tree<Element>> reducedChildren = tree.childStream()
           .distinct()
           .filter(c -> !isFalse(c.content()))
+          .flatMap(c -> switch (c.content()) {
+            case Element.Operator.OR -> c.childStream();
+            default -> Stream.of(c);
+          })
           .toList();
-      if (reducedChildren.size() < tree.nChildren()) {
+      if (!reducedChildren.equals(tree.childStream().toList())) {
         return simplify(Tree.of(Element.Operator.OR, reducedChildren));
       }
     }

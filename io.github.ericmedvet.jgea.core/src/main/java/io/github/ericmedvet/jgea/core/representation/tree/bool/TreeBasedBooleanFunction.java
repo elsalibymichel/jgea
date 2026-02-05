@@ -21,16 +21,17 @@ package io.github.ericmedvet.jgea.core.representation.tree.bool;
 
 import io.github.ericmedvet.jgea.core.representation.tree.Tree;
 import io.github.ericmedvet.jsdynsym.core.bool.BooleanFunction;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 
-public class TreesBasedBooleanFunction implements BooleanFunction {
+public class TreeBasedBooleanFunction implements BooleanFunction {
 
   private final List<Tree<Element>> trees;
   private final int nOfInputs;
 
-  public TreesBasedBooleanFunction(List<Tree<Element>> trees, int nOfInputs) {
+  public TreeBasedBooleanFunction(List<Tree<Element>> trees, int nOfInputs) {
     this.trees = trees;
     this.nOfInputs = nOfInputs;
     // check inputs consistency
@@ -51,6 +52,18 @@ public class TreesBasedBooleanFunction implements BooleanFunction {
           )
       );
     }
+  }
+
+  public TreeBasedBooleanFunction(List<Tree<Element>> trees) {
+    this(
+        trees,
+        (int) trees.stream()
+            .flatMap(t -> t.visitLeaves().stream())
+            .filter(e -> e instanceof Element.Variable)
+            .map(e -> ((Element.Variable) e).index())
+            .distinct()
+            .count()
+    );
   }
 
   private static boolean compute(Tree<Element> tree, boolean[] input) {

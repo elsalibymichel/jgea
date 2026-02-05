@@ -20,7 +20,7 @@
 package io.github.ericmedvet.jgea.experimenter.builders;
 
 import io.github.ericmedvet.jgea.core.representation.tree.bool.Element;
-import io.github.ericmedvet.jgea.core.representation.tree.bool.TreesBasedBooleanFunction;
+import io.github.ericmedvet.jgea.core.representation.tree.bool.TreeBasedBooleanFunction;
 import io.github.ericmedvet.jgea.core.util.IndexedProvider;
 import io.github.ericmedvet.jgea.problem.bool.BooleanRegressionProblem;
 import io.github.ericmedvet.jgea.problem.bool.BooleanUtils;
@@ -75,7 +75,7 @@ public class BooleanRegressionProblems {
       @Param(value = "metrics", dSs = {"avg_dissimilarity"}) List<BooleanRegressionProblem.Metric> metrics,
       @Param(value = "randomGenerator", dNPM = "m.defaultRG()") RandomGenerator randomGenerator
   ) {
-    TreesBasedBooleanFunction booleanFunction = new TreesBasedBooleanFunction(
+    TreeBasedBooleanFunction booleanFunction = new TreeBasedBooleanFunction(
         exprs.stream().map(e -> Element.stringParser(true).parse(e)).toList(),
         n
     );

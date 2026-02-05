@@ -49,7 +49,7 @@ public interface Element {
         "or",
         input -> {
           if (input.length == 2) {
-            return input[0] && input[1];
+            return input[0] || input[1];
           }
           for (boolean b : input) {
             if (b) {

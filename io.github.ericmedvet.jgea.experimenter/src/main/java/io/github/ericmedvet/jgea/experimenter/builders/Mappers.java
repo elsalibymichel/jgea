@@ -42,7 +42,7 @@ import io.github.ericmedvet.jgea.core.representation.programsynthesis.type.TypeE
 import io.github.ericmedvet.jgea.core.representation.sequence.bit.BitString;
 import io.github.ericmedvet.jgea.core.representation.sequence.integer.IntString;
 import io.github.ericmedvet.jgea.core.representation.tree.Tree;
-import io.github.ericmedvet.jgea.core.representation.tree.bool.TreesBasedBooleanFunction;
+import io.github.ericmedvet.jgea.core.representation.tree.bool.TreeBasedBooleanFunction;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.TreeBasedMultivariateRealFunction;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.TreeBasedUnivariateRealFunction;
@@ -571,8 +571,8 @@ public class Mappers {
   ) {
     return beforeM.andThen(
         InvertibleMapper.from(
-            (eBf, trees) -> new TreesBasedBooleanFunction(trees, eBf.nOfInputs()),
-            TreesBasedBooleanFunction::exampleFor,
+            (eBf, trees) -> new TreeBasedBooleanFunction(trees, eBf.nOfInputs()),
+            TreeBasedBooleanFunction::exampleFor,
             name
         )
     );

@@ -54,11 +54,4 @@ public class BooleanUtils {
     return bits;
   }
 
-  public static String toString(boolean[] bits) {
-    StringBuilder sb = new StringBuilder();
-    for (boolean bit : bits) {
-      sb.append(bit ? "1" : "0");
-    }
-    return sb.toString();
-  }
 }

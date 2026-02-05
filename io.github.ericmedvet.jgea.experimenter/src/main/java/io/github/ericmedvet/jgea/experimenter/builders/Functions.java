@@ -571,12 +571,6 @@ public class Functions {
     Tree<Element> t = Element.stringParser(true).parse(expr);
     NamedUnivariateRealFunction exprF = new TreeBasedUnivariateRealFunction(
         t,
-        t.leaves()
-            .stream()
-            .map(Tree::content)
-            .filter(c -> c instanceof Variable)
-            .map(c -> ((Variable) c).name())
-            .toList(),
         "y",
         true
     );

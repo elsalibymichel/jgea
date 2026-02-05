@@ -24,12 +24,14 @@ import io.github.ericmedvet.jgea.core.representation.tree.Tree;
 import io.github.ericmedvet.jnb.datastructure.Parametrized;
 import io.github.ericmedvet.jnb.datastructure.Sized;
 import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedUnivariateRealFunction;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.DoubleUnaryOperator;
 
-public class TreeBasedUnivariateRealFunction implements NamedUnivariateRealFunction, Sized, Parametrized<TreeBasedUnivariateRealFunction, Tree<Element>> {
+public class TreeBasedUnivariateRealFunction implements NamedUnivariateRealFunction, Sized,
+    Parametrized<TreeBasedUnivariateRealFunction, Tree<Element>> {
 
   private final List<String> xVarNames;
   private final String yVarName;
@@ -56,6 +58,23 @@ public class TreeBasedUnivariateRealFunction implements NamedUnivariateRealFunct
       boolean simplify
   ) {
     this(tree, xVarNames, yVarName, x -> x, simplify);
+  }
+
+  public TreeBasedUnivariateRealFunction(
+      Tree<Element> tree,
+      String yVarName,
+      boolean simplify
+  ) {
+    this(
+        tree,
+        tree.visitLeaves().stream()
+            .filter(l -> l instanceof Element.Variable)
+            .map(l -> ((Element.Variable)l).name())
+            .distinct()
+            .toList(),
+        yVarName,
+        simplify
+    );
   }
 
   protected static double compute(Tree<Element> tree, Map<String, Double> input) {
