@@ -18,7 +18,7 @@
  * =========================LICENSE_END==================================
  */
 
-package io.github.ericmedvet.jgea.core.representation.tree.booleanfunction;
+package io.github.ericmedvet.jgea.core.representation.tree.bool;
 
 import io.github.ericmedvet.jgea.core.representation.tree.parsing.StringParser;
 import java.io.Serializable;
@@ -27,7 +27,7 @@ import java.util.function.Predicate;
 
 public interface Element {
   String CONSTANT_REGEX = "[TF]";
-  String VAR_REGEX = "i[0-9]+";
+  String VAR_REGEX = "[0-9]+";
 
   enum Operator implements Element, Serializable, Predicate<boolean[]> {
     AND(
@@ -120,7 +120,12 @@ public interface Element {
 
   record Decoration(String string) implements Element, Serializable {}
 
-  record Variable(String name) implements Element, Serializable {}
+  record Variable(int index) implements Element, Serializable {
+    @Override
+    public String toString() {
+      return Integer.toString(index);
+    }
+  }
 
   String toString();
 
@@ -145,7 +150,7 @@ public interface Element {
             ),
             StringParser.NodeParser.fromRegex(
                 VAR_REGEX,
-                Element.Variable::new,
+                s -> new Variable(Integer.parseInt(s)),
                 allowVoid
             )
         ),

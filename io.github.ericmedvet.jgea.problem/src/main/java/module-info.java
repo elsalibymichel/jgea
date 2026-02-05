@@ -18,7 +18,7 @@
  * =========================LICENSE_END==================================
  */
 module io.github.ericmedvet.jgea.problem {
-  exports io.github.ericmedvet.jgea.problem.booleanfunction;
+  exports io.github.ericmedvet.jgea.problem.bool;
   exports io.github.ericmedvet.jgea.problem.classification;
   exports io.github.ericmedvet.jgea.problem.extraction;
   exports io.github.ericmedvet.jgea.problem.extraction.string;
@@ -33,7 +33,7 @@ module io.github.ericmedvet.jgea.problem {
   exports io.github.ericmedvet.jgea.problem.ca;
   exports io.github.ericmedvet.jgea.problem.synthetic.numerical;
   exports io.github.ericmedvet.jgea.problem.programsynthesis;
-  exports io.github.ericmedvet.jgea.problem.booleanfunction.synthetic;
+  exports io.github.ericmedvet.jgea.problem.bool.synthetic;
   exports io.github.ericmedvet.jgea.problem.programsynthesis.synthetic;
 
   requires io.github.ericmedvet.jgea.core;

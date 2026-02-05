@@ -18,10 +18,8 @@
  * =========================LICENSE_END==================================
  */
 
-package io.github.ericmedvet.jgea.problem.booleanfunction;
+package io.github.ericmedvet.jgea.problem.bool;
 
-import io.github.ericmedvet.jgea.core.representation.tree.Tree;
-import io.github.ericmedvet.jgea.core.representation.tree.booleanfunction.Element;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -53,53 +51,6 @@ public class BooleanUtils {
       observations.add(observation);
     }
     return observations;
-  }
-
-  private static boolean compute(Element.Operator operator, boolean... operands) {
-    return switch (operator) {
-      case AND -> operands[0] && operands[1];
-      case AND1NOT -> (!operands[0]) && operands[1];
-      case OR -> operands[0] || operands[1];
-      case XOR -> operands[0] ^ operands[1];
-      case NOT -> !operands[0];
-      case IF -> operands[0] ? operands[1] : operands[2];
-    };
-  }
-
-  public static boolean[] compute(List<Tree<Element>> formulas, Map<String, Boolean> values) { // TODO remove
-    boolean[] result = new boolean[formulas.size()];
-    for (int i = 0; i < result.length; i++) {
-      result[i] = compute(formulas.get(i), values);
-    }
-    return result;
-  }
-
-  public static Boolean compute(Tree<Element> tree, Map<String, Boolean> values) {
-    if (tree.content() instanceof Element.Decoration) {
-      throw new RuntimeException(String.format("Cannot compute: decoration node %s found", tree.content()));
-    }
-    if (tree.content() instanceof Element.Variable) {
-      Boolean result = values.get(((Element.Variable) tree.content()).name());
-      if (result == null) {
-        throw new RuntimeException(
-            String.format("Undefined variable: %s", ((Element.Variable) tree.content()).name())
-        );
-      }
-      return result;
-    }
-    if (tree.content() instanceof Element.Constant) {
-      return ((Element.Constant) tree.content()).value();
-    }
-    boolean[] childrenValues = new boolean[tree.nChildren()];
-    int i = 0;
-    for (Tree<Element> child : tree) {
-      Boolean childValue = compute(child, values);
-      if (childValue != null) {
-        childrenValues[i] = childValue;
-        i = i + 1;
-      }
-    }
-    return compute((Element.Operator) tree.content(), childrenValues);
   }
 
   public static int fromBinary(boolean[] bits) {

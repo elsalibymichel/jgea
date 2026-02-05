@@ -17,11 +17,11 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package io.github.ericmedvet.jgea.problem.booleanfunction.synthetic;
+package io.github.ericmedvet.jgea.problem.bool.synthetic;
 
 import io.github.ericmedvet.jgea.core.util.IndexedProvider;
-import io.github.ericmedvet.jgea.problem.booleanfunction.BooleanFunction;
-import io.github.ericmedvet.jgea.problem.booleanfunction.BooleanUtils;
+import io.github.ericmedvet.jgea.problem.bool.BooleanUtils;
+import io.github.ericmedvet.jsdynsym.core.bool.BooleanFunction;
 import io.github.ericmedvet.jsdynsym.core.numerical.MultivariateRealFunction;
 import java.util.List;
 import java.util.random.RandomGenerator;

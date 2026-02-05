@@ -64,7 +64,7 @@ public class TreeBasedMultivariateRealFunction implements NamedMultivariateRealF
     this(trees, xVarNames, yVarNames, x -> x, simplify);
   }
 
-  public static List<Tree<Element>> sampleFor(List<String> xVarNames, List<String> yVarNames) {
+  public static List<Tree<Element>> exampleFor(List<String> xVarNames, List<String> yVarNames) {
     return Collections.nCopies(
         yVarNames.size(),
         Tree.of(

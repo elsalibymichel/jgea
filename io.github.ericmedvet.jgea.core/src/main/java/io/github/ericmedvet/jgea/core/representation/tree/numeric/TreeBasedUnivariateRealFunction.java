@@ -84,7 +84,7 @@ public class TreeBasedUnivariateRealFunction implements NamedUnivariateRealFunct
     return ((Element.Operator) tree.content()).applyAsDouble(childrenValues);
   }
 
-  public static Tree<Element> sampleFor(
+  public static Tree<Element> exampleFor(
       List<String> xVarNames,
       @SuppressWarnings("unused") String yVarName
   ) {

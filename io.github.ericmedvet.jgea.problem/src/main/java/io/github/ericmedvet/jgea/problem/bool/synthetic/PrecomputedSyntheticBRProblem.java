@@ -17,12 +17,12 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package io.github.ericmedvet.jgea.problem.booleanfunction.synthetic;
+package io.github.ericmedvet.jgea.problem.bool.synthetic;
 
 import io.github.ericmedvet.jgea.core.problem.PrecomputedTargetEBProblem;
 import io.github.ericmedvet.jgea.core.util.IndexedProvider;
-import io.github.ericmedvet.jgea.problem.booleanfunction.BooleanFunction;
-import io.github.ericmedvet.jgea.problem.booleanfunction.BooleanRegressionProblem;
+import io.github.ericmedvet.jgea.problem.bool.BooleanRegressionProblem;
+import io.github.ericmedvet.jsdynsym.core.bool.BooleanFunction;
 import java.util.List;
 import java.util.SequencedMap;
 import java.util.function.Function;

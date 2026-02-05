@@ -18,10 +18,10 @@
  * =========================LICENSE_END==================================
  */
 
-package io.github.ericmedvet.jgea.problem.booleanfunction;
+package io.github.ericmedvet.jgea.problem.bool;
 
 import io.github.ericmedvet.jgea.core.representation.tree.Tree;
-import io.github.ericmedvet.jgea.core.representation.tree.booleanfunction.Element;
+import io.github.ericmedvet.jgea.core.representation.tree.bool.Element;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,14 +37,14 @@ public class FormulaMapper implements Function<Tree<String>, List<Tree<Element>>
         return operator;
       }
     }
-    if (string.equals("0")) {
+    if (string.equals("T")) {
       return new Element.Constant(false);
     }
-    if (string.equals("1")) {
+    if (string.equals("F")) {
       return new Element.Constant(true);
     }
-    if (string.matches("[a-zA-Z]+[0-9.]+")) {
-      return new Element.Variable(string);
+    if (string.matches("[0-9.]+")) {
+      return new Element.Variable(Integer.parseInt(string));
     }
     return new Element.Decoration(string);
   }

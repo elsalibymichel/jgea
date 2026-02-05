@@ -17,11 +17,12 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package io.github.ericmedvet.jgea.problem.booleanfunction;
+package io.github.ericmedvet.jgea.problem.bool;
 
 import io.github.ericmedvet.jgea.core.problem.SimpleEBMOProblem;
 import io.github.ericmedvet.jnb.datastructure.TriFunction;
 import io.github.ericmedvet.jnb.datastructure.Utils;
+import io.github.ericmedvet.jsdynsym.core.bool.BooleanFunction;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
