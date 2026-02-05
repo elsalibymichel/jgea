@@ -19,8 +19,15 @@
  */
 package io.github.ericmedvet.jgea.experimenter.builders;
 
+import io.github.ericmedvet.jgea.core.representation.tree.bool.Element;
+import io.github.ericmedvet.jgea.core.representation.tree.bool.TreesBasedBooleanFunction;
+import io.github.ericmedvet.jgea.core.util.IndexedProvider;
 import io.github.ericmedvet.jgea.problem.bool.BooleanRegressionProblem;
+import io.github.ericmedvet.jgea.problem.bool.BooleanUtils;
+import io.github.ericmedvet.jgea.problem.bool.synthetic.EvenParity;
 import io.github.ericmedvet.jgea.problem.bool.synthetic.MultipleOutputParallelMultiplier;
+import io.github.ericmedvet.jgea.problem.bool.synthetic.PrecomputedSyntheticBRProblem;
+import io.github.ericmedvet.jnb.core.Cacheable;
 import io.github.ericmedvet.jnb.core.Discoverable;
 import io.github.ericmedvet.jnb.core.Param;
 import java.util.List;
@@ -32,6 +39,21 @@ public class BooleanRegressionProblems {
   private BooleanRegressionProblems() {
   }
 
+  @Cacheable
+  public static EvenParity evenParity(
+      @Param(value = "name", iS = "parity[{n}]") String name,
+      @Param("n") int n,
+      @Param(value = "metrics", dSs = {"avg_dissimilarity"}) List<BooleanRegressionProblem.Metric> metrics,
+      @Param(value = "randomGenerator", dNPM = "m.defaultRG()") RandomGenerator randomGenerator
+  ) {
+    return new EvenParity(
+        metrics,
+        n,
+        randomGenerator
+    );
+  }
+
+  @Cacheable
   public static MultipleOutputParallelMultiplier mopm(
       @Param(value = "name", iS = "momp[{n}]") String name,
       @Param("n") int n,
@@ -44,4 +66,26 @@ public class BooleanRegressionProblems {
         randomGenerator
     );
   }
+
+  @Cacheable
+  public static PrecomputedSyntheticBRProblem targetBased(
+      @Param(value = "name", iS = "target") String name,
+      @Param("n") int n,
+      @Param("exprs") List<String> exprs,
+      @Param(value = "metrics", dSs = {"avg_dissimilarity"}) List<BooleanRegressionProblem.Metric> metrics,
+      @Param(value = "randomGenerator", dNPM = "m.defaultRG()") RandomGenerator randomGenerator
+  ) {
+    TreesBasedBooleanFunction booleanFunction = new TreesBasedBooleanFunction(
+        exprs.stream().map(e -> Element.stringParser(true).parse(e)).toList(),
+        n
+    );
+    return new PrecomputedSyntheticBRProblem(
+        booleanFunction,
+        IndexedProvider.from(BooleanUtils.buildCompleteCases(n)),
+        IndexedProvider.from(BooleanUtils.buildCompleteCases(n)),
+        metrics,
+        randomGenerator
+    );
+  }
+
 }

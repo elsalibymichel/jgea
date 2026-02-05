@@ -30,8 +30,10 @@ import io.github.ericmedvet.jgea.core.representation.programsynthesis.ttpn.Netwo
 import io.github.ericmedvet.jgea.core.representation.sequence.bit.BitString;
 import io.github.ericmedvet.jgea.core.representation.sequence.integer.IntString;
 import io.github.ericmedvet.jgea.core.representation.tree.Tree;
+import io.github.ericmedvet.jgea.core.representation.tree.bool.BooleanTreeUtils;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element.Variable;
+import io.github.ericmedvet.jgea.core.representation.tree.numeric.NumericTreeUtils;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.TreeBasedUnivariateRealFunction;
 import io.github.ericmedvet.jgea.core.solver.Individual;
 import io.github.ericmedvet.jgea.core.solver.MultiFidelityPOCPopulationState;
@@ -712,6 +714,26 @@ public class Functions {
   }
 
   @Cacheable
+  public static <X> FormattedNamedFunction<X, Tree<io.github.ericmedvet.jgea.core.representation.tree.bool.Element>> simplifiedBTree(
+      @Param(value = "name", dS = "simplified") String name,
+      @Param(value = "of", dNPM = "f.identity()") Function<X, Tree<io.github.ericmedvet.jgea.core.representation.tree.bool.Element>> beforeF,
+      @Param(value = "format", dS = "%s") String format
+  ) {
+    Function<Tree<io.github.ericmedvet.jgea.core.representation.tree.bool.Element>, Tree<io.github.ericmedvet.jgea.core.representation.tree.bool.Element>> f = BooleanTreeUtils::simplify;
+    return FormattedNamedFunction.from(f, format, name).compose(beforeF);
+  }
+
+  @Cacheable
+  public static <X> FormattedNamedFunction<X, Tree<Element>> simplifiedSrTree(
+      @Param(value = "name", dS = "simplified") String name,
+      @Param(value = "of", dNPM = "f.identity()") Function<X, Tree<Element>> beforeF,
+      @Param(value = "format", dS = "%s") String format
+  ) {
+    Function<Tree<Element>, Tree<Element>> f = NumericTreeUtils::simplify;
+    return FormattedNamedFunction.from(f, format, name).compose(beforeF);
+  }
+
+  @Cacheable
   public static <X> FormattedNamedFunction<X, Integer> size(
       @Param(value = "of", dNPM = "f.identity()") Function<X, Object> beforeF,
       @Param(value = "format", dS = "%d") String format
@@ -751,10 +773,13 @@ public class Functions {
       @Param(value = "findRegex", dS = "") String findRegex,
       @Param(value = "replaceExpr", dS = "") String replaceExpr
   ) {
-    Function<Tree<Element>, Tree<Element>> f = t -> Tree.map(t, e -> switch (e) {
-      case Variable v -> new Variable(map.getOrDefault(v.name(), v.name()).replaceAll(findRegex, replaceExpr));
-      default -> e;
-    });
+    Function<Tree<Element>, Tree<Element>> f = t -> Tree.map(
+        t,
+        e -> switch (e) {
+          case Variable v -> new Variable(map.getOrDefault(v.name(), v.name()).replaceAll(findRegex, replaceExpr));
+          default -> e;
+        }
+    );
     return FormattedNamedFunction.from(f, format, name).compose(beforeF);
   }
 

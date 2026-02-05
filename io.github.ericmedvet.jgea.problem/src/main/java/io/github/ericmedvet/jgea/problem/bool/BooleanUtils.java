@@ -20,37 +20,15 @@
 
 package io.github.ericmedvet.jgea.problem.bool;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.IntStream;
 
 public class BooleanUtils {
 
-  public static Map<String, boolean[]> buildCompleteCases(String... names) {
-    Map<String, boolean[]> map = new LinkedHashMap<>();
-    for (String name : names) {
-      map.put(name, new boolean[(int) Math.pow(2, names.length)]);
-    }
-    for (int i = 0; i < Math.pow(2, names.length); i++) {
-      for (int j = 0; j < names.length; j++) {
-        map.get(names[j])[i] = (i & (int) Math.pow(2, j)) > 0;
-      }
-    }
-    return map;
-  }
-
-  public static List<boolean[]> buildCompleteObservations(String... names) {
-    Map<String, boolean[]> cases = buildCompleteCases(names);
-    List<boolean[]> observations = new ArrayList<>();
-    for (int i = 0; i < cases.get(names[0]).length; i++) {
-      boolean[] observation = new boolean[names.length];
-      for (int j = 0; j < names.length; j++) {
-        observation[j] = cases.get(names[j])[i];
-      }
-      observations.add(observation);
-    }
-    return observations;
+  public static List<boolean[]> buildCompleteCases(int n) {
+    return IntStream.range(0, pow2(n))
+        .mapToObj(i -> toBinary(i, n))
+        .toList();
   }
 
   public static int fromBinary(boolean[] bits) {
@@ -61,11 +39,26 @@ public class BooleanUtils {
     return n;
   }
 
+  private static int pow2(int n) {
+    if (n <= 0) {
+      return 1;
+    }
+    return 2 * pow2(n - 1);
+  }
+
   public static boolean[] toBinary(int input, int size) {
     boolean[] bits = new boolean[size];
     for (int i = size - 1; i >= 0; i--) {
       bits[i] = (input & (1 << i)) != 0;
     }
     return bits;
+  }
+
+  public static String toString(boolean[] bits) {
+    StringBuilder sb = new StringBuilder();
+    for (boolean bit : bits) {
+      sb.append(bit ? "1" : "0");
+    }
+    return sb.toString();
   }
 }

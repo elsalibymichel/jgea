@@ -4,7 +4,16 @@ ea.experiment(
   runs = (randomGenerator = (seed = [1:1:1]) * [m.defaultRG()]) *
     (problem = [
       ea.p.br.mopm(n = 2);
-      ea.p.br.mopm(n = 5)
+      ea.p.br.mopm(n = 3);
+      ea.p.br.evenParity(n = 4);
+      ea.p.br.targetBased(
+        name = "xor-not-xor";
+        n = 2;
+        exprs = [
+          "and(or(0;1);not(and(0;1)))";
+          "not(and(or(0;1);not(and(0;1))))"
+        ]
+      )
     ]) *
     (solver = (stop = ea.sc.nOfQualityEvaluations(n = 5000)) * [
       ea.s.ga(
@@ -45,7 +54,13 @@ ea.experiment(
       path = $basePath + "{solver.name}/{problem.name}/best-{randomGenerator.seed:%02d}.svg";
       of = ea.acc.lastBest();
       processor = viz.f.toImage(
-        drawer = viz.d.multi(drawer = ea.d.tree(scale = 3));
+        drawer = viz.d.stacked(drawers = [
+          viz.d.multi(drawer = ea.d.tree(scale = 2));
+          viz.d.multi(drawer = viz.d.composition(
+            drawer = ea.d.tree(scale = 2);
+            f = ea.f.simplifiedBTree()
+          ))
+        ]);
         of = ea.f.genotype();
         type = svg
       )

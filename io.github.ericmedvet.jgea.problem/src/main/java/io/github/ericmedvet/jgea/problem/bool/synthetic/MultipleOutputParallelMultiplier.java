@@ -22,7 +22,6 @@ package io.github.ericmedvet.jgea.problem.bool.synthetic;
 import io.github.ericmedvet.jgea.core.util.IndexedProvider;
 import io.github.ericmedvet.jgea.problem.bool.BooleanUtils;
 import io.github.ericmedvet.jsdynsym.core.bool.BooleanFunction;
-import io.github.ericmedvet.jsdynsym.core.numerical.MultivariateRealFunction;
 import java.util.List;
 import java.util.random.RandomGenerator;
 
@@ -30,18 +29,8 @@ public class MultipleOutputParallelMultiplier extends PrecomputedSyntheticBRProb
   public MultipleOutputParallelMultiplier(List<Metric> metrics, int n, RandomGenerator randomGenerator) {
     super(
         BooleanFunction.from(inputs -> compute(inputs, n), 2 * n, 2 * n),
-        IndexedProvider.from(
-            BooleanUtils.buildCompleteObservations(
-                MultivariateRealFunction.varNames("x", 2 * n)
-                    .toArray(String[]::new)
-            )
-        ),
-        IndexedProvider.from(
-            BooleanUtils.buildCompleteObservations(
-                MultivariateRealFunction.varNames("x", 2 * n)
-                    .toArray(String[]::new)
-            )
-        ),
+        IndexedProvider.from(BooleanUtils.buildCompleteCases(2 * n)),
+        IndexedProvider.from(BooleanUtils.buildCompleteCases(2 * n)),
         metrics,
         randomGenerator
     );

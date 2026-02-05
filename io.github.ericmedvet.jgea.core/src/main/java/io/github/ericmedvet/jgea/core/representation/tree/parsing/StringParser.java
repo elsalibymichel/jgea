@@ -20,7 +20,6 @@
 package io.github.ericmedvet.jgea.core.representation.tree.parsing;
 
 import io.github.ericmedvet.jgea.core.representation.tree.Tree;
-import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element;
 import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -184,7 +183,4 @@ public class StringParser<L, NT extends L, T extends L> {
     return Optional.empty();
   }
 
-  public static void main(String[] args) {
-    System.out.println(Element.stringParser(true).parse("+(*(1;1);-(2;3.5);1)"));
-  }
 }
