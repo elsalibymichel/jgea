@@ -72,10 +72,12 @@ public class TreeBasedMultivariateRealFunction implements NamedMultivariateRealF
     this(
         trees,
         trees.stream()
-            .flatMap(t -> t.visitLeaves().stream()
-                .filter(l -> l instanceof Element.Variable)
-                .map(l -> ((Element.Variable)l).name())
-                .distinct()
+            .flatMap(
+                t -> t.visitLeaves()
+                    .stream()
+                    .filter(l -> l instanceof Element.Variable)
+                    .map(l -> ((Element.Variable) l).name())
+                    .distinct()
             )
             .distinct()
             .toList(),

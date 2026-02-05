@@ -151,12 +151,12 @@ Produces <code><abbr title="io.github.ericmedvet.jsdynsym.control.pong.PongDrawe
 
 ### Builder `dynamicalSystem.drawer.sequentialXor()`
 
-`ds.d.sequentialXor(configuration; rewardTypes)`
+`ds.d.sequentialXor(configuration; scoreTypes)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
 | `configuration` | npm | `viz.plot.configuration.image()` | <code><abbr title="io.github.ericmedvet.jviz.core.plot.image.Configuration">Configuration</abbr></code> |
-| `rewardTypes` | e[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.SequentialXor$RewardType">SequentialXor$RewardType</abbr>&gt;</code> |
+| `scoreTypes` | e[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.BooleanUtils$ScoreType">BooleanUtils$ScoreType</abbr>&gt;</code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.SequentialXorDrawer">SequentialXorDrawer</abbr></code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.Drawers.sequentialXor()` by jgea-experimenter:2.8.2-SNAPSHOT
 
@@ -574,28 +574,28 @@ Aliases: `ds.e.sxor`, `ds.env.sxor`, `ds.environment.sxor`, `dynSys.e.sxor`, `dy
 
 ### Builder `dynamicalSystem.environment.sxor.avgScore()`
 
-`ds.e.sxor.avgScore(name; of; format; rewardType; caseIndexes)`
+`ds.e.sxor.avgScore(name; of; format; scoreType; caseIndexes)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
-| `name` | s | interpolate `avg[{rewardType}]` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `name` | s | interpolate `avg[{scoreType}]` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jsdynsym.control.Simulation$Outcome">Simulation$Outcome</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.control.SingleAgentTask$Step">SingleAgentTask$Step</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.core.rl.ReinforcementLearningAgent$RewardedInput">ReinforcementLearningAgent$RewardedInput</abbr>&lt;double[]&gt;, double[], <abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.SequentialXor$State">SequentialXor$State</abbr>&gt;&gt;&gt;</code> |
 | `format` | s | `%+5.3f` | <code><abbr title="java.lang.String">String</abbr></code> |
-| `rewardType` | e | `UNLIMITED` | <code><abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.SequentialXor$RewardType">SequentialXor$RewardType</abbr></code> |
+| `scoreType` | e | `UNLIMITED` | <code><abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.BooleanUtils$ScoreType">BooleanUtils$ScoreType</abbr></code> |
 | `caseIndexes` | i[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Integer">Integer</abbr>&gt;</code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.SequentialXorFunctions.avgScore()` by jgea-experimenter:2.8.2-SNAPSHOT
 
 ### Builder `dynamicalSystem.environment.sxor.avgScoreDelta()`
 
-`ds.e.sxor.avgScoreDelta(name; of; format; rewardType; firstIndexes; secondIndexes)`
+`ds.e.sxor.avgScoreDelta(name; of; format; scoreType; firstIndexes; secondIndexes)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
 | `name` | s | interpolate `avg.delta[{rewardType}]` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jsdynsym.control.Simulation$Outcome">Simulation$Outcome</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.control.SingleAgentTask$Step">SingleAgentTask$Step</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.core.rl.ReinforcementLearningAgent$RewardedInput">ReinforcementLearningAgent$RewardedInput</abbr>&lt;double[]&gt;, double[], <abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.SequentialXor$State">SequentialXor$State</abbr>&gt;&gt;&gt;</code> |
 | `format` | s | `%+5.3f` | <code><abbr title="java.lang.String">String</abbr></code> |
-| `rewardType` | e | `UNLIMITED` | <code><abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.SequentialXor$RewardType">SequentialXor$RewardType</abbr></code> |
+| `scoreType` | e | `UNLIMITED` | <code><abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.BooleanUtils$ScoreType">BooleanUtils$ScoreType</abbr></code> |
 | `firstIndexes` | i[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Integer">Integer</abbr>&gt;</code> |
 | `secondIndexes` | i[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Integer">Integer</abbr>&gt;</code> |
 
@@ -603,14 +603,14 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedName
 
 ### Builder `dynamicalSystem.environment.sxor.avgScoreVariation()`
 
-`ds.e.sxor.avgScoreVariation(name; of; format; rewardType; indexes)`
+`ds.e.sxor.avgScoreVariation(name; of; format; scoreType; indexes)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
 | `name` | s | interpolate `avg.delta[{rewardType}]` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jsdynsym.control.Simulation$Outcome">Simulation$Outcome</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.control.SingleAgentTask$Step">SingleAgentTask$Step</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.core.rl.ReinforcementLearningAgent$RewardedInput">ReinforcementLearningAgent$RewardedInput</abbr>&lt;double[]&gt;, double[], <abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.SequentialXor$State">SequentialXor$State</abbr>&gt;&gt;&gt;</code> |
 | `format` | s | `%+5.3f` | <code><abbr title="java.lang.String">String</abbr></code> |
-| `rewardType` | e | `UNLIMITED` | <code><abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.SequentialXor$RewardType">SequentialXor$RewardType</abbr></code> |
+| `scoreType` | e | `UNLIMITED` | <code><abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.BooleanUtils$ScoreType">BooleanUtils$ScoreType</abbr></code> |
 | `indexes` | i[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Integer">Integer</abbr>&gt;</code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.SequentialXorFunctions.avgScoreVariation()` by jgea-experimenter:2.8.2-SNAPSHOT
@@ -1029,6 +1029,22 @@ Produces <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abb
 
 Aliases: `ds.s`, `ds.sim`, `ds.simulation`, `dynSys.s`, `dynSys.sim`, `dynSys.simulation`, `dynamicalSystem.s`, `dynamicalSystem.sim`, `dynamicalSystem.simulation`
 
+### Builder `dynamicalSystem.simulation.sequentialBf()`
+
+`ds.s.sequentialBf(name; target; cases; rewardType; resetAgent; shuffle; randomGenerator)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `name` | s | interpolate `sequentialBf` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `target` | npm |  | <code><abbr title="io.github.ericmedvet.jsdynsym.core.bool.BooleanFunction">BooleanFunction</abbr></code> |
+| `cases` | s[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `rewardType` | e | `UNLIMITED` | <code><abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.BooleanUtils$ScoreType">BooleanUtils$ScoreType</abbr></code> |
+| `resetAgent` | b | `false` | <code>boolean</code> |
+| `shuffle` | b | `false` | <code>boolean</code> |
+| `randomGenerator` | npm | `m.defaultRG()` | <code><abbr title="java.util.random.RandomGenerator">RandomGenerator</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.SequentialBooleanFunction">SequentialBooleanFunction</abbr>&lt;?&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.Simulations.sequentialBf()` by jgea-experimenter:2.8.2-SNAPSHOT
+
 ### Builder `dynamicalSystem.simulation.sequentialXor()`
 
 `ds.s.sequentialXor(name; cases; rewardType; resetAgent; shuffle; randomGenerator)`
@@ -1037,12 +1053,12 @@ Aliases: `ds.s`, `ds.sim`, `ds.simulation`, `dynSys.s`, `dynSys.sim`, `dynSys.si
 | --- | --- | --- | --- |
 | `name` | s | interpolate `sequentialXor` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `cases` | s[] | `[00, 01, 10, 11]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.String">String</abbr>&gt;</code> |
-| `rewardType` | e | `UNLIMITED` | <code><abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.SequentialXor$RewardType">SequentialXor$RewardType</abbr></code> |
+| `rewardType` | e | `UNLIMITED` | <code><abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.BooleanUtils$ScoreType">BooleanUtils$ScoreType</abbr></code> |
 | `resetAgent` | b | `false` | <code>boolean</code> |
 | `shuffle` | b | `false` | <code>boolean</code> |
 | `randomGenerator` | npm | `m.defaultRG()` | <code><abbr title="java.util.random.RandomGenerator">RandomGenerator</abbr></code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.SequentialXor">SequentialXor</abbr></code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.Simulations.sequentialXor()` by jgea-experimenter:2.8.2-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.SequentialXor">SequentialXor</abbr>&lt;?&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.Simulations.sequentialXor()` by jgea-experimenter:2.8.2-SNAPSHOT
 
 ### Builder `dynamicalSystem.simulation.variableSensorPositionsNavigation()`
 
@@ -1063,7 +1079,7 @@ Produces <code><abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.Sequ
 | `sortAngles` | b | `true` | <code>boolean</code> |
 | `randomGenerator` | npm | `m.defaultRG()` | <code><abbr title="java.util.random.RandomGenerator">RandomGenerator</abbr></code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jsdynsym.control.navigation.VariableSensorPositionsNavigation">VariableSensorPositionsNavigation</abbr></code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.Simulations.variableSensorPositionsNavigation()` by jgea-experimenter:2.8.2-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jsdynsym.control.navigation.VariableSensorPositionsNavigation">VariableSensorPositionsNavigation</abbr>&lt;?&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.Simulations.variableSensorPositionsNavigation()` by jgea-experimenter:2.8.2-SNAPSHOT
 
 ## Package `dynamicalSystem.singleAgentTask`
 
@@ -2868,6 +2884,16 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.core.InvertibleMapper">Inv
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.core.solver.bi.AbstractBiEvolver$OpponentsSelector">AbstractBiEvolver$OpponentsSelector</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.Individual">Individual</abbr>&lt;G, S, Q&gt;, S, Q, O&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.bestSelector()` by jgea-experimenter:2.8.2-SNAPSHOT
 
+### Builder `ea.misc.bf()`
+
+`ea.misc.bf(exprs)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `exprs` | s[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.String">String</abbr>&gt;</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jsdynsym.core.bool.BooleanFunction">BooleanFunction</abbr></code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.bf()` by jgea-experimenter:2.8.2-SNAPSHOT
+
 ### Builder `ea.misc.caVideo()`
 
 `ea.misc.caVideo(gray; caStateRange; nOfSteps; sizeRate; marginRate; frameRate; fontSize)`
@@ -2993,6 +3019,17 @@ Produces <code><abbr title="java.util.function.BinaryOperator">BinaryOperator</a
 | `nOfOpponents` | i | `1` | <code>int</code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.core.solver.bi.AbstractBiEvolver$OpponentsSelector">AbstractBiEvolver$OpponentsSelector</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.mapelites.MEIndividual">MEIndividual</abbr>&lt;G, S, Q&gt;, S, Q, O&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.nearestMESelector()` by jgea-experimenter:2.8.2-SNAPSHOT
+
+### Builder `ea.misc.nmrf()`
+
+`ea.misc.nmrf(exprs; yVarNames)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `exprs` | s[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `yVarNames` | s[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.String">String</abbr>&gt;</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jsdynsym.core.numerical.named.NamedMultivariateRealFunction">NamedMultivariateRealFunction</abbr></code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.nmrf()` by jgea-experimenter:2.8.2-SNAPSHOT
 
 ### Builder `ea.misc.nurf()`
 

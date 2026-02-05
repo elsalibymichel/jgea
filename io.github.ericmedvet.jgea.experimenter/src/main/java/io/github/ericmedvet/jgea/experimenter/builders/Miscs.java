@@ -48,7 +48,6 @@ import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedMultivariateRealF
 import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedUnivariateRealFunction;
 import io.github.ericmedvet.jviz.core.drawer.Drawer;
 import io.github.ericmedvet.jviz.core.drawer.VideoBuilder;
-
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -304,29 +303,19 @@ public class Miscs {
   @Cacheable
   public static NamedMultivariateRealFunction nmrf(
       @Param("exprs") List<String> exprs,
-      @Param("yNames") List<String> yNames
+      @Param("yVarNames") List<String> yNames
   ) {
     if (exprs.size() != yNames.size()) {
-      throw new IllegalArgumentException("Different number of trees and y names: %d != %d".formatted(
-          exprs.size(),
-          yNames.size()
-      ));
+      throw new IllegalArgumentException(
+          "Different number of trees and y names: %d != %d".formatted(
+              exprs.size(),
+              yNames.size()
+          )
+      );
     }
     return new TreeBasedMultivariateRealFunction(
         exprs.stream().map(e -> Element.stringParser(true).parse(e)).toList(),
         yNames,
-        false
-    );
-  }
-
-  @Cacheable
-  public static NamedUnivariateRealFunction nurf(
-      @Param("expr") String expr,
-      @Param(value = "yName", dS = "y") String yName
-  ) {
-    return new TreeBasedUnivariateRealFunction(
-        Element.stringParser(true).parse(expr),
-        yName,
         false
     );
   }

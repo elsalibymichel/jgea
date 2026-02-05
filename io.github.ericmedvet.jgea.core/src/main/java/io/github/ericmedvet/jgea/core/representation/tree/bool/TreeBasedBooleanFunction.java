@@ -21,7 +21,6 @@ package io.github.ericmedvet.jgea.core.representation.tree.bool;
 
 import io.github.ericmedvet.jgea.core.representation.tree.Tree;
 import io.github.ericmedvet.jsdynsym.core.bool.BooleanFunction;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
