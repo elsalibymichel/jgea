@@ -1,0 +1,237 @@
+$seeds = [1:1:3]
+$nOfEvals = 5000
+$innerLayers = [2]
+
+$cases = 100 * ["00"] + 100 * ["01"] + 100 * ["10"] + 100 * ["11"]
+$tRangeLife = m.range(min = 0; max = 400)
+
+$fitnessType = avgLastBoolScore
+
+$qFunctions = f.allNamed(fs = m.sKeyMap(
+  keys = [behavior; avgLastBoolScore; increase; consistency];
+  values = [
+    f.identity();
+    ds.e.sBool.avgScore(
+      scoreType = boolean;
+      caseIndexes = [360:1:399]   % last 40 cases
+    );
+    ds.e.sBool.avgScoreDelta(
+      scoreType = unlimited;
+      firstIndexes = [-10:1:-1];  % the last 40 cases
+      secondIndexes = [0:1:1]     % the first 4 cases
+    );
+    ds.e.sBool.avgScoreVariation(
+      scoreType = unlimited;
+      indexes = [-8:1:-1]         % last 8 cases
+    )
+  ]
+))
+
+$xorProblem = ea.p.simToTo(
+  name = "xor";
+  simulation = ds.s.sequentialXor(
+    cases = $cases;
+    rewardType = unlimited;
+    resetAgent = true;
+    shuffle = true
+  );
+  dT = 1;
+  tRange = $tRangeLife;
+  comparator = ea.comparator.descending(of = f.mapValue(key = avgLastBoolScore));
+  qFunction = $qFunctions
+)
+
+$biXorProblem = ea.p.simToTo(
+  name = "bi-xor";
+  simulation = ds.s.sequentialBf(
+    cases = $cases;
+    target = ea.misc.bf(exprs = [
+      "and(or(0;1);not(and(0;1)))";
+      "not(and(or(0;1);not(and(0;1))))"
+    ]);
+    rewardType = unlimited;
+    resetAgent = true;
+    shuffle = true
+  );
+  dT = 1;
+  tRange = $tRangeLife;
+  comparator = ea.comparator.descending(of = f.mapValue(key = avgLastBoolScore));
+  qFunction = $qFunctions
+)
+
+$weightsUpdateInterval = 1
+$initialWeightRange = m.range(min = -0.01; max = 0.01)
+
+$dIncrease = ea.s.me.d.descriptor(f = f.mapValue(key = increase; of = ea.f.quality()); min = 0.0; max = 1.0; nOfBins = 10)
+$dConsistency = ea.s.me.d.descriptor(f = f.mapValue(key = consistency; of = ea.f.quality()); min = 0.0; max = 0.2; nOfBins = 10)
+
+$mlpMapper = ea.mapper.ndsToNrla(of = ea.mapper.dsToParametrized(parametrized = ds.num.mlp(innerLayers = $innerLayers)))
+$hebbianSynMapper = ea.mapper.ndsToNrla(of = ea.mapper.dsToParametrized(parametrized = ds.num.hebbianMlp(
+    innerLayers = $innerLayers;
+    parametrizationType = synapse;
+    weightInitializationType = random;
+    weightsUpdateInterval = $weightsUpdateInterval;
+    initialWeightRange = $initialWeightRange
+)))
+$hebbianNetMapper = ea.mapper.ndsToNrla(of = ea.mapper.dsToParametrized(parametrized = ds.num.hebbianMlp(
+    innerLayers = $innerLayers;
+    parametrizationType = network;
+    weightInitializationType = random;
+    weightsUpdateInterval = $weightsUpdateInterval;
+    initialWeightRange = $initialWeightRange
+)))
+$freeFormMapper = ea.mapper.parametrized(of = ea.mapper.srTreeToNurf(); parametrized = ds.rl.num.freeFormMlp(
+    innerLayers = $innerLayers;
+    weightInitializationType = random;
+    weightsUpdateInterval = $weightsUpdateInterval;
+    initialWeightRange = $initialWeightRange
+))
+
+$basePath = ''../../Documenti/experiments/{^^.name}/{^^.startTime}/''
+$imgType = svg
+
+$console = ea.l.console(
+  eFunctions = [
+    ea.f.size(of = ea.f.genotype(of = ea.f.best()); format = "%4d");
+    f.mapValue(key = $fitnessType; of = ea.f.quality(of = ea.f.best()); format = "%6.4f")
+    %f.filter(of = f.distinct(of = ea.f.treeLeaves(of = ea.f.genotype(of = ea.f.best()))); condition = predicate.matches(f = f.toString(); regex = "[a-z].*"))
+    %ea.f.genotype(of = ea.f.best(); format = "%20.20s")
+  ];
+  kFunctions = [
+    f.replaceAll(of = f.interpolated(name = numberOfInnerLayers; s = "{solver.mapper.of.parametrized.innerLayers}{solver.mapper.parametrized.innerLayers}"); regex="null")
+  ];
+  onlyLast = true
+)
+
+$consoleCSV = ea.l.csv(
+  path = $basePath + "console.csv";
+  eFunctions = [
+    ea.f.size(of = ea.f.genotype(of = ea.f.best()); format = "%4d");
+    f.mapValue(key = $fitnessType; of = ea.f.quality(of = ea.f.best()); format = "%6.4f");
+    f.mapValue(key = increase; of = ea.f.quality(of = ea.f.best()); format = "%6.4f");
+    f.mapValue(key = consistency; of = ea.f.quality(of = ea.f.best()); format = "%6.4f")
+  ];
+  kFunctions = [
+    f.replaceAll(of = f.interpolated(name = numberOfInnerLayers; s = "{solver.mapper.of.parametrized.innerLayers}{solver.mapper.parametrized.innerLayers}"); regex="null")
+  ];
+  onlyLast = true
+)
+
+$avgLastBoolScore = ea.l.savePlotForExp(
+  path = $basePath + "avgLastBoolScore." + $imgType;
+  plot = ea.plot.multi.quality(
+    q = f.mapValue(key = avgLastBoolScore)
+  );
+  type = $imgType
+)
+
+$increase = ea.l.savePlotForExp(
+  path = $basePath + "increase." + $imgType;
+  plot = ea.plot.multi.quality(
+    q = f.mapValue(key = increase)
+  );
+  type = $imgType
+)
+
+$consistency = ea.l.savePlotForExp(
+  path = $basePath + "consistency." + $imgType;
+  plot = ea.plot.multi.quality(
+    q = f.mapValue(key = consistency)
+  );
+  type = $imgType
+)
+
+$stateTraj = ea.l.saveForRun(
+  path = $basePath + "/{solver.name}/{problem.name}/best-state-{randomGenerator.seed:%02d}." + $imgType;
+  of = ea.acc.lastBest();
+  processor = viz.f.toImage(
+    drawer = ds.d.vectorialTrajectory();
+    of = ds.f.agentStateTrajectory(
+      of = ea.f.solution();
+      stateF = ds.f.params();
+      sat = ds.s.sequentialXor(
+        cases = $cases;
+        resetAgent = true;
+        shuffle = true
+      );
+      dT = 1;
+      tRange = $tRangeLife
+    );
+    type = $imgType
+  )
+)
+
+$archivesP = ea.l.savePlotForRun(
+  path = $basePath + "/{solver.name}/{problem.name}/me-archives-{randomGenerator.seed:%02d}." + $imgType;
+  plot = ea.plot.single.me(values = [
+    f.mapValue(key = avgLastBoolScore; of = ea.f.quality())
+  ]);
+  kCondition = predicate.matches(f = f.mappableKey(key = "solver.name"); regex = "me.*");
+  type = $imgType
+)
+
+$srTree = ea.l.saveForRun(
+  path = $basePath + "/{solver.name}/{problem.name}/best-tree-{randomGenerator.seed:%02d}." + $imgType;
+  of = ea.acc.lastBest();
+  processor = viz.f.toImage(
+    drawer = viz.d.stacked(drawers = [
+      ea.d.tree(scale = 3);
+      ea.d.formula(scale = 3);
+      ea.d.formula(scale = 3; simplify = true)
+    ]);
+    of = ea.f.srTreeShortVarName(of = ea.f.genotype());
+    type = svg
+  );
+  kCondition = predicate.matches(f = f.mappableKey(key = "solver.name"); regex = ".*freeForm.*")
+)
+
+$bestBehavior = ea.l.saveForRun(
+  path = $basePath + "/{solver.name}/{problem.name}/best-behavior-{randomGenerator.seed:%02d}." + $imgType;
+  of = ea.acc.lastBest();
+  processor = viz.f.toImage(
+    drawer = ds.d.sequentialBf(scoreTypes = [boolean; limited]);
+    of = f.mapValue(key = behavior; of = ea.f.quality());
+    type = svg
+  )
+)
+
+ea.experiment(
+  runs = (randomGenerator = (seed = $seeds) * [m.defaultRG()])
+  * (problem = [$xorProblem; $biXorProblem])
+  * (solver = (stop = ea.sc.nOfQualityEvaluations(n = $nOfEvals)) * [
+    ea.s.mapElites(
+      name = "me-hebbian-synapse";
+      representation = ea.representation.doubleString();
+      mapper = $hebbianSynMapper;
+      descriptors = [$dIncrease; $dConsistency]
+    );
+    ea.s.mapElites(
+      name = "me-hebbian-network";
+      representation = ea.representation.doubleString();
+      mapper = $hebbianNetMapper;
+      descriptors = [$dIncrease; $dConsistency]
+    );
+    ea.s.mapElites(
+      name = "me-freeForm";
+      representation = ea.r.srTree(
+        ephemeral = true;
+        operators = [addition; subtraction; multiplication; prot_division; prot_log; max; min; tanh; gt; lt; ternary]
+        %operators = [addition; subtraction; multiplication];
+        %includeVarNameRegex = "current_neuronPost_activation|current_neuronPre_activation|layeIdx|preSynapticNeuronIdx|postSynapticNeuronIdx"
+      );
+      mapper = $freeFormMapper;
+      descriptors = [$dIncrease; $dConsistency]
+    )
+  ])
+  * [ea.run()];
+  listeners = [
+    $console;
+    $avgLastBoolScore;
+    $increase;
+    $consistency;
+    $stateTraj;
+    $archivesP;
+    $srTree;
+    $bestBehavior
+  ]
+)

@@ -149,16 +149,16 @@ Produces <code><abbr title="io.github.ericmedvet.jsdynsym.control.navigation.Poi
 
 Produces <code><abbr title="io.github.ericmedvet.jsdynsym.control.pong.PongDrawer">PongDrawer</abbr></code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.Drawers.pong()` by jgea-experimenter:2.8.2-SNAPSHOT
 
-### Builder `dynamicalSystem.drawer.sequentialXor()`
+### Builder `dynamicalSystem.drawer.sequentialBf()`
 
-`ds.d.sequentialXor(configuration; scoreTypes)`
+`ds.d.sequentialBf(configuration; scoreTypes)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
 | `configuration` | npm | `viz.plot.configuration.image()` | <code><abbr title="io.github.ericmedvet.jviz.core.plot.image.Configuration">Configuration</abbr></code> |
 | `scoreTypes` | e[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.BooleanUtils$ScoreType">BooleanUtils$ScoreType</abbr>&gt;</code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.SequentialXorDrawer">SequentialXorDrawer</abbr></code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.Drawers.sequentialXor()` by jgea-experimenter:2.8.2-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.SequentialBooleanFunctionDrawer">SequentialBooleanFunctionDrawer</abbr></code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.Drawers.sequentialBf()` by jgea-experimenter:2.8.2-SNAPSHOT
 
 ### Builder `dynamicalSystem.drawer.vectorField()`
 
@@ -568,52 +568,52 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedName
 
 Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.PongFunctions.yOffsetFromBall2()` by jgea-experimenter:2.8.2-SNAPSHOT
 
-## Package `dynamicalSystem.environment.sxor`
+## Package `dynamicalSystem.environment.sequentialBoolean`
 
-Aliases: `ds.e.sxor`, `ds.env.sxor`, `ds.environment.sxor`, `dynSys.e.sxor`, `dynSys.env.sxor`, `dynSys.environment.sxor`, `dynamicalSystem.e.sxor`, `dynamicalSystem.env.sxor`, `dynamicalSystem.environment.sxor`
+Aliases: `ds.e.sBool`, `ds.e.sequentialBoolean`, `ds.env.sBool`, `ds.env.sequentialBoolean`, `ds.environment.sBool`, `ds.environment.sequentialBoolean`, `dynSys.e.sBool`, `dynSys.e.sequentialBoolean`, `dynSys.env.sBool`, `dynSys.env.sequentialBoolean`, `dynSys.environment.sBool`, `dynSys.environment.sequentialBoolean`, `dynamicalSystem.e.sBool`, `dynamicalSystem.e.sequentialBoolean`, `dynamicalSystem.env.sBool`, `dynamicalSystem.env.sequentialBoolean`, `dynamicalSystem.environment.sBool`, `dynamicalSystem.environment.sequentialBoolean`
 
-### Builder `dynamicalSystem.environment.sxor.avgScore()`
+### Builder `dynamicalSystem.environment.sequentialBoolean.avgScore()`
 
-`ds.e.sxor.avgScore(name; of; format; scoreType; caseIndexes)`
+`ds.e.sBool.avgScore(name; of; format; scoreType; caseIndexes)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
 | `name` | s | interpolate `avg[{scoreType}]` | <code><abbr title="java.lang.String">String</abbr></code> |
-| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jsdynsym.control.Simulation$Outcome">Simulation$Outcome</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.control.SingleAgentTask$Step">SingleAgentTask$Step</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.core.rl.ReinforcementLearningAgent$RewardedInput">ReinforcementLearningAgent$RewardedInput</abbr>&lt;double[]&gt;, double[], <abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.SequentialXor$State">SequentialXor$State</abbr>&gt;&gt;&gt;</code> |
+| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jsdynsym.control.Simulation$Outcome">Simulation$Outcome</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.control.SingleAgentTask$Step">SingleAgentTask$Step</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.core.rl.ReinforcementLearningAgent$RewardedInput">ReinforcementLearningAgent$RewardedInput</abbr>&lt;double[]&gt;, double[], <abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.SequentialBooleanFunction$State">SequentialBooleanFunction$State</abbr>&gt;&gt;&gt;</code> |
 | `format` | s | `%+5.3f` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `scoreType` | e | `UNLIMITED` | <code><abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.BooleanUtils$ScoreType">BooleanUtils$ScoreType</abbr></code> |
 | `caseIndexes` | i[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Integer">Integer</abbr>&gt;</code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.SequentialXorFunctions.avgScore()` by jgea-experimenter:2.8.2-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.SequentialBooleanFunctions.avgScore()` by jgea-experimenter:2.8.2-SNAPSHOT
 
-### Builder `dynamicalSystem.environment.sxor.avgScoreDelta()`
+### Builder `dynamicalSystem.environment.sequentialBoolean.avgScoreDelta()`
 
-`ds.e.sxor.avgScoreDelta(name; of; format; scoreType; firstIndexes; secondIndexes)`
+`ds.e.sBool.avgScoreDelta(name; of; format; scoreType; firstIndexes; secondIndexes)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
-| `name` | s | interpolate `avg.delta[{rewardType}]` | <code><abbr title="java.lang.String">String</abbr></code> |
-| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jsdynsym.control.Simulation$Outcome">Simulation$Outcome</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.control.SingleAgentTask$Step">SingleAgentTask$Step</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.core.rl.ReinforcementLearningAgent$RewardedInput">ReinforcementLearningAgent$RewardedInput</abbr>&lt;double[]&gt;, double[], <abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.SequentialXor$State">SequentialXor$State</abbr>&gt;&gt;&gt;</code> |
+| `name` | s | interpolate `avg.delta[{scoreType}]` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jsdynsym.control.Simulation$Outcome">Simulation$Outcome</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.control.SingleAgentTask$Step">SingleAgentTask$Step</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.core.rl.ReinforcementLearningAgent$RewardedInput">ReinforcementLearningAgent$RewardedInput</abbr>&lt;double[]&gt;, double[], <abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.SequentialBooleanFunction$State">SequentialBooleanFunction$State</abbr>&gt;&gt;&gt;</code> |
 | `format` | s | `%+5.3f` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `scoreType` | e | `UNLIMITED` | <code><abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.BooleanUtils$ScoreType">BooleanUtils$ScoreType</abbr></code> |
 | `firstIndexes` | i[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Integer">Integer</abbr>&gt;</code> |
 | `secondIndexes` | i[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Integer">Integer</abbr>&gt;</code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.SequentialXorFunctions.avgScoreDelta()` by jgea-experimenter:2.8.2-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.SequentialBooleanFunctions.avgScoreDelta()` by jgea-experimenter:2.8.2-SNAPSHOT
 
-### Builder `dynamicalSystem.environment.sxor.avgScoreVariation()`
+### Builder `dynamicalSystem.environment.sequentialBoolean.avgScoreVariation()`
 
-`ds.e.sxor.avgScoreVariation(name; of; format; scoreType; indexes)`
+`ds.e.sBool.avgScoreVariation(name; of; format; scoreType; indexes)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
-| `name` | s | interpolate `avg.delta[{rewardType}]` | <code><abbr title="java.lang.String">String</abbr></code> |
-| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jsdynsym.control.Simulation$Outcome">Simulation$Outcome</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.control.SingleAgentTask$Step">SingleAgentTask$Step</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.core.rl.ReinforcementLearningAgent$RewardedInput">ReinforcementLearningAgent$RewardedInput</abbr>&lt;double[]&gt;, double[], <abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.SequentialXor$State">SequentialXor$State</abbr>&gt;&gt;&gt;</code> |
+| `name` | s | interpolate `avg.delta[{scoreType}]` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jsdynsym.control.Simulation$Outcome">Simulation$Outcome</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.control.SingleAgentTask$Step">SingleAgentTask$Step</abbr>&lt;<abbr title="io.github.ericmedvet.jsdynsym.core.rl.ReinforcementLearningAgent$RewardedInput">ReinforcementLearningAgent$RewardedInput</abbr>&lt;double[]&gt;, double[], <abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.SequentialBooleanFunction$State">SequentialBooleanFunction$State</abbr>&gt;&gt;&gt;</code> |
 | `format` | s | `%+5.3f` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `scoreType` | e | `UNLIMITED` | <code><abbr title="io.github.ericmedvet.jsdynsym.control.synthetic.BooleanUtils$ScoreType">BooleanUtils$ScoreType</abbr></code> |
 | `indexes` | i[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Integer">Integer</abbr>&gt;</code> |
 
-Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.SequentialXorFunctions.avgScoreVariation()` by jgea-experimenter:2.8.2-SNAPSHOT
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jsdynsym.buildable.builders.SequentialBooleanFunctions.avgScoreVariation()` by jgea-experimenter:2.8.2-SNAPSHOT
 
 ## Package `dynamicalSystem.function`
 
