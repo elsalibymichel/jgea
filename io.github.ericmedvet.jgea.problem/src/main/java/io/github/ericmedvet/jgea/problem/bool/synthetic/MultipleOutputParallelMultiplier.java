@@ -28,7 +28,7 @@ import java.util.random.RandomGenerator;
 public class MultipleOutputParallelMultiplier extends PrecomputedSyntheticBRProblem {
   public MultipleOutputParallelMultiplier(List<Metric> metrics, int n, RandomGenerator randomGenerator) {
     super(
-        BooleanFunction.from(inputs -> compute(inputs, n), 2 * n, 2 * n),
+        booleanFunction(n),
         IndexedProvider.from(BooleanUtils.buildCompleteCases(2 * n)),
         IndexedProvider.from(BooleanUtils.buildCompleteCases(2 * n)),
         metrics,
@@ -44,5 +44,9 @@ public class MultipleOutputParallelMultiplier extends PrecomputedSyntheticBRProb
     int n1 = BooleanUtils.fromBinary(a1);
     int n2 = BooleanUtils.fromBinary(a2);
     return BooleanUtils.toBinary(n1 * n2, 2 * n);
+  }
+
+  public static BooleanFunction booleanFunction(int n) {
+    return BooleanFunction.from(inputs -> compute(inputs, n), 2 * n, 2 * n);
   }
 }

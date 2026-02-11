@@ -33,6 +33,8 @@ import io.github.ericmedvet.jgea.core.solver.mapelites.MEIndividual;
 import io.github.ericmedvet.jgea.core.solver.mapelites.MapElites;
 import io.github.ericmedvet.jgea.core.util.Misc;
 import io.github.ericmedvet.jgea.experimenter.drawer.DoubleGridDrawer;
+import io.github.ericmedvet.jgea.problem.bool.synthetic.EvenParity;
+import io.github.ericmedvet.jgea.problem.bool.synthetic.MultipleOutputParallelMultiplier;
 import io.github.ericmedvet.jgea.problem.ca.MultivariateRealGridCellularAutomaton;
 import io.github.ericmedvet.jgea.problem.image.ImageUtils;
 import io.github.ericmedvet.jnb.core.Cacheable;
@@ -180,6 +182,13 @@ public class Miscs {
   }
 
   @Cacheable
+  public static BooleanFunction evenParityBf(
+      @Param("n") int n
+  ) {
+    return EvenParity.booleanFunction(n);
+  }
+
+  @Cacheable
   public static <G, S, Q, O> AbstractBiEvolver.OpponentsSelector<MEIndividual<G, S, Q>, S, Q, O> farthestMESelector(
       @Param(value = "name", iS = "farthest[{nOfOpponents}]") String name,
       @Param(value = "nOfOpponents", dI = 1) int nOfOpponents
@@ -262,6 +271,13 @@ public class Miscs {
   @Cacheable
   public static BinaryOperator<Double> minValue() {
     return Math::min;
+  }
+
+  @Cacheable
+  public static BooleanFunction mopmBf(
+      @Param("n") int n
+  ) {
+    return MultipleOutputParallelMultiplier.booleanFunction(n);
   }
 
   @Cacheable

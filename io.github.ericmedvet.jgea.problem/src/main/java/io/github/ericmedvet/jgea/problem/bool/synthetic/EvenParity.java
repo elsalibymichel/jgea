@@ -29,15 +29,21 @@ import java.util.stream.IntStream;
 public class EvenParity extends PrecomputedSyntheticBRProblem {
   public EvenParity(List<Metric> metrics, int n, RandomGenerator randomGenerator) {
     super(
-        BooleanFunction.from(
-            inputs -> new boolean[]{IntStream.range(0, inputs.length).map(i -> inputs[i] ? 1 : 0).sum() % 2 == 0},
-            n,
-            1
-        ),
+        booleanFunction(n),
         IndexedProvider.from(BooleanUtils.buildCompleteCases(n)),
         IndexedProvider.from(BooleanUtils.buildCompleteCases(n)),
         metrics,
         randomGenerator
     );
   }
+
+
+  public static BooleanFunction booleanFunction(int n) {
+    return BooleanFunction.from(
+        inputs -> new boolean[]{IntStream.range(0, inputs.length).map(i -> inputs[i] ? 1 : 0).sum() % 2 == 0},
+        n,
+        1
+    );
+  }
+
 }

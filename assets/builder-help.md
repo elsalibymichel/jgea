@@ -2942,6 +2942,16 @@ Produces <code><abbr title="java.awt.Color">Color</abbr></code>; built from `io.
 
 Produces <code><abbr title="java.awt.Color">Color</abbr></code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.colorByRgb()` by jgea-experimenter:2.8.2-SNAPSHOT
 
+### Builder `ea.misc.evenParityBf()`
+
+`ea.misc.evenParityBf(n)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `n` | i |  | <code>int</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jsdynsym.core.bool.BooleanFunction">BooleanFunction</abbr></code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.evenParityBf()` by jgea-experimenter:2.8.2-SNAPSHOT
+
 ### Builder `ea.misc.farthestMESelector()`
 
 `ea.misc.farthestMESelector(name; nOfOpponents)`
@@ -3008,6 +3018,16 @@ Produces <code><abbr title="java.util.function.BinaryOperator">BinaryOperator</a
 `ea.misc.minValue()`
 
 Produces <code><abbr title="java.util.function.BinaryOperator">BinaryOperator</abbr>&lt;<abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.minValue()` by jgea-experimenter:2.8.2-SNAPSHOT
+
+### Builder `ea.misc.mopmBf()`
+
+`ea.misc.mopmBf(n)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `n` | i |  | <code>int</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jsdynsym.core.bool.BooleanFunction">BooleanFunction</abbr></code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.mopmBf()` by jgea-experimenter:2.8.2-SNAPSHOT
 
 ### Builder `ea.misc.nearestMESelector()`
 
