@@ -56,7 +56,7 @@ public record BoundedSumBiProblem(int d, int b) implements SymmetricQualityBased
 
   @Override
   public Optional<IntString> example() {
-    return Optional.of(new IntString(Collections.nCopies(b, 0), 0, d));
+    return Optional.of(new IntString(Collections.nCopies(b, 0), 0, d + 1));
   }
 
   @Override
@@ -71,6 +71,6 @@ public record BoundedSumBiProblem(int d, int b) implements SymmetricQualityBased
 
   @Override
   public PartialComparator<Double> qualityComparator() {
-    return PartialComparator.from(Double.class);
+    return PartialComparator.from(Double.class).reversed();
   }
 }
