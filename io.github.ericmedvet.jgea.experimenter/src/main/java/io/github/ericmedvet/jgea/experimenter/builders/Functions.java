@@ -388,6 +388,28 @@ public class Functions {
   }
 
   @Cacheable
+  public static <X> FormattedNamedFunction<X, Integer> isParameter(
+      @Param(value = "of", dNPM = "f.identity()") Function<X, IntString> beforeF,
+      @Param(value = "parameter", dS = "size") String parameter,
+      @Param(value = "format", dS = "%2d") String format
+  ) {
+    Function<IntString, Integer> f = is -> {
+      Integer value = null;
+      switch (parameter) {
+        case "size" -> value = is.size();
+        case "lowerBound" -> value = is.lowerBound();
+        case "upperBound" -> value = is.upperBound();
+      }
+      return value;
+    };
+    return FormattedNamedFunction.from(
+        f,
+        format,
+        "is.%s".formatted(parameter)
+    ).compose(beforeF);
+  }
+
+  @Cacheable
   public static <X> FormattedNamedFunction<X, Double> isCrossRedundancy(
       @Param(value = "of", dNPM = "f.identity()") Function<X, IntString> beforeF,
       @Param(value = "startOffset", dI = 0) int startOffset,

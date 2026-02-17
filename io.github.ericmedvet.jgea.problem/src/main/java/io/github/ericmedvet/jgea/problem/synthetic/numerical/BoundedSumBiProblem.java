@@ -23,13 +23,14 @@ import io.github.ericmedvet.jgea.core.order.PartialComparator;
 import io.github.ericmedvet.jgea.core.problem.SymmetricQualityBasedBiProblem;
 import io.github.ericmedvet.jgea.core.representation.sequence.integer.IntString;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
-public record BoundedSumBiProblem(int d, int b) implements SymmetricQualityBasedBiProblem<IntString, Double, Double> {
+public record BoundedSumBiProblem(
+    int d, int b, int k
+) implements SymmetricQualityBasedBiProblem<IntString, Double, Double> {
 
   @Override
   public BiFunction<IntString, IntString, Double> outcomeFunction() {
@@ -48,8 +49,8 @@ public record BoundedSumBiProblem(int d, int b) implements SymmetricQualityBased
   private int[] mapToPhenotype(IntString genotype) {
     int[] phenotype = new int[d];
     for (int gene : genotype.genes()) {
-      if (gene > 0 && gene <= d) {
-        phenotype[gene - 1]++;
+      if (gene >= 0 && gene < d) {
+        phenotype[gene]++;
       }
     }
     return phenotype;
@@ -57,7 +58,7 @@ public record BoundedSumBiProblem(int d, int b) implements SymmetricQualityBased
 
   @Override
   public Optional<IntString> example() {
-    return Optional.of(new IntString(Collections.nCopies(b, 0), 0, d + 1));
+    return Optional.of(new IntString(Collections.nCopies(b, 0), -k, d));
   }
 
   @Override
@@ -72,6 +73,6 @@ public record BoundedSumBiProblem(int d, int b) implements SymmetricQualityBased
 
   @Override
   public PartialComparator<Double> qualityComparator() {
-    return PartialComparator.from(Comparator.comparingDouble(Double::doubleValue).reversed());
+    return PartialComparator.from(Double.class).reversed();
   }
 }
