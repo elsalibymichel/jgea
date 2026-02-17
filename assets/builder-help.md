@@ -1198,13 +1198,14 @@ Aliases: `ea.biproblem.s`, `ea.biproblem.synthetic`, `ea.bp.s`, `ea.bp.synthetic
 
 ### Builder `ea.biproblem.synthetic.boundedSumBiProblem()`
 
-`ea.bp.s.boundedSumBiProblem(name; d; b)`
+`ea.bp.s.boundedSumBiProblem(name; d; b; k)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
 | `name` | s | interpolate `boundedSumBiProblem-{d}-{b}` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `d` | i | `5` | <code>int</code> |
 | `b` | i | `100` | <code>int</code> |
+| `k` | i | `100` | <code>int</code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.problem.synthetic.numerical.BoundedSumBiProblem">BoundedSumBiProblem</abbr></code>; built from `io.github.ericmedvet.jgea.experimenter.builders.SyntheticBiProblems.boundedSumBiProblem()` by jgea-experimenter:2.8.2-SNAPSHOT
 
@@ -1632,6 +1633,18 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedName
 | `format` | s | `%5.3f` | <code><abbr title="java.lang.String">String</abbr></code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Functions.isCrossRedundancy()` by jgea-experimenter:2.8.2-SNAPSHOT
+
+### Builder `ea.function.isParameter()`
+
+`ea.f.isParameter(of; parameter; format)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jgea.core.representation.sequence.integer.IntString">IntString</abbr>&gt;</code> |
+| `parameter` | s | `size` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `format` | s | `%2d` | <code><abbr title="java.lang.String">String</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Integer">Integer</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Functions.isParameter()` by jgea-experimenter:2.8.2-SNAPSHOT
 
 ### Builder `ea.function.isRedundancy()`
 

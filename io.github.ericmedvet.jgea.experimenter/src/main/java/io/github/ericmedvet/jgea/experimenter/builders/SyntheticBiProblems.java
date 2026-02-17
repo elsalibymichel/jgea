@@ -45,8 +45,9 @@ public class SyntheticBiProblems {
   public static BoundedSumBiProblem boundedSumBiProblem(
       @Param(value = "name", iS = "boundedSumBiProblem-{d}-{b}") String name,
       @Param(value = "d", dI = 5) int d,
-      @Param(value = "b", dI = 100) int b
+      @Param(value = "b", dI = 100) int b,
+      @Param(value = "k", dI = 100) int k
   ) {
-    return new BoundedSumBiProblem(d, b);
+    return new BoundedSumBiProblem(d, b, k);
   }
 }
