@@ -8,7 +8,7 @@ $INT_STRING_DESCRIPTOR = [
     f = f.mathOp(
       op = divide;
       args = [
-        f.sd(of = ea.f.toDoubleString());
+        f.sd(of = ea.f.isToList());
         f.mathOp(op = divide; args = [f.mathOp(op=add; args = [ea.f.isParameter(parameter = "upperBound"); f.mathConst(v = -1)]); f.mathConst(v = 2)])
       ];
       of = ea.f.genotype()
@@ -19,7 +19,7 @@ $INT_STRING_DESCRIPTOR = [
     f = f.mathOp(
       op = divide;
       args = [
-        f.avg(of = ea.f.toDoubleString());
+        f.avg(of = ea.f.isToList());
         f.mathOp(op=add; args = [ea.f.isParameter(parameter = "upperBound"); f.mathConst(v = -1)])
       ];
       of = ea.f.genotype()
@@ -85,7 +85,7 @@ ea.experiment(
               args = [
                 f.size(of = f.filter(condition = predicate.gtEq(t = 0.0)))
               ];
-              of = ea.f.toDoubleString(of = ea.f.genotype())
+              of = ea.f.isToList(of = ea.f.genotype())
             );
             of = ea.f.all()
           )
@@ -104,8 +104,18 @@ ea.experiment(
           args = [
             f.size(of = f.filter(condition = predicate.gtEq(t = 0.0)))
           ];
-          of = ea.f.toDoubleString(of = ea.f.genotype(of = ea.f.best()))
+          of = ea.f.isToList(of = ea.f.genotype(of = ea.f.best()))
         );
+        line = f.replaceAll(of = f.interpolated(name = "solver"; s = "{solver.name}-{solver.opponentsSelector.name}"); regex="-null");
+        x = f.quantized(of = ea.f.nOfEvals(); q = $X_QUANTIZATION)
+      );
+      overwrite = true;
+      type = svg
+    );
+    ea.l.savePlotAndCsvForRun(
+      path = $BASE_BATH + "best-phenotype-sum.svg";
+      plot = ea.plot.multi.xyExp(
+        y = f.sum(of = ea.f.isToList(of = ea.f.isToBoundedSumPhenotype(of = ea.f.genotype(of = ea.f.best()))));
         line = f.replaceAll(of = f.interpolated(name = "solver"; s = "{solver.name}-{solver.opponentsSelector.name}"); regex="-null");
         x = f.quantized(of = ea.f.nOfEvals(); q = $X_QUANTIZATION)
       );

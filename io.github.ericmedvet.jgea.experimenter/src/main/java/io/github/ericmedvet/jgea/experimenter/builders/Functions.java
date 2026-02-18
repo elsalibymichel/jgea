@@ -61,11 +61,7 @@ import io.github.ericmedvet.jnb.datastructure.Grid;
 import io.github.ericmedvet.jnb.datastructure.NamedFunction;
 import io.github.ericmedvet.jnb.datastructure.Sized;
 import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedUnivariateRealFunction;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -406,6 +402,40 @@ public class Functions {
         f,
         format,
         "is.%s".formatted(parameter)
+    ).compose(beforeF);
+  }
+
+  @Cacheable
+  public static <X> FormattedNamedFunction<X, IntString> isToBoundedSumPhenotype(
+      @Param(value = "of", dNPM = "f.identity()") Function<X, IntString> beforeF,
+      @Param(value = "format", dS = "%3d") String format
+  ) {
+    Function<IntString, IntString> f = is -> {
+      int[] phenotype = new int[is.upperBound()];
+      for (int gene : is.genes()) {
+        if (gene >= 0 && gene < is.upperBound()) {
+          phenotype[gene]++;
+        }
+      }
+      return new IntString(Arrays.stream(phenotype).boxed().toList(), 0, is.size());
+    };
+    return FormattedNamedFunction.from(
+        f,
+        format,
+        "bounded.sum.phenotype"
+    ).compose(beforeF);
+  }
+
+  @Cacheable
+  public static <X> FormattedNamedFunction<X, List<Integer>> isToList(
+      @Param(value = "of", dNPM = "f.identity()") Function<X, IntString> beforeF,
+      @Param(value = "format", dS = "%3d") String format
+  ) {
+    Function<IntString, List<Integer>> f = is -> is.genes().stream().toList();
+    return FormattedNamedFunction.from(
+        f,
+        format,
+        "is.list"
     ).compose(beforeF);
   }
 
