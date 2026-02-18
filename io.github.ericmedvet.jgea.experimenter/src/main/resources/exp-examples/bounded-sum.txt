@@ -1,26 +1,26 @@
 $BASE_BATH = ''../results/{^^.name}/{^^.startTime}/''
-$X_QUANTIZATION = 1000
+$X_QUANTIZATION = 200
 
 $BOUND = 100
 
 $INT_STRING_DESCRIPTOR = [
   ea.s.me.d.descriptor(
-    f = f.mathOp(
-      op = divide;
+    f = ea.f.numExpr(
+      expr = "÷(ad;÷(-(bd;1);2))";
       args = [
-        f.sd(of = ea.f.isToList());
-        f.mathOp(op = divide; args = [f.mathOp(op=add; args = [ea.f.isParameter(parameter = "upperBound"); f.mathConst(v = -1)]); f.mathConst(v = 2)])
+        f.sd(of = f.filter(condition = predicate.gtEq(t = 0); of = ea.f.isToList()));
+        ea.f.isParameter(parameter = "upperBound")
       ];
       of = ea.f.genotype()
     );
     min = 0; max = 1; nOfBins = 10
   );
   ea.s.me.d.descriptor(
-    f = f.mathOp(
-      op = divide;
+    f = ea.f.numExpr(
+      expr = "÷(ad;-(bd;1))";
       args = [
-        f.avg(of = ea.f.isToList());
-        f.mathOp(op=add; args = [ea.f.isParameter(parameter = "upperBound"); f.mathConst(v = -1)])
+        f.avg(of = f.filter(condition = predicate.gtEq(t = 0); of = ea.f.isToList()));
+        ea.f.isParameter(parameter = "upperBound")
       ];
       of = ea.f.genotype()
     );
@@ -28,7 +28,7 @@ $INT_STRING_DESCRIPTOR = [
   )
 ]
 
-$BIME = (fitnessReducer = [ea.misc.lossyAverage()]) * (opponentsSelector = (nOfOpponents = [3]) * [ea.misc.farthestMESelector(); ea.misc.bestSelector()]) * (emptyArchive = [false]) * [
+$BIME = (fitnessReducer = [ea.misc.lossyAverage()]) * (opponentsSelector = (nOfOpponents = [3]) * [ea.misc.farthestMESelector()]) * (emptyArchive = [false]) * [
   ea.s.biMapElites(
     name = "bi-me";
     representation = ea.r.intString();
@@ -37,7 +37,7 @@ $BIME = (fitnessReducer = [ea.misc.lossyAverage()]) * (opponentsSelector = (nOfO
   )
 ]
 
-$BIGA = (fitnessReducer = [ea.misc.lossyAverage()]) * (opponentsSelector = (nOfOpponents = [3]) * [ea.misc.randomSelector(); ea.misc.bestSelector()]) * [
+$BIGA = (fitnessReducer = [ea.misc.lossyAverage()]) * (opponentsSelector = (nOfOpponents = [3]) * [ea.misc.randomSelector()]) * [
   ea.s.biGa(
     name = "bi-ga";
     representation = ea.r.intString();
@@ -49,7 +49,20 @@ $ALL_SOLVERS = $BIGA + $BIME
 
 ea.experiment(
   runs = (randomGenerator = (seed = [1:1:10]) * [m.defaultRG()]) *
-    (problem = (d = [2; 5; 10; 20; 40]) * [ea.bp.s.boundedSumBiProblem(b = $BOUND)]) *
+    (problem = [
+      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 2; d = 4);
+      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 5; d = 10);
+      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 10; d = 20);
+      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 20; d = 40);
+      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 30; d = 60);
+      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 40; d = 80);
+      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 50; d = 100);
+      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 60; d = 120);
+      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 70; d = 140);
+      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 80; d = 160);
+      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 90; d = 180);
+      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 100; d = 200)
+    ]) *
     (solver = (stop = ea.sc.nOfQualityEvaluations(n = 20000)) * $ALL_SOLVERS) * [
     ea.run()
   ];
@@ -76,7 +89,7 @@ ea.experiment(
       type = svg
     );
     ea.l.savePlotAndCsvForRun(
-      path = $BASE_BATH + "avg-gtEq-zero-ratio.svg";
+      path = $BASE_BATH + "avg-phenotype-sum.svg";
       plot = ea.plot.multi.xyExp(
         y = f.avg(
           of = f.each(
@@ -97,16 +110,21 @@ ea.experiment(
       type = svg
     );
     ea.l.savePlotAndCsvForRun(
-      path = $BASE_BATH + "best-gtEq-zero-ratio.svg";
-      plot = ea.plot.multi.xyExp(
-        y = f.mathOp(
-          op = add;
-          args = [
-            f.size(of = f.filter(condition = predicate.gtEq(t = 0.0)))
-          ];
-          of = ea.f.isToList(of = ea.f.genotype(of = ea.f.best()))
+      path = $BASE_BATH + "avg-phenotype-sum-boxplot.svg";
+      plot = ea.plot.multi.qualityBoxplot(
+        y = f.avg(
+          of = f.each(
+            mapF = f.mathOp(
+              op = add;
+              args = [
+                f.size(of = f.filter(condition = predicate.gtEq(t = 0.0)))
+              ];
+              of = ea.f.isToList(of = ea.f.genotype())
+            );
+            of = ea.f.all()
+          )
         );
-        line = f.replaceAll(of = f.interpolated(name = "solver"; s = "{solver.name}-{solver.opponentsSelector.name}"); regex="-null");
+        box = f.interpolated(name = solver; s = "{solver.name}-{solver.opponentsSelector.name}");
         x = f.quantized(of = ea.f.nOfEvals(); q = $X_QUANTIZATION)
       );
       overwrite = true;
@@ -121,6 +139,38 @@ ea.experiment(
       );
       overwrite = true;
       type = svg
+    );
+    ea.l.savePlotAndCsvForRun(
+      path = $BASE_BATH + "best-phenotype-sum-boxplot.svg";
+      plot = ea.plot.multi.qualityBoxplot(
+        y = f.sum(of = ea.f.isToList(of = ea.f.isToBoundedSumPhenotype(of = ea.f.genotype(of = ea.f.best()))));
+        box = f.interpolated(name = solver; s = "{solver.name}-{solver.opponentsSelector.name}");
+        x = f.quantized(of = ea.f.nOfEvals(); q = $X_QUANTIZATION)
+      );
+      overwrite = true;
+      type = svg
     )
+    % ;
+    % ea.l.savePlotAndCsvForRun(
+    %   path = $BASE_BATH + "avg-sum-vs-intransitivity.svg";
+    %   plot = ea.plot.multi.xyExp(
+    %     y = f.avg(
+    %       of = f.each(
+    %         mapF = f.mathOp(
+    %           op = add;
+    %           args = [
+    %             f.size(of = f.filter(condition = predicate.gtEq(t = 0.0)))
+    %           ];
+    %           of = ea.f.isToList(of = ea.f.genotype())
+    %         );
+    %         of = ea.f.all(of = ea.f.lasts())
+    %       )
+    %     );
+    %     line = f.interpolated(name = solver; s = "{solver.name}-{solver.opponentsSelector.name}");
+    %     x = f.min(of = ea.f.size(of = ea.f.isToBoundedSumPhenotype(of = ea.f.genotype(of = ea.f.best()))))
+    %   );
+    %   overwrite = true;
+    %   type = svg
+    % )
   ]
 )

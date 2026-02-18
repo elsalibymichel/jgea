@@ -43,7 +43,7 @@ public class SyntheticBiProblems {
 
   @SuppressWarnings("unused")
   public static BoundedSumBiProblem boundedSumBiProblem(
-      @Param(value = "name", iS = "boundedSumBiProblem-{d}-{b}") String name,
+      @Param(value = "name", iS = "boundedSumBiProblem-{d}-{b}-{k}") String name,
       @Param(value = "d", dI = 5) int d,
       @Param(value = "b", dI = 100) int b,
       @Param(value = "k", dI = 100) int k

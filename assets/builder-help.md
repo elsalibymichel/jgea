@@ -1202,7 +1202,7 @@ Aliases: `ea.biproblem.s`, `ea.biproblem.synthetic`, `ea.bp.s`, `ea.bp.synthetic
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
-| `name` | s | interpolate `boundedSumBiProblem-{d}-{b}` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `name` | s | interpolate `boundedSumBiProblem-{d}-{b}-{k}` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `d` | i | `5` | <code>int</code> |
 | `b` | i | `100` | <code>int</code> |
 | `k` | i | `100` | <code>int</code> |
@@ -1634,12 +1634,25 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedName
 
 Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Functions.isCrossRedundancy()` by jgea-experimenter:2.8.2-SNAPSHOT
 
-### Builder `ea.function.isParameter()`
+### Builder `ea.function.isLb()`
 
-`ea.f.isParameter(of; parameter; format)`
+`ea.f.isLb(name; of; format)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
+| `name` | s | interpolate `is.lower.bound` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jgea.core.representation.sequence.integer.IntString">IntString</abbr>&gt;</code> |
+| `format` | s | `%2d` | <code><abbr title="java.lang.String">String</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Integer">Integer</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Functions.isLb()` by jgea-experimenter:2.8.2-SNAPSHOT
+
+### Builder `ea.function.isParameter()`
+
+`ea.f.isParameter(name; of; parameter; format)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `name` | s | interpolate `is.{parameter}` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jgea.core.representation.sequence.integer.IntString">IntString</abbr>&gt;</code> |
 | `parameter` | s | `size` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `format` | s | `%2d` | <code><abbr title="java.lang.String">String</abbr></code> |
@@ -1661,10 +1674,11 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedName
 
 ### Builder `ea.function.isToBoundedSumPhenotype()`
 
-`ea.f.isToBoundedSumPhenotype(of; format)`
+`ea.f.isToBoundedSumPhenotype(name; of; format)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
+| `name` | s | interpolate `bounded.sum.phenotype` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jgea.core.representation.sequence.integer.IntString">IntString</abbr>&gt;</code> |
 | `format` | s | `%3d` | <code><abbr title="java.lang.String">String</abbr></code> |
 
@@ -1672,14 +1686,27 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedName
 
 ### Builder `ea.function.isToList()`
 
-`ea.f.isToList(of; format)`
+`ea.f.isToList(name; of; format)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
+| `name` | s | interpolate `is.list` | <code><abbr title="java.lang.String">String</abbr></code> |
 | `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jgea.core.representation.sequence.integer.IntString">IntString</abbr>&gt;</code> |
 | `format` | s | `%3d` | <code><abbr title="java.lang.String">String</abbr></code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Integer">Integer</abbr>&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Functions.isToList()` by jgea-experimenter:2.8.2-SNAPSHOT
+
+### Builder `ea.function.isUb()`
+
+`ea.f.isUb(name; of; format)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `name` | s | interpolate `is.upper.bound` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jgea.core.representation.sequence.integer.IntString">IntString</abbr>&gt;</code> |
+| `format` | s | `%2d` | <code><abbr title="java.lang.String">String</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Integer">Integer</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Functions.isUb()` by jgea-experimenter:2.8.2-SNAPSHOT
 
 ### Builder `ea.function.lasts()`
 
