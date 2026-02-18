@@ -385,6 +385,7 @@ public class Functions {
 
   @Cacheable
   public static <X> FormattedNamedFunction<X, Integer> isParameter(
+      @Param(value = "name", iS = "is.{parameter}") String name,
       @Param(value = "of", dNPM = "f.identity()") Function<X, IntString> beforeF,
       @Param(value = "parameter", dS = "size") String parameter,
       @Param(value = "format", dS = "%2d") String format
@@ -401,12 +402,41 @@ public class Functions {
     return FormattedNamedFunction.from(
         f,
         format,
-        "is.%s".formatted(parameter)
+        name
+    ).compose(beforeF);
+  }
+
+  @Cacheable
+  public static <X> FormattedNamedFunction<X, Integer> isLb(
+      @Param(value = "name", iS = "is.lower.bound") String name,
+      @Param(value = "of", dNPM = "f.identity()") Function<X, IntString> beforeF,
+      @Param(value = "format", dS = "%2d") String format
+  ) {
+    Function<IntString, Integer> f = IntString::lowerBound;
+    return FormattedNamedFunction.from(
+        f,
+        format,
+        name
+    ).compose(beforeF);
+  }
+
+  @Cacheable
+  public static <X> FormattedNamedFunction<X, Integer> isUb(
+      @Param(value = "name", iS = "is.upper.bound") String name,
+      @Param(value = "of", dNPM = "f.identity()") Function<X, IntString> beforeF,
+      @Param(value = "format", dS = "%2d") String format
+  ) {
+    Function<IntString, Integer> f = IntString::upperBound;
+    return FormattedNamedFunction.from(
+        f,
+        format,
+        name
     ).compose(beforeF);
   }
 
   @Cacheable
   public static <X> FormattedNamedFunction<X, IntString> isToBoundedSumPhenotype(
+      @Param(value = "name", iS = "bounded.sum.phenotype") String name,
       @Param(value = "of", dNPM = "f.identity()") Function<X, IntString> beforeF,
       @Param(value = "format", dS = "%3d") String format
   ) {
@@ -422,12 +452,13 @@ public class Functions {
     return FormattedNamedFunction.from(
         f,
         format,
-        "bounded.sum.phenotype"
+        name
     ).compose(beforeF);
   }
 
   @Cacheable
   public static <X> FormattedNamedFunction<X, List<Integer>> isToList(
+      @Param(value = "name", iS = "is.list") String name,
       @Param(value = "of", dNPM = "f.identity()") Function<X, IntString> beforeF,
       @Param(value = "format", dS = "%3d") String format
   ) {
@@ -435,7 +466,7 @@ public class Functions {
     return FormattedNamedFunction.from(
         f,
         format,
-        "is.list"
+        name
     ).compose(beforeF);
   }
 
