@@ -17,31 +17,20 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package io.github.ericmedvet.jgea.problem.booleanfunction.synthetic;
+package io.github.ericmedvet.jgea.problem.bool.synthetic;
 
 import io.github.ericmedvet.jgea.core.util.IndexedProvider;
-import io.github.ericmedvet.jgea.problem.booleanfunction.BooleanFunction;
-import io.github.ericmedvet.jgea.problem.booleanfunction.BooleanUtils;
-import io.github.ericmedvet.jsdynsym.core.numerical.MultivariateRealFunction;
+import io.github.ericmedvet.jgea.problem.bool.BooleanUtils;
+import io.github.ericmedvet.jsdynsym.core.bool.BooleanFunction;
 import java.util.List;
 import java.util.random.RandomGenerator;
 
 public class MultipleOutputParallelMultiplier extends PrecomputedSyntheticBRProblem {
   public MultipleOutputParallelMultiplier(List<Metric> metrics, int n, RandomGenerator randomGenerator) {
     super(
-        BooleanFunction.from(inputs -> compute(inputs, n), 2 * n, 2 * n),
-        IndexedProvider.from(
-            BooleanUtils.buildCompleteObservations(
-                MultivariateRealFunction.varNames("x", 2 * n)
-                    .toArray(String[]::new)
-            )
-        ),
-        IndexedProvider.from(
-            BooleanUtils.buildCompleteObservations(
-                MultivariateRealFunction.varNames("x", 2 * n)
-                    .toArray(String[]::new)
-            )
-        ),
+        booleanFunction(n),
+        IndexedProvider.from(BooleanUtils.buildCompleteCases(2 * n)),
+        IndexedProvider.from(BooleanUtils.buildCompleteCases(2 * n)),
         metrics,
         randomGenerator
     );
@@ -55,5 +44,9 @@ public class MultipleOutputParallelMultiplier extends PrecomputedSyntheticBRProb
     int n1 = BooleanUtils.fromBinary(a1);
     int n2 = BooleanUtils.fromBinary(a2);
     return BooleanUtils.toBinary(n1 * n2, 2 * n);
+  }
+
+  public static BooleanFunction booleanFunction(int n) {
+    return BooleanFunction.from(inputs -> compute(inputs, n), 2 * n, 2 * n);
   }
 }

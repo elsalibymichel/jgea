@@ -41,7 +41,7 @@ module io.github.ericmedvet.jgea.core {
   exports io.github.ericmedvet.jgea.core.representation.sequence.numeric;
   exports io.github.ericmedvet.jgea.core.representation.tree;
   exports io.github.ericmedvet.jgea.core.representation.tree.numeric;
-  exports io.github.ericmedvet.jgea.core.representation.tree.booleanfunction;
+  exports io.github.ericmedvet.jgea.core.representation.tree.bool;
   exports io.github.ericmedvet.jgea.core.representation.programsynthesis;
   exports io.github.ericmedvet.jgea.core.representation.programsynthesis.type;
   exports io.github.ericmedvet.jgea.core.representation.programsynthesis.ttpn;
@@ -62,5 +62,6 @@ module io.github.ericmedvet.jgea.core {
   exports io.github.ericmedvet.jgea.core.solver.bi;
   exports io.github.ericmedvet.jgea.core.solver.bi.mapelites;
   exports io.github.ericmedvet.jgea.core.solver.multifidelity;
+  exports io.github.ericmedvet.jgea.core.representation.tree.parsing;
 
 }

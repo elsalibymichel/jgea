@@ -1,0 +1,69 @@
+$basePath = ''../../Documenti/experiments/{^^.name}/{^^.startTime}/''
+
+ea.experiment(
+  runs = (randomGenerator = (seed = [1:1:1]) * [m.defaultRG()]) *
+    (problem = [
+      ea.p.br.mopm(n = 2);
+      ea.p.br.mopm(n = 3);
+      ea.p.br.evenParity(n = 4);
+      ea.p.br.targetBased(
+        name = "xor-not-xor";
+        n = 2;
+        exprs = [
+          "and(or(0;1);not(and(0;1)))";
+          "not(and(or(0;1);not(and(0;1))))"
+        ]
+      )
+    ]) *
+    (solver = (stop = ea.sc.nOfQualityEvaluations(n = 5000)) * [
+      ea.s.ga(
+        mapper = ea.m.multiBTreeToBf();
+        representation = ea.r.multiBTree()
+      )
+    ]) * [
+    ea.run()
+  ];
+  listeners = [
+    ea.l.console(
+      eFunctions = [
+        ea.f.size(of = ea.f.genotype(of = ea.f.best()); format = "%3d");
+        f.mapValue(key = avg_dissimilarity; of = ea.f.quality(of = ea.f.best()); format = "%6.2f");
+        ea.f.hist(of = f.each(of = ea.f.all(); mapF = f.mapValue(key = avg_dissimilarity; of = ea.f.quality())));
+        f.timestamp()
+      ];
+      onlyLast = true
+    );
+
+    % ========= CONVERGENCE PLOTS
+    ea.l.savePlotForExp(
+      path = $basePath + "best-fitness.svg";
+      plot = ea.plot.multi.quality(q = f.mapValue(key = avg_dissimilarity));
+      type = svg
+    );
+
+    % ========= BOX PLOTS
+    ea.l.savePlotForExp(
+      path = $basePath + "final-best-fitness.svg";
+      plot = ea.plot.multi.qualityBoxplot(q = f.mapValue(key = avg_dissimilarity));
+      configuration = viz.plot.conf.image(axesShow = all; axesIndependences = [all]);
+      type = svg
+    );
+
+    % ========= TREES
+    ea.l.saveForRun(
+      path = $basePath + "{solver.name}/{problem.name}/best-{randomGenerator.seed:%02d}.svg";
+      of = ea.acc.lastBest();
+      processor = viz.f.toImage(
+        drawer = viz.d.stacked(drawers = [
+          viz.d.multi(drawer = ea.d.tree(scale = 2));
+          viz.d.multi(drawer = viz.d.composition(
+            drawer = ea.d.tree(scale = 2);
+            f = ea.f.simplifiedBTree()
+          ))
+        ]);
+        of = ea.f.genotype();
+        type = svg
+      )
+    )
+  ]
+)

@@ -1979,6 +1979,30 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.NamedFunction
 
 Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.NamedFunction">NamedFunction</abbr>&lt;X, <abbr title="java.util.List">List</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.experimenter.Run">Run</abbr>&lt;?, ?, ?, ?&gt;&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Functions.runs()` by jgea-experimenter:2.8.2-SNAPSHOT
 
+### Builder `ea.function.simplifiedBTree()`
+
+`ea.f.simplifiedBTree(name; of; format)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `name` | s | `simplified` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jgea.core.representation.tree.Tree">Tree</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.representation.tree.bool.Element">Element</abbr>&gt;&gt;</code> |
+| `format` | s | `%s` | <code><abbr title="java.lang.String">String</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="io.github.ericmedvet.jgea.core.representation.tree.Tree">Tree</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.representation.tree.bool.Element">Element</abbr>&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Functions.simplifiedBTree()` by jgea-experimenter:2.8.2-SNAPSHOT
+
+### Builder `ea.function.simplifiedSrTree()`
+
+`ea.f.simplifiedSrTree(name; of; format)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `name` | s | `simplified` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="io.github.ericmedvet.jgea.core.representation.tree.Tree">Tree</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.representation.tree.numeric.Element">Element</abbr>&gt;&gt;</code> |
+| `format` | s | `%s` | <code><abbr title="java.lang.String">String</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="io.github.ericmedvet.jgea.core.representation.tree.Tree">Tree</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.representation.tree.numeric.Element">Element</abbr>&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Functions.simplifiedSrTree()` by jgea-experimenter:2.8.2-SNAPSHOT
+
 ### Builder `ea.function.size()`
 
 `ea.f.size(of; format)`
@@ -2713,6 +2737,17 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.core.InvertibleMapper">Inv
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.core.InvertibleMapper">InvertibleMapper</abbr>&lt;X, <abbr title="java.lang.String">String</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Mappers.isToString()` by jgea-experimenter:2.8.2-SNAPSHOT
 
+### Builder `ea.mapper.multiBTreeToBf()`
+
+`ea.m.multiBTreeToBf(name; of)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `name` | s | `multiBTreeToBf` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `of` | npm | `ea.m.identity()` | <code><abbr title="io.github.ericmedvet.jgea.core.InvertibleMapper">InvertibleMapper</abbr>&lt;X, <abbr title="java.util.List">List</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.representation.tree.Tree">Tree</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.representation.tree.bool.Element">Element</abbr>&gt;&gt;&gt;</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jgea.core.InvertibleMapper">InvertibleMapper</abbr>&lt;X, <abbr title="io.github.ericmedvet.jsdynsym.core.bool.BooleanFunction">BooleanFunction</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Mappers.multiBTreeToBf()` by jgea-experimenter:2.8.2-SNAPSHOT
+
 ### Builder `ea.mapper.multiSrTreeToNmrf()`
 
 `ea.m.multiSrTreeToNmrf(of; simplify; postOperator)`
@@ -2923,6 +2958,16 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.core.InvertibleMapper">Inv
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.core.solver.bi.AbstractBiEvolver$OpponentsSelector">AbstractBiEvolver$OpponentsSelector</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.Individual">Individual</abbr>&lt;G, S, Q&gt;, S, Q, O&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.bestSelector()` by jgea-experimenter:2.8.2-SNAPSHOT
 
+### Builder `ea.misc.bf()`
+
+`ea.misc.bf(exprs)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `exprs` | s[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.String">String</abbr>&gt;</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jsdynsym.core.bool.BooleanFunction">BooleanFunction</abbr></code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.bf()` by jgea-experimenter:2.8.2-SNAPSHOT
+
 ### Builder `ea.misc.caVideo()`
 
 `ea.misc.caVideo(gray; caStateRange; nOfSteps; sizeRate; marginRate; frameRate; fontSize)`
@@ -2970,6 +3015,16 @@ Produces <code><abbr title="java.awt.Color">Color</abbr></code>; built from `io.
 | `b` | i |  | <code>int</code> |
 
 Produces <code><abbr title="java.awt.Color">Color</abbr></code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.colorByRgb()` by jgea-experimenter:2.8.2-SNAPSHOT
+
+### Builder `ea.misc.evenParityBf()`
+
+`ea.misc.evenParityBf(n)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `n` | i |  | <code>int</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jsdynsym.core.bool.BooleanFunction">BooleanFunction</abbr></code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.evenParityBf()` by jgea-experimenter:2.8.2-SNAPSHOT
 
 ### Builder `ea.misc.farthestMESelector()`
 
@@ -3038,6 +3093,16 @@ Produces <code><abbr title="java.util.function.BinaryOperator">BinaryOperator</a
 
 Produces <code><abbr title="java.util.function.BinaryOperator">BinaryOperator</abbr>&lt;<abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.minValue()` by jgea-experimenter:2.8.2-SNAPSHOT
 
+### Builder `ea.misc.mopmBf()`
+
+`ea.misc.mopmBf(n)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `n` | i |  | <code>int</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jsdynsym.core.bool.BooleanFunction">BooleanFunction</abbr></code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.mopmBf()` by jgea-experimenter:2.8.2-SNAPSHOT
+
 ### Builder `ea.misc.nearestMESelector()`
 
 `ea.misc.nearestMESelector(name; nOfOpponents)`
@@ -3048,6 +3113,17 @@ Produces <code><abbr title="java.util.function.BinaryOperator">BinaryOperator</a
 | `nOfOpponents` | i | `1` | <code>int</code> |
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.core.solver.bi.AbstractBiEvolver$OpponentsSelector">AbstractBiEvolver$OpponentsSelector</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.mapelites.MEIndividual">MEIndividual</abbr>&lt;G, S, Q&gt;, S, Q, O&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.nearestMESelector()` by jgea-experimenter:2.8.2-SNAPSHOT
+
+### Builder `ea.misc.nmrf()`
+
+`ea.misc.nmrf(exprs; yVarNames)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `exprs` | s[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `yVarNames` | s[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.String">String</abbr>&gt;</code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jsdynsym.core.numerical.named.NamedMultivariateRealFunction">NamedMultivariateRealFunction</abbr></code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Miscs.nmrf()` by jgea-experimenter:2.8.2-SNAPSHOT
 
 ### Builder `ea.misc.nurf()`
 
@@ -3719,6 +3795,50 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.BBTOProblem">
 
 Produces <code><abbr title="io.github.ericmedvet.jgea.core.problem.TotalOrderQualityBasedProblem">TotalOrderQualityBasedProblem</abbr>&lt;C, <abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Problems.srlatToTo()` by jgea-experimenter:2.8.2-SNAPSHOT
 
+## Package `ea.problem.booleanRegression`
+
+Aliases: `ea.p.booleanRegression`, `ea.p.br`, `ea.problem.booleanRegression`, `ea.problem.br`
+
+### Builder `ea.problem.booleanRegression.evenParity()`
+
+`ea.p.br.evenParity(name; n; metrics; randomGenerator)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `name` | s | interpolate `parity[{n}]` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `n` | i |  | <code>int</code> |
+| `metrics` | e[] | `[avg_dissimilarity]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.problem.bool.BooleanRegressionProblem$Metric">BooleanRegressionProblem$Metric</abbr>&gt;</code> |
+| `randomGenerator` | npm | `m.defaultRG()` | <code><abbr title="java.util.random.RandomGenerator">RandomGenerator</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jgea.problem.bool.synthetic.EvenParity">EvenParity</abbr></code>; built from `io.github.ericmedvet.jgea.experimenter.builders.BooleanRegressionProblems.evenParity()` by jgea-experimenter:2.8.2-SNAPSHOT
+
+### Builder `ea.problem.booleanRegression.mopm()`
+
+`ea.p.br.mopm(name; n; metrics; randomGenerator)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `name` | s | interpolate `momp[{n}]` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `n` | i |  | <code>int</code> |
+| `metrics` | e[] | `[avg_dissimilarity]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.problem.bool.BooleanRegressionProblem$Metric">BooleanRegressionProblem$Metric</abbr>&gt;</code> |
+| `randomGenerator` | npm | `m.defaultRG()` | <code><abbr title="java.util.random.RandomGenerator">RandomGenerator</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jgea.problem.bool.synthetic.MultipleOutputParallelMultiplier">MultipleOutputParallelMultiplier</abbr></code>; built from `io.github.ericmedvet.jgea.experimenter.builders.BooleanRegressionProblems.mopm()` by jgea-experimenter:2.8.2-SNAPSHOT
+
+### Builder `ea.problem.booleanRegression.targetBased()`
+
+`ea.p.br.targetBased(name; n; exprs; metrics; randomGenerator)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `name` | s | interpolate `target` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `n` | i |  | <code>int</code> |
+| `exprs` | s[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.String">String</abbr>&gt;</code> |
+| `metrics` | e[] | `[avg_dissimilarity]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.problem.bool.BooleanRegressionProblem$Metric">BooleanRegressionProblem$Metric</abbr>&gt;</code> |
+| `randomGenerator` | npm | `m.defaultRG()` | <code><abbr title="java.util.random.RandomGenerator">RandomGenerator</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jgea.problem.bool.synthetic.PrecomputedSyntheticBRProblem">PrecomputedSyntheticBRProblem</abbr></code>; built from `io.github.ericmedvet.jgea.experimenter.builders.BooleanRegressionProblems.targetBased()` by jgea-experimenter:2.8.2-SNAPSHOT
+
 ## Package `ea.problem.multivariateRegression`
 
 Aliases: `ea.p.mr`, `ea.p.multivariateRegression`, `ea.problem.mr`, `ea.problem.multivariateRegression`
@@ -4153,6 +4273,19 @@ Produces <code><abbr title="io.github.ericmedvet.jgea.problem.regression.Numeric
 
 Aliases: `ea.r`, `ea.representation`
 
+### Builder `ea.representation.bTree()`
+
+`ea.r.bTree(constants; operators; minTreeH; maxTreeH)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `constants` | b[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.lang.Boolean">Boolean</abbr>&gt;</code> |
+| `operators` | e[] | `[and, or, not]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.representation.tree.bool.Element$Operator">Element$Operator</abbr>&gt;</code> |
+| `minTreeH` | i | `4` | <code>int</code> |
+| `maxTreeH` | i | `10` | <code>int</code> |
+
+Produces <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.representation.tree.Tree">Tree</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.representation.tree.bool.Element">Element</abbr>&gt;, <abbr title="io.github.ericmedvet.jgea.experimenter.Representation">Representation</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.representation.tree.Tree">Tree</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.representation.tree.bool.Element">Element</abbr>&gt;&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Representations.bTree()` by jgea-experimenter:2.8.2-SNAPSHOT
+
 ### Builder `ea.representation.bitString()`
 
 `ea.r.bitString(factory; mutations; xovers)`
@@ -4208,6 +4341,17 @@ Produces <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abb
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
 | `of` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;G, <abbr title="io.github.ericmedvet.jgea.experimenter.Representation">Representation</abbr>&lt;G&gt;&gt;</code> |
+| `uniformCrossover` | b | `true` | <code>boolean</code> |
+
+Produces <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;G&gt;, <abbr title="io.github.ericmedvet.jgea.experimenter.Representation">Representation</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;G&gt;&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Representations.list()` by jgea-experimenter:2.8.2-SNAPSHOT
+
+### Builder `ea.representation.multiBTree()`
+
+`ea.r.multiBTree(of; uniformCrossover)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `of` | npm | `ea.r.bTree()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;G, <abbr title="io.github.ericmedvet.jgea.experimenter.Representation">Representation</abbr>&lt;G&gt;&gt;</code> |
 | `uniformCrossover` | b | `true` | <code>boolean</code> |
 
 Produces <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;G&gt;, <abbr title="io.github.ericmedvet.jgea.experimenter.Representation">Representation</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;G&gt;&gt;&gt;</code>; built from `io.github.ericmedvet.jgea.experimenter.builders.Representations.list()` by jgea-experimenter:2.8.2-SNAPSHOT

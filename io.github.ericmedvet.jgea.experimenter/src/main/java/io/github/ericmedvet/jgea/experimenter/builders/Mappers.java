@@ -42,6 +42,7 @@ import io.github.ericmedvet.jgea.core.representation.programsynthesis.type.TypeE
 import io.github.ericmedvet.jgea.core.representation.sequence.bit.BitString;
 import io.github.ericmedvet.jgea.core.representation.sequence.integer.IntString;
 import io.github.ericmedvet.jgea.core.representation.tree.Tree;
+import io.github.ericmedvet.jgea.core.representation.tree.bool.TreeBasedBooleanFunction;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.TreeBasedMultivariateRealFunction;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.TreeBasedUnivariateRealFunction;
@@ -59,6 +60,7 @@ import io.github.ericmedvet.jnb.datastructure.GridUtils;
 import io.github.ericmedvet.jnb.datastructure.Naming;
 import io.github.ericmedvet.jnb.datastructure.Pair;
 import io.github.ericmedvet.jnb.datastructure.Parametrized;
+import io.github.ericmedvet.jsdynsym.core.bool.BooleanFunction;
 import io.github.ericmedvet.jsdynsym.core.composed.Stepped;
 import io.github.ericmedvet.jsdynsym.core.numerical.AggregatedInput;
 import io.github.ericmedvet.jsdynsym.core.numerical.EnhancedInput;
@@ -562,6 +564,19 @@ public class Mappers {
     );
   }
 
+  @Cacheable
+  public static <X> InvertibleMapper<X, BooleanFunction> multiBTreeToBf(
+      @Param(value = "name", dS = "multiBTreeToBf") String name,
+      @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<Tree<io.github.ericmedvet.jgea.core.representation.tree.bool.Element>>> beforeM
+  ) {
+    return beforeM.andThen(
+        InvertibleMapper.from(
+            (eBf, trees) -> new TreeBasedBooleanFunction(trees, eBf.nOfInputs()),
+            TreeBasedBooleanFunction::exampleFor,
+            name
+        )
+    );
+  }
 
   @Cacheable
   public static <X> InvertibleMapper<X, NamedMultivariateRealFunction> multiSrTreeToNmrf(
@@ -578,7 +593,7 @@ public class Mappers {
                 simplify
             )
                 .andThen(toOperator(postOperator)),
-            nmrf -> TreeBasedMultivariateRealFunction.sampleFor(nmrf.xVarNames(), nmrf.yVarNames()),
+            nmrf -> TreeBasedMultivariateRealFunction.exampleFor(nmrf.xVarNames(), nmrf.yVarNames()),
             "multiSrTreeToNmrf[po=%s]".formatted(postOperator)
         )
     );
@@ -746,7 +761,6 @@ public class Mappers {
     );
   }
 
-
   @Cacheable
   public static <X> InvertibleMapper<X, NamedUnivariateRealFunction> nmrfToNurf(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, NamedMultivariateRealFunction> beforeM
@@ -887,7 +901,6 @@ public class Mappers {
     );
   }
 
-
   @Cacheable
   public static <X, T> InvertibleMapper<X, Pair<List<T>, List<T>>> splitter(
       @Param(value = "of", dNPM = "ea.m.identity()") InvertibleMapper<X, List<T>> beforeM
@@ -936,7 +949,7 @@ public class Mappers {
                 simplify
             )
                 .andThen(toOperator(postOperator)),
-            nurf -> TreeBasedUnivariateRealFunction.sampleFor(nurf.xVarNames(), nurf.yVarName()),
+            nurf -> TreeBasedUnivariateRealFunction.exampleFor(nurf.xVarNames(), nurf.yVarName()),
             "srTreeToNurf[po=%s;simp=%s]".formatted(
                 postOperator,
                 Boolean.toString(simplify).substring(0, 1)

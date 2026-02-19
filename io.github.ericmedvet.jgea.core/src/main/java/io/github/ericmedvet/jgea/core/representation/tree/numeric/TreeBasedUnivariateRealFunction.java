@@ -58,6 +58,24 @@ public class TreeBasedUnivariateRealFunction implements NamedUnivariateRealFunct
     this(tree, xVarNames, yVarName, x -> x, simplify);
   }
 
+  public TreeBasedUnivariateRealFunction(
+      Tree<Element> tree,
+      String yVarName,
+      boolean simplify
+  ) {
+    this(
+        tree,
+        tree.visitLeaves()
+            .stream()
+            .filter(l -> l instanceof Element.Variable)
+            .map(l -> ((Element.Variable) l).name())
+            .distinct()
+            .toList(),
+        yVarName,
+        simplify
+    );
+  }
+
   protected static double compute(Tree<Element> tree, Map<String, Double> input) {
     if (tree.content() instanceof Element.Decoration) {
       throw new RuntimeException(
@@ -84,7 +102,7 @@ public class TreeBasedUnivariateRealFunction implements NamedUnivariateRealFunct
     return ((Element.Operator) tree.content()).applyAsDouble(childrenValues);
   }
 
-  public static Tree<Element> sampleFor(
+  public static Tree<Element> exampleFor(
       List<String> xVarNames,
       @SuppressWarnings("unused") String yVarName
   ) {

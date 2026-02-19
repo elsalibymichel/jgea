@@ -1,6 +1,6 @@
 /*-
  * ========================LICENSE_START=================================
- * jgea-core
+ * jgea-problem
  * %%
  * Copyright (C) 2018 - 2026 Eric Medvet
  * %%
@@ -18,38 +18,40 @@
  * =========================LICENSE_END==================================
  */
 
-package io.github.ericmedvet.jgea.core.representation.tree.booleanfunction;
+package io.github.ericmedvet.jgea.problem.bool;
 
-import java.io.Serializable;
+import java.util.List;
+import java.util.stream.IntStream;
 
-public interface Element {
+public class BooleanUtils {
 
-  enum Operator implements Element, Serializable {
-    AND(".and"), AND1NOT(".and1not"), OR(".or"), XOR(".xor"), NOT(".not"), IF(".if");
-
-    private final String string;
-
-    Operator(String string) {
-      this.string = string;
-    }
-
-    @Override
-    public String toString() {
-      return string;
-    }
+  public static List<boolean[]> buildCompleteCases(int n) {
+    return IntStream.range(0, pow2(n))
+        .mapToObj(i -> toBinary(i, n))
+        .toList();
   }
 
-  record Constant(boolean value) implements Element, Serializable {
-
-    @Override
-    public String toString() {
-      return Boolean.toString(value);
+  public static int fromBinary(boolean[] bits) {
+    int n = 0;
+    for (int i = bits.length - 1; i >= 0; i--) {
+      n = (n << 1) | (bits[i] ? 1 : 0);
     }
+    return n;
   }
 
-  record Decoration(String string) implements Element, Serializable {}
+  private static int pow2(int n) {
+    if (n <= 0) {
+      return 1;
+    }
+    return 2 * pow2(n - 1);
+  }
 
-  record Variable(String name) implements Element, Serializable {}
+  public static boolean[] toBinary(int input, int size) {
+    boolean[] bits = new boolean[size];
+    for (int i = size - 1; i >= 0; i--) {
+      bits[i] = (input & (1 << i)) != 0;
+    }
+    return bits;
+  }
 
-  String toString();
 }

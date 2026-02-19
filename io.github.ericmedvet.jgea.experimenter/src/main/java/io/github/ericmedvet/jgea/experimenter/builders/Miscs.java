@@ -22,9 +22,10 @@ package io.github.ericmedvet.jgea.experimenter.builders;
 import io.github.ericmedvet.jgea.core.order.PartialComparator;
 import io.github.ericmedvet.jgea.core.order.PartiallyOrderedCollection;
 import io.github.ericmedvet.jgea.core.representation.tree.Tree;
+import io.github.ericmedvet.jgea.core.representation.tree.bool.TreeBasedBooleanFunction;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.Element.Variable;
-import io.github.ericmedvet.jgea.core.representation.tree.numeric.NumericTreeUtils;
+import io.github.ericmedvet.jgea.core.representation.tree.numeric.TreeBasedMultivariateRealFunction;
 import io.github.ericmedvet.jgea.core.representation.tree.numeric.TreeBasedUnivariateRealFunction;
 import io.github.ericmedvet.jgea.core.solver.Individual;
 import io.github.ericmedvet.jgea.core.solver.bi.AbstractBiEvolver;
@@ -32,6 +33,8 @@ import io.github.ericmedvet.jgea.core.solver.mapelites.MEIndividual;
 import io.github.ericmedvet.jgea.core.solver.mapelites.MapElites;
 import io.github.ericmedvet.jgea.core.util.Misc;
 import io.github.ericmedvet.jgea.experimenter.drawer.DoubleGridDrawer;
+import io.github.ericmedvet.jgea.problem.bool.synthetic.EvenParity;
+import io.github.ericmedvet.jgea.problem.bool.synthetic.MultipleOutputParallelMultiplier;
 import io.github.ericmedvet.jgea.problem.ca.MultivariateRealGridCellularAutomaton;
 import io.github.ericmedvet.jgea.problem.image.ImageUtils;
 import io.github.ericmedvet.jnb.core.Cacheable;
@@ -42,6 +45,8 @@ import io.github.ericmedvet.jnb.datastructure.Grid;
 import io.github.ericmedvet.jnb.datastructure.Pair;
 import io.github.ericmedvet.jsdynsym.control.Simulation;
 import io.github.ericmedvet.jsdynsym.control.SimulationOutcomeDrawer;
+import io.github.ericmedvet.jsdynsym.core.bool.BooleanFunction;
+import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedMultivariateRealFunction;
 import io.github.ericmedvet.jsdynsym.core.numerical.named.NamedUnivariateRealFunction;
 import io.github.ericmedvet.jviz.core.drawer.Drawer;
 import io.github.ericmedvet.jviz.core.drawer.VideoBuilder;
@@ -107,6 +112,17 @@ public class Miscs {
     };
   }
 
+  @Cacheable
+  public static BooleanFunction bf(
+      @Param("exprs") List<String> exprs
+  ) {
+    return new TreeBasedBooleanFunction(
+        exprs.stream()
+            .map(e -> io.github.ericmedvet.jgea.core.representation.tree.bool.Element.stringParser(true).parse(e))
+            .toList()
+    );
+  }
+
   public static VideoBuilder<MultivariateRealGridCellularAutomaton> caVideo(
       @Param(value = "gray", dB = true) boolean gray,
       @Param(value = "caStateRange", dNPM = "m.range(min=-1;max=1)") DoubleRange caStateRange,
@@ -163,6 +179,13 @@ public class Miscs {
   @Cacheable
   public static Color colorByRgb(@Param("r") int r, @Param("g") int g, @Param("b") int b) {
     return new Color(r, g, b);
+  }
+
+  @Cacheable
+  public static BooleanFunction evenParityBf(
+      @Param("n") int n
+  ) {
+    return EvenParity.booleanFunction(n);
   }
 
   @Cacheable
@@ -251,6 +274,13 @@ public class Miscs {
   }
 
   @Cacheable
+  public static BooleanFunction mopmBf(
+      @Param("n") int n
+  ) {
+    return MultipleOutputParallelMultiplier.booleanFunction(n);
+  }
+
+  @Cacheable
   public static <G, S, Q, O> AbstractBiEvolver.OpponentsSelector<MEIndividual<G, S, Q>, S, Q, O> nearestMESelector(
       @Param(value = "name", iS = "nearest[{nOfOpponents}]") String name,
       @Param(value = "nOfOpponents", dI = 1) int nOfOpponents
@@ -287,6 +317,50 @@ public class Miscs {
   }
 
   @Cacheable
+  public static NamedMultivariateRealFunction nmrf(
+      @Param("exprs") List<String> exprs,
+      @Param("yVarNames") List<String> yNames
+  ) {
+    if (exprs.size() != yNames.size()) {
+      throw new IllegalArgumentException(
+          "Different number of trees and y names: %d != %d".formatted(
+              exprs.size(),
+              yNames.size()
+          )
+      );
+    }
+    return new TreeBasedMultivariateRealFunction(
+        exprs.stream().map(e -> Element.stringParser(true).parse(e)).toList(),
+        yNames,
+        false
+    );
+  }
+
+  @Cacheable
+  public static <S> NamedUnivariateRealFunction nurf(
+      @Param("expr") String expr,
+      @Param(value = "yVarName", dS = "y") String yVarName,
+      @Param("additionalVars") List<String> additionalVars,
+      @Param(value = "postOperator", dNPM = "ds.f.doubleOp(activationF=identity)") Function<Double, Double> postOperator,
+      @Param("simplify") boolean simplify
+  ) {
+    Tree<Element> tree = Element.stringParser(true).parse(expr);
+    return new TreeBasedUnivariateRealFunction(
+        tree,
+        Stream.concat(
+            tree.leaves()
+                .stream()
+                .filter(t -> t.content() instanceof Variable)
+                .map(t -> ((Variable) t.content()).toString()),
+            additionalVars.stream()
+        ).distinct().sorted(String::compareTo).toList(),
+        yVarName,
+        Mappers.toOperator(postOperator),
+        simplify
+    );
+  }
+
+  @Cacheable
   public static <G, S, Q, O> AbstractBiEvolver.OpponentsSelector<Individual<G, S, Q>, S, Q, O> oldestSelector(
       @Param(value = "name", iS = "oldest[{nOfOpponents}]") String name,
       @Param(value = "nOfOpponents", dI = 1) int nOfOpponents
@@ -317,29 +391,5 @@ public class Miscs {
       @Param("drawer") SimulationOutcomeDrawer<S> drawer
   ) {
     return drawer.videoBuilder();
-  }
-
-  @Cacheable
-  public static <S> NamedUnivariateRealFunction nurf(
-      @Param("expr") String expr,
-      @Param(value = "yVarName", dS = "y") String yVarName,
-      @Param("additionalVars") List<String> additionalVars,
-      @Param(value = "postOperator", dNPM = "ds.f.doubleOp(activationF=identity)") Function<Double, Double> postOperator,
-      @Param("simplify") boolean simplify
-  ) {
-    Tree<Element> tree = NumericTreeUtils.parse(expr);
-    return new TreeBasedUnivariateRealFunction(
-        tree,
-        Stream.concat(
-            tree.leaves()
-                .stream()
-                .filter(t -> t.content() instanceof Variable)
-                .map(t -> ((Variable) t.content()).toString()),
-            additionalVars.stream()
-        ).distinct().sorted(String::compareTo).toList(),
-        yVarName,
-        Mappers.toOperator(postOperator),
-        simplify
-    );
   }
 }

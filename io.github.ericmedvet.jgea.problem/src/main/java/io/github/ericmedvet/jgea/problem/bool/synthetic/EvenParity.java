@@ -17,12 +17,11 @@
  * limitations under the License.
  * =========================LICENSE_END==================================
  */
-package io.github.ericmedvet.jgea.problem.booleanfunction.synthetic;
+package io.github.ericmedvet.jgea.problem.bool.synthetic;
 
 import io.github.ericmedvet.jgea.core.util.IndexedProvider;
-import io.github.ericmedvet.jgea.problem.booleanfunction.BooleanFunction;
-import io.github.ericmedvet.jgea.problem.booleanfunction.BooleanUtils;
-import io.github.ericmedvet.jsdynsym.core.numerical.MultivariateRealFunction;
+import io.github.ericmedvet.jgea.problem.bool.BooleanUtils;
+import io.github.ericmedvet.jsdynsym.core.bool.BooleanFunction;
 import java.util.List;
 import java.util.random.RandomGenerator;
 import java.util.stream.IntStream;
@@ -30,19 +29,21 @@ import java.util.stream.IntStream;
 public class EvenParity extends PrecomputedSyntheticBRProblem {
   public EvenParity(List<Metric> metrics, int n, RandomGenerator randomGenerator) {
     super(
-        BooleanFunction.from(
-            inputs -> new boolean[]{IntStream.range(0, inputs.length).map(i -> inputs[i] ? 1 : 0).sum() % 2 == 0},
-            n,
-            1
-        ),
-        IndexedProvider.from(
-            BooleanUtils.buildCompleteObservations(MultivariateRealFunction.varNames("x", n).toArray(String[]::new))
-        ),
-        IndexedProvider.from(
-            BooleanUtils.buildCompleteObservations(MultivariateRealFunction.varNames("x", n).toArray(String[]::new))
-        ),
+        booleanFunction(n),
+        IndexedProvider.from(BooleanUtils.buildCompleteCases(n)),
+        IndexedProvider.from(BooleanUtils.buildCompleteCases(n)),
         metrics,
         randomGenerator
     );
   }
+
+
+  public static BooleanFunction booleanFunction(int n) {
+    return BooleanFunction.from(
+        inputs -> new boolean[]{IntStream.range(0, inputs.length).map(i -> inputs[i] ? 1 : 0).sum() % 2 == 0},
+        n,
+        1
+    );
+  }
+
 }
