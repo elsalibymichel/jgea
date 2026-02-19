@@ -1,7 +1,8 @@
 $BASE_BATH = ''../results/{^^.name}/{^^.startTime}/''
-$X_QUANTIZATION = 200
 
-$BOUND = 100
+$X_QUANTIZATION = 100
+
+$BOUND = [1; 10; 100; 1000]
 
 $INT_STRING_DESCRIPTOR = [
   ea.s.me.d.descriptor(
@@ -49,110 +50,47 @@ $ALL_SOLVERS = $BIGA + $BIME
 
 ea.experiment(
   runs = (randomGenerator = (seed = [1:1:10]) * [m.defaultRG()]) *
-    (problem = [
-      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 2; d = 4);
-      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 5; d = 10);
-      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 10; d = 20);
-      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 20; d = 40);
-      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 30; d = 60);
-      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 40; d = 80);
-      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 50; d = 100);
-      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 60; d = 120);
-      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 70; d = 140);
-      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 80; d = 160);
-      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 90; d = 180);
-      ea.bp.s.boundedSumBiProblem(b = $BOUND; k = 100; d = 200)
+    (problem = (b = $BOUND) * [
+      ea.bp.s.boundedSumBiProblem(k = 2; d = 2);
+      ea.bp.s.boundedSumBiProblem(k = 20; d = 20);
+      ea.bp.s.boundedSumBiProblem(k = 50; d = 50);
+      ea.bp.s.boundedSumBiProblem(k = 80; d = 80);
+      ea.bp.s.boundedSumBiProblem(k = 100; d = 100)
     ]) *
-    (solver = (stop = ea.sc.nOfQualityEvaluations(n = 20000)) * $ALL_SOLVERS) * [
+    (solver = (stop = ea.sc.nOfQualityEvaluations(n = 1000)) * $ALL_SOLVERS) * [
     ea.run()
   ];
   listeners = [
     ea.l.console();
-    ea.l.savePlotAndCsvForRun(
-      path = $BASE_BATH + "archive-{problem.name}-{solver.name}-{solver.opponentsSelector.name}-{randomGenerator.seed:%02d}.svg";
-      plot = ea.plot.single.me(
-        title = f.replaceAll(of = f.interpolated(name = "title"; s = "Archive of {solver.name}-{solver.opponentsSelector.name} on {problem.name} (seed={randomGenerator.seed})"); regex="-null")
-      );
-      kCondition = predicate.matches(f = f.mappableKey(key = "solver.name"); regex = ".*-me.*");
-      type = svg
-    );
-    ea.l.savePlotAndCsvForRun(
-      path = $BASE_BATH + "transitivity-impact-convergence.svg";
-      plot = ea.plot.multi.quality(line = f.interpolated(name = solver; s = "{solver.name}-{solver.opponentsSelector.name}"));
-      overwrite = true;
-      type = svg
-    );
-    ea.l.savePlotAndCsvForRun(
-      path = $BASE_BATH + "transitivity-impact-boxplot.svg";
-      plot = ea.plot.multi.qualityBoxplot(box = f.interpolated(name = solver; s = "{solver.name}-{solver.opponentsSelector.name}"));
-      overwrite = true;
-      type = svg
-    );
-    ea.l.savePlotAndCsvForRun(
-      path = $BASE_BATH + "avg-phenotype-sum.svg";
-      plot = ea.plot.multi.xyExp(
-        y = f.avg(
-          of = f.each(
-            mapF = f.mathOp(
-              op = add;
-              args = [
-                f.size(of = f.filter(condition = predicate.gtEq(t = 0.0)))
-              ];
-              of = ea.f.isToList(of = ea.f.genotype())
-            );
-            of = ea.f.all()
-          )
-        );
-        line = f.replaceAll(of = f.interpolated(name = "solver"; s = "{solver.name}-{solver.opponentsSelector.name}"); regex="-null");
-        x = f.quantized(of = ea.f.nOfEvals(); q = $X_QUANTIZATION)
-      );
-      overwrite = true;
-      type = svg
-    );
-    ea.l.savePlotAndCsvForRun(
-      path = $BASE_BATH + "avg-phenotype-sum-boxplot.svg";
-      plot = ea.plot.multi.qualityBoxplot(
-        y = f.avg(
-          of = f.each(
-            mapF = f.mathOp(
-              op = add;
-              args = [
-                f.size(of = f.filter(condition = predicate.gtEq(t = 0.0)))
-              ];
-              of = ea.f.isToList(of = ea.f.genotype())
-            );
-            of = ea.f.all()
-          )
-        );
-        box = f.interpolated(name = solver; s = "{solver.name}-{solver.opponentsSelector.name}");
-        x = f.quantized(of = ea.f.nOfEvals(); q = $X_QUANTIZATION)
-      );
-      overwrite = true;
-      type = svg
-    );
-    ea.l.savePlotAndCsvForRun(
-      path = $BASE_BATH + "best-phenotype-sum.svg";
-      plot = ea.plot.multi.xyExp(
-        y = f.sum(of = ea.f.isToList(of = ea.f.isToBoundedSumPhenotype(of = ea.f.genotype(of = ea.f.best()))));
-        line = f.replaceAll(of = f.interpolated(name = "solver"; s = "{solver.name}-{solver.opponentsSelector.name}"); regex="-null");
-        x = f.quantized(of = ea.f.nOfEvals(); q = $X_QUANTIZATION)
-      );
-      overwrite = true;
-      type = svg
-    );
-    ea.l.savePlotAndCsvForRun(
-      path = $BASE_BATH + "best-phenotype-sum-boxplot.svg";
-      plot = ea.plot.multi.qualityBoxplot(
-        y = f.sum(of = ea.f.isToList(of = ea.f.isToBoundedSumPhenotype(of = ea.f.genotype(of = ea.f.best()))));
-        box = f.interpolated(name = solver; s = "{solver.name}-{solver.opponentsSelector.name}");
-        x = f.quantized(of = ea.f.nOfEvals(); q = $X_QUANTIZATION)
-      );
-      overwrite = true;
-      type = svg
-    )
-    % ;
     % ea.l.savePlotAndCsvForRun(
-    %   path = $BASE_BATH + "avg-sum-vs-intransitivity.svg";
+    %   path = $BASE_BATH + "archive-{problem.name}-{solver.name}-{solver.opponentsSelector.name}-{randomGenerator.seed:%02d}.svg";
+    %   plot = ea.plot.single.me(
+    %     title = f.replaceAll(of = f.interpolated(name = "title"; s = "Archive of {solver.name}-{solver.opponentsSelector.name} on {problem.name} (seed={randomGenerator.seed})"); regex="-null")
+    %   );
+    %   kCondition = predicate.matches(f = f.mappableKey(key = "solver.name"); regex = ".*-me.*");
+    %   type = svg
+    % );
+    % ea.l.savePlotAndCsvForRun(
+    %   path = $BASE_BATH + "transitivity-impact-convergence.svg";
+    %   plot = ea.plot.multi.quality(
+    %     line = f.interpolated(name = solver; s = "{solver.name}-{solver.opponentsSelector.name}");
+    %     xSubplot = f.interpolated(name = solver; s = "{problem.d}");
+    %     ySubplot = f.interpolated(name = solver; s = "{problem.b}")
+    %   );
+    %   overwrite = true;
+    %   type = svg
+    % );
+    % % ea.l.savePlotAndCsvForRun(
+    % %   path = $BASE_BATH + "transitivity-impact-boxplot.svg";
+    % %   plot = ea.plot.multi.qualityBoxplot(
+    % %     box = f.interpolated(name = solver; s = "{solver.name}-{solver.opponentsSelector.name}");
+    % %     ySubplot = f.interpolated(name = solver; s = "{problem.b}")
+    % %   );
+    % %   overwrite = true;
+    % %   type = svg
+    % % );
+    % ea.l.savePlotAndCsvForRun(
+    %   path = $BASE_BATH + "avg-phenotype-sum.svg";
     %   plot = ea.plot.multi.xyExp(
     %     y = f.avg(
     %       of = f.each(
@@ -163,14 +101,82 @@ ea.experiment(
     %           ];
     %           of = ea.f.isToList(of = ea.f.genotype())
     %         );
-    %         of = ea.f.all(of = ea.f.lasts())
+    %         of = ea.f.all()
     %       )
     %     );
-    %     line = f.interpolated(name = solver; s = "{solver.name}-{solver.opponentsSelector.name}");
-    %     x = f.min(of = ea.f.size(of = ea.f.isToBoundedSumPhenotype(of = ea.f.genotype(of = ea.f.best()))))
+    %     line = f.replaceAll(of = f.interpolated(name = "solver"; s = "{solver.name}-{solver.opponentsSelector.name}"); regex="-null");
+    %     x = f.quantized(of = ea.f.nOfEvals(); q = $X_QUANTIZATION);
+    %     xSubplot = f.interpolated(name = solver; s = "{problem.d}");
+    %     ySubplot = f.interpolated(name = solver; s = "{problem.b}")
     %   );
     %   overwrite = true;
     %   type = svg
-    % )
+    % );
+    % % ea.l.savePlotAndCsvForRun(
+    % %   path = $BASE_BATH + "avg-phenotype-sum-boxplot.svg";
+    % %   plot = ea.plot.multi.qualityBoxplot(
+    % %     y = f.avg(
+    % %       of = f.each(
+    % %         mapF = f.mathOp(
+    % %           op = add;
+    % %           args = [
+    % %             f.size(of = f.filter(condition = predicate.gtEq(t = 0.0)))
+    % %           ];
+    % %           of = ea.f.isToList(of = ea.f.genotype())
+    % %         );
+    % %         of = ea.f.all()
+    % %       )
+    % %     );
+    % %     box = f.interpolated(name = solver; s = "{solver.name}-{solver.opponentsSelector.name}");
+    % %     ySubplot = f.interpolated(name = solver; s = "{problem.b}")
+    % %   );
+    % %   overwrite = true;
+    % %   type = svg
+    % % );
+    % ea.l.savePlotAndCsvForRun(
+    %   path = $BASE_BATH + "best-phenotype-sum.svg";
+    %   plot = ea.plot.multi.xyExp(
+    %     y = f.sum(of = ea.f.isToList(of = ea.f.isToBoundedSumPhenotype(of = ea.f.genotype(of = ea.f.best()))));
+    %     line = f.replaceAll(of = f.interpolated(name = "solver"; s = "{solver.name}-{solver.opponentsSelector.name}"); regex="-null");
+    %     x = f.quantized(of = ea.f.nOfEvals(); q = $X_QUANTIZATION);
+    %     xSubplot = f.interpolated(name = solver; s = "{problem.d}");
+    %     ySubplot = f.interpolated(name = solver; s = "{problem.b}")
+    %   );
+    %   overwrite = true;
+    %   type = svg
+    % );
+    % % ea.l.savePlotAndCsvForRun(
+    % %   path = $BASE_BATH + "best-phenotype-sum-boxplot.svg";
+    % %   plot = ea.plot.multi.qualityBoxplot(
+    % %     y = f.sum(of = ea.f.isToList(of = ea.f.isToBoundedSumPhenotype(of = ea.f.genotype(of = ea.f.best()))));
+    % %     box = f.interpolated(name = solver; s = "{solver.name}-{solver.opponentsSelector.name}");
+    % %     ySubplot = f.interpolated(name = solver; s = "{problem.b}")
+    % %   );
+    % %   overwrite = true;
+    % %   type = svg
+    % % );
+    ea.l.savePlotAndCsvForRun(
+      path = $BASE_BATH + "avg-sum-vs-intransitivity.svg";
+      plot = ea.plot.multi.xyExp(
+        y = f.avg(
+          of = f.each(
+            mapF = f.mathOp(
+              op = add;
+              args = [
+                f.size(of = f.filter(condition = predicate.gtEq(t = 0.0)))
+              ];
+              of = ea.f.isToList(of = ea.f.genotype())
+            );
+            of = ea.f.all()
+          )
+        );
+        line = f.interpolated(name = solver; s = "{solver.name}-{solver.opponentsSelector.name}");
+        x = ea.f.asDouble(of = f.mappableKey(key = "problem.d"));
+        useKForX = true;
+        xSubplot = f.interpolated(name = solver; s = "{problem.b}")
+      );
+      overwrite = true;
+      type = svg
+    )
   ]
 )
