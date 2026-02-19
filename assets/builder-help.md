@@ -5791,6 +5791,32 @@ Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedName
 
 Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Boolean">Boolean</abbr>&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Functions.nonNull()` by jgea-experimenter:2.8.2-SNAPSHOT
 
+### Builder `function.orElseD()`
+
+`f.orElseD(of; v; format; name)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="java.lang.Double">Double</abbr>&gt;</code> |
+| `v` | d | `0.0` | <code>double</code> |
+| `format` | s | `%.1f` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `name` | s | interpolate `orElseD[{v}]` | <code><abbr title="java.lang.String">String</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Double">Double</abbr>&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Functions.orElseD()` by jgea-experimenter:2.8.2-SNAPSHOT
+
+### Builder `function.orElseI()`
+
+`f.orElseI(of; v; format; name)`
+
+| Param | Type | Default | Java type |
+| --- | --- | --- | --- |
+| `of` | npm | `f.identity()` | <code><abbr title="java.util.function.Function">Function</abbr>&lt;X, <abbr title="java.lang.Integer">Integer</abbr>&gt;</code> |
+| `v` | i | `0` | <code>int</code> |
+| `format` | s | `%.1f` | <code><abbr title="java.lang.String">String</abbr></code> |
+| `name` | s | interpolate `orElseD[{v}]` | <code><abbr title="java.lang.String">String</abbr></code> |
+
+Produces <code><abbr title="io.github.ericmedvet.jnb.datastructure.FormattedNamedFunction">FormattedNamedFunction</abbr>&lt;X, <abbr title="java.lang.Integer">Integer</abbr>&gt;</code>; built from `io.github.ericmedvet.jnb.buildable.Functions.orElseI()` by jgea-experimenter:2.8.2-SNAPSHOT
+
 ### Builder `function.pairFirst()`
 
 `f.pairFirst(of; format)`
