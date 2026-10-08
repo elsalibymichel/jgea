@@ -133,9 +133,10 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
           random
       );
       for (MEIndividual<G, S, Q> opponent : opponents) {
+        // the first player is chosen at random:
         matches.putIfAbsent(
             individualsToIdPair.apply(individual, opponent),
-            new Pair<>(individual, opponent)
+            random.nextBoolean() ? new Pair<>(individual, opponent) : new Pair<>(opponent, individual)
         );
       }
     }
@@ -229,9 +230,10 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
           random
       );
       for (MEIndividual<G, S, Q> opponent : opponents) {
+        // the first player is chosen at random
         matches.putIfAbsent(
             individualsToIdPair.apply(individual, opponent),
-            new Pair<>(individual, opponent)
+            random.nextBoolean() ? new Pair<>(individual, opponent) : new Pair<>(opponent, individual)
         );
       }
     }
