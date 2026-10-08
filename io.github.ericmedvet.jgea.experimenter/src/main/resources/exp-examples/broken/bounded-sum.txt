@@ -29,7 +29,7 @@ $INT_STRING_DESCRIPTOR = [
   )
 ]
 
-$BIME = (fitnessReducer = [ea.misc.lossyAverage()]) * (opponentsSelector = (nOfOpponents = [3]) * [ea.misc.farthestMESelector()]) * (emptyArchive = [false]) * [
+$BIME = (fitnessReducer = [ea.misc.lossyAverage()]) * (opponentsSelector = (nOfOpponents = [3]) * [ea.misc.farthestMESelector()]) * [
   ea.s.biMapElites(
     name = "bi-me";
     representation = ea.r.intString();

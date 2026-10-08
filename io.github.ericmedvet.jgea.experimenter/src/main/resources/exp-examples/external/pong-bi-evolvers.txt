@@ -7,7 +7,7 @@ ea.experiment(
   runs =
     (randomGenerator = (seed = $SEEDS) * [m.defaultRG()]) *
     (solver = (stop = [ea.sc.nOfQualityEvaluations(n = $N_EVALS)]) *
-    (fitnessReducer = [ea.misc.lossyAverage()]) * (opponentsSelector = (nOfOpponents = [1; 2; 3]) * [ea.misc.nearestMESelector(); ea.misc.randomSelector(); ea.misc.farthestMESelector(); ea.misc.bestSelector(); ea.misc.oldestSelector()]) * (emptyArchive = [false]) * [
+    (fitnessReducer = [ea.misc.lossyAverage()]) * (opponentsSelector = (nOfOpponents = [1; 2; 3]) * [ea.misc.nearestMESelector(); ea.misc.randomSelector(); ea.misc.farthestMESelector(); ea.misc.bestSelector(); ea.misc.oldestSelector()]) * [
       ea.s.biMapElites(
         name = "bi-me-tree";
         representation = ea.r.srTree();

@@ -152,7 +152,6 @@ public class Solvers {
       @Param("descriptors") List<Function<Individual<G, S, Q>, Number>> descriptors,
       @Param("archive") NumericalKeyArchive.Provider archiProvider,
       @Param("fitnessReducer") BinaryOperator<Q> fitnessReducer,
-      @Param("emptyArchive") boolean emptyArchive,
       @Param("additionalIndividualComparators") List<PartialComparator<? super MEIndividual<G, S, Q>>> additionalIndividualComparators,
       @Param("opponentsSelector") AbstractBiEvolver.OpponentsSelector<MEIndividual<G, S, Q>, S, Q, O> opponentsSelector,
       @Param("fitnessAggregator") Function<List<Q>, Q> fitnessAggregator
@@ -168,7 +167,6 @@ public class Solvers {
           descriptors,
           archiProvider,
           fitnessReducer,
-          emptyArchive,
           additionalIndividualComparators,
           opponentsSelector,
           fitnessAggregator

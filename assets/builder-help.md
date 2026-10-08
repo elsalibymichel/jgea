@@ -4942,7 +4942,7 @@ Produces <code><abbr title="java.util.function.Function">Function</abbr>&lt;S, <
 
 ### Builder `ea.solver.biMapElites()`
 
-`ea.s.biMapElites(name; representation; mapper; nPop; stop; descriptors; archive; fitnessReducer; emptyArchive; additionalIndividualComparators; opponentsSelector; fitnessAggregator)`
+`ea.s.biMapElites(name; representation; mapper; nPop; stop; descriptors; archive; fitnessReducer; additionalIndividualComparators; opponentsSelector; fitnessAggregator)`
 
 | Param | Type | Default | Java type |
 | --- | --- | --- | --- |
@@ -4954,7 +4954,6 @@ Produces <code><abbr title="java.util.function.Function">Function</abbr>&lt;S, <
 | `descriptors` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.Individual">Individual</abbr>&lt;G, S, Q&gt;, <abbr title="java.lang.Number">Number</abbr>&gt;&gt;</code> |
 | `archive` | npm |  | <code><abbr title="io.github.ericmedvet.jgea.core.solver.mapelites.archive.NumericalKeyArchive$Provider">NumericalKeyArchive$Provider</abbr></code> |
 | `fitnessReducer` | npm |  | <code><abbr title="java.util.function.BinaryOperator">BinaryOperator</abbr>&lt;Q&gt;</code> |
-| `emptyArchive` | b | `false` | <code>boolean</code> |
 | `additionalIndividualComparators` | npm[] | `[]` | <code><abbr title="java.util.List">List</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.order.PartialComparator">PartialComparator</abbr>&lt;? super <abbr title="io.github.ericmedvet.jgea.core.solver.mapelites.MEIndividual">MEIndividual</abbr>&lt;G, S, Q&gt;&gt;&gt;</code> |
 | `opponentsSelector` | npm |  | <code><abbr title="io.github.ericmedvet.jgea.core.solver.bi.AbstractBiEvolver$OpponentsSelector">AbstractBiEvolver$OpponentsSelector</abbr>&lt;<abbr title="io.github.ericmedvet.jgea.core.solver.mapelites.MEIndividual">MEIndividual</abbr>&lt;G, S, Q&gt;, S, Q, O&gt;</code> |
 | `fitnessAggregator` | npm |  | <code><abbr title="java.util.function.Function">Function</abbr>&lt;<abbr title="java.util.List">List</abbr>&lt;Q&gt;, Q&gt;</code> |

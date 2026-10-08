@@ -49,7 +49,6 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
   private final Mutation<G> mutation;
   private final List<Function<Individual<G, S, Q>, Number>> descriptors;
   private final NumericalKeyArchive.Provider archiveProvider;
-  private final boolean emptyArchive;
 
   public MapElitesBiEvolver(
       Function<? super G, ? extends S> solutionMapper,
@@ -60,7 +59,6 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
       List<Function<Individual<G, S, Q>, Number>> descriptors,
       NumericalKeyArchive.Provider archiveProvider,
       BinaryOperator<Q> fitnessReducer,
-      boolean emptyArchive,
       List<PartialComparator<? super MEIndividual<G, S, Q>>> additionalIndividualComparators,
       OpponentsSelector<MEIndividual<G, S, Q>, S, Q, O> opponentsSelector,
       Function<List<Q>, Q> fitnessAggregator
@@ -79,7 +77,6 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
     this.mutation = mutation;
     this.descriptors = descriptors;
     this.archiveProvider = archiveProvider;
-    this.emptyArchive = emptyArchive;
   }
 
   @Override
@@ -193,6 +190,8 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
     Collection<MEIndividual<G, S, Q>> individuals = new ArrayList<>(
         state.archive().contents().stream().toList()
     );
+    Set<Long> oldIds = new HashSet<>();
+    individuals.forEach(i -> oldIds.add(i.id()));
     AtomicLong counter = new AtomicLong(state.nOfBirths());
     Collection<ChildGenotype<G>> newChildGenotypes = IntStream.range(0, populationSize)
         .mapToObj(j -> Misc.pickRandomly(individuals, random))
@@ -274,24 +273,15 @@ public class MapElitesBiEvolver<G, S, Q, O> extends AbstractBiEvolver<MEPopulati
             }
         )
         .toList();
-    PartialComparator<? super Individual<?, ?, ?>> updaterComparator = (
-        newI,
-        existingI
-    ) -> newI == existingI ? PartialComparator.PartialComparatorOutcome.BEFORE : PartialComparator.PartialComparatorOutcome.AFTER;
-    NumericalKeyArchive<MEIndividual<G, S, Q>, MEIndividual<G, S, Q>> archive;
-    if (emptyArchive) {
-      archive = archiveProvider.provide(
-          descriptors.size()
-      );
-    } else {
-      archive = state.archive();
-    }
+    updatedIndividuals.stream()
+        .filter(i -> oldIds.contains(i.id()))
+        .forEach(i -> state.archive().put(i.descriptorValues(), i));
     return state.updatedWithIteration(
         populationSize,
         callables.size(),
-        archive
+        state.archive()
             .withAll(
-                updatedIndividuals,
+                updatedIndividuals.stream().filter(i -> !oldIds.contains(i.id())).toList(),
                 MEIndividual::descriptorValues,
                 (newI, oldI) -> !partialComparator(state.problem())
                     .compare(oldI, newI)
