@@ -56,6 +56,7 @@ import java.util.SequencedMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
+import java.util.random.RandomGenerator;
 import java.util.stream.Stream;
 
 @Discoverable(prefixTemplate = "ea.problem|p")
@@ -96,18 +97,28 @@ public class Problems {
       @Param("simulation") HomogeneousBiSimulation<S, BS, B> simulation,
       @Param(value = "cFunction", dNPM = "f.identity()") Function<Q, C> comparableFunction,
       @Param(value = "type", dS = "minimize") OptimizationType type,
-      @Param(value = "qFunction") Function<B, Q> qFunction,
+      @Param(value = "qFunction1") Function<B, Q> qFunction1,
+      @Param(value = "qFunction2") Function<B, Q> qFunction2,
       @Param(value = "trainingOpponent") Supplier<S> trainingOpponent,
       @Param("dT") double dT,
-      @Param("tRange") DoubleRange tRange
+      @Param("tRange") DoubleRange tRange,
+      @Param(value = "randomGenerator", dNPM = "m.defaultRG()") RandomGenerator randomGenerator
   ) {
+    // the solution plays the first or the second role with equal probability
+    // it's necessary to define both qFunction1 and qFunction2 to adapt to the random order
+    Function<S, Q> qualityFunction = s -> randomGenerator.nextBoolean() ? qFunction1.apply(
+        simulation.simulate(s, trainingOpponent.get(), dT, tRange)
+    ) : qFunction2.apply(simulation.simulate(trainingOpponent.get(), s, dT, tRange));
     return TotalOrderQualityBasedProblem.of(
-        s -> qFunction.apply(simulation.simulate(s, trainingOpponent.get(), dT, tRange)),
-        s -> qFunction.apply(simulation.simulate(s, trainingOpponent.get(), dT, tRange)),
+        qualityFunction,
+        qualityFunction,
         type.equals(OptimizationType.MAXIMIZE) ? Comparator.comparing(comparableFunction)
             .reversed() : Comparator.comparing(comparableFunction),
         simulation.homogeneousExample().orElse(null),
-        "%s[%s]".formatted(name, NamedFunction.name(qFunction))
+        "%s[%s]".formatted(
+            name,
+            String.join(";", NamedFunction.name(qFunction1), NamedFunction.name(qFunction2))
+        )
     );
   }
 
